@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata CSS — Skeleton Loader JS Utility Reference</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+
+  <!-- Optional JS utility — only include when you need smart detection or lifecycle management -->
+  <script src="../dist/strata-skeleton.js"></script>
+
+  <style>
+    body { padding: 2rem 0; background: var(--st-bg); }
+
+    .ref-section {
+      border-top: 1px solid var(--st-border);
+      padding: 3rem 0 2rem;
+    }
+
+    .ref-section:first-of-type { border-top: none; }
+
+    .ref-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+    }
+
+    .ref-subtitle {
+      font-size: 0.875rem;
+      color: var(--st-text-muted);
+      font-family: monospace;
+      margin: 0 0 1.5rem;
+    }
+
+    .note {
+      font-size: 0.8125rem;
+      color: var(--st-text-muted);
+      margin: 0.75rem 0 0;
+      padding-left: 0.75rem;
+      border-left: 3px solid var(--st-border);
+    }
+
+    .theme-bar {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 100000;
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      padding: 0.5rem;
+      box-shadow: var(--st-shadow-sm);
+    }
+
+    .theme-btn {
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--st-border);
+      background: var(--st-bg);
+      color: var(--st-text);
+      font-size: 0.8125rem;
+      cursor: pointer;
+    }
+
+    .theme-btn.active {
+      background: var(--st-primary);
+      color: white;
+      border-color: var(--st-primary);
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: var(--st-primary);
+      color: white;
+      border: none;
+      border-radius: var(--st-border-radius);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-family: inherit;
+      margin-bottom: 1rem;
+      transition: background 0.2s ease;
+    }
+
+    .action-btn:hover { background: var(--st-primary-hover); }
+    .action-btn.success { background: var(--st-success); }
+    .action-btn.success:hover { background: var(--st-success-hover); }
+
+    .code-block {
+      background: var(--st-bg-secondary);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      padding: 1rem 1.25rem;
+      font-size: 0.8rem;
+      font-family: monospace;
+      overflow-x: auto;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .demo-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .demo-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--st-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Components ── */
+    .card {
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      overflow: hidden;
+      box-shadow: var(--st-shadow-sm);
+    }
+
+    .card-img-wrap {
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+      background: var(--st-bg-secondary);
+    }
+
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-body { padding: 1rem; }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+    }
+
+    .card-text {
+      font-size: 0.875rem;
+      color: var(--st-text-muted);
+      margin: 0 0 0.75rem;
+      line-height: 1.5;
+    }
+
+    .card-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--st-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.375rem 0.875rem;
+      border: none;
+      border-radius: var(--st-border-radius);
+      font-size: 0.875rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .btn-primary { background: var(--st-primary); color: white; }
+
+    .feed-wrap {
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      overflow: hidden;
+    }
+
+    .feed-item {
+      display: flex;
+      gap: 0.75rem;
+      padding: 1rem;
+      border-bottom: 1px solid var(--st-border);
+    }
+
+    .feed-item:last-child { border-bottom: none; }
+
+    .feed-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--st-bg-secondary);
+    }
+
+    .feed-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .feed-content { flex: 1; }
+    .feed-name { font-weight: 600; font-size: 0.875rem; margin: 0 0 0.3rem; }
+    .feed-text { font-size: 0.875rem; color: var(--st-text-muted); margin: 0 0 0.3rem; line-height: 1.5; }
+    .feed-meta { font-size: 0.75rem; color: var(--st-text-muted); }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .product-card {
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      overflow: hidden;
+    }
+
+    .product-img {
+      width: 100%;
+      height: 120px;
+      overflow: hidden;
+      background: var(--st-bg-secondary);
+    }
+
+    .product-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .product-body { padding: 0.75rem; }
+    .product-name { font-size: 0.875rem; font-weight: 600; margin: 0 0 0.25rem; }
+    .product-price { font-size: 0.875rem; color: var(--st-primary); font-weight: 700; margin: 0; }
+
+    .status-bar {
+      font-size: 0.8125rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--st-bg-secondary);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      margin-bottom: 1rem;
+      font-family: monospace;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .comparison-table th {
+      text-align: left;
+      padding: 0.75rem;
+      background: var(--st-bg-secondary);
+      border-bottom: 2px solid var(--st-border);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--st-text-muted);
+    }
+
+    .comparison-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--st-border);
+      vertical-align: top;
+    }
+
+    .comparison-table tr:last-child td { border-bottom: none; }
+
+    .tick { color: var(--st-success); font-weight: 700; }
+    .cross { color: var(--st-danger); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<div class="theme-bar">
+  <button class="theme-btn active" onclick="setTheme('light',this)">Light</button>
+  <button class="theme-btn" onclick="setTheme('dark',this)">Dark</button>
+  <button class="theme-btn" onclick="setTheme('dim',this)">Dim</button>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div style="padding:4rem 0 1rem;">
+    <h1 style="font-size:2.5rem;font-weight:700;margin:0 0 0.5rem;">Skeleton Loader — JS Utility</h1>
+    <p style="font-size:1.125rem;color:var(--st-text-muted);margin:0 0 1rem;">
+      Smart detection and lifecycle management. CSS still does all visual rendering.
+    </p>
+    <p class="note">
+      <strong>What the JS utility does:</strong> two things only —
+      smart detection (finds which children to mark as skeleton bars automatically)
+      and toggling (manages <code>data-st-skeleton</code> attribute values).
+      CSS handles all shimmer rendering in both the CSS and JS approaches.
+      The JS utility is completely optional — include it only when you need it.
+    </p>
+  </div>
+
+
+  <!-- ── CSS vs JS COMPARISON ──────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">CSS Approach vs JS Approach</h2>
+    <p class="ref-subtitle">When to use which — and how they work together</p>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th style="width:30%;">Scenario</th>
+          <th style="width:35%;">CSS Approach</th>
+          <th style="width:35%;">JS Approach</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Simple component, all children shimmer</td>
+          <td><span class="tick">✓ Perfect</span> — one attribute on parent</td>
+          <td>Works but unnecessary overhead</td>
+        </tr>
+        <tr>
+          <td>Some children excluded from shimmer</td>
+          <td>Manual <code>data-st-skeleton="false"</code> on each excluded child</td>
+          <td><span class="tick">✓ Perfect</span> — smart detection skips them automatically</td>
+        </tr>
+        <tr>
+          <td>Large complex component, many exclusions</td>
+          <td>Tedious — many manual opt-outs needed</td>
+          <td><span class="tick">✓ Perfect</span> — smart detection handles complexity</td>
+        </tr>
+        <tr>
+          <td>Staggered reveal across multiple cards</td>
+          <td><span class="cross">✗</span> Not possible in pure CSS</td>
+          <td><span class="tick">✓ Built in</span> — <code>reveal({ stagger: 200 })</code></td>
+        </tr>
+        <tr>
+          <td>Reveal one card at a time as data arrives</td>
+          <td>Manual <code>setAttribute</code> per element</td>
+          <td><span class="tick">✓ Built in</span> — <code>revealAt(index)</code></td>
+        </tr>
+        <tr>
+          <td>Callback when all elements revealed</td>
+          <td><span class="cross">✗</span> Not possible in pure CSS</td>
+          <td><span class="tick">✓ Built in</span> — <code>onReveal</code> callback</td>
+        </tr>
+        <tr>
+          <td>Reusable component, no IDs needed</td>
+          <td><span class="tick">✓</span> Class or attribute selector</td>
+          <td><span class="tick">✓</span> Scans <code>[data-st-skeleton="true"]</code> automatically</td>
+        </tr>
+        <tr>
+          <td>Mixed use — CSS some places, JS others</td>
+          <td colspan="2" style="text-align:center;">
+            <span class="tick">✓ Fully compatible</span> — same attribute, no conflicts
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <!-- ── 1. AUTO-INIT ───────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">1. Auto-Init — HTML Marks the Parents</h2>
+    <p class="ref-subtitle">Strata.skeleton.init() — finds all data-st-skeleton="true" parents automatically</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      Developer sets <code>data-st-skeleton="true"</code> on parent elements in HTML.
+      On <code>init()</code> the JS utility scans the document, finds all marked parents,
+      runs smart detection on each one, and marks their leaf children individually.
+      No IDs needed. No extra classes needed. The attribute is the signal.
+    </p>
+
+    <pre class="code-block" style="margin-bottom:1.5rem;">
+&lt;!-- Step 1: Mark parents in HTML — attribute is the signal to JS --&gt;
+&lt;div class="card" data-st-skeleton="true"&gt;
+  &lt;div class="card-img-wrap"&gt;&lt;img src="photo.jpg"&gt;&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;h3 class="card-title"&gt;Article Title&lt;/h3&gt;
+    &lt;p class="card-text"&gt;Description text here&lt;/p&gt;
+    &lt;button class="btn btn-primary"&gt;Read more&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  // Step 2: Init — JS finds all marked parents and runs smart detection
+  Strata.skeleton.init()
+
+  // Step 3: Fetch data
+  fetch('/api/article/1').then(data =&gt; {
+    renderCard(data)
+
+    // Step 4: Reveal — JS sets data-st-skeleton="false" on parent and all leaves
+    Strata.skeleton.reveal()
+  })
+&lt;/script&gt;</pre>
+
+    <button class="action-btn" id="autoinit-btn" onclick="demoAutoInit()">
+      ⏳ Skeleton active — click to reveal
+    </button>
+
+    <div class="card" id="autoinit-card" data-st-skeleton="true" style="max-width:320px;">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=160&fit=crop" alt="">
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">How CSS Layers Work</h3>
+        <p class="card-text">A deep dive into cascade layers and how they solve specificity conflicts forever.</p>
+        <button class="btn btn-primary">Read article</button>
+      </div>
+      <div class="card-footer">
+        <span style="font-size:0.875rem;color:var(--st-text-muted);">David Kim</span>
+        <span style="font-size:0.875rem;color:var(--st-text-muted);">8 min read</span>
+      </div>
+    </div>
+
+    <div class="status-bar" id="autoinit-status">
+      Status: skeleton active — JS managing card via auto-init
+    </div>
+    <p class="note">
+      Smart detection found the image wrap, title, text, button and footer spans
+      as leaf nodes. The card-body div was skipped as a structural wrapper.
+      Each leaf has its own shimmer bar matching its exact size.
+    </p>
+  </div>
+
+
+  <!-- ── 2. SELECTOR INIT ───────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">2. Selector Init — No HTML Attribute Needed</h2>
+    <p class="ref-subtitle">Strata.skeleton.init('.selector') — JS sets attribute automatically</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      If developer does not want to add <code>data-st-skeleton</code> in HTML,
+      pass a selector to <code>init()</code>. JS finds all matching elements,
+      sets <code>data-st-skeleton="true"</code> on them and runs smart detection.
+      Works with any valid CSS selector — class, attribute, nested, anything.
+    </p>
+
+    <pre class="code-block" style="margin-bottom:1.5rem;">
+&lt;!-- No data-st-skeleton in HTML — JS handles everything --&gt;
+&lt;div class="feed-item"&gt;
+  &lt;div class="feed-avatar"&gt;&lt;img src="avatar.jpg"&gt;&lt;/div&gt;
+  &lt;div class="feed-content"&gt;
+    &lt;p class="feed-name"&gt;Alex Johnson&lt;/p&gt;
+    &lt;p class="feed-text"&gt;Just shipped a new feature...&lt;/p&gt;
+    &lt;p class="feed-meta"&gt;2 hours ago · 48 likes&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  // Selector init — JS finds all .feed-item and manages them
+  // Sets data-st-skeleton="true" automatically
+  // No HTML attributes needed at all
+  Strata.skeleton.init('.feed-item-js-demo')
+
+  fetch('/api/feed').then(data =&gt; {
+    renderFeed(data)
+    Strata.skeleton.reveal('.feed-item-js-demo')
+  })
+&lt;/script&gt;</pre>
+
+    <button class="action-btn" id="selector-btn" onclick="demoSelector()">
+      ▶ Run selector init demo
+    </button>
+
+    <div class="feed-wrap" id="selector-feed">
+      <div class="feed-item feed-item-js-demo">
+        <div class="feed-avatar"><img src="https://i.pravatar.cc/150?img=11" alt=""></div>
+        <div class="feed-content">
+          <p class="feed-name">Alex Johnson</p>
+          <p class="feed-text">Just shipped a new feature that cuts build time by 40%.</p>
+          <p class="feed-meta">2 hours ago · 48 likes · 12 comments</p>
+        </div>
+      </div>
+      <div class="feed-item feed-item-js-demo">
+        <div class="feed-avatar"><img src="https://i.pravatar.cc/150?img=22" alt=""></div>
+        <div class="feed-content">
+          <p class="feed-name">Maria Santos</p>
+          <p class="feed-text">Heading to the design conference this week. Let us connect!</p>
+          <p class="feed-meta">4 hours ago · 23 likes · 5 comments</p>
+        </div>
+      </div>
+      <div class="feed-item feed-item-js-demo">
+        <div class="feed-avatar"><img src="https://i.pravatar.cc/150?img=33" alt=""></div>
+        <div class="feed-content">
+          <p class="feed-name">James Park</p>
+          <p class="feed-text">Published a new article on CSS architecture patterns.</p>
+          <p class="feed-meta">Yesterday · 91 likes · 34 comments</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">
+      No <code>data-st-skeleton</code> attributes in the HTML. JS sets them on
+      <code>init('.feed-item-js-demo')</code> then removes them conceptually on reveal
+      by setting to <code>"false"</code>. The attribute stays in the DOM — only its value changes.
+    </p>
+  </div>
+
+
+  <!-- ── 3. STAGGERED REVEAL ────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">3. Staggered Reveal</h2>
+    <p class="ref-subtitle">reveal({ stagger: 200 }) — cards appear one by one</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      Staggered reveal makes content feel like it is streaming in rather than
+      popping in all at once. Each managed parent reveals 200ms after the previous one.
+      Pure CSS cannot do this — it requires the JS utility.
+    </p>
+
+    <button class="action-btn" id="stagger-btn" onclick="demoStagger()">
+      ⏳ Skeleton active — click for staggered reveal
+    </button>
+
+    <div class="product-grid" id="stagger-grid">
+      <div class="product-card" data-st-skeleton="true" id="p1">
+        <div class="product-img">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=120&fit=crop" alt="">
+        </div>
+        <div class="product-body">
+          <p class="product-name">Wireless Headphones</p>
+          <p class="product-price">$299</p>
+        </div>
+      </div>
+      <div class="product-card" data-st-skeleton="true" id="p2">
+        <div class="product-img">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=120&fit=crop" alt="">
+        </div>
+        <div class="product-body">
+          <p class="product-name">Minimalist Watch</p>
+          <p class="product-price">$489</p>
+        </div>
+      </div>
+      <div class="product-card" data-st-skeleton="true" id="p3">
+        <div class="product-img">
+          <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=300&h=120&fit=crop" alt="">
+        </div>
+        <div class="product-body">
+          <p class="product-name">Running Shoe Pro</p>
+          <p class="product-price">$179</p>
+        </div>
+      </div>
+    </div>
+
+    <pre class="code-block" style="margin-top:1rem;">
+// Reveal all managed elements with 250ms stagger between each
+Strata.skeleton.reveal({ stagger: 250 })
+
+// With callback when all reveals complete
+Strata.skeleton.reveal({
+  stagger:   250,
+  onReveal: () =&gt; console.log('All cards revealed')
+})</pre>
+  </div>
+
+
+  <!-- ── 4. REVEAL AT INDEX ─────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">4. Reveal At Index — As Data Arrives</h2>
+    <p class="ref-subtitle">revealAt(selector, index) — reveal one element at a time</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      When data for each item arrives independently — like parallel API calls —
+      reveal each element individually as its data becomes ready.
+      No need to wait for all data before showing any content.
+    </p>
+
+    <pre class="code-block" style="margin-bottom:1.5rem;">
+// Three parallel API calls — reveal each card as its data arrives
+const cards = ['/api/card/1', '/api/card/2', '/api/card/3']
+
+cards.forEach((url, index) =&gt; {
+  fetch(url).then(data =&gt; {
+    renderCard(index, data)
+    // Reveal just this one card — others stay as skeleton
+    Strata.skeleton.revealAt('.product-card', index)
+  })
+})</pre>
+
+    <button class="action-btn" id="revealat-btn" onclick="demoRevealAt()">
+      ⏳ Skeleton active — click to reveal one by one
+    </button>
+
+    <div class="product-grid">
+      <div class="product-card" data-st-skeleton="true" id="ra1">
+        <div class="product-img">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=120&fit=crop" alt="">
+        </div>
+        <div class="product-body">
+          <p class="product-name">Wireless Headphones</p>
+          <p class="product-price">$299</p>
+        </div>
+      </div>
+      <div class="product-card" data-st-skeleton="true" id="ra2">
+        <div class="product-img">
+          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=120&fit=crop" alt="">
+        </div>
+        <div class="product-body">
+          <p class="product-name">Minimalist Watch</p>
+          <p class="product-price">$489</p>
+        </div>
+      </div>
+      <div class="product-card" data-st-skeleton="true" id="ra3">
+        <div class="product-img">
+          <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=300&h=120&fit=crop" alt="">
+        </div>
+        <div class="product-body">
+          <p class="product-name">Running Shoe Pro</p>
+          <p class="product-price">$179</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">Each click simulates data arriving for one card. That card reveals while others stay as skeleton.</p>
+  </div>
+
+
+  <!-- ── 5. NO CONFLICT WITH CSS APPROACH ──────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">5. CSS and JS — No Conflict</h2>
+    <p class="ref-subtitle">Both approaches work simultaneously in the same page</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      The card on the left uses the CSS only approach — developer manually set
+      <code>data-st-skeleton="true"</code> on the parent. One big shimmer covers it.
+      The feed on the right uses the JS approach — <code>init()</code> was called and
+      smart detection marked each leaf individually. JS manages only what it was told to manage.
+      Neither knows about the other.
+    </p>
+
+    <button class="action-btn" id="mixed-btn" onclick="demoMixed()">
+      ⏳ Both skeleton — click to reveal
+    </button>
+
+    <div class="demo-split">
+      <div>
+        <div class="demo-label">CSS approach — one attribute, parent shimmer</div>
+
+        <!-- CSS approach — JS utility has zero knowledge of this element -->
+        <div class="card" id="css-only-card" data-st-skeleton="true">
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=160&fit=crop" alt="">
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Mountain Weekend</h3>
+            <p class="card-text">Three-day guided alpine adventure.</p>
+            <button class="btn btn-primary">Book Now</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="demo-label">JS approach — smart detection, per-element shimmer</div>
+
+        <!-- JS approach — managed by Strata.skeleton.init('.mixed-feed') -->
+        <div class="feed-wrap">
+          <div class="feed-item mixed-feed">
+            <div class="feed-avatar"><img src="https://i.pravatar.cc/150?img=11" alt=""></div>
+            <div class="feed-content">
+              <p class="feed-name">Alex Johnson</p>
+              <p class="feed-text">Just shipped a new feature that cuts build time by 40%.</p>
+              <p class="feed-meta">2 hours ago · 48 likes</p>
+            </div>
+          </div>
+          <div class="feed-item mixed-feed">
+            <div class="feed-avatar"><img src="https://i.pravatar.cc/150?img=22" alt=""></div>
+            <div class="feed-content">
+              <p class="feed-name">Maria Santos</p>
+              <p class="feed-text">Heading to the design conference this week.</p>
+              <p class="feed-meta">4 hours ago · 23 likes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="note">
+      Revealing works independently too — <code>card.setAttribute('data-st-skeleton','false')</code>
+      for the CSS card and <code>Strata.skeleton.reveal('.mixed-feed')</code> for the feed.
+      They never interfere with each other.
+    </p>
+  </div>
+
+
+  <!-- ── 6. TOGGLE ──────────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">6. Toggle</h2>
+    <p class="ref-subtitle">Strata.skeleton.toggle() — flip between skeleton and real content</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      Useful for refreshing content — show skeleton while re-fetching,
+      reveal when new data arrives. Toggle flips between <code>true</code> and
+      <code>false</code> — attribute always stays in DOM, only value changes.
+    </p>
+
+    <button class="action-btn" id="toggle-btn" onclick="demoToggle()">
+      ⏳ Click to toggle skeleton on/off
+    </button>
+
+    <div class="card" id="toggle-card" data-st-skeleton="true" style="max-width:300px;">
+      <div class="card-body">
+        <h3 class="card-title">Refreshable Widget</h3>
+        <p class="card-text">This card can go back to skeleton state when data refreshes.</p>
+        <button class="btn btn-primary">Refresh</button>
+      </div>
+    </div>
+
+    <pre class="code-block" style="margin-top:1rem;">
+// Toggle — flips between true and false
+Strata.skeleton.toggle('#toggle-card')
+
+// Practical use — refresh pattern
+async function refresh() {
+  Strata.skeleton.show('#widget')      // back to skeleton
+  const data = await fetch('/api/data')
+  renderWidget(data)
+  Strata.skeleton.reveal('#widget')    // reveal new content
+}</pre>
+  </div>
+
+
+  <!-- ── 7. ISSKELETONCHECK ──────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">7. Check Skeleton State</h2>
+    <p class="ref-subtitle">Strata.skeleton.isSkeleton(element) — check current state</p>
+
+    <pre class="code-block">
+const card = document.querySelector('.card')
+
+// Check if currently in skeleton state
+if (Strata.skeleton.isSkeleton(card)) {
+  console.log('Still loading...')
+} else {
+  console.log('Content ready')
+}
+
+// Practical use — avoid double-fetching
+async function loadCard() {
+  if (Strata.skeleton.isSkeleton(card)) return // already loading
+  Strata.skeleton.show(card)
+  const data = await fetch('/api/card')
+  renderCard(data)
+  Strata.skeleton.reveal(card)
+}</pre>
+  </div>
+
+
+  <!-- ── 8. FULL API REFERENCE ──────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">8. Full API Reference</h2>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th style="width:35%;">Method</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Strata.skeleton.init()</code></td>
+          <td>Auto-discovers all <code>[data-st-skeleton="true"]</code> parents in document. Runs smart detection on each. Call once on page load.</td>
+        </tr>
+        <tr>
+          <td><code>Strata.skeleton.init('.selector')</code></td>
+          <td>Manages all elements matching selector. Sets <code>data-st-skeleton="true"</code> on them if not already set. Runs smart detection on each.</td>
+        </tr>
+        <tr>
+          <td><code>Strata.skeleton.show()</code></td>
+          <td>Sets <code>data-st-skeleton="true"</code> on all managed parents and their detected leaves. No selector = all managed elements.</td>
+        </tr>
+        <tr>
+          <td><code>Strata.skeleton.show('.selector')</code></td>
+          <td>Shows skeleton on matching managed elements only.</td>
+        </tr>
+        <tr>
+          <td><code>Strata.skeleton.reveal()</code></td>
+          <td>Sets <code>data-st-skeleton="false"</code> on all managed parents and leaves. Attribute stays in DOM — value changes to false.</td>
+        </tr>
+        <tr>
+          <td><code>Strata.skeleton.reveal({ stagger: 200 })</code></td>
+          <td>Staggers reveal — each parent reveals 200ms after previous. <code>onReveal</code> callback fires when all done.</td>
+        </tr>
+        <tr>
+          <td><code>Strata.skeleton.revealAt('.selector', 0)</code></td>
+          <td>Reveals one specific element by index within a selector group. Others stay as skeleton.</td>
+        </tr>
+        <tr>
+          <td><code>Strata.skeleton.toggle()</code></td>
+          <td>Flips skeleton state — true becomes false, false becomes true.</td>
+        </tr>
+        <tr>
+          <td><code>Strata.skeleton.isSkeleton(el)</code></td>
+          <td>Returns true if element is currently in skeleton state.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  function setTheme(theme, btn) {
+    document.documentElement.setAttribute('data-st-theme', theme)
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+  }
+
+  // ── Init all demos on load ────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // Demo 1 — auto-init finds #autoinit-card via [data-st-skeleton="true"]
+    Strata.skeleton.init()
+
+    // Demo 3 — stagger grid already marked in HTML, init finds them
+    // (already picked up by init() above)
+
+    // Demo 5 mixed — JS manages the feed items only
+    Strata.skeleton.init('.mixed-feed')
+
+    // Demo 6 toggle
+    // (already picked up by init() above via data-st-skeleton="true" on #toggle-card)
+
+    // Demo 4 revealAt — manage the ra* cards
+    // (already picked up by init() above)
+  })
+
+  // ── Demo 1: Auto-init ─────────────────────────────────────────────────
+  let autoInitLoaded = false
+  function demoAutoInit() {
+    const btn = document.getElementById('autoinit-btn')
+    const status = document.getElementById('autoinit-status')
+
+    if (!autoInitLoaded) {
+      Strata.skeleton.reveal('#autoinit-card')
+      btn.textContent = '✓ Real content — click to show skeleton again'
+      btn.classList.add('success')
+      status.textContent = 'Status: content revealed — data-st-skeleton="false" on all leaves'
+      autoInitLoaded = true
+    } else {
+      Strata.skeleton.show('#autoinit-card')
+      btn.textContent = '⏳ Skeleton active — click to reveal'
+      btn.classList.remove('success')
+      status.textContent = 'Status: skeleton active — data-st-skeleton="true" on all leaves'
+      autoInitLoaded = false
+    }
+  }
+
+  // ── Demo 2: Selector init ─────────────────────────────────────────────
+  let selectorInitDone = false
+  let selectorLoaded   = false
+  function demoSelector() {
+    const btn = document.getElementById('selector-btn')
+
+    if (!selectorInitDone) {
+      // First click — init with selector (no attributes in HTML)
+      Strata.skeleton.init('.feed-item-js-demo')
+      btn.textContent = '⏳ Skeleton active — click to reveal'
+      selectorInitDone = true
+      return
+    }
+
+    if (!selectorLoaded) {
+      Strata.skeleton.reveal('.feed-item-js-demo', { stagger: 150 })
+      btn.textContent = '✓ Revealed — click to show skeleton again'
+      btn.classList.add('success')
+      selectorLoaded = true
+    } else {
+      Strata.skeleton.show('.feed-item-js-demo')
+      btn.textContent = '⏳ Skeleton active — click to reveal'
+      btn.classList.remove('success')
+      selectorLoaded = false
+    }
+  }
+
+  // ── Demo 3: Staggered reveal ──────────────────────────────────────────
+  let staggerLoaded = false
+  function demoStagger() {
+    const btn = document.getElementById('stagger-btn')
+
+    if (!staggerLoaded) {
+      Strata.skeleton.reveal({
+        stagger: 300,
+        onReveal: () => {
+          btn.textContent = '✓ All revealed with stagger — click to reset'
+          btn.classList.add('success')
+        }
+      })
+      staggerLoaded = true
+    } else {
+      Strata.skeleton.show()
+      btn.textContent = '⏳ Skeleton active — click for staggered reveal'
+      btn.classList.remove('success')
+      staggerLoaded = false
+    }
+  }
+
+  // ── Demo 4: Reveal at index ───────────────────────────────────────────
+  let revealAtIndex = 0
+  const revealAtIds = ['ra1', 'ra2', 'ra3']
+  function demoRevealAt() {
+    const btn = document.getElementById('revealat-btn')
+
+    if (revealAtIndex < 3) {
+      // Reveal one card at a time
+      const el = document.getElementById(revealAtIds[revealAtIndex])
+      Strata.skeleton.reveal(el)
+      revealAtIndex++
+      btn.textContent = revealAtIndex < 3
+        ? `⏳ ${3 - revealAtIndex} card(s) still skeleton — click to reveal next`
+        : '✓ All revealed — click to reset'
+      if (revealAtIndex === 3) btn.classList.add('success')
+    } else {
+      // Reset all
+      revealAtIds.forEach(id => Strata.skeleton.show(document.getElementById(id)))
+      revealAtIndex = 0
+      btn.textContent = '⏳ Skeleton active — click to reveal one by one'
+      btn.classList.remove('success')
+    }
+  }
+
+  // ── Demo 5: Mixed CSS + JS ────────────────────────────────────────────
+  let mixedLoaded = false
+  function demoMixed() {
+    const btn    = document.getElementById('mixed-btn')
+    const cssCard = document.getElementById('css-only-card')
+
+    if (!mixedLoaded) {
+      // CSS card — revealed manually via setAttribute (CSS approach)
+      cssCard.setAttribute('data-st-skeleton', 'false')
+
+      // JS feed — revealed via utility (JS approach)
+      Strata.skeleton.reveal('.mixed-feed', { stagger: 150 })
+
+      btn.textContent = '✓ Both revealed — click to reset'
+      btn.classList.add('success')
+      mixedLoaded = true
+    } else {
+      // CSS card — reset manually
+      cssCard.setAttribute('data-st-skeleton', 'true')
+
+      // JS feed — reset via utility
+      Strata.skeleton.show('.mixed-feed')
+
+      btn.textContent = '⏳ Both skeleton — click to reveal'
+      btn.classList.remove('success')
+      mixedLoaded = false
+    }
+  }
+
+  // ── Demo 6: Toggle ────────────────────────────────────────────────────
+  function demoToggle() {
+    const btn = document.getElementById('toggle-btn')
+    Strata.skeleton.toggle('#toggle-card')
+    const isNowSkeleton = Strata.skeleton.isSkeleton(document.getElementById('toggle-card'))
+    btn.textContent = isNowSkeleton
+      ? '⏳ Skeleton active — click to toggle'
+      : '✓ Content visible — click to toggle'
+    btn.classList.toggle('success', !isNowSkeleton)
+  }
+</script>
+
+</body>
+</html>

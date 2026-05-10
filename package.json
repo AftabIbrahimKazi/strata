@@ -1,0 +1,22 @@
+{
+  "name": "strata",
+  "version": "1.0.0",
+  "description": "A modern CSS framework combining Bootstrap components with Tailwind JIT processing",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node bin/strata.js --watch",
+    "build": "node bin/strata.js --build",
+    "minify": "node bin/strata.js --minify"
+  },
+  "keywords": ["css", "framework", "postcss", "jit"],
+  "author": "Aftab Ibrahim Kazi",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "autoprefixer": "^10.5.0",
+    "chokidar": "^5.0.0",
+    "cssnano": "^8.0.1",
+    "glob": "^13.0.6",
+    "postcss": "^8.5.14"
+  }
+}

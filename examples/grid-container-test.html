@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata CSS — Grid & Container Test</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+
+    /* ── Page chrome ── */
+    body {
+      padding: 0;
+      margin: 0;
+      background: var(--st-bg);
+      color: var(--st-text);
+    }
+
+    /* ── Section wrapper ── */
+    .test-section {
+      padding: 2.5rem 0;
+      border-bottom: 2px solid var(--st-border);
+    }
+
+    .test-section:last-child { border-bottom: none; }
+
+    /* ── Section header — lives OUTSIDE the container on purpose
+          so you can see the full page width and compare it to
+          the container width below it ── */
+    .section-header {
+      padding: 0 1.5rem 1rem;
+      max-width: 100%;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+      color: var(--st-text);
+    }
+
+    .section-desc {
+      font-size: 0.8125rem;
+      color: var(--st-text-muted);
+      margin: 0 0 0.5rem;
+      line-height: 1.6;
+    }
+
+    .section-rule {
+      font-size: 0.75rem;
+      color: var(--st-primary);
+      font-family: monospace;
+      background: var(--st-bg-secondary);
+      border: 1px solid var(--st-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.75rem;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Container boundary visualiser ── */
+    .container-outline {
+      outline: 2px dashed var(--st-primary);
+      outline-offset: -1px;
+      position: relative;
+    }
+
+    .container-outline::after {
+      content: attr(data-label);
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: var(--st-primary);
+      color: white;
+      font-size: 0.65rem;
+      font-family: monospace;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0 0 4px 0;
+      white-space: nowrap;
+    }
+
+    /* ── Column visualiser ── */
+    .col-vis {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .col-vis-inner {
+      background: var(--st-primary);
+      opacity: 0.18;
+      border: 1px solid var(--st-primary);
+      border-radius: 4px;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .col-vis-label {
+      font-size: 0.65rem;
+      font-family: monospace;
+      font-weight: 600;
+      color: var(--st-primary);
+      opacity: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 4px;
+    }
+
+    /* Alternating column colors for clarity */
+    .col-alt:nth-child(even) .col-vis-inner {
+      background: var(--st-secondary);
+      border-color: var(--st-secondary);
+      opacity: 0.18;
+    }
+
+    .col-alt:nth-child(even) .col-vis-label { color: var(--st-secondary); }
+
+    /* ── Width readout ── */
+    .width-bar {
+      background: var(--st-bg-secondary);
+      border: 1px solid var(--st-border);
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      font-family: monospace;
+      margin-top: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .width-label { color: var(--st-text-muted); }
+    .width-value { font-weight: 700; color: var(--st-primary); }
+
+    /* ── Breakpoint badge ── */
+    .bp-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-family: monospace;
+      font-weight: 600;
+    }
+
+    .bp-xs  { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .bp-sm  { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .bp-md  { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .bp-lg  { background: #fefce8; color: #a16207; border: 1px solid #fef08a; }
+    .bp-xl  { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+    .bp-xxl { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+
+    /* ── Active breakpoint indicator ── */
+    .bp-indicator {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      padding: 0.75rem 1.5rem;
+      background: var(--st-bg-secondary);
+      border-bottom: 1px solid var(--st-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .bp-indicator-label {
+      font-size: 0.75rem;
+      color: var(--st-text-muted);
+      align-self: center;
+    }
+
+    .bp-indicator .bp-badge { opacity: 0.35; }
+    .bp-indicator .bp-badge.active { opacity: 1; box-shadow: 0 0 0 2px currentColor; }
+
+    /* ── Note box ── */
+    .note-box {
+      font-size: 0.8rem;
+      color: var(--st-text-muted);
+      background: var(--st-bg-secondary);
+      border-left: 3px solid var(--st-primary);
+      padding: 0.75rem 1rem;
+      border-radius: 0 4px 4px 0;
+      margin-top: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .note-box code {
+      font-size: 0.8em;
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: 3px;
+      padding: 0.1em 0.3em;
+      color: var(--st-danger);
+    }
+
+    /* ── Theme bar ── */
+    .theme-bar {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 10000;
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      padding: 0.5rem;
+      box-shadow: var(--st-shadow);
+    }
+
+    .theme-btn {
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--st-border);
+      background: var(--st-bg);
+      color: var(--st-text);
+      font-size: 0.8125rem;
+      cursor: pointer;
+    }
+
+    .theme-btn.active {
+      background: var(--st-primary);
+      color: white;
+      border-color: var(--st-primary);
+    }
+
+    /* ── Responsive scenario labels ── */
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.7rem;
+      font-family: monospace;
+      text-align: center;
+    }
+
+    .scenario-cell {
+      background: var(--st-bg-secondary);
+      border: 1px solid var(--st-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.25rem;
+      color: var(--st-text-muted);
+    }
+
+    .scenario-cell span {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--st-text-muted);
+    }
+
+    .scenario-cell strong {
+      display: block;
+      color: var(--st-text);
+    }
+
+    /* Gutter visualiser */
+    .gutter-vis {
+      position: relative;
+    }
+
+    .gutter-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: rgba(220, 53, 69, 0.15);
+      border-left: 1px dashed var(--st-danger);
+      border-right: 1px dashed var(--st-danger);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- Fixed theme switcher -->
+<div class="theme-bar">
+  <button class="theme-btn active" onclick="setTheme('light',this)">Light</button>
+  <button class="theme-btn" onclick="setTheme('dark',this)">Dark</button>
+  <button class="theme-btn" onclick="setTheme('dim',this)">Dim</button>
+</div>
+
+<!-- Active breakpoint indicator — updates as you resize -->
+<div class="bp-indicator">
+  <span class="bp-indicator-label">Active breakpoint:</span>
+  <span class="bp-badge bp-xs"  id="bp-xs" >xs &lt;576px</span>
+  <span class="bp-badge bp-sm"  id="bp-sm" >sm 576px</span>
+  <span class="bp-badge bp-md"  id="bp-md" >md 768px</span>
+  <span class="bp-badge bp-lg"  id="bp-lg" >lg 992px</span>
+  <span class="bp-badge bp-xl"  id="bp-xl" >xl 1200px</span>
+  <span class="bp-badge bp-xxl" id="bp-xxl">xxl 1400px</span>
+  <span class="bp-indicator-label" style="margin-left:auto;">
+    Viewport: <strong id="vp-width">—</strong>
+  </span>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 1 — .container
+     Responsive fixed max-width. Grows at each breakpoint.
+     Always has horizontal padding so content never touches edges.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 1 — .container</p>
+    <p class="section-desc">
+      The standard responsive container. It is 100% wide on mobile,
+      then snaps to a fixed max-width at each breakpoint.
+      It always stays centered with auto left/right margins.
+      Resize the browser to see the max-width change at each breakpoint.
+    </p>
+    <code class="section-rule">.container</code>
+    <div class="scenario-grid">
+      <div class="scenario-cell"><span>xs &lt;576px</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>sm ≥576px</span><strong>540px</strong></div>
+      <div class="scenario-cell"><span>md ≥768px</span><strong>720px</strong></div>
+      <div class="scenario-cell"><span>lg ≥992px</span><strong>960px</strong></div>
+      <div class="scenario-cell"><span>xl ≥1200px</span><strong>1140px</strong></div>
+      <div class="scenario-cell"><span>xxl ≥1400px</span><strong>1320px</strong></div>
+    </div>
+  </div>
+
+  <div class="container container-outline" data-label=".container">
+    <div class="row col-alt">
+      <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+      <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+      <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+    </div>
+    <div class="width-bar">
+      <span class="width-label">Container max-width at current viewport:</span>
+      <span class="width-value" id="t1-width">—</span>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin: 0 1.5rem;">
+    The dashed outline marks the container boundary.
+    Notice the container has padding on both sides — columns live inside that padding.
+    The outer page background is visible beyond the dashed line.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 2 — .container-fluid
+     Always 100% wide. No max-width. Full bleed edge to edge.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 2 — .container-fluid</p>
+    <p class="section-desc">
+      Always 100% width at every breakpoint. No max-width constraint.
+      Still has horizontal padding so content does not touch the viewport edges.
+      Use this for full-bleed layouts like a site navbar or hero section.
+    </p>
+    <code class="section-rule">.container-fluid</code>
+    <div class="scenario-grid">
+      <div class="scenario-cell"><span>all breakpoints</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>always</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>always</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>always</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>always</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>always</span><strong>100%</strong></div>
+    </div>
+  </div>
+
+  <div class="container-fluid container-outline" data-label=".container-fluid">
+    <div class="row col-alt">
+      <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+      <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+      <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+    </div>
+    <div class="width-bar">
+      <span class="width-label">Container width:</span>
+      <span class="width-value">Always 100% of viewport</span>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin: 0 1.5rem;">
+    Compare this with Test 1. The dashed outline now stretches
+    edge to edge at every screen size. The columns inside still
+    have gutters — the full-bleed is the container, not the content.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 3 — .container-sm
+     100% wide below sm, then fixed max-width from sm upward.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 3 — .container-sm</p>
+    <p class="section-desc">
+      Full width on xs screens (below 576px), then becomes a fixed
+      max-width container from sm (576px) and above.
+      Use this when you want truly edge-to-edge on the smallest screens
+      but centered and constrained on tablets and above.
+    </p>
+    <code class="section-rule">.container-sm</code>
+    <div class="scenario-grid">
+      <div class="scenario-cell"><span>xs &lt;576px</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>sm ≥576px</span><strong>540px</strong></div>
+      <div class="scenario-cell"><span>md ≥768px</span><strong>720px</strong></div>
+      <div class="scenario-cell"><span>lg ≥992px</span><strong>960px</strong></div>
+      <div class="scenario-cell"><span>xl ≥1200px</span><strong>1140px</strong></div>
+      <div class="scenario-cell"><span>xxl ≥1400px</span><strong>1320px</strong></div>
+    </div>
+  </div>
+
+  <div class="container-sm container-outline" data-label=".container-sm">
+    <div class="row col-alt">
+      <div class="col-6 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6</span></div></div>
+      <div class="col-6 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6</span></div></div>
+    </div>
+    <div class="width-bar">
+      <span class="width-label">Behaviour:</span>
+      <span class="width-value">100% below 576px — max-width 540px at sm+</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 4 — .container-md
+     100% wide below md, then fixed max-width from md upward.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 4 — .container-md</p>
+    <p class="section-desc">
+      Full width on xs and sm screens (below 768px), then becomes
+      a fixed max-width container from md (768px) and above.
+      Very common for sites that want full-bleed mobile but
+      a contained layout on tablets and desktops.
+    </p>
+    <code class="section-rule">.container-md</code>
+    <div class="scenario-grid">
+      <div class="scenario-cell"><span>xs &lt;576px</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>sm &lt;768px</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>md ≥768px</span><strong>720px</strong></div>
+      <div class="scenario-cell"><span>lg ≥992px</span><strong>960px</strong></div>
+      <div class="scenario-cell"><span>xl ≥1200px</span><strong>1140px</strong></div>
+      <div class="scenario-cell"><span>xxl ≥1400px</span><strong>1320px</strong></div>
+    </div>
+  </div>
+
+  <div class="container-md container-outline" data-label=".container-md">
+    <div class="row col-alt">
+      <div class="col-12 col-sm-6 col-md-4 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">col-12 col-sm-6 col-md-4</span></div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">col-12 col-sm-6 col-md-4</span></div>
+      </div>
+      <div class="col-12 col-sm-12 col-md-4 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">col-12 col-sm-12 col-md-4</span></div>
+      </div>
+    </div>
+    <div class="width-bar">
+      <span class="width-label">Behaviour:</span>
+      <span class="width-value">100% below 768px — max-width 720px at md+</span>
+    </div>
+  </div>
+
+  <div class="note-box" style="margin: 0 1.5rem;">
+    Resize to below 768px — the container becomes full width.
+    The columns also respond: all three stack to full width on xs,
+    two per row on sm, three per row on md and above.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 5 — .container-lg
+     100% wide below lg, then fixed max-width from lg upward.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 5 — .container-lg</p>
+    <p class="section-desc">
+      Full width on xs, sm and md screens (below 992px), then
+      becomes a fixed max-width container from lg (992px) and above.
+    </p>
+    <code class="section-rule">.container-lg</code>
+    <div class="scenario-grid">
+      <div class="scenario-cell"><span>xs &lt;576px</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>sm &lt;768px</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>md &lt;992px</span><strong>100%</strong></div>
+      <div class="scenario-cell"><span>lg ≥992px</span><strong>960px</strong></div>
+      <div class="scenario-cell"><span>xl ≥1200px</span><strong>1140px</strong></div>
+      <div class="scenario-cell"><span>xxl ≥1400px</span><strong>1320px</strong></div>
+    </div>
+  </div>
+
+  <div class="container-lg container-outline" data-label=".container-lg">
+    <div class="row col-alt">
+      <div class="col-12 col-md-6 col-lg-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-12 col-md-6 col-lg-3</span></div></div>
+      <div class="col-12 col-md-6 col-lg-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-12 col-md-6 col-lg-3</span></div></div>
+      <div class="col-12 col-md-6 col-lg-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-12 col-md-6 col-lg-3</span></div></div>
+      <div class="col-12 col-md-6 col-lg-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-12 col-md-6 col-lg-3</span></div></div>
+    </div>
+    <div class="width-bar">
+      <span class="width-label">Behaviour:</span>
+      <span class="width-value">100% below 992px — max-width 960px at lg+</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 6 — .container-xl and .container-xxl
+     For large and extra-large viewports only.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 6 — .container-xl and .container-xxl</p>
+    <p class="section-desc">
+      These containers are full width on almost all screens and only
+      apply a max-width at very large viewports. Best for wide dashboard
+      layouts or data-heavy pages that benefit from using more screen space.
+    </p>
+    <code class="section-rule">.container-xl · .container-xxl</code>
+  </div>
+
+  <div style="padding: 0 0 1rem;">
+    <div class="section-header" style="padding-bottom: 0.5rem;">
+      <code class="section-rule">.container-xl — max-width 1140px at xl (≥1200px)</code>
+    </div>
+    <div class="container-xl container-outline" data-label=".container-xl">
+      <div class="row col-alt">
+        <div class="col-6 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6</span></div></div>
+        <div class="col-6 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6</span></div></div>
+      </div>
+      <div class="width-bar">
+        <span class="width-label">Behaviour:</span>
+        <span class="width-value">100% below 1200px — max-width 1140px at xl+</span>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-header" style="padding-bottom: 0.5rem;">
+      <code class="section-rule">.container-xxl — max-width 1320px at xxl (≥1400px)</code>
+    </div>
+    <div class="container-xxl container-outline" data-label=".container-xxl">
+      <div class="row col-alt">
+        <div class="col-6 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6</span></div></div>
+        <div class="col-6 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6</span></div></div>
+      </div>
+      <div class="width-bar">
+        <span class="width-label">Behaviour:</span>
+        <span class="width-value">100% below 1400px — max-width 1320px at xxl+</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 7 — RESPONSIVE COLUMNS
+     The key test — class ORDER in HTML should NOT matter.
+     Sub-layer routing ensures correct cascade regardless of order.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 7 — Responsive Columns (class order test)</p>
+    <p class="section-desc">
+      This is the critical test. Both rows use the exact same breakpoint classes
+      but written in DIFFERENT ORDERS in the HTML. In both cases the columns
+      should behave identically at every screen size. Sub-layer routing
+      ensures the cascade is correct regardless of class order.
+    </p>
+    <code class="section-rule">
+      Row A: col-12 col-sm-6 col-md-4 col-lg-3<br>
+      Row B: col-lg-3 col-md-4 col-sm-6 col-12 (reversed order — should behave the same)
+    </code>
+  </div>
+
+  <div class="container container-outline" data-label=".container">
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">
+      Row A — classes written small to large (correct order)
+    </p>
+    <div class="row col-alt" style="margin-bottom:1rem;">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">A1</span></div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">A2</span></div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">A3</span></div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">A4</span></div>
+      </div>
+    </div>
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">
+      Row B — same classes but written large to small (reversed order)
+    </p>
+    <div class="row col-alt">
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">B1</span></div>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">B2</span></div>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">B3</span></div>
+      </div>
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12 col-vis">
+        <div class="col-vis-inner"><span class="col-vis-label">B4</span></div>
+      </div>
+    </div>
+
+    <div class="note-box">
+      Row A and Row B should look IDENTICAL at every screen size.
+      If they do — sub-layer routing is working correctly.
+      Resize the browser through all breakpoints to verify.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 8 — GUTTERS
+     g-* controls spacing between columns.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 8 — Gutters (g-* · gx-* · gy-*)</p>
+    <p class="section-desc">
+      Gutters control the spacing between columns. They are applied via
+      CSS variables on the row, so they work without any JavaScript.
+      g-0 removes all gutters. gx-* controls horizontal only.
+      gy-* controls vertical only (visible when columns wrap).
+    </p>
+  </div>
+
+  <div class="container container-outline" data-label=".container">
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">g-0 — no gutters</p>
+    <div class="row g-0 col-alt" style="margin-bottom:1.5rem;">
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+    </div>
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">g-2 — small gutters (0.5rem)</p>
+    <div class="row g-2 col-alt" style="margin-bottom:1.5rem;">
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+    </div>
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">g-3 — default gutters (1rem)</p>
+    <div class="row g-3 col-alt" style="margin-bottom:1.5rem;">
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+    </div>
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">g-5 — large gutters (3rem)</p>
+    <div class="row g-5 col-alt" style="margin-bottom:1.5rem;">
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+    </div>
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">gx-4 gy-2 — different horizontal and vertical gutters (wrap to see gy)</p>
+    <div class="row gx-4 gy-2 col-alt">
+      <div class="col-6 col-md-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6 col-md-3</span></div></div>
+      <div class="col-6 col-md-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6 col-md-3</span></div></div>
+      <div class="col-6 col-md-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6 col-md-3</span></div></div>
+      <div class="col-6 col-md-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6 col-md-3</span></div></div>
+    </div>
+
+    <div class="note-box">
+      On xs/sm screens the last row wraps — notice the vertical gap between
+      the two rows is set by <code>gy-2</code> (0.5rem) while the horizontal
+      gap is set by <code>gx-4</code> (1.5rem). They are independent.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 9 — AUTO AND EQUAL WIDTH COLUMNS
+     col and col-auto — no fixed width, content-driven.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 9 — Auto & Equal Width Columns</p>
+    <p class="section-desc">
+      col without a number creates an equal-width column that shares
+      available space with other col elements. col-auto sizes to content.
+    </p>
+  </div>
+
+  <div class="container container-outline" data-label=".container">
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">Three equal-width columns using col</p>
+    <div class="row col-alt" style="margin-bottom:1rem;">
+      <div class="col col-vis"><div class="col-vis-inner"><span class="col-vis-label">col</span></div></div>
+      <div class="col col-vis"><div class="col-vis-inner"><span class="col-vis-label">col</span></div></div>
+      <div class="col col-vis"><div class="col-vis-inner"><span class="col-vis-label">col</span></div></div>
+    </div>
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">col-auto sizes to content — col fills the rest</p>
+    <div class="row col-alt" style="margin-bottom:1rem;">
+      <div class="col-auto col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-auto (content width)</span></div></div>
+      <div class="col col-vis"><div class="col-vis-inner"><span class="col-vis-label">col (fills remaining)</span></div></div>
+    </div>
+
+    <p style="font-size:0.75rem;font-weight:600;color:var(--st-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:0 0 0.5rem;">Mix of fixed and auto columns</p>
+    <div class="row col-alt">
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+      <div class="col col-vis"><div class="col-vis-inner"><span class="col-vis-label">col (fills)</span></div></div>
+      <div class="col-3 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-3</span></div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     TEST 10 — NESTED CONTAINERS AND ROWS
+     Rows inside columns — nested grid.
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Test 10 — Nested Grid (row inside a col)</p>
+    <p class="section-desc">
+      You can nest a row inside any column. The nested row creates its own
+      12-column grid within the parent column's width.
+      Gutters are independent between outer and inner rows.
+    </p>
+    <code class="section-rule">container → row → col-8 → row → col-6 + col-6</code>
+  </div>
+
+  <div class="container container-outline" data-label=".container (outer)">
+    <div class="row col-alt">
+
+      <div class="col-8 col-vis" style="padding-bottom:0;">
+        <div class="col-vis-inner" style="height:auto; flex-direction:column; padding:0.5rem; opacity:1; background: transparent; border: 1px dashed var(--st-secondary);">
+          <span style="font-size:0.65rem; font-family:monospace; color:var(--st-secondary); margin-bottom:0.5rem;">col-8 (outer)</span>
+          <!-- Nested row inside col-8 -->
+          <div class="row col-alt" style="width:100%;">
+            <div class="col-6 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6 (inner)</span></div></div>
+            <div class="col-6 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-6 (inner)</span></div></div>
+            <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+            <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+            <div class="col-4 col-vis"><div class="col-vis-inner"><span class="col-vis-label">col-4</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-4 col-vis">
+        <div class="col-vis-inner" style="height:100%; min-height: 6rem; flex-direction:column; justify-content:center;">
+          <span class="col-vis-label">col-4 (outer)</span>
+          <span style="font-size:0.6rem; font-family:monospace; color:var(--st-primary); opacity:0.7; margin-top:0.25rem;">sidebar</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note-box">
+      The inner row at <code>col-6 col-6</code> is based on 12 columns
+      within the outer <code>col-8</code> — not the full container width.
+      This is how you build complex nested layouts.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     QUICK REFERENCE TABLE
+═══════════════════════════════════════════════════════════════════ -->
+<div class="test-section">
+  <div class="section-header">
+    <p class="section-title">Quick Reference — Container Max-Widths</p>
+  </div>
+  <div class="container">
+    <table style="width:100%;border-collapse:collapse;font-size:0.8125rem;font-family:monospace;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--st-border);">
+          <th style="text-align:left;padding:0.6rem 0.75rem;color:var(--st-text-muted);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;">Class</th>
+          <th style="text-align:center;padding:0.6rem 0.5rem;color:var(--st-text-muted);font-size:0.7rem;text-transform:uppercase;">xs &lt;576</th>
+          <th style="text-align:center;padding:0.6rem 0.5rem;color:var(--st-text-muted);font-size:0.7rem;text-transform:uppercase;">sm ≥576</th>
+          <th style="text-align:center;padding:0.6rem 0.5rem;color:var(--st-text-muted);font-size:0.7rem;text-transform:uppercase;">md ≥768</th>
+          <th style="text-align:center;padding:0.6rem 0.5rem;color:var(--st-text-muted);font-size:0.7rem;text-transform:uppercase;">lg ≥992</th>
+          <th style="text-align:center;padding:0.6rem 0.5rem;color:var(--st-text-muted);font-size:0.7rem;text-transform:uppercase;">xl ≥1200</th>
+          <th style="text-align:center;padding:0.6rem 0.5rem;color:var(--st-text-muted);font-size:0.7rem;text-transform:uppercase;">xxl ≥1400</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.5rem 0.75rem;font-weight:600;">.container</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">540px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">720px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">960px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1140px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1320px</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.5rem 0.75rem;font-weight:600;">.container-sm</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">540px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">720px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">960px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1140px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1320px</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.5rem 0.75rem;font-weight:600;">.container-md</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">720px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">960px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1140px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1320px</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.5rem 0.75rem;font-weight:600;">.container-lg</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">960px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1140px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1320px</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.5rem 0.75rem;font-weight:600;">.container-xl</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1140px</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1320px</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.5rem 0.75rem;font-weight:600;">.container-xxl</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-primary);">1320px</td>
+        </tr>
+        <tr>
+          <td style="padding:0.5rem 0.75rem;font-weight:600;">.container-fluid</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+          <td style="text-align:center;padding:0.5rem;color:var(--st-text-muted);">100%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<script>
+  // ── Theme switcher ──────────────────────────────────────────────────
+  function setTheme(theme, btn) {
+    document.documentElement.setAttribute('data-st-theme', theme)
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+  }
+
+  // ── Breakpoint indicator ────────────────────────────────────────────
+  const BP_MAP = [
+    { id: 'bp-xxl', min: 1400 },
+    { id: 'bp-xl',  min: 1200 },
+    { id: 'bp-lg',  min:  992 },
+    { id: 'bp-md',  min:  768 },
+    { id: 'bp-sm',  min:  576 },
+    { id: 'bp-xs',  min:    0 },
+  ]
+
+  // Container max-widths at each breakpoint
+  const CONTAINER_WIDTHS = [
+    { min: 1400, label: 'max-width: 1320px (xxl)' },
+    { min: 1200, label: 'max-width: 1140px (xl)'  },
+    { min:  992, label: 'max-width: 960px (lg)'   },
+    { min:  768, label: 'max-width: 720px (md)'   },
+    { min:  576, label: 'max-width: 540px (sm)'   },
+    { min:    0, label: '100% width (xs)'          },
+  ]
+
+  function updateBreakpoint() {
+    const w = window.innerWidth
+    document.getElementById('vp-width').textContent = w + 'px'
+
+    // Update badges
+    let activeBp = 'bp-xs'
+    for (const { id, min } of BP_MAP) {
+      const el = document.getElementById(id)
+      if (w >= min && activeBp === 'bp-xs') activeBp = id
+      el.classList.remove('active')
+    }
+    document.getElementById(activeBp).classList.add('active')
+
+    // Update container width label
+    const widthEl = document.getElementById('t1-width')
+    if (widthEl) {
+      for (const { min, label } of CONTAINER_WIDTHS) {
+        if (w >= min) { widthEl.textContent = label; break }
+      }
+    }
+  }
+
+  window.addEventListener('resize', updateBreakpoint)
+  updateBreakpoint()
+</script>
+
+</body>
+</html>

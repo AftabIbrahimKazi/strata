@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata CSS — Skeleton Loader Reference</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    body { padding: 2rem 0; background: var(--st-bg); }
+
+    .ref-section {
+      border-top: 1px solid var(--st-border);
+      padding: 3rem 0 2rem;
+    }
+
+    .ref-section:first-of-type { border-top: none; }
+
+    .ref-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+    }
+
+    .ref-subtitle {
+      font-size: 0.875rem;
+      color: var(--st-text-muted);
+      font-family: monospace;
+      margin: 0 0 1.5rem;
+    }
+
+    .note {
+      font-size: 0.8125rem;
+      color: var(--st-text-muted);
+      margin: 0.75rem 0 0;
+      padding-left: 0.75rem;
+      border-left: 3px solid var(--st-border);
+    }
+
+    .demo-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .demo-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--st-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .theme-bar {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 100000;
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      padding: 0.5rem;
+      box-shadow: var(--st-shadow-sm);
+    }
+
+    .theme-btn {
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--st-border);
+      background: var(--st-bg);
+      color: var(--st-text);
+      font-size: 0.8125rem;
+      cursor: pointer;
+    }
+
+    .theme-btn.active {
+      background: var(--st-primary);
+      color: white;
+      border-color: var(--st-primary);
+    }
+
+    .toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background: var(--st-primary);
+      color: white;
+      border: none;
+      border-radius: var(--st-border-radius);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-family: inherit;
+      margin-bottom: 1rem;
+    }
+
+    .toggle-btn.loaded { background: var(--st-success); }
+
+    .code-block {
+      background: var(--st-bg-secondary);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      padding: 1rem 1.25rem;
+      font-size: 0.8rem;
+      font-family: monospace;
+      overflow-x: auto;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* ─────────────────────────────────────────────────── */
+    /* CARD COMPONENT                                       */
+    /* ─────────────────────────────────────────────────── */
+    .card {
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      overflow: hidden;
+      box-shadow: var(--st-shadow-sm);
+    }
+
+    .card-img-wrap {
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+      background: var(--st-bg-secondary);
+    }
+
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-body { padding: 1rem; }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+    }
+
+    .card-text {
+      font-size: 0.875rem;
+      color: var(--st-text-muted);
+      margin: 0 0 1rem;
+      line-height: 1.5;
+    }
+
+    .card-footer {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--st-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ─────────────────────────────────────────────────── */
+    /* VIDEO CARD (YouTube-style)                          */
+    /* ─────────────────────────────────────────────────── */
+    .video-card { background: transparent; }
+
+    .video-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: var(--st-border-radius);
+      overflow: hidden;
+      background: var(--st-bg-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .video-info { display: flex; gap: 0.75rem; }
+
+    .video-avatar {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--st-bg-secondary);
+    }
+
+    .video-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-meta { flex: 1; }
+
+    .video-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+      line-height: 1.4;
+    }
+
+    .video-channel {
+      font-size: 0.8rem;
+      color: var(--st-text-muted);
+      margin: 0 0 0.15rem;
+    }
+
+    .video-stats {
+      font-size: 0.8rem;
+      color: var(--st-text-muted);
+      margin: 0;
+    }
+
+    /* ─────────────────────────────────────────────────── */
+    /* PROFILE CARD                                        */
+    /* ─────────────────────────────────────────────────── */
+    .profile-header {
+      height: 100px;
+      background: var(--st-bg-secondary);
+    }
+
+    .profile-avatar-wrap {
+      position: relative;
+      margin: 0 1rem;
+      top: -2rem;
+      width: fit-content;
+    }
+
+    .profile-avatar {
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      border: 3px solid var(--st-bg);
+      overflow: hidden;
+      background: var(--st-bg-secondary);
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .profile-body { padding: 0 1rem 1rem; }
+
+    .profile-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+    }
+
+    .profile-bio {
+      font-size: 0.875rem;
+      color: var(--st-text-muted);
+      margin: 0 0 1rem;
+    }
+
+    .profile-stats { display: flex; gap: 1.5rem; }
+
+    .stat-value {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--st-text-muted);
+      margin: 0;
+    }
+
+    /* ─────────────────────────────────────────────────── */
+    /* FEED ITEM                                           */
+    /* ─────────────────────────────────────────────────── */
+    .feed-item {
+      display: flex;
+      gap: 0.75rem;
+      padding: 1rem;
+      border-bottom: 1px solid var(--st-border);
+    }
+
+    .feed-item:last-child { border-bottom: none; }
+
+    .feed-avatar {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--st-bg-secondary);
+    }
+
+    .feed-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .feed-content { flex: 1; }
+
+    .feed-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin: 0 0 0.35rem;
+    }
+
+    .feed-text {
+      font-size: 0.875rem;
+      color: var(--st-text-muted);
+      margin: 0 0 0.35rem;
+      line-height: 1.5;
+    }
+
+    .feed-meta {
+      font-size: 0.75rem;
+      color: var(--st-text-muted);
+    }
+
+    /* ─────────────────────────────────────────────────── */
+    /* ACTION BUTTONS                                      */
+    /* ─────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.375rem 0.875rem;
+      border: none;
+      border-radius: var(--st-border-radius);
+      font-size: 0.875rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .btn-primary { background: var(--st-primary); color: white; }
+    .btn-outline { background: transparent; color: var(--st-text-muted); border: 1px solid var(--st-border); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2em 0.6em;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 999px;
+    }
+
+    .badge-success { background: var(--st-success); color: white; }
+
+    /* ─────────────────────────────────────────────────── */
+    /* VIDEO GRID                                          */
+    /* ─────────────────────────────────────────────────── */
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="theme-bar">
+  <button class="theme-btn active" onclick="setTheme('light',this)">Light</button>
+  <button class="theme-btn" onclick="setTheme('dark',this)">Dark</button>
+  <button class="theme-btn" onclick="setTheme('dim',this)">Dim</button>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div style="padding:4rem 0 1rem;">
+    <h1 style="font-size:2.5rem;font-weight:700;margin:0 0 0.5rem;">Skeleton Loader</h1>
+    <p style="font-size:1.125rem;color:var(--st-text-muted);margin:0 0 1rem;">
+      Built into Strata core — zero plugins, zero extra markup, fully theme-aware.
+    </p>
+    <p class="note">
+      <strong>How it works:</strong> A <code>::before</code> overlay physically covers all child
+      content with an opaque shimmer. Text, buttons and images are all hidden underneath —
+      no CSS specificity fighting needed. Add <code>data-st-skeleton="true"</code> to any
+      parent element and everything inside shimmers. Switch themes above to see skeleton colours update automatically.
+    </p>
+  </div>
+
+
+  <!-- ── HOW IT WORKS ──────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">How It Works</h2>
+    <p class="ref-subtitle">One attribute · one line of JS · zero extra markup</p>
+
+    <pre class="code-block">
+&lt;!-- One attribute on the parent — everything inside shimmers --&gt;
+&lt;div class="card" data-st-skeleton="true"&gt;
+  &lt;div class="card-img-wrap"&gt;&lt;img src="photo.jpg"&gt;&lt;/div&gt;
+  &lt;div class="card-body"&gt;
+    &lt;h3 class="card-title"&gt;Article Title&lt;/h3&gt;
+    &lt;p class="card-text"&gt;Description text&lt;/p&gt;
+    &lt;button class="btn btn-primary"&gt;Read more&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  // Show skeleton — one line
+  card.setAttribute('data-st-skeleton', 'true')
+
+  // Fetch data
+  const data = await fetch('/api/article/1')
+
+  // Reveal content — one line
+  card.setAttribute('data-st-skeleton', 'false')
+&lt;/script&gt;</pre>
+
+    <p class="note" style="margin-top:1rem;">
+      The skeleton uses a <code>::before</code> pseudo-element overlay that sits on top of ALL child content
+      via <code>z-index: 9999</code>. Text colour, button backgrounds, images — nothing shows through.
+      No <code>!important</code> needed anywhere.
+    </p>
+  </div>
+
+
+  <!-- ── 1. CARD ────────────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">1. Card Skeleton</h2>
+    <p class="ref-subtitle">data-st-skeleton="true" on the card — entire card shimmers</p>
+
+    <button class="toggle-btn" id="card1-btn" onclick="toggle('card1','card1-btn')">
+      ⏳ Skeleton — click to reveal
+    </button>
+
+    <div class="demo-split">
+      <div>
+        <div class="demo-label">Skeleton</div>
+        <div class="card" data-st-skeleton="true">
+          <div class="card-img-wrap"><img src="" alt=""></div>
+          <div class="card-body">
+            <h3 class="card-title">Article title goes here</h3>
+            <p class="card-text">Description text that spans two lines of content here in the card body area.</p>
+            <button class="btn btn-primary">Read more</button>
+          </div>
+          <div class="card-footer">
+            <span>⭐ 4.9 reviews</span>
+            <span>$299</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="demo-label">Real content</div>
+        <div class="card">
+          <div class="card-img-wrap">
+            <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=180&fit=crop" alt="Mountain">
+          </div>
+          <div class="card-body">
+            <h3 class="card-title">Mountain Escape Weekend</h3>
+            <p class="card-text">Discover the breathtaking peaks of the Swiss Alps on this exclusive three-day guided adventure.</p>
+            <button class="btn btn-primary">Book Now</button>
+          </div>
+          <div class="card-footer">
+            <span style="color:var(--st-text-muted);font-size:0.875rem;">⭐ 4.9 (328 reviews)</span>
+            <span style="font-weight:600;color:var(--st-primary);">$299</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:0.875rem;font-weight:600;margin:1.5rem 0 0.75rem;">Live toggle demo:</p>
+    <div class="card" id="card1" data-st-skeleton="true" style="max-width:320px;">
+      <div class="card-img-wrap">
+        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=180&fit=crop" alt="Mountain">
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Mountain Escape Weekend</h3>
+        <p class="card-text">Discover the breathtaking peaks of the Swiss Alps.</p>
+        <button class="btn btn-primary">Book Now</button>
+      </div>
+      <div class="card-footer">
+        <span style="color:var(--st-text-muted);font-size:0.875rem;">⭐ 4.9</span>
+        <span style="font-weight:600;color:var(--st-primary);">$299</span>
+      </div>
+    </div>
+    <p class="note">Image, title, text, button and footer — all hidden under one shimmer overlay. No separate skeleton markup needed.</p>
+  </div>
+
+
+  <!-- ── 2. YOUTUBE-STYLE VIDEO CARDS ──────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">2. YouTube-Style Video Cards</h2>
+    <p class="ref-subtitle">Each element is a separate skeleton — thumbnail, avatar, title bars, meta bars</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      For YouTube-style per-element skeletons, each visual block is its own element with
+      <code>data-st-skeleton="true"</code>. The shimmer overlay covers each block independently,
+      creating individual shimmer bars exactly matching the real content shape.
+    </p>
+
+    <button class="toggle-btn" id="yt-btn" onclick="toggleGrid()">
+      ⏳ Skeleton — click to reveal
+    </button>
+
+    <div class="video-grid" id="yt-grid">
+
+      <!-- Video Card 1 -->
+      <div class="video-card">
+        <!-- Thumbnail — separate skeleton element -->
+        <div class="video-thumb" data-st-skeleton="true" id="yt-thumb-1">
+          <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=225&fit=crop" alt="">
+        </div>
+        <div class="video-info">
+          <!-- Avatar — separate skeleton element -->
+          <div class="video-avatar" data-st-skeleton="true" id="yt-av-1">
+            <img src="https://i.pravatar.cc/150?img=11" alt="">
+          </div>
+          <div class="video-meta">
+            <!-- Each text line is its own skeleton element -->
+            <p class="video-title" data-st-skeleton="true" id="yt-t1-1">How CSS Layers Changed Everything</p>
+            <p class="video-channel" data-st-skeleton="true" id="yt-t2-1">Dev Insights</p>
+            <p class="video-stats" data-st-skeleton="true" id="yt-t3-1">142K views · 3 days ago</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Card 2 -->
+      <div class="video-card">
+        <div class="video-thumb" data-st-skeleton="true" id="yt-thumb-2">
+          <img src="https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=400&h=225&fit=crop" alt="">
+        </div>
+        <div class="video-info">
+          <div class="video-avatar" data-st-skeleton="true" id="yt-av-2">
+            <img src="https://i.pravatar.cc/150?img=22" alt="">
+          </div>
+          <div class="video-meta">
+            <p class="video-title" data-st-skeleton="true" id="yt-t1-2">Building a Design System From Scratch</p>
+            <p class="video-channel" data-st-skeleton="true" id="yt-t2-2">UI Masters</p>
+            <p class="video-stats" data-st-skeleton="true" id="yt-t3-2">89K views · 1 week ago</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Card 3 -->
+      <div class="video-card">
+        <div class="video-thumb" data-st-skeleton="true" id="yt-thumb-3">
+          <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=225&fit=crop" alt="">
+        </div>
+        <div class="video-info">
+          <div class="video-avatar" data-st-skeleton="true" id="yt-av-3">
+            <img src="https://i.pravatar.cc/150?img=33" alt="">
+          </div>
+          <div class="video-meta">
+            <p class="video-title" data-st-skeleton="true" id="yt-t1-3">JavaScript Performance in 2026</p>
+            <p class="video-channel" data-st-skeleton="true" id="yt-t2-3">Code Clinic</p>
+            <p class="video-stats" data-st-skeleton="true" id="yt-t3-3">201K views · 2 weeks ago</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <pre class="code-block" style="margin-top:1.5rem;">
+&lt;!-- Each visual block gets its own data-st-skeleton attribute --&gt;
+&lt;div class="video-card"&gt;
+
+  &lt;!-- Thumbnail block --&gt;
+  &lt;div class="video-thumb" data-st-skeleton="true"&gt;
+    &lt;img src="thumb.jpg"&gt;
+  &lt;/div&gt;
+
+  &lt;div class="video-info"&gt;
+
+    &lt;!-- Avatar circle --&gt;
+    &lt;div class="video-avatar" data-st-skeleton="true"&gt;
+      &lt;img src="avatar.jpg"&gt;
+    &lt;/div&gt;
+
+    &lt;div class="video-meta"&gt;
+      &lt;!-- Each text line is its own skeleton bar --&gt;
+      &lt;p class="video-title"   data-st-skeleton="true"&gt;Title text here&lt;/p&gt;
+      &lt;p class="video-channel" data-st-skeleton="true"&gt;Channel name&lt;/p&gt;
+      &lt;p class="video-stats"   data-st-skeleton="true"&gt;142K views · 3 days ago&lt;/p&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+  // Show all skeletons
+  document.querySelectorAll('[data-st-skeleton]')
+    .forEach(el => el.setAttribute('data-st-skeleton', 'true'))
+
+  // Load data then reveal — staggered for polish
+  cards.forEach((card, i) => {
+    setTimeout(() => revealCard(card), i * 200)
+  })
+&lt;/script&gt;</pre>
+    <p class="note">
+      Key insight: each text line is its own element with <code>data-st-skeleton="true"</code>.
+      The shimmer overlay perfectly matches each line's natural size because it uses
+      <code>inset: 0</code> on a <code>::before</code> — no hard-coded widths or heights needed.
+    </p>
+  </div>
+
+
+  <!-- ── 3. PROFILE CARD ────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">3. Profile Card</h2>
+    <p class="ref-subtitle">Header, avatar, name, bio, stats — each section independently skeletonised</p>
+
+    <button class="toggle-btn" id="profile-btn" onclick="toggle('profile-card','profile-btn')">
+      ⏳ Skeleton — click to reveal
+    </button>
+
+    <div class="card" id="profile-card" style="max-width:360px;">
+
+      <!-- Header bg -->
+      <div class="profile-header" data-st-skeleton="true" id="ph-header"
+           style="background:linear-gradient(135deg,var(--st-primary),var(--st-info));">
+      </div>
+
+      <!-- Avatar -->
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" data-st-skeleton="true" id="ph-avatar">
+          <img src="https://i.pravatar.cc/150?img=32" alt="Sarah">
+        </div>
+      </div>
+
+      <div class="profile-body">
+        <p class="profile-name" data-st-skeleton="true" id="ph-name">Sarah Chen</p>
+        <p class="profile-bio" data-st-skeleton="true" id="ph-bio">Senior Product Designer. Passionate about design systems and accessibility.</p>
+        <div class="profile-stats">
+          <div>
+            <p class="stat-value" data-st-skeleton="true" id="ph-v1">12.4k</p>
+            <p class="stat-label" data-st-skeleton="true" id="ph-l1">Followers</p>
+          </div>
+          <div>
+            <p class="stat-value" data-st-skeleton="true" id="ph-v2">891</p>
+            <p class="stat-label" data-st-skeleton="true" id="ph-l2">Following</p>
+          </div>
+          <div>
+            <p class="stat-value" data-st-skeleton="true" id="ph-v3">247</p>
+            <p class="stat-label" data-st-skeleton="true" id="ph-l3">Posts</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── 4. SOCIAL FEED ─────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">4. Social Feed</h2>
+    <p class="ref-subtitle">Avatar, name line, text lines, meta line — each independently skeletonised</p>
+
+    <button class="toggle-btn" id="feed-btn" onclick="toggle('feed-demo','feed-btn')">
+      ⏳ Skeleton — click to reveal
+    </button>
+
+    <div class="card" id="feed-demo">
+
+      <div class="feed-item">
+        <div class="feed-avatar" data-st-skeleton="true" id="f1-av">
+          <img src="https://i.pravatar.cc/150?img=11" alt="">
+        </div>
+        <div class="feed-content">
+          <p class="feed-name"  data-st-skeleton="true" id="f1-n">Alex Johnson</p>
+          <p class="feed-text"  data-st-skeleton="true" id="f1-t">Just shipped a new feature that cuts our build time by 40%. The team has been working on this for weeks and I am so proud of everyone involved.</p>
+          <p class="feed-meta"  data-st-skeleton="true" id="f1-m">2 hours ago · 48 likes · 12 comments</p>
+        </div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-avatar" data-st-skeleton="true" id="f2-av">
+          <img src="https://i.pravatar.cc/150?img=22" alt="">
+        </div>
+        <div class="feed-content">
+          <p class="feed-name" data-st-skeleton="true" id="f2-n">Maria Santos</p>
+          <p class="feed-text" data-st-skeleton="true" id="f2-t">Heading to the design conference this week. If you are there too, let us connect!</p>
+          <p class="feed-meta" data-st-skeleton="true" id="f2-m">4 hours ago · 23 likes · 5 comments</p>
+        </div>
+      </div>
+
+      <div class="feed-item">
+        <div class="feed-avatar" data-st-skeleton="true" id="f3-av">
+          <img src="https://i.pravatar.cc/150?img=33" alt="">
+        </div>
+        <div class="feed-content">
+          <p class="feed-name" data-st-skeleton="true" id="f3-n">James Park</p>
+          <p class="feed-text" data-st-skeleton="true" id="f3-t">Published a new article on CSS architecture patterns. Link in bio!</p>
+          <p class="feed-meta" data-st-skeleton="true" id="f3-m">Yesterday · 91 likes · 34 comments</p>
+        </div>
+      </div>
+
+    </div>
+    <p class="note">
+      Each text line element gets <code>data-st-skeleton="true"</code> so it becomes its own shimmer bar.
+      The shimmer matches each line's exact width and height automatically — no hardcoded sizes.
+    </p>
+  </div>
+
+
+  <!-- ── 5. OPT-OUT ────────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">5. Opt-Out Specific Children</h2>
+    <p class="ref-subtitle">data-st-skeleton="false" on a child — it pops above the shimmer overlay</p>
+
+    <div class="demo-split">
+      <div>
+        <div class="demo-label">All children skeleton</div>
+        <div class="card" data-st-skeleton="true">
+          <div class="card-body">
+            <h3 class="card-title">Loading title here</h3>
+            <p class="card-text">Loading description text content area here</p>
+            <div style="display:flex;gap:0.5rem;">
+              <span class="badge badge-success">Live</span>
+              <button class="btn btn-outline">Share</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="demo-label">Badges and button excluded</div>
+        <div class="card" data-st-skeleton="true">
+          <div class="card-body">
+            <h3 class="card-title">Loading title here</h3>
+            <p class="card-text">Loading description text content area here</p>
+            <!-- Excluded — pops above overlay via z-index -->
+            <div style="display:flex;gap:0.5rem;" data-st-skeleton="false">
+              <span class="badge badge-success">Live</span>
+              <button class="btn btn-outline">Share</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <pre class="code-block" style="margin-top:1rem;">
+&lt;div class="card" data-st-skeleton="true"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;h3&gt;Loading title&lt;/h3&gt;
+    &lt;p&gt;Loading text&lt;/p&gt;
+
+    &lt;!-- This div and everything inside it is excluded from skeleton --&gt;
+    &lt;div data-st-skeleton="false"&gt;
+      &lt;span class="badge badge-success"&gt;Live&lt;/span&gt;
+      &lt;button class="btn btn-outline"&gt;Share&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+    <p class="note">
+      The opt-out child gets <code>position: relative; z-index: 10000</code> automatically,
+      popping it above the <code>::before</code> overlay which sits at <code>z-index: 9999</code>.
+    </p>
+  </div>
+
+
+  <!-- ── 6. BUTTONS & ANCHOR TAGS ─────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">6. Buttons & Anchor Tags</h2>
+    <p class="ref-subtitle">Inline and inline-flex elements — handled automatically</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      Buttons and anchors are inline or inline-flex by default which causes
+      <code>overflow: hidden</code> and <code>::before</code> overlays to misbehave.
+      Strata automatically forces them to <code>inline-block</code> when skeleton is active
+      so the shimmer covers them correctly with proper border radius.
+    </p>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem;">
+      <div>
+        <div class="demo-label">Button skeleton</div>
+        <button class="btn btn-primary" data-st-skeleton="true">Add to cart</button>
+      </div>
+      <div>
+        <div class="demo-label">Outline button</div>
+        <button class="btn btn-outline" data-st-skeleton="true">Share this</button>
+      </div>
+      <div>
+        <div class="demo-label">Anchor tag</div>
+        <a href="#" data-st-skeleton="true">Read the full article here</a>
+      </div>
+      <div>
+        <div class="demo-label">Badge / span</div>
+        <span class="badge badge-success" data-st-skeleton="true">Active</span>
+      </div>
+    </div>
+
+    <p class="note">
+      Buttons, anchors, badges and any inline element all get proper shimmer with
+      rounded corners matching <code>--st-skeleton-radius</code> (default 4px).
+    </p>
+  </div>
+
+
+  <!-- ── 7. BORDER RADIUS CONTROL ──────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">7. Border Radius Control</h2>
+    <p class="ref-subtitle">--st-skeleton-radius — independent from --st-border-radius</p>
+
+    <p class="note" style="margin-bottom:1.5rem;">
+      <code>--st-skeleton-radius</code> controls the corner rounding of ALL shimmer bars
+      independently from the framework's global <code>--st-border-radius</code>.
+      Default is <code>4px</code> — subtle rounding like YouTube.
+      For avatars and circular elements, <code>border-radius: 50%</code> from the
+      element's own styles is inherited automatically by the shimmer.
+    </p>
+
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:1.5rem;">
+
+      <div>
+        <div class="demo-label">Default — 4px</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <div style="width:200px;height:1rem;" data-st-skeleton="true"></div>
+          <div style="width:160px;height:1rem;" data-st-skeleton="true"></div>
+          <div style="width:120px;height:1rem;" data-st-skeleton="true"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="demo-label">Sharp — 0px</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;--st-skeleton-radius:0px;">
+          <div style="width:200px;height:1rem;" data-st-skeleton="true"></div>
+          <div style="width:160px;height:1rem;" data-st-skeleton="true"></div>
+          <div style="width:120px;height:1rem;" data-st-skeleton="true"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="demo-label">Rounded — 8px</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;--st-skeleton-radius:8px;">
+          <div style="width:200px;height:1rem;" data-st-skeleton="true"></div>
+          <div style="width:160px;height:1rem;" data-st-skeleton="true"></div>
+          <div style="width:120px;height:1rem;" data-st-skeleton="true"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="demo-label">Pill — 999px</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;--st-skeleton-radius:999px;">
+          <div style="width:200px;height:1rem;" data-st-skeleton="true"></div>
+          <div style="width:160px;height:1rem;" data-st-skeleton="true"></div>
+          <div style="width:120px;height:1rem;" data-st-skeleton="true"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem;">
+      <div>
+        <div class="demo-label">Circle avatar — border-radius 50% inherited</div>
+        <div style="width:3rem;height:3rem;border-radius:50%;overflow:hidden;" data-st-skeleton="true">
+          <img src="https://i.pravatar.cc/150?img=11" alt="">
+        </div>
+      </div>
+      <div>
+        <div class="demo-label">Rounded card image</div>
+        <div style="width:160px;height:100px;border-radius:var(--st-border-radius);overflow:hidden;" data-st-skeleton="true">
+          <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=160&h=100&fit=crop" alt="">
+        </div>
+      </div>
+    </div>
+
+    <pre class="code-block">
+/* Change globally */
+:root { --st-skeleton-radius: 8px; }
+
+/* Change per theme */
+[data-st-theme="dark"] { --st-skeleton-radius: 2px; }
+
+/* Change for one specific element */
+&lt;div style="--st-skeleton-radius: 999px;" data-st-skeleton="true"&gt;
+
+/* Circle — inherits border-radius: 50% from element's own styles */
+&lt;div style="border-radius: 50%;" data-st-skeleton="true"&gt;</pre>
+  </div>
+
+
+  <!-- ── 8. BODY LEVEL ─────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">8. Body Level — Full Page Skeleton</h2>
+    <p class="ref-subtitle">Set on body or html — opt out nav and footer</p>
+
+    <pre class="code-block">
+&lt;body data-st-skeleton="true"&gt;
+
+  &lt;!-- Nav is always visible — opt it out --&gt;
+  &lt;nav data-st-skeleton="false"&gt;
+    &lt;a href="/"&gt;Brand&lt;/a&gt;
+    &lt;a href="/about"&gt;About&lt;/a&gt;
+  &lt;/nav&gt;
+
+  &lt;!-- Main content area shimmers while API data loads --&gt;
+  &lt;main&gt;
+    &lt;div class="card"&gt;...&lt;/div&gt;
+    &lt;div class="card"&gt;...&lt;/div&gt;
+  &lt;/main&gt;
+
+  &lt;!-- Footer is always visible — opt it out --&gt;
+  &lt;footer data-st-skeleton="false"&gt;
+    &lt;p&gt;© 2026 Acme Corp&lt;/p&gt;
+  &lt;/footer&gt;
+
+&lt;/body&gt;
+
+&lt;script&gt;
+  // When all data is ready — one line reveals everything
+  document.body.setAttribute('data-st-skeleton', 'false')
+&lt;/script&gt;</pre>
+  </div>
+
+
+  <!-- ── 9. CUSTOMISATION ───────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">9. Customise the Skeleton</h2>
+    <p class="ref-subtitle">Override CSS variables — scoped globally, per-theme, or per-element</p>
+
+    <pre class="code-block">
+/* Change shimmer colours globally */
+:root {
+  --st-skeleton-base:     #ddd6fe;   /* purple tint */
+  --st-skeleton-shine:    #ede9fe;
+  --st-skeleton-duration: 1s;        /* faster shimmer */
+  --st-skeleton-radius:   8px;       /* more rounded corners */
+}
+
+/* Dark mode override */
+[data-st-theme="dark"] {
+  --st-skeleton-base:  #1e1b4b;
+  --st-skeleton-shine: #312e81;
+}
+
+/* Override for a specific section only */
+.financial-dashboard {
+  --st-skeleton-base:   #dcfce7;   /* green tint */
+  --st-skeleton-shine:  #f0fdf4;
+  --st-skeleton-radius: 999px;     /* pill shaped bars */
+}</pre>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem;">
+
+      <div>
+        <div class="demo-label">Default shimmer</div>
+        <div style="width:200px;height:80px;border-radius:var(--st-border-radius);" data-st-skeleton="true"></div>
+      </div>
+
+      <div>
+        <div class="demo-label">Purple tint</div>
+        <div style="width:200px;height:80px;border-radius:var(--st-border-radius);--st-skeleton-base:#ddd6fe;--st-skeleton-shine:#ede9fe;" data-st-skeleton="true"></div>
+      </div>
+
+      <div>
+        <div class="demo-label">Green tint</div>
+        <div style="width:200px;height:80px;border-radius:var(--st-border-radius);--st-skeleton-base:#dcfce7;--st-skeleton-shine:#f0fdf4;" data-st-skeleton="true"></div>
+      </div>
+
+      <div>
+        <div class="demo-label">Slow shimmer (2.5s)</div>
+        <div style="width:200px;height:80px;border-radius:var(--st-border-radius);--st-skeleton-duration:2.5s;" data-st-skeleton="true"></div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ── QUICK REFERENCE ───────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">Quick Reference</h2>
+
+    <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--st-border);">
+          <th style="text-align:left;padding:0.75rem 0;color:var(--st-text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;width:35%;">Task</th>
+          <th style="text-align:left;padding:0.75rem 0;color:var(--st-text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Show skeleton</td>
+          <td style="padding:0.75rem 0;"><code>el.setAttribute('data-st-skeleton', 'true')</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Reveal content</td>
+          <td style="padding:0.75rem 0;"><code>el.setAttribute('data-st-skeleton', 'false')</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Exclude a child</td>
+          <td style="padding:0.75rem 0;"><code>&lt;div data-st-skeleton="false"&gt;</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Full page skeleton</td>
+          <td style="padding:0.75rem 0;"><code>document.body.setAttribute('data-st-skeleton','true')</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Change corner radius</td>
+          <td style="padding:0.75rem 0;"><code>:root { --st-skeleton-radius: 8px; }</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Pill shaped bars</td>
+          <td style="padding:0.75rem 0;"><code>:root { --st-skeleton-radius: 999px; }</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Sharp corners</td>
+          <td style="padding:0.75rem 0;"><code>:root { --st-skeleton-radius: 0px; }</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Change colour</td>
+          <td style="padding:0.75rem 0;"><code>:root { --st-skeleton-base: #ddd6fe; }</code></td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--st-border);">
+          <td style="padding:0.75rem 0;font-weight:500;">Change speed</td>
+          <td style="padding:0.75rem 0;"><code>:root { --st-skeleton-duration: 1s; }</code></td>
+        </tr>
+        <tr>
+          <td style="padding:0.75rem 0;font-weight:500;">Staggered reveal</td>
+          <td style="padding:0.75rem 0;"><code>els.forEach((el,i) => setTimeout(() => el.setAttribute(...), i * 200))</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  function setTheme(theme, btn) {
+    document.documentElement.setAttribute('data-st-theme', theme)
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+  }
+
+  function toggle(id, btnId) {
+    const el     = document.getElementById(id)
+    const btn    = document.getElementById(btnId)
+    const isSkel = el.getAttribute('data-st-skeleton') === 'true'
+
+    // Toggle all [data-st-skeleton] within the element
+    const targets = [el, ...el.querySelectorAll('[data-st-skeleton]')]
+    targets.forEach(t => t.setAttribute('data-st-skeleton', isSkel ? 'false' : 'true'))
+
+    btn.textContent = isSkel ? '✓ Real content — click to show skeleton' : '⏳ Skeleton — click to reveal'
+    btn.classList.toggle('loaded', isSkel)
+  }
+
+  // YouTube video grid toggle — staggered reveal
+  let ytLoaded = false
+  const ytElements = {
+    thumbs:   ['yt-thumb-1','yt-thumb-2','yt-thumb-3'],
+    avatars:  ['yt-av-1','yt-av-2','yt-av-3'],
+    titles:   ['yt-t1-1','yt-t1-2','yt-t1-3'],
+    channels: ['yt-t2-1','yt-t2-2','yt-t2-3'],
+    stats:    ['yt-t3-1','yt-t3-2','yt-t3-3'],
+  }
+  const allYtIds = Object.values(ytElements).flat()
+
+  function toggleGrid() {
+    const btn = document.getElementById('yt-btn')
+
+    if (!ytLoaded) {
+      // Staggered reveal — card by card
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          // Reveal all elements for card i
+          Object.values(ytElements).forEach(group => {
+            document.getElementById(group[i]).setAttribute('data-st-skeleton','false')
+          })
+        }, i * 250)
+      }
+      btn.textContent = '✓ Real content — click to show skeleton'
+      btn.classList.add('loaded')
+      ytLoaded = true
+    } else {
+      allYtIds.forEach(id => document.getElementById(id).setAttribute('data-st-skeleton','true'))
+      btn.textContent = '⏳ Skeleton — click to reveal'
+      btn.classList.remove('loaded')
+      ytLoaded = false
+    }
+  }
+
+  // Profile toggle — reveal elements one by one
+  const profileIds = [
+    'ph-header','ph-avatar','ph-name','ph-bio',
+    'ph-v1','ph-l1','ph-v2','ph-l2','ph-v3','ph-l3'
+  ]
+
+  function toggle(id, btnId) {
+    const el     = document.getElementById(id)
+    const btn    = document.getElementById(btnId)
+    const isSkel = el.querySelector('[data-st-skeleton]')?.getAttribute('data-st-skeleton') === 'true'
+                   || el.getAttribute('data-st-skeleton') === 'true'
+
+    const allTargets = el.hasAttribute('data-st-skeleton')
+      ? [el, ...el.querySelectorAll('[data-st-skeleton]')]
+      : el.querySelectorAll('[data-st-skeleton]')
+
+    Array.from(allTargets).forEach(t => {
+      t.setAttribute('data-st-skeleton', isSkel ? 'false' : 'true')
+    })
+
+    btn.textContent = isSkel ? '✓ Real content — click to show skeleton' : '⏳ Skeleton — click to reveal'
+    btn.classList.toggle('loaded', isSkel)
+  }
+</script>
+
+</body>
+</html>

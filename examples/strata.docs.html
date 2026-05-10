@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html data-st-theme="light" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata CSS v1.0 — Documentation</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ NAVBAR -->
+<nav class="navbar navbar-expand-lg bg-body border-bottom sticky-top">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold" href="#">
+      <span class="text-primary">Strata</span> CSS
+      <span class="badge badge-primary ms-2">v1.0</span>
+    </a>
+    <button class="navbar-toggler" aria-label="Toggle navigation"
+      onclick="var m=document.getElementById('docs-nav');m.setAttribute('data-st-collapsed',m.getAttribute('data-st-collapsed')==='false'?'true':'false')">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-collapse" id="docs-nav" data-st-collapsed="true">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-2 py-3 py-lg-0">
+        <li class="nav-item"><span class="navbar-text fw-semibold">Theme:</span></li>
+        <li class="nav-item">
+          <button class="btn-outline-secondary btn-sm" onclick="switchTheme('light')">Light</button>
+        </li>
+        <li class="nav-item">
+          <button class="btn-outline-secondary btn-sm" onclick="switchTheme('dark')">Dark</button>
+        </li>
+        <li class="nav-item">
+          <button class="btn-outline-secondary btn-sm" onclick="switchTheme('dim')">Dim</button>
+        </li>
+        <li class="nav-item ms-lg-3">
+          <a class="nav-link" href="https://github.com" target="_blank">GitHub</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ MAIN LAYOUT -->
+<div class="container-fluid">
+  <div class="row">
+
+    <!-- ─── SIDEBAR ─── -->
+    <nav class="col-lg-3 d-none d-lg-flex flex-column sticky-top vh-100 overflow-y-auto py-4 pe-3 border-end">
+      <p class="fw-semibold text-uppercase text-body-secondary mb-1 mt-2">Foundations</p>
+      <a href="#getting-started" class="nav-link py-1 ps-2">Getting Started</a>
+      <a href="#theming"         class="nav-link py-1 ps-2">Theming</a>
+      <a href="#grid"            class="nav-link py-1 ps-2">Grid System</a>
+      <a href="#typography"      class="nav-link py-1 ps-2">Typography</a>
+      <a href="#colors"          class="nav-link py-1 ps-2">Colors</a>
+      <a href="#spacing"         class="nav-link py-1 ps-2">Spacing</a>
+
+      <p class="fw-semibold text-uppercase text-body-secondary mb-1 mt-3">Layout Utilities</p>
+      <a href="#flexbox"         class="nav-link py-1 ps-2">Flexbox</a>
+      <a href="#sizing"          class="nav-link py-1 ps-2">Sizing</a>
+      <a href="#borders"         class="nav-link py-1 ps-2">Borders &amp; Rounding</a>
+      <a href="#shadows"         class="nav-link py-1 ps-2">Shadows</a>
+      <a href="#position"        class="nav-link py-1 ps-2">Position &amp; Overflow</a>
+      <a href="#display"         class="nav-link py-1 ps-2">Display &amp; Visibility</a>
+
+      <p class="fw-semibold text-uppercase text-body-secondary mb-1 mt-3">Components</p>
+      <a href="#buttons"         class="nav-link py-1 ps-2">Buttons</a>
+      <a href="#alerts"          class="nav-link py-1 ps-2">Alerts</a>
+      <a href="#badges"          class="nav-link py-1 ps-2">Badges</a>
+      <a href="#cards"           class="nav-link py-1 ps-2">Cards</a>
+      <a href="#forms"           class="nav-link py-1 ps-2">Forms</a>
+      <a href="#tables"          class="nav-link py-1 ps-2">Tables</a>
+      <a href="#navbar"          class="nav-link py-1 ps-2">Navbar</a>
+      <a href="#navigation"      class="nav-link py-1 ps-2">Nav / Tabs / Pills</a>
+      <a href="#list-group"      class="nav-link py-1 ps-2">List Group</a>
+      <a href="#breadcrumb"      class="nav-link py-1 ps-2">Breadcrumb</a>
+      <a href="#pagination"      class="nav-link py-1 ps-2">Pagination</a>
+      <a href="#accordion"       class="nav-link py-1 ps-2">Accordion</a>
+      <a href="#modal"           class="nav-link py-1 ps-2">Modal</a>
+      <a href="#dropdowns"       class="nav-link py-1 ps-2">Dropdowns</a>
+      <a href="#offcanvas"       class="nav-link py-1 ps-2">Offcanvas</a>
+      <a href="#toast"           class="nav-link py-1 ps-2">Toast</a>
+      <a href="#progress"        class="nav-link py-1 ps-2">Progress</a>
+      <a href="#spinners"        class="nav-link py-1 ps-2">Spinners</a>
+      <a href="#tooltips"        class="nav-link py-1 ps-2">Tooltips &amp; Popovers</a>
+      <a href="#collapse"        class="nav-link py-1 ps-2">Collapse</a>
+      <a href="#carousel"        class="nav-link py-1 ps-2">Carousel</a>
+      <a href="#placeholders"    class="nav-link py-1 ps-2">Placeholders</a>
+      <a href="#skeleton"        class="nav-link py-1 ps-2">Skeleton Loader</a>
+
+      <p class="fw-semibold text-uppercase text-body-secondary mb-1 mt-3">Helpers</p>
+      <a href="#misc"            class="nav-link py-1 ps-2">Helpers &amp; Misc</a>
+    </nav>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <main class="col-12 col-lg-9 py-5 px-4">
+
+<!-- ═══════════════════════════════════════ SECTION 1 — GETTING STARTED -->
+<section id="getting-started" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Getting Started</h2>
+  <p class="text-body-secondary mb-4">Add two files to your HTML and you are ready. Strata is JIT — only classes you actually use are included in the output CSS.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>File</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>strata.output.css</code></td><td>Generated stylesheet — only used classes</td></tr>
+        <tr><td><code>strata.components.js</code></td><td>Interactive components (Modal, Skeleton)</td></tr>
+        <tr><td><code>strata.config.js</code></td><td>Content glob paths + input/output config</td></tr>
+        <tr><td><code>npm run build</code></td><td>Production build — minified JS, readable CSS</td></tr>
+        <tr><td><code>npm run dev</code></td><td>Watch mode — rebuilds on file change</td></tr>
+        <tr><td><code>npm run minify</code></td><td>Smallest output — minifies CSS + JS</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4 bg-body-secondary">
+    <p class="fw-semibold mb-2">Minimal HTML template</p>
+    <pre class="rounded mb-0"><code>&lt;!DOCTYPE html&gt;
+&lt;html data-st-theme="light" lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;My App&lt;/title&gt;
+  &lt;link rel="stylesheet" href="dist/strata.output.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;!-- your content using Strata classes --&gt;
+
+  &lt;script src="dist/strata.components.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 2 — THEMING -->
+<section id="theming" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Theming</h2>
+  <p class="text-body-secondary mb-4">Set <code>data-st-theme</code> on any element. Themes cascade — set it on <code>&lt;html&gt;</code> for the whole page or on a specific element for scoped theming. System preference is respected automatically when no attribute is set.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Attribute</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>data-st-theme="light"</code></td><td>Light theme (default)</td></tr>
+        <tr><td><code>data-st-theme="dark"</code></td><td>Dark theme</td></tr>
+        <tr><td><code>data-st-theme="dim"</code></td><td>Muted dark theme</td></tr>
+        <tr><td><code>data-st-theme</code> absent</td><td>Follows OS <code>prefers-color-scheme</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-3">Scoped theme — each card has its own <code>data-st-theme</code></p>
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <div data-st-theme="light" class="card p-3 shadow-sm">
+          <p class="fw-semibold mb-1">Light Theme</p>
+          <p class="text-body-secondary mb-2">data-st-theme="light"</p>
+          <button class="btn-primary btn-sm">Button</button>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div data-st-theme="dark" class="card p-3 shadow-sm">
+          <p class="fw-semibold mb-1">Dark Theme</p>
+          <p class="text-body-secondary mb-2">data-st-theme="dark"</p>
+          <button class="btn-primary btn-sm">Button</button>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div data-st-theme="dim" class="card p-3 shadow-sm">
+          <p class="fw-semibold mb-1">Dim Theme</p>
+          <p class="text-body-secondary mb-2">data-st-theme="dim"</p>
+          <button class="btn-primary btn-sm">Button</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-body-secondary mt-3 mb-0">Use the theme buttons in the top navbar to switch the whole page theme.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 3 — GRID -->
+<section id="grid" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Grid System</h2>
+  <p class="text-body-secondary mb-4">12-column flexbox grid. Breakpoints: xs (0), sm (576px), md (768px), lg (992px), xl (1200px), xxl (1400px). Uses CSS Cascade Layers — class order in HTML never matters.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>container</code></td><td>Responsive fixed max-width container</td></tr>
+        <tr><td><code>container-fluid</code></td><td>Always 100% width</td></tr>
+        <tr><td><code>container-{sm|md|lg|xl|xxl}</code></td><td>Full width below breakpoint, constrained above</td></tr>
+        <tr><td><code>row</code></td><td>Flex row with gutter variables</td></tr>
+        <tr><td><code>col</code></td><td>Equal-width column (shares available space)</td></tr>
+        <tr><td><code>col-{1–12}</code></td><td>Fixed column width at all breakpoints</td></tr>
+        <tr><td><code>col-xs-{1–12}</code></td><td>Bootstrap 3 alias — same as col-{n}</td></tr>
+        <tr><td><code>col-{bp}-{1–12}</code></td><td>Column width from breakpoint upward</td></tr>
+        <tr><td><code>col-auto</code></td><td>Column sized to content</td></tr>
+        <tr><td><code>col-{bp}-auto</code></td><td>Content-width column from breakpoint upward</td></tr>
+        <tr><td><code>row-cols-{1–6}</code></td><td>Set number of columns per row</td></tr>
+        <tr><td><code>row-cols-{bp}-{1–6}</code></td><td>Responsive row-cols</td></tr>
+        <tr><td><code>offset-{0–11}</code></td><td>Left margin offset in columns</td></tr>
+        <tr><td><code>offset-{bp}-{0–11}</code></td><td>Responsive offset</td></tr>
+        <tr><td><code>g-{0–5}</code></td><td>Gutter on both axes</td></tr>
+        <tr><td><code>gx-{0–5}</code></td><td>Horizontal gutter only</td></tr>
+        <tr><td><code>gy-{0–5}</code></td><td>Vertical gutter only</td></tr>
+        <tr><td><code>g-{bp}-{0–5}</code></td><td>Responsive gutter</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">Responsive columns — resize to see layout change</p>
+    <div class="row g-2 mb-3">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3"><div class="bg-primary-subtle border border-primary-subtle rounded p-2 text-center">col-12 sm-6 md-4 lg-3</div></div>
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3"><div class="bg-primary-subtle border border-primary-subtle rounded p-2 text-center">col-12 sm-6 md-4 lg-3</div></div>
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3"><div class="bg-primary-subtle border border-primary-subtle rounded p-2 text-center">col-12 sm-6 md-4 lg-3</div></div>
+      <div class="col-12 col-sm-6 col-md-12 col-lg-3"><div class="bg-success-subtle border border-success-subtle rounded p-2 text-center">col-12 sm-6 md-12 lg-3</div></div>
+    </div>
+    <p class="fw-semibold mb-2">Auto equal-width <code>col</code></p>
+    <div class="row g-2 mb-3">
+      <div class="col"><div class="bg-info-subtle border border-info-subtle rounded p-2 text-center">col</div></div>
+      <div class="col"><div class="bg-info-subtle border border-info-subtle rounded p-2 text-center">col</div></div>
+      <div class="col"><div class="bg-info-subtle border border-info-subtle rounded p-2 text-center">col</div></div>
+    </div>
+    <p class="fw-semibold mb-2">Offset</p>
+    <div class="row g-2 mb-3">
+      <div class="col-4"><div class="bg-warning-subtle border border-warning-subtle rounded p-2 text-center">col-4</div></div>
+      <div class="col-4 offset-4"><div class="bg-warning-subtle border border-warning-subtle rounded p-2 text-center">col-4 offset-4</div></div>
+    </div>
+    <p class="fw-semibold mb-2">row-cols-3 — equal columns from row</p>
+    <div class="row row-cols-3 row-cols-md-6 g-2">
+      <div class="col"><div class="bg-danger-subtle border border-danger-subtle rounded p-2 text-center">1</div></div>
+      <div class="col"><div class="bg-danger-subtle border border-danger-subtle rounded p-2 text-center">2</div></div>
+      <div class="col"><div class="bg-danger-subtle border border-danger-subtle rounded p-2 text-center">3</div></div>
+      <div class="col"><div class="bg-danger-subtle border border-danger-subtle rounded p-2 text-center">4</div></div>
+      <div class="col"><div class="bg-danger-subtle border border-danger-subtle rounded p-2 text-center">5</div></div>
+      <div class="col"><div class="bg-danger-subtle border border-danger-subtle rounded p-2 text-center">6</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 4 — TYPOGRAPHY -->
+<section id="typography" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Typography</h2>
+  <p class="text-body-secondary mb-4">Heading elements are styled by the base reset. Text utilities control weight, style, line-height, decoration, and wrapping behaviour.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>fw-light / fw-lighter</code></td><td>Font weight 300 / lighter</td></tr>
+        <tr><td><code>fw-normal</code></td><td>Font weight 400</td></tr>
+        <tr><td><code>fw-medium</code></td><td>Font weight 500</td></tr>
+        <tr><td><code>fw-semibold</code></td><td>Font weight 600</td></tr>
+        <tr><td><code>fw-bold / fw-bolder</code></td><td>Font weight 700 / bolder</td></tr>
+        <tr><td><code>fst-italic / fst-normal</code></td><td>Font style italic / normal</td></tr>
+        <tr><td><code>lh-1 / lh-sm / lh-base / lh-lg</code></td><td>Line-height 1 / 1.25 / 1.5 / 2</td></tr>
+        <tr><td><code>font-monospace</code></td><td>Monospace font family</td></tr>
+        <tr><td><code>text-wrap / text-nowrap</code></td><td>White-space wrap / nowrap</td></tr>
+        <tr><td><code>text-truncate</code></td><td>Overflow ellipsis (needs fixed width)</td></tr>
+        <tr><td><code>text-break</code></td><td>Break long words</td></tr>
+        <tr><td><code>text-reset</code></td><td>Inherit color, remove decoration</td></tr>
+        <tr><td><code>text-decoration-none</code></td><td>Remove underline</td></tr>
+        <tr><td><code>text-decoration-underline</code></td><td>Force underline</td></tr>
+        <tr><td><code>text-decoration-line-through</code></td><td>Strikethrough</td></tr>
+        <tr><td><code>text-{start|center|end|justify}</code></td><td>Text alignment</td></tr>
+        <tr><td><code>text-{bp}-{start|center|end}</code></td><td>Responsive text alignment</td></tr>
+        <tr><td><code>text-{uppercase|lowercase|capitalize}</code></td><td>Text transform</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <h1>h1 — Heading 1</h1>
+    <h2>h2 — Heading 2</h2>
+    <h3>h3 — Heading 3</h3>
+    <h4>h4 — Heading 4</h4>
+    <h5>h5 — Heading 5</h5>
+    <h6>h6 — Heading 6</h6>
+    <hr>
+    <p class="fw-light lh-lg">fw-light + lh-lg — Light weight, loose line height for comfortable reading.</p>
+    <p class="fw-semibold fst-italic">fw-semibold + fst-italic — Semibold italic text.</p>
+    <p class="fw-bold text-uppercase lh-1">fw-bold + text-uppercase + lh-1</p>
+    <p class="font-monospace">font-monospace — <code>code-like appearance</code> in paragraph.</p>
+    <p class="text-decoration-underline">text-decoration-underline</p>
+    <p class="text-decoration-line-through">text-decoration-line-through</p>
+    <p class="text-truncate border rounded p-2">text-truncate — This text is very long and will be truncated with an ellipsis when it overflows its container width limit.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 5 — COLORS -->
+<section id="colors" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Colors</h2>
+  <p class="text-body-secondary mb-4">Semantic color utilities for text, background, and borders. All respect the active theme. Subtle variants (Bootstrap 5.3) provide tinted backgrounds. Opacity variants allow transparency control.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class pattern</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>text-{color}</code></td><td>Semantic text color (primary, secondary, success, danger, warning, info, light, dark)</td></tr>
+        <tr><td><code>text-{color}-emphasis</code></td><td>Darker emphasis shade of semantic color</td></tr>
+        <tr><td><code>text-body-secondary / tertiary</code></td><td>Muted text colors</td></tr>
+        <tr><td><code>text-body-emphasis</code></td><td>Strong emphasis text color</td></tr>
+        <tr><td><code>text-black / text-white</code></td><td>Absolute black / white</td></tr>
+        <tr><td><code>text-black-50 / text-white-50</code></td><td>50% opacity black / white</td></tr>
+        <tr><td><code>text-opacity-{10|25|50|75|100}</code></td><td>Text opacity via CSS variable</td></tr>
+        <tr><td><code>bg-{color}</code></td><td>Semantic background color</td></tr>
+        <tr><td><code>bg-{color}-subtle</code></td><td>Tinted background (Bootstrap 5.3)</td></tr>
+        <tr><td><code>bg-body / bg-body-secondary / bg-body-tertiary</code></td><td>Theme-aware background layers</td></tr>
+        <tr><td><code>bg-black / bg-gradient</code></td><td>Absolute black / gradient overlay</td></tr>
+        <tr><td><code>bg-opacity-{10|25|50|75|100}</code></td><td>Background opacity via CSS variable</td></tr>
+        <tr><td><code>border-{color}</code></td><td>Semantic border color</td></tr>
+        <tr><td><code>border-{color}-subtle</code></td><td>Tinted border color (Bootstrap 5.3)</td></tr>
+        <tr><td><code>border-opacity-{10|25|50|75}</code></td><td>Border opacity via CSS variable</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">Text colors</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="text-primary fw-semibold">text-primary</span>
+      <span class="text-secondary fw-semibold">text-secondary</span>
+      <span class="text-success fw-semibold">text-success</span>
+      <span class="text-danger fw-semibold">text-danger</span>
+      <span class="text-warning fw-semibold">text-warning</span>
+      <span class="text-info fw-semibold">text-info</span>
+      <span class="text-muted fw-semibold">text-muted</span>
+      <span class="text-body-secondary fw-semibold">text-body-secondary</span>
+    </div>
+    <p class="fw-semibold mb-2">Background colors</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="bg-primary text-white rounded px-2 py-1">bg-primary</span>
+      <span class="bg-secondary text-white rounded px-2 py-1">bg-secondary</span>
+      <span class="bg-success text-white rounded px-2 py-1">bg-success</span>
+      <span class="bg-danger text-white rounded px-2 py-1">bg-danger</span>
+      <span class="bg-warning rounded px-2 py-1">bg-warning</span>
+      <span class="bg-info rounded px-2 py-1">bg-info</span>
+      <span class="bg-light rounded px-2 py-1">bg-light</span>
+      <span class="bg-dark text-white rounded px-2 py-1">bg-dark</span>
+    </div>
+    <p class="fw-semibold mb-2">Subtle backgrounds (Bootstrap 5.3)</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="bg-primary-subtle border border-primary-subtle rounded px-2 py-1">bg-primary-subtle</span>
+      <span class="bg-success-subtle border border-success-subtle rounded px-2 py-1">bg-success-subtle</span>
+      <span class="bg-danger-subtle border border-danger-subtle rounded px-2 py-1">bg-danger-subtle</span>
+      <span class="bg-warning-subtle border border-warning-subtle rounded px-2 py-1">bg-warning-subtle</span>
+      <span class="bg-info-subtle border border-info-subtle rounded px-2 py-1">bg-info-subtle</span>
+    </div>
+    <p class="fw-semibold mb-2">Opacity</p>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="bg-primary bg-opacity-10 text-primary border border-primary-subtle rounded px-2 py-1">bg-opacity-10</span>
+      <span class="bg-primary bg-opacity-25 text-primary rounded px-2 py-1">bg-opacity-25</span>
+      <span class="bg-primary bg-opacity-50 text-white rounded px-2 py-1">bg-opacity-50</span>
+      <span class="bg-primary bg-opacity-75 text-white rounded px-2 py-1">bg-opacity-75</span>
+      <span class="bg-primary bg-opacity-100 text-white rounded px-2 py-1">bg-opacity-100</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 6 — SPACING -->
+<section id="spacing" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Spacing</h2>
+  <p class="text-body-secondary mb-4">Margin and padding utilities. Scale: 0=0, 1=0.25rem, 2=0.5rem, 3=1rem, 4=1.5rem, 5=3rem. All have responsive variants and an arbitrary value form.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>m-{0–5}</code></td><td>Margin all sides</td></tr>
+        <tr><td><code>mt-{0–5}</code></td><td>Margin top</td></tr>
+        <tr><td><code>mb-{0–5}</code></td><td>Margin bottom</td></tr>
+        <tr><td><code>ms-{0–5}</code></td><td>Margin start (left)</td></tr>
+        <tr><td><code>me-{0–5}</code></td><td>Margin end (right)</td></tr>
+        <tr><td><code>mx-{0–5}</code></td><td>Margin horizontal</td></tr>
+        <tr><td><code>my-{0–5}</code></td><td>Margin vertical</td></tr>
+        <tr><td><code>m-auto / mx-auto / ms-auto / me-auto</code></td><td>Auto margin (centering)</td></tr>
+        <tr><td><code>p-{0–5}</code></td><td>Padding all sides</td></tr>
+        <tr><td><code>pt-{0–5}</code></td><td>Padding top</td></tr>
+        <tr><td><code>pb-{0–5}</code></td><td>Padding bottom</td></tr>
+        <tr><td><code>ps-{0–5}</code></td><td>Padding start (left)</td></tr>
+        <tr><td><code>pe-{0–5}</code></td><td>Padding end (right)</td></tr>
+        <tr><td><code>px-{0–5}</code></td><td>Padding horizontal</td></tr>
+        <tr><td><code>py-{0–5}</code></td><td>Padding vertical</td></tr>
+        <tr><td><code>m-{bp}-{0–5}</code></td><td>Responsive margin (any axis)</td></tr>
+        <tr><td><code>mt-[12px]</code></td><td>Arbitrary margin-top (any CSS value)</td></tr>
+        <tr><td><code>px-[2rem]</code></td><td>Arbitrary horizontal padding</td></tr>
+        <tr><td><code>!m-3</code></td><td>!important variant of any spacing class</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-3">Padding scale demonstration</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <div class="bg-primary-subtle border border-primary-subtle rounded p-0 text-center"><div class="bg-primary text-white rounded" style="padding:0">p-0</div></div>
+      <div class="bg-primary-subtle border border-primary-subtle rounded"><div class="bg-primary text-white rounded p-1">p-1</div></div>
+      <div class="bg-primary-subtle border border-primary-subtle rounded"><div class="bg-primary text-white rounded p-2">p-2</div></div>
+      <div class="bg-primary-subtle border border-primary-subtle rounded"><div class="bg-primary text-white rounded p-3">p-3</div></div>
+      <div class="bg-primary-subtle border border-primary-subtle rounded"><div class="bg-primary text-white rounded p-4">p-4</div></div>
+      <div class="bg-primary-subtle border border-primary-subtle rounded"><div class="bg-primary text-white rounded p-5">p-5</div></div>
+    </div>
+    <p class="fw-semibold mb-2">mx-auto centering</p>
+    <div class="w-50 bg-success-subtle border border-success-subtle rounded p-2 mx-auto text-center">w-50 mx-auto</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 7 — FLEXBOX -->
+<section id="flexbox" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Flexbox</h2>
+  <p class="text-body-secondary mb-4">Full flexbox utility set with responsive variants for every property. Also includes <code>hstack</code> and <code>vstack</code> shorthand layouts.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>d-flex / d-inline-flex</code></td><td>Set display flex / inline-flex</td></tr>
+        <tr><td><code>flex-row / flex-column</code></td><td>Flex direction</td></tr>
+        <tr><td><code>flex-row-reverse / flex-column-reverse</code></td><td>Reversed direction</td></tr>
+        <tr><td><code>flex-wrap / flex-nowrap / flex-wrap-reverse</code></td><td>Wrap behaviour</td></tr>
+        <tr><td><code>flex-fill</code></td><td>flex: 1 1 auto</td></tr>
+        <tr><td><code>flex-grow-0 / flex-grow-1</code></td><td>Grow factor</td></tr>
+        <tr><td><code>flex-shrink-0 / flex-shrink-1</code></td><td>Shrink factor</td></tr>
+        <tr><td><code>justify-content-{start|end|center|between|around|evenly}</code></td><td>Main axis alignment</td></tr>
+        <tr><td><code>align-items-{start|end|center|baseline|stretch}</code></td><td>Cross axis alignment</td></tr>
+        <tr><td><code>align-self-{start|end|center|baseline|stretch|auto}</code></td><td>Individual item cross-axis alignment</td></tr>
+        <tr><td><code>align-content-{start|end|center|between|around|stretch}</code></td><td>Multi-line cross-axis</td></tr>
+        <tr><td><code>order-{0–5}</code></td><td>Visual order</td></tr>
+        <tr><td><code>order-first / order-last</code></td><td>Order -1 / 6</td></tr>
+        <tr><td><code>order-{bp}-{0–5}</code></td><td>Responsive order</td></tr>
+        <tr><td><code>gap-{0–5}</code></td><td>Gap both axes</td></tr>
+        <tr><td><code>row-gap-{0–5} / col-gap-{0–5}</code></td><td>Row / column gap separately</td></tr>
+        <tr><td><code>gap-{bp}-{0–5}</code></td><td>Responsive gap</td></tr>
+        <tr><td><code>hstack</code></td><td>Horizontal stack (flex row, align-items center)</td></tr>
+        <tr><td><code>vstack</code></td><td>Vertical stack (flex column)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">justify-content variants</p>
+    <div class="vstack gap-2 mb-3">
+      <div class="d-flex justify-content-start gap-2 bg-body-secondary rounded p-2"><div class="bg-primary text-white rounded px-2 py-1">A</div><div class="bg-primary text-white rounded px-2 py-1">B</div><div class="bg-primary text-white rounded px-2 py-1">C</div></div>
+      <div class="d-flex justify-content-center gap-2 bg-body-secondary rounded p-2"><div class="bg-success text-white rounded px-2 py-1">A</div><div class="bg-success text-white rounded px-2 py-1">B</div><div class="bg-success text-white rounded px-2 py-1">C</div></div>
+      <div class="d-flex justify-content-end gap-2 bg-body-secondary rounded p-2"><div class="bg-danger text-white rounded px-2 py-1">A</div><div class="bg-danger text-white rounded px-2 py-1">B</div><div class="bg-danger text-white rounded px-2 py-1">C</div></div>
+      <div class="d-flex justify-content-between bg-body-secondary rounded p-2"><div class="bg-warning rounded px-2 py-1">A</div><div class="bg-warning rounded px-2 py-1">B</div><div class="bg-warning rounded px-2 py-1">C</div></div>
+    </div>
+    <p class="fw-semibold mb-2">hstack + vstack</p>
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <div class="hstack gap-2 bg-body-secondary rounded p-3"><span class="badge badge-primary">hstack</span><span class="fw-semibold">horizontal</span><span class="ms-auto badge badge-success">ms-auto pushes right</span></div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="vstack gap-2 bg-body-secondary rounded p-3"><span class="badge badge-primary">vstack</span><span class="fw-semibold">vertical</span><span class="badge badge-success">stacked</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 8 — SIZING -->
+<section id="sizing" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Sizing</h2>
+  <p class="text-body-secondary mb-4">Width and height utilities including viewport units, max constraints, and arbitrary values.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>w-25 / w-50 / w-75 / w-100</code></td><td>Width percentage</td></tr>
+        <tr><td><code>w-auto</code></td><td>width: auto</td></tr>
+        <tr><td><code>w-[320px]</code></td><td>Arbitrary width</td></tr>
+        <tr><td><code>h-25 / h-50 / h-75 / h-100</code></td><td>Height percentage</td></tr>
+        <tr><td><code>h-auto</code></td><td>height: auto</td></tr>
+        <tr><td><code>mw-100</code></td><td>max-width: 100%</td></tr>
+        <tr><td><code>mh-100</code></td><td>max-height: 100%</td></tr>
+        <tr><td><code>vw-100</code></td><td>width: 100vw</td></tr>
+        <tr><td><code>vh-100</code></td><td>height: 100vh</td></tr>
+        <tr><td><code>min-vw-100</code></td><td>min-width: 100vw</td></tr>
+        <tr><td><code>min-vh-100</code></td><td>min-height: 100vh</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-3">Width scale</p>
+    <div class="vstack gap-2">
+      <div class="w-25 bg-primary text-white rounded p-1 text-center">w-25</div>
+      <div class="w-50 bg-success text-white rounded p-1 text-center">w-50</div>
+      <div class="w-75 bg-warning rounded p-1 text-center">w-75</div>
+      <div class="w-100 bg-danger text-white rounded p-1 text-center">w-100</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 9 — BORDERS -->
+<section id="borders" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Borders &amp; Rounding</h2>
+  <p class="text-body-secondary mb-4">Add, remove, or colour individual borders. Control corner rounding from square to circle.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>border</code></td><td>1px solid border all sides</td></tr>
+        <tr><td><code>border-0</code></td><td>Remove all borders</td></tr>
+        <tr><td><code>border-top / border-end / border-bottom / border-start</code></td><td>Individual side border</td></tr>
+        <tr><td><code>border-top-0 / border-end-0 / border-bottom-0 / border-start-0</code></td><td>Remove individual side border</td></tr>
+        <tr><td><code>border-{1–5}</code></td><td>Border width in px</td></tr>
+        <tr><td><code>border-{color}</code></td><td>Semantic border color</td></tr>
+        <tr><td><code>border-{color}-subtle</code></td><td>Tinted border color</td></tr>
+        <tr><td><code>border-black / border-white</code></td><td>Absolute black / white border</td></tr>
+        <tr><td><code>border-opacity-{10|25|50|75}</code></td><td>Border opacity</td></tr>
+        <tr><td><code>rounded</code></td><td>Default border-radius</td></tr>
+        <tr><td><code>rounded-0 / rounded-1 / rounded-2 / rounded-3 / rounded-4 / rounded-5</code></td><td>Radius scale 0–1rem</td></tr>
+        <tr><td><code>rounded-circle</code></td><td>border-radius: 50%</td></tr>
+        <tr><td><code>rounded-pill</code></td><td>border-radius: 999px</td></tr>
+        <tr><td><code>rounded-top / rounded-end / rounded-bottom / rounded-start</code></td><td>Round specific corners</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">Border sides</p>
+    <div class="d-flex flex-wrap gap-3 mb-3">
+      <div class="border p-3 rounded">border</div>
+      <div class="border-top p-3">border-top</div>
+      <div class="border-end p-3">border-end</div>
+      <div class="border-bottom p-3">border-bottom</div>
+      <div class="border-start p-3">border-start</div>
+    </div>
+    <p class="fw-semibold mb-2">Border widths</p>
+    <div class="d-flex flex-wrap gap-3 mb-3">
+      <div class="border border-1 border-primary rounded p-3">border-1</div>
+      <div class="border border-2 border-primary rounded p-3">border-2</div>
+      <div class="border border-3 border-primary rounded p-3">border-3</div>
+      <div class="border border-4 border-primary rounded p-3">border-4</div>
+      <div class="border border-5 border-primary rounded p-3">border-5</div>
+    </div>
+    <p class="fw-semibold mb-2">Rounding scale</p>
+    <div class="d-flex flex-wrap gap-3 align-items-center">
+      <div class="border bg-body-secondary p-3 rounded-0">rounded-0</div>
+      <div class="border bg-body-secondary p-3 rounded-1">rounded-1</div>
+      <div class="border bg-body-secondary p-3 rounded-2">rounded-2</div>
+      <div class="border bg-body-secondary p-3 rounded-3">rounded-3</div>
+      <div class="border bg-body-secondary p-3 rounded-4">rounded-4</div>
+      <div class="border bg-body-secondary p-3 rounded-5">rounded-5</div>
+      <div class="border bg-body-secondary p-3 rounded-pill">rounded-pill</div>
+      <div class="border bg-body-secondary rounded-circle" style="width:60px;height:60px;display:flex;align-items:center;justify-content:center">circle</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 10 — SHADOWS -->
+<section id="shadows" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Shadows</h2>
+  <p class="text-body-secondary mb-4">Four levels of box-shadow using CSS custom properties. Theme-aware — shadow colours adapt to light/dark mode.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>shadow-sm</code></td><td>Small subtle shadow</td></tr>
+        <tr><td><code>shadow</code></td><td>Default medium shadow</td></tr>
+        <tr><td><code>shadow-lg</code></td><td>Large prominent shadow</td></tr>
+        <tr><td><code>shadow-none</code></td><td>Remove shadow</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="row g-4">
+      <div class="col-6 col-md-3"><div class="shadow-sm bg-body rounded p-3 text-center">shadow-sm</div></div>
+      <div class="col-6 col-md-3"><div class="shadow bg-body rounded p-3 text-center">shadow</div></div>
+      <div class="col-6 col-md-3"><div class="shadow-lg bg-body rounded p-3 text-center">shadow-lg</div></div>
+      <div class="col-6 col-md-3"><div class="shadow-none border bg-body rounded p-3 text-center">shadow-none</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 11 — BUTTONS -->
+<section id="buttons" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Buttons</h2>
+  <p class="text-body-secondary mb-4">Solid and outline variants for all 8 semantic colours, plus sizes, close button, link button, and group/toolbar layout.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>btn-{color}</code></td><td>Solid button — primary, secondary, success, danger, warning, info, light, dark</td></tr>
+        <tr><td><code>btn-outline-{color}</code></td><td>Outline button — same colour set</td></tr>
+        <tr><td><code>btn-sm / btn-lg</code></td><td>Small / large size modifier</td></tr>
+        <tr><td><code>btn-close</code></td><td>Accessible × dismiss button</td></tr>
+        <tr><td><code>btn-close-white</code></td><td>White × for dark backgrounds</td></tr>
+        <tr><td><code>btn-link</code></td><td>Looks like a link, acts like a button</td></tr>
+        <tr><td><code>btn-group</code></td><td>Attach buttons horizontally</td></tr>
+        <tr><td><code>btn-group-sm / btn-group-lg</code></td><td>Size modifier on group</td></tr>
+        <tr><td><code>btn-group-vertical</code></td><td>Stack buttons vertically</td></tr>
+        <tr><td><code>btn-toolbar</code></td><td>Group of groups with spacing</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">Solid</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <button class="btn-primary">primary</button>
+      <button class="btn-secondary">secondary</button>
+      <button class="btn-success">success</button>
+      <button class="btn-danger">danger</button>
+      <button class="btn-warning">warning</button>
+      <button class="btn-info">info</button>
+      <button class="btn-light">light</button>
+      <button class="btn-dark">dark</button>
+    </div>
+    <p class="fw-semibold mb-2">Outline</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <button class="btn-outline-primary">primary</button>
+      <button class="btn-outline-secondary">secondary</button>
+      <button class="btn-outline-success">success</button>
+      <button class="btn-outline-danger">danger</button>
+      <button class="btn-outline-warning">warning</button>
+      <button class="btn-outline-info">info</button>
+      <button class="btn-outline-light">light</button>
+      <button class="btn-outline-dark">dark</button>
+    </div>
+    <p class="fw-semibold mb-2">Sizes + link + close</p>
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+      <button class="btn-primary btn-sm">btn-sm</button>
+      <button class="btn-primary">default</button>
+      <button class="btn-primary btn-lg">btn-lg</button>
+      <button class="btn-link">btn-link</button>
+      <button class="btn-close" aria-label="Close"></button>
+      <span class="bg-dark rounded p-2"><button class="btn-close btn-close-white" aria-label="Close"></button></span>
+    </div>
+    <p class="fw-semibold mb-2">Button group + toolbar</p>
+    <div class="btn-toolbar gap-2">
+      <div class="btn-group">
+        <button class="btn-outline-primary">Left</button>
+        <button class="btn-outline-primary">Middle</button>
+        <button class="btn-outline-primary">Right</button>
+      </div>
+      <div class="btn-group btn-group-sm">
+        <button class="btn-secondary">A</button>
+        <button class="btn-secondary">B</button>
+      </div>
+    </div>
+    <div class="btn-group-vertical mt-3">
+      <button class="btn-outline-success">Top</button>
+      <button class="btn-outline-success">Middle</button>
+      <button class="btn-outline-success">Bottom</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 12 — ALERTS -->
+<section id="alerts" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Alerts</h2>
+  <p class="text-body-secondary mb-4">Contextual feedback messages in 8 colour variants. Supports headings, links, and a dismissible variant.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>alert</code></td><td>Base alert container</td></tr>
+        <tr><td><code>alert-{color}</code></td><td>Colour variant — primary, secondary, success, danger, warning, info, light, dark</td></tr>
+        <tr><td><code>alert-heading</code></td><td>Styled heading inside alert</td></tr>
+        <tr><td><code>alert-link</code></td><td>Styled link inside alert</td></tr>
+        <tr><td><code>alert-dismissible</code></td><td>Adds padding-right for close button</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="alert alert-primary" role="alert">
+      <h5 class="alert-heading">alert-primary</h5>
+      This is a primary alert with an <a href="#" class="alert-link">alert-link</a> inside it.
+    </div>
+    <div class="alert alert-success" role="alert">alert-success — <a href="#" class="alert-link">alert-link</a></div>
+    <div class="alert alert-danger" role="alert">alert-danger — <a href="#" class="alert-link">alert-link</a></div>
+    <div class="alert alert-warning" role="alert">alert-warning — <a href="#" class="alert-link">alert-link</a></div>
+    <div class="alert alert-info" role="alert">alert-info — <a href="#" class="alert-link">alert-link</a></div>
+    <div class="alert alert-secondary" role="alert">alert-secondary</div>
+    <div class="alert alert-light" role="alert">alert-light</div>
+    <div class="alert alert-dark" role="alert">alert-dark</div>
+    <div class="alert alert-success alert-dismissible" role="alert">
+      <strong>alert-dismissible</strong> — Close button sits in the padding-right space.
+      <button class="btn-close" aria-label="Close" onclick="this.closest('.alert').style.display='none'"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 13 — BADGES -->
+<section id="badges" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Badges</h2>
+  <p class="text-body-secondary mb-4">Inline contextual labels for counts, statuses, and tags. Use <code>rounded-pill</code> for a pill shape.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>badge</code></td><td>Base badge — inline-block, small padding, bold text</td></tr>
+        <tr><td><code>badge-{color}</code></td><td>Colour variant — primary, secondary, success, danger, warning, info, light, dark</td></tr>
+        <tr><td><code>badge-pill</code></td><td>Pill shape (border-radius: 999px)</td></tr>
+        <tr><td><code>rounded-pill</code></td><td>Generic pill rounding — same result on badge</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">Square badges</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="badge badge-primary">primary</span>
+      <span class="badge badge-secondary">secondary</span>
+      <span class="badge badge-success">success</span>
+      <span class="badge badge-danger">danger</span>
+      <span class="badge badge-warning">warning</span>
+      <span class="badge badge-info">info</span>
+      <span class="badge badge-light">light</span>
+      <span class="badge badge-dark">dark</span>
+    </div>
+    <p class="fw-semibold mb-2">Pill badges</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="badge badge-primary rounded-pill">primary</span>
+      <span class="badge badge-success rounded-pill">success</span>
+      <span class="badge badge-danger rounded-pill">danger 99+</span>
+    </div>
+    <p class="fw-semibold mb-2">Badges on headings and buttons</p>
+    <div class="d-flex flex-wrap gap-3 align-items-center">
+      <h4 class="mb-0">Notifications <span class="badge badge-danger">4</span></h4>
+      <button class="btn-primary">Inbox <span class="badge badge-light ms-1">12</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 14 — CARDS -->
+<section id="cards" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Cards</h2>
+  <p class="text-body-secondary mb-4">Flexible content container with optional header, footer, image regions, and overlay variant.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>card</code></td><td>Base card container — flex column, border, rounded, shadow-sm</td></tr>
+        <tr><td><code>card-body</code></td><td>Padded content area — flex: 1 1 auto</td></tr>
+        <tr><td><code>card-header</code></td><td>Top section with border-bottom and secondary background</td></tr>
+        <tr><td><code>card-footer</code></td><td>Bottom section with border-top and secondary background</td></tr>
+        <tr><td><code>card-title</code></td><td>Card heading — font-size 1.125rem, font-weight 600</td></tr>
+        <tr><td><code>card-subtitle</code></td><td>Subheading — muted, smaller</td></tr>
+        <tr><td><code>card-text</code></td><td>Body copy — muted, 0.9375rem</td></tr>
+        <tr><td><code>card-link</code></td><td>Anchor inside card body — primary colour, hover underline</td></tr>
+        <tr><td><code>card-img-top</code></td><td>Image at top — full width, object-fit cover, rounded top corners</td></tr>
+        <tr><td><code>card-img-bottom</code></td><td>Image at bottom — rounded bottom corners</td></tr>
+        <tr><td><code>card-img</code></td><td>Image covering full card — all corners rounded</td></tr>
+        <tr><td><code>card-img-overlay</code></td><td>Absolute positioned overlay on top of card-img</td></tr>
+        <tr><td><code>card-group</code></td><td>Side-by-side cards with equal height</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <div class="card">
+          <div class="card-header">card-header</div>
+          <div class="card-body">
+            <h5 class="card-title">Card Title</h5>
+            <h6 class="card-subtitle mb-2">Card Subtitle</h6>
+            <p class="card-text">This is card-text. It uses a slightly muted colour and line-height for readability.</p>
+            <a href="#" class="card-link">card-link</a>
+            <a href="#" class="card-link">Another link</a>
+          </div>
+          <div class="card-footer">card-footer</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card">
+          <div class="card-img-top bg-primary-subtle d-flex align-items-center justify-content-center" style="height:120px">
+            <span class="text-primary fw-semibold">card-img-top</span>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Image Card</h5>
+            <p class="card-text">card-img-top sits above card-body with rounded top corners.</p>
+            <button class="btn-primary btn-sm">Action</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card position-relative overflow-hidden">
+          <div class="card-img bg-dark d-flex align-items-center justify-content-center" style="height:220px">
+            <span class="text-white">card-img (background)</span>
+          </div>
+          <div class="card-img-overlay d-flex flex-column justify-content-end">
+            <h5 class="card-title text-white">card-img-overlay</h5>
+            <p class="card-text text-white mb-0">Positioned over card-img.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="fw-semibold mt-4 mb-2">card-group — equal height side by side</p>
+    <div class="card-group">
+      <div class="card"><div class="card-body"><h5 class="card-title">Card A</h5><p class="card-text">Short content.</p></div><div class="card-footer text-body-secondary">Footer A</div></div>
+      <div class="card"><div class="card-body"><h5 class="card-title">Card B</h5><p class="card-text">This card has more content to demonstrate equal height in the card-group layout.</p></div><div class="card-footer text-body-secondary">Footer B</div></div>
+      <div class="card"><div class="card-body"><h5 class="card-title">Card C</h5><p class="card-text">Short.</p></div><div class="card-footer text-body-secondary">Footer C</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 15 — FORMS -->
+<section id="forms" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Forms</h2>
+  <p class="text-body-secondary mb-4">Complete form component set including floating labels, switches, range inputs, input groups, and HTML5 constraint validation.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>form-label</code></td><td>Styled label above control</td></tr>
+        <tr><td><code>form-control</code></td><td>Text input, textarea — full width, styled</td></tr>
+        <tr><td><code>form-control-sm / form-control-lg</code></td><td>Smaller / larger input</td></tr>
+        <tr><td><code>form-control-plaintext</code></td><td>Read-only text matching body text</td></tr>
+        <tr><td><code>form-control-color</code></td><td>Styled colour picker</td></tr>
+        <tr><td><code>form-select</code></td><td>Styled select dropdown</td></tr>
+        <tr><td><code>form-select-sm / form-select-lg</code></td><td>Select size variants</td></tr>
+        <tr><td><code>form-check</code></td><td>Checkbox or radio wrapper</td></tr>
+        <tr><td><code>form-check-input</code></td><td>The checkbox / radio element</td></tr>
+        <tr><td><code>form-check-label</code></td><td>Label for checkbox / radio</td></tr>
+        <tr><td><code>form-check-inline</code></td><td>Inline display of check items</td></tr>
+        <tr><td><code>form-switch</code></td><td>Toggle switch instead of checkbox</td></tr>
+        <tr><td><code>form-range</code></td><td>Styled range slider</td></tr>
+        <tr><td><code>form-text</code></td><td>Help text below control</td></tr>
+        <tr><td><code>form-floating</code></td><td>Floating label layout</td></tr>
+        <tr><td><code>input-group</code></td><td>Attach text / buttons beside an input</td></tr>
+        <tr><td><code>input-group-text</code></td><td>Static text addon in input-group</td></tr>
+        <tr><td><code>input-group-sm / input-group-lg</code></td><td>Input group size variants</td></tr>
+        <tr><td><code>col-form-label</code></td><td>Label padding aligned with horizontal form</td></tr>
+        <tr><td><code>valid-feedback / invalid-feedback</code></td><td>Validation message (shown by was-validated / is-valid / is-invalid)</td></tr>
+        <tr><td><code>valid-tooltip / invalid-tooltip</code></td><td>Tooltip-style validation message</td></tr>
+        <tr><td><code>was-validated</code></td><td>On form — triggers :valid/:invalid CSS</td></tr>
+        <tr><td><code>needs-validation</code></td><td>Alternative — triggers on HTML5 constraint check</td></tr>
+        <tr><td><code>is-valid / is-invalid</code></td><td>Force valid / invalid state on individual control</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <form class="was-validated" novalidate>
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label" for="fName">Full name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" id="fName" placeholder="Jane Doe" required value="Jane Doe">
+          <div class="valid-feedback">Looks good!</div>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label" for="fEmail">Email <span class="text-danger">*</span></label>
+          <input type="email" class="form-control is-invalid" id="fEmail" placeholder="jane@example.com" required value="not-an-email">
+          <div class="invalid-feedback">Please enter a valid email address.</div>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label" for="fRole">Role</label>
+          <select class="form-select" id="fRole">
+            <option value="">Select a role...</option>
+            <option selected>Designer</option>
+            <option>Developer</option>
+            <option>Manager</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label" for="fColor">Favourite colour</label>
+          <input type="color" class="form-control form-control-color" id="fColor" value="#0d6efd">
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="fBio">Bio</label>
+          <textarea class="form-control" id="fBio" rows="3" placeholder="Tell us about yourself..."></textarea>
+          <div class="form-text">Maximum 500 characters. This is form-text help copy.</div>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Skills (form-check-inline)</label>
+          <div>
+            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="sk1" checked><label class="form-check-label" for="sk1">CSS</label></div>
+            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="sk2" checked><label class="form-check-label" for="sk2">HTML</label></div>
+            <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" id="sk3"><label class="form-check-label" for="sk3">JS</label></div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Experience level</label>
+          <div class="form-check"><input class="form-check-input" type="radio" name="exp" id="exp1" checked><label class="form-check-label" for="exp1">Junior</label></div>
+          <div class="form-check"><input class="form-check-input" type="radio" name="exp" id="exp2"><label class="form-check-label" for="exp2">Mid</label></div>
+          <div class="form-check"><input class="form-check-input" type="radio" name="exp" id="exp3"><label class="form-check-label" for="exp3">Senior</label></div>
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label d-block">Notifications (form-switch)</label>
+          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw1" checked><label class="form-check-label" for="sw1">Email alerts</label></div>
+          <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw2"><label class="form-check-label" for="sw2">SMS alerts</label></div>
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="fRange">Skill level (form-range)</label>
+          <input type="range" class="form-range" id="fRange" min="0" max="100" value="65">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Input group — URL prefix + button suffix</label>
+          <div class="input-group">
+            <span class="input-group-text">https://</span>
+            <input type="text" class="form-control" placeholder="yoursite.com">
+            <button class="btn-primary" type="button">Copy</button>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-floating">
+            <input type="text" class="form-control" id="floatName" placeholder="Name">
+            <label for="floatName">Floating label — label animates up on focus</label>
+          </div>
+        </div>
+        <div class="col-12">
+          <button class="btn-primary" type="submit">Submit form</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 16 — TABLES -->
+<section id="tables" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Tables</h2>
+  <p class="text-body-secondary mb-4">Styled HTML tables with striped rows, hover, borders, colour variants, dark mode, and responsive overflow.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>table</code></td><td>Base table — full width, border-collapse, cell padding</td></tr>
+        <tr><td><code>table-striped</code></td><td>Alternating row background</td></tr>
+        <tr><td><code>table-hover</code></td><td>Hover highlight on rows</td></tr>
+        <tr><td><code>table-bordered</code></td><td>Borders on all cells and outer edge</td></tr>
+        <tr><td><code>table-borderless</code></td><td>Remove all cell borders</td></tr>
+        <tr><td><code>table-sm</code></td><td>Reduced cell padding</td></tr>
+        <tr><td><code>table-dark</code></td><td>Dark background table</td></tr>
+        <tr><td><code>table-striped-columns</code></td><td>Alternating column background</td></tr>
+        <tr><td><code>table-responsive</code></td><td>Horizontal scroll on overflow</td></tr>
+        <tr><td><code>table-{color}</code></td><td>Apply semantic colour to row or cell — primary, success, danger, warning, info, secondary, light, active</td></tr>
+        <tr><td><code>caption-top</code></td><td>Move caption above table</td></tr>
+        <tr><td><code>table-group-divider</code></td><td>Bold top border between thead/tbody/tfoot groups</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover table-bordered align-middle">
+        <caption class="caption-top">caption-top — Members list</caption>
+        <thead class="table-dark">
+          <tr><th>#</th><th>Name</th><th>Role</th><th>Status</th><th>Score</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>1</th><td>Alice</td><td>Designer</td><td><span class="badge badge-success">Active</span></td><td>92</td></tr>
+          <tr class="table-primary"><th>2</th><td>Bob</td><td>Developer</td><td><span class="badge badge-primary">table-primary row</span></td><td>88</td></tr>
+          <tr><th>3</th><td>Carol</td><td>Manager</td><td><span class="badge badge-warning">Pending</span></td><td>74</td></tr>
+          <tr class="table-danger"><th>4</th><td>Dave</td><td>QA</td><td><span class="badge badge-danger">table-danger row</span></td><td>41</td></tr>
+          <tr><th>5</th><td>Eve</td><td>DevOps</td><td><span class="badge badge-success">Active</span></td><td>97</td></tr>
+        </tbody>
+        <tfoot class="table-group-divider">
+          <tr><td colspan="4" class="text-end fw-semibold">Average score</td><td>78.4</td></tr>
+        </tfoot>
+      </table>
+    </div>
+    <p class="fw-semibold mt-3 mb-2">table-dark</p>
+    <div class="table-responsive">
+      <table class="table table-dark table-sm table-hover">
+        <thead><tr><th>Product</th><th>Price</th><th>Stock</th></tr></thead>
+        <tbody>
+          <tr><td>Widget A</td><td>$12.00</td><td>84</td></tr>
+          <tr><td>Widget B</td><td>$8.50</td><td>12</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 17 — NAVBAR -->
+<section id="navbar" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Navbar</h2>
+  <p class="text-body-secondary mb-4">Responsive navigation bar. Collapses to a toggler on small screens. The page top bar is itself a live navbar demo.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>navbar</code></td><td>Base navbar — flex, align-items center, padding</td></tr>
+        <tr><td><code>navbar-expand-{bp}</code></td><td>Collapse below breakpoint, horizontal above</td></tr>
+        <tr><td><code>navbar-brand</code></td><td>Logo/name link — larger font, padding</td></tr>
+        <tr><td><code>navbar-nav</code></td><td>List of nav items — flex column on mobile, row on desktop</td></tr>
+        <tr><td><code>navbar-toggler</code></td><td>Mobile hamburger button</td></tr>
+        <tr><td><code>navbar-toggler-icon</code></td><td>Animated hamburger icon inside toggler</td></tr>
+        <tr><td><code>navbar-collapse</code></td><td>Collapsible nav content area</td></tr>
+        <tr><td><code>navbar-text</code></td><td>Non-link text inside navbar</td></tr>
+        <tr><td><code>navbar-dark</code></td><td>Light text/icons on dark background</td></tr>
+        <tr><td><code>navbar-light</code></td><td>Dark text/icons on light background</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">navbar-dark on dark background</p>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark rounded mb-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">BrandDark</a>
+        <button class="navbar-toggler" aria-label="Toggle"
+          onclick="var el=document.getElementById('nb-dark');el.setAttribute('data-st-collapsed',el.getAttribute('data-st-collapsed')==='false'?'true':'false')">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse" id="nb-dark" data-st-collapsed="true">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Features</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
+          </ul>
+          <span class="navbar-text">navbar-text</span>
+        </div>
+      </div>
+    </nav>
+    <p class="fw-semibold mb-2">navbar-light on light background</p>
+    <nav class="navbar navbar-expand-md navbar-light bg-light rounded border">
+      <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">BrandLight</a>
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#">Docs</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">GitHub</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 18 — NAVIGATION -->
+<section id="navigation" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Nav / Tabs / Pills</h2>
+  <p class="text-body-secondary mb-4">Navigation link groups with tab, pill, and underline styles. Tab content panels controlled by active class toggling.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>nav</code></td><td>Base nav — flex, gap, list-style none</td></tr>
+        <tr><td><code>nav-item</code></td><td>Individual nav item wrapper</td></tr>
+        <tr><td><code>nav-link</code></td><td>Nav link — padding, colour, disabled state</td></tr>
+        <tr><td><code>nav-tabs</code></td><td>Tab-style nav with active tab underline</td></tr>
+        <tr><td><code>nav-pills</code></td><td>Pill-shaped active indicator</td></tr>
+        <tr><td><code>nav-underline</code></td><td>Subtle underline active indicator (Bootstrap 5.3)</td></tr>
+        <tr><td><code>nav-fill</code></td><td>All items fill equal width</td></tr>
+        <tr><td><code>nav-justified</code></td><td>All items equal width, flex-basis 0</td></tr>
+        <tr><td><code>tab-content</code></td><td>Wrapper — hides all tab-pane children</td></tr>
+        <tr><td><code>tab-pane</code></td><td>Individual panel — display:none by default</td></tr>
+        <tr><td><code>active</code></td><td>On nav-link — shows active state. On tab-pane — shows panel.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">nav-tabs with tab-content</p>
+    <ul class="nav nav-tabs mb-0" id="tabDemo">
+      <li class="nav-item"><a class="nav-link active" href="#" onclick="switchTab(event,'tab-home')">Home</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab(event,'tab-profile')">Profile</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" onclick="switchTab(event,'tab-settings')">Settings</a></li>
+      <li class="nav-item"><a class="nav-link" style="pointer-events:none;opacity:.5">Disabled</a></li>
+    </ul>
+    <div class="tab-content border border-top-0 rounded-bottom p-3">
+      <div class="tab-pane show active" id="tab-home"><p class="mb-0">Home tab content — <code>tab-pane show active</code> makes this visible.</p></div>
+      <div class="tab-pane" id="tab-profile"><p class="mb-0">Profile tab content — hidden until <code>active</code> is added.</p></div>
+      <div class="tab-pane" id="tab-settings"><p class="mb-0">Settings tab content.</p></div>
+    </div>
+    <p class="fw-semibold mt-4 mb-2">nav-pills</p>
+    <ul class="nav nav-pills gap-1 mb-3">
+      <li class="nav-item"><a class="nav-link active" href="#">Active</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Link</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Another</a></li>
+    </ul>
+    <p class="fw-semibold mb-2">nav-underline</p>
+    <ul class="nav nav-underline gap-1">
+      <li class="nav-item"><a class="nav-link active" href="#">Active</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Link</a></li>
+      <li class="nav-item"><a class="nav-link" href="#">Another</a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 19 — LIST GROUP -->
+<section id="list-group" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">List Group</h2>
+  <p class="text-body-secondary mb-4">Flexible component for displaying lists of content. Supports action items, numbered variant, horizontal layout, and flush (no border) style.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>list-group</code></td><td>Container — flex column, border, rounded</td></tr>
+        <tr><td><code>list-group-item</code></td><td>Individual item — padding, border-bottom</td></tr>
+        <tr><td><code>list-group-item-action</code></td><td>Makes item clickable — hover/active states</td></tr>
+        <tr><td><code>list-group-flush</code></td><td>Remove outer border and rounded corners</td></tr>
+        <tr><td><code>list-group-horizontal</code></td><td>Items side by side (row direction)</td></tr>
+        <tr><td><code>list-group-numbered</code></td><td>Auto-numbered items via CSS counter</td></tr>
+        <tr><td><code>active</code></td><td>Highlight item as selected</td></tr>
+        <tr><td><code>disabled</code></td><td>Muted non-interactive appearance</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <p class="fw-semibold mb-2">Basic + active + disabled</p>
+        <ul class="list-group">
+          <li class="list-group-item active">Active item</li>
+          <li class="list-group-item">Normal item</li>
+          <li class="list-group-item">Another item</li>
+          <li class="list-group-item disabled">Disabled item</li>
+        </ul>
+      </div>
+      <div class="col-12 col-md-4">
+        <p class="fw-semibold mb-2">list-group-numbered</p>
+        <ol class="list-group list-group-numbered">
+          <li class="list-group-item">First item</li>
+          <li class="list-group-item">Second item</li>
+          <li class="list-group-item">Third item</li>
+        </ol>
+      </div>
+      <div class="col-12 col-md-4">
+        <p class="fw-semibold mb-2">list-group-item-action</p>
+        <div class="list-group">
+          <a href="#" class="list-group-item list-group-item-action active">Active link</a>
+          <a href="#" class="list-group-item list-group-item-action">Link item</a>
+          <a href="#" class="list-group-item list-group-item-action">Another link</a>
+        </div>
+      </div>
+      <div class="col-12">
+        <p class="fw-semibold mb-2">list-group-horizontal</p>
+        <ul class="list-group list-group-horizontal">
+          <li class="list-group-item active">One</li>
+          <li class="list-group-item">Two</li>
+          <li class="list-group-item">Three</li>
+          <li class="list-group-item">Four</li>
+        </ul>
+      </div>
+      <div class="col-12">
+        <p class="fw-semibold mb-2">list-group-flush</p>
+        <ul class="list-group list-group-flush border rounded">
+          <li class="list-group-item">Flush item — no outer border-radius</li>
+          <li class="list-group-item">Another flush item</li>
+          <li class="list-group-item">Last item</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 20 — BREADCRUMB -->
+<section id="breadcrumb" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Breadcrumb</h2>
+  <p class="text-body-secondary mb-4">Hierarchical page location indicator. The separator (/) is generated by CSS content — no extra markup needed.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>breadcrumb</code></td><td>Flex list — generates / separators via CSS</td></tr>
+        <tr><td><code>breadcrumb-item</code></td><td>Individual crumb — adds separator before itself</td></tr>
+        <tr><td><code>active</code></td><td>On last breadcrumb-item — muted, no separator</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Framework</a></li>
+        <li class="breadcrumb-item"><a href="#">Components</a></li>
+        <li class="breadcrumb-item active">Breadcrumb</li>
+      </ol>
+    </nav>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 21 — PAGINATION -->
+<section id="pagination" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Pagination</h2>
+  <p class="text-body-secondary mb-4">Page navigation component. Supports active/disabled states and small/large size variants.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>pagination</code></td><td>Flex list of page items</td></tr>
+        <tr><td><code>pagination-sm / pagination-lg</code></td><td>Smaller / larger page links</td></tr>
+        <tr><td><code>page-item</code></td><td>Individual page wrapper — active/disabled states</td></tr>
+        <tr><td><code>page-link</code></td><td>Anchor/button inside page-item — padding, border, hover</td></tr>
+        <tr><td><code>active</code></td><td>On page-item — highlights current page</td></tr>
+        <tr><td><code>disabled</code></td><td>On page-item — mutes and prevents interaction</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <nav aria-label="Page navigation" class="mb-3">
+      <ul class="pagination">
+        <li class="page-item disabled"><a class="page-link" href="#">&laquo; Prev</a></li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item active"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item"><a class="page-link" href="#">4</a></li>
+        <li class="page-item"><a class="page-link" href="#">5</a></li>
+        <li class="page-item"><a class="page-link" href="#">Next &raquo;</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="Small pagination" class="mb-3">
+      <ul class="pagination pagination-sm">
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item active"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+      </ul>
+    </nav>
+    <nav aria-label="Large pagination">
+      <ul class="pagination pagination-lg">
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item active"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+      </ul>
+    </nav>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 22 — ACCORDION -->
+<section id="accordion" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Accordion</h2>
+  <p class="text-body-secondary mb-4">Vertically collapsing content panels. Toggle panels using the <code>data-st-collapsed</code> attribute which Strata's CSS transitions handle. JS accordion component coming in a future update.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>accordion</code></td><td>Outer container</td></tr>
+        <tr><td><code>accordion-item</code></td><td>Individual panel with border</td></tr>
+        <tr><td><code>accordion-header</code></td><td>Button wrapper — margin 0</td></tr>
+        <tr><td><code>accordion-button</code></td><td>Toggle button — chevron icon, active state</td></tr>
+        <tr><td><code>accordion-collapse</code></td><td>Collapsible body wrapper</td></tr>
+        <tr><td><code>accordion-body</code></td><td>Padded content inside collapse</td></tr>
+        <tr><td><code>accordion-flush</code></td><td>Remove outer border — flush to container edges</td></tr>
+        <tr><td><code>data-st-collapsed="false"</code></td><td>Panel is open (max-height: 2000px, opacity: 1)</td></tr>
+        <tr><td><code>data-st-collapsed="true"</code></td><td>Panel is closed (max-height: 0, opacity: 0)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="accordion" id="accordionDemo">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" onclick="toggleAccordion('acc1')">Accordion Item 1 — click to toggle</button>
+        </h2>
+        <div class="accordion-collapse" id="acc1" data-st-collapsed="false">
+          <div class="accordion-body">This panel is open by default (<code>data-st-collapsed="false"</code>). Content transitions smoothly on toggle.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" onclick="toggleAccordion('acc2')">Accordion Item 2</button>
+        </h2>
+        <div class="accordion-collapse" id="acc2" data-st-collapsed="true">
+          <div class="accordion-body">This panel is closed by default (<code>data-st-collapsed="true"</code>). Click the header to expand.</div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" onclick="toggleAccordion('acc3')">Accordion Item 3</button>
+        </h2>
+        <div class="accordion-collapse" id="acc3" data-st-collapsed="true">
+          <div class="accordion-body">Third accordion panel. The CSS handles the smooth transition via <code>max-height</code> and <code>opacity</code>.</div>
+        </div>
+      </div>
+    </div>
+    <p class="fw-semibold mt-4 mb-2">accordion-flush</p>
+    <div class="accordion accordion-flush border rounded">
+      <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button" onclick="toggleAccordion('accf1')">Flush item 1</button></h2>
+        <div class="accordion-collapse" id="accf1" data-st-collapsed="false"><div class="accordion-body">No outer border or border-radius. Sits flush inside its container.</div></div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header"><button class="accordion-button" onclick="toggleAccordion('accf2')">Flush item 2</button></h2>
+        <div class="accordion-collapse" id="accf2" data-st-collapsed="true"><div class="accordion-body">Content for flush item 2.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 23 — MODAL -->
+<section id="modal" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Modal</h2>
+  <p class="text-body-secondary mb-4">Dialog overlay powered by <code>Strata.Modal</code> JS component. Triggered by <code>data-st-toggle="modal"</code>, dismissed by <code>data-st-dismiss="modal"</code>, backdrop click, or Escape key. Static backdrop prevents outside-click dismissal.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class / Attribute</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>modal</code></td><td>Full-screen fixed overlay — visibility + opacity transitions</td></tr>
+        <tr><td><code>modal-dialog</code></td><td>Centered content wrapper — max-width 500px, margin auto, slide-in animation</td></tr>
+        <tr><td><code>modal-dialog-centered</code></td><td>Vertically center dialog in viewport</td></tr>
+        <tr><td><code>modal-dialog-scrollable</code></td><td>Scrollable modal-body, fixed header/footer</td></tr>
+        <tr><td><code>modal-content</code></td><td>Styled panel — bg, border, rounded, shadow</td></tr>
+        <tr><td><code>modal-header</code></td><td>Flex header — title + close button, border-bottom</td></tr>
+        <tr><td><code>modal-title</code></td><td>Heading inside modal-header</td></tr>
+        <tr><td><code>modal-body</code></td><td>Padded scrollable content area</td></tr>
+        <tr><td><code>modal-footer</code></td><td>Flex footer — right-aligned actions, border-top</td></tr>
+        <tr><td><code>modal-sm / modal-lg / modal-xl</code></td><td>Size variants — 300px / 800px / 1140px</td></tr>
+        <tr><td><code>modal-fullscreen</code></td><td>100vw × 100vh dialog</td></tr>
+        <tr><td><code>modal-static</code></td><td>Added by JS on static backdrop click — shake animation</td></tr>
+        <tr><td><code>modal-backdrop</code></td><td>Dim overlay behind dialog — created automatically by JS</td></tr>
+        <tr><td><code>data-st-toggle="modal"</code></td><td>On trigger — opens target modal on click</td></tr>
+        <tr><td><code>data-st-target="#id"</code></td><td>On trigger — selects which modal to open</td></tr>
+        <tr><td><code>data-st-dismiss="modal"</code></td><td>On any element inside modal — closes on click</td></tr>
+        <tr><td><code>data-st-backdrop="static"</code></td><td>On modal — backdrop click does not close</td></tr>
+        <tr><td><code>data-st-visible="true|false"</code></td><td>Managed by JS — do not set manually</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <button class="btn-primary" data-st-toggle="modal" data-st-target="#modalDefault">Default Modal</button>
+      <button class="btn-success" data-st-toggle="modal" data-st-target="#modalCentered">Centered</button>
+      <button class="btn-warning" data-st-toggle="modal" data-st-target="#modalScrollable">Scrollable</button>
+      <button class="btn-danger" data-st-toggle="modal" data-st-target="#modalStatic">Static Backdrop</button>
+      <button class="btn-secondary" data-st-toggle="modal" data-st-target="#modalSm">modal-sm</button>
+      <button class="btn-outline-primary" data-st-toggle="modal" data-st-target="#modalLg">modal-lg</button>
+      <button class="btn-outline-dark" data-st-toggle="modal" data-st-target="#modalFullscreen">Fullscreen</button>
+    </div>
+    <p class="text-body-secondary mb-0">Click any button above to open the corresponding modal variant. Dismiss by clicking outside, pressing Escape, or the close button.</p>
+  </div>
+</section>
+
+<!-- MODALS (outside section flow) -->
+<div class="modal" id="modalDefault" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Default Modal</h5><button class="btn-close" data-st-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><p>Standard modal with header, body, and footer. Click outside, press Escape, or use the close button to dismiss.</p></div>
+    <div class="modal-footer"><button class="btn-secondary" data-st-dismiss="modal">Close</button><button class="btn-primary">Save changes</button></div>
+  </div></div>
+</div>
+
+<div class="modal" id="modalCentered" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Centered Modal</h5><button class="btn-close" data-st-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><p>Vertically centered in the viewport via <code>modal-dialog-centered</code>.</p></div>
+    <div class="modal-footer"><button class="btn-primary" data-st-dismiss="modal">Got it</button></div>
+  </div></div>
+</div>
+
+<div class="modal" id="modalScrollable" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Scrollable Modal</h5><button class="btn-close" data-st-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body">
+      <p>This modal-body is scrollable while the header and footer remain fixed. Achieved with <code>modal-dialog-scrollable</code>.</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+      <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+      <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+    </div>
+    <div class="modal-footer"><button class="btn-secondary" data-st-dismiss="modal">Close</button></div>
+  </div></div>
+</div>
+
+<div class="modal" id="modalStatic" data-st-backdrop="static" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Static Backdrop</h5><button class="btn-close" data-st-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><p>Click outside this dialog — it won't close. Only the close button or Escape key works. When clicking outside, the dialog shakes via the <code>modal-static</code> animation class.</p></div>
+    <div class="modal-footer"><button class="btn-danger" data-st-dismiss="modal">Dismiss</button></div>
+  </div></div>
+</div>
+
+<div class="modal modal-sm" id="modalSm" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Small Modal</h5><button class="btn-close" data-st-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><p>max-width: 300px via <code>modal-sm</code>.</p></div>
+    <div class="modal-footer"><button class="btn-secondary" data-st-dismiss="modal">Close</button></div>
+  </div></div>
+</div>
+
+<div class="modal modal-lg" id="modalLg" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Large Modal</h5><button class="btn-close" data-st-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><p>max-width: 800px via <code>modal-lg</code>. Useful for forms, data tables, or rich content.</p></div>
+    <div class="modal-footer"><button class="btn-secondary" data-st-dismiss="modal">Close</button></div>
+  </div></div>
+</div>
+
+<div class="modal modal-fullscreen" id="modalFullscreen" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Fullscreen Modal</h5><button class="btn-close" data-st-dismiss="modal" aria-label="Close"></button></div>
+    <div class="modal-body"><p>Covers 100vw × 100vh via <code>modal-fullscreen</code>. No border-radius. Use for immersive flows like onboarding wizards or mobile app-style pages.</p></div>
+    <div class="modal-footer"><button class="btn-secondary" data-st-dismiss="modal">Close</button></div>
+  </div></div>
+</div>
+
+<!-- ═══════════════════════════════════════ SECTION 24 — DROPDOWNS -->
+<section id="dropdowns" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Dropdowns</h2>
+  <p class="text-body-secondary mb-4">Dropdown menus in 6 direction variants. Full dropdown JS component coming in a future update — menus shown statically open below for demonstration.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>dropdown</code></td><td>Position-relative wrapper</td></tr>
+        <tr><td><code>dropdown-toggle</code></td><td>Button with chevron — <code>::after</code> arrow</td></tr>
+        <tr><td><code>dropdown-menu</code></td><td>Floating menu — position absolute, border, shadow</td></tr>
+        <tr><td><code>dropdown-item</code></td><td>Menu option — hover background, padding</td></tr>
+        <tr><td><code>dropdown-divider</code></td><td>Horizontal rule separator in menu</td></tr>
+        <tr><td><code>dropdown-header</code></td><td>Non-interactive section heading</td></tr>
+        <tr><td><code>dropdown-menu-end</code></td><td>Align menu to right edge of toggle</td></tr>
+        <tr><td><code>dropup</code></td><td>Menu opens upward</td></tr>
+        <tr><td><code>dropend</code></td><td>Menu opens to the right</td></tr>
+        <tr><td><code>dropstart</code></td><td>Menu opens to the left</td></tr>
+        <tr><td><code>dropdown-center</code></td><td>Horizontally centered dropdown menu</td></tr>
+        <tr><td><code>dropup-center</code></td><td>Horizontally centered dropup menu</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="text-body-secondary mb-3">Menus shown open for reference — interactive open/close requires the upcoming Dropdown JS component.</p>
+    <div class="d-flex flex-wrap gap-5 align-items-start">
+      <div>
+        <p class="fw-semibold mb-1">dropdown</p>
+        <div class="dropdown">
+          <button class="btn-secondary dropdown-toggle">Menu</button>
+          <ul class="dropdown-menu d-block position-static shadow">
+            <li><h6 class="dropdown-header">Section header</h6></li>
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Separated link</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <p class="fw-semibold mb-1">dropdown-menu-end</p>
+        <div class="dropdown">
+          <button class="btn-primary dropdown-toggle">Right-aligned</button>
+          <ul class="dropdown-menu dropdown-menu-end d-block position-static shadow">
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Sign out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 25 — OFFCANVAS -->
+<section id="offcanvas" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Offcanvas</h2>
+  <p class="text-body-secondary mb-4">Side drawer panels in 4 placement directions. Full Offcanvas JS component coming in a future update. Structure is shown below for reference.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>offcanvas</code></td><td>Base fixed drawer — hidden by default, transitions on transform</td></tr>
+        <tr><td><code>offcanvas-start</code></td><td>Slides in from the left</td></tr>
+        <tr><td><code>offcanvas-end</code></td><td>Slides in from the right</td></tr>
+        <tr><td><code>offcanvas-top</code></td><td>Slides in from the top</td></tr>
+        <tr><td><code>offcanvas-bottom</code></td><td>Slides in from the bottom (30vh height)</td></tr>
+        <tr><td><code>offcanvas-header</code></td><td>Flex header — title + close button</td></tr>
+        <tr><td><code>offcanvas-title</code></td><td>Heading inside header</td></tr>
+        <tr><td><code>offcanvas-body</code></td><td>Scrollable body content</td></tr>
+        <tr><td><code>offcanvas-backdrop</code></td><td>Dim overlay behind drawer — managed by JS</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="text-body-secondary mb-3">Offcanvas HTML structure reference — interactive slide-in behavior requires the upcoming Offcanvas JS component.</p>
+    <pre class="rounded"><code>&lt;!-- Trigger --&gt;
+&lt;button data-st-toggle="offcanvas" data-st-target="#drawer"&gt;Open&lt;/button&gt;
+
+&lt;!-- Drawer --&gt;
+&lt;div class="offcanvas offcanvas-start" id="drawer"&gt;
+  &lt;div class="offcanvas-header"&gt;
+    &lt;h5 class="offcanvas-title"&gt;Sidebar&lt;/h5&gt;
+    &lt;button class="btn-close" data-st-dismiss="offcanvas"&gt;&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="offcanvas-body"&gt;
+    Content goes here.
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 26 — TOAST -->
+<section id="toast" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Toast</h2>
+  <p class="text-body-secondary mb-4">Lightweight notification messages. Typically positioned in a corner via <code>toast-container</code>. Shown statically below for reference.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>toast-container</code></td><td>Absolute/fixed wrapper — positions toasts in a corner</td></tr>
+        <tr><td><code>toast</code></td><td>Individual notification — border, shadow, rounded</td></tr>
+        <tr><td><code>toast-header</code></td><td>Flex header — icon + title + timestamp + close</td></tr>
+        <tr><td><code>toast-body</code></td><td>Padded content area</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="vstack gap-2">
+      <div class="toast show" role="alert">
+        <div class="toast-header">
+          <span class="badge badge-primary me-2">Strata</span>
+          <strong class="me-auto">Notification</strong>
+          <small class="text-body-secondary">just now</small>
+          <button class="btn-close ms-2" aria-label="Close" onclick="this.closest('.toast').style.display='none'"></button>
+        </div>
+        <div class="toast-body">Your changes have been saved successfully.</div>
+      </div>
+      <div class="toast show bg-success" role="alert">
+        <div class="toast-header bg-success text-white">
+          <strong class="me-auto">Success</strong>
+          <small>2s ago</small>
+          <button class="btn-close btn-close-white ms-2" onclick="this.closest('.toast').style.display='none'"></button>
+        </div>
+        <div class="toast-body text-white">File uploaded and processed.</div>
+      </div>
+      <div class="toast show bg-danger" role="alert">
+        <div class="toast-header bg-danger text-white">
+          <strong class="me-auto">Error</strong>
+          <small>5s ago</small>
+          <button class="btn-close btn-close-white ms-2" onclick="this.closest('.toast').style.display='none'"></button>
+        </div>
+        <div class="toast-body text-white">Connection failed. Please retry.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 27 — PROGRESS -->
+<section id="progress" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Progress</h2>
+  <p class="text-body-secondary mb-4">Progress bars with colour variants, animated stripes, stacked bars, and width set inline via CSS custom properties or width utilities.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>progress</code></td><td>Track container — fixed height, border-radius, overflow hidden</td></tr>
+        <tr><td><code>progress-bar</code></td><td>Filled portion — width controlled by <code>w-*</code> or inline style</td></tr>
+        <tr><td><code>progress-stacked</code></td><td>Multiple bars side by side in one track</td></tr>
+        <tr><td><code>progress-bar-animated</code></td><td>Animated striped bar</td></tr>
+        <tr><td><code>bg-{color}</code></td><td>Bar fill colour — applied to progress-bar</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="vstack gap-3">
+      <div>
+        <div class="d-flex justify-content-between mb-1"><span>Default (25%)</span><span>25%</span></div>
+        <div class="progress"><div class="progress-bar w-25" role="progressbar"></div></div>
+      </div>
+      <div>
+        <div class="d-flex justify-content-between mb-1"><span>Success (50%)</span><span>50%</span></div>
+        <div class="progress"><div class="progress-bar bg-success w-50" role="progressbar"></div></div>
+      </div>
+      <div>
+        <div class="d-flex justify-content-between mb-1"><span>Warning (75%)</span><span>75%</span></div>
+        <div class="progress"><div class="progress-bar bg-warning w-75" role="progressbar"></div></div>
+      </div>
+      <div>
+        <div class="d-flex justify-content-between mb-1"><span>Danger (100%)</span><span>100%</span></div>
+        <div class="progress"><div class="progress-bar bg-danger w-100" role="progressbar"></div></div>
+      </div>
+      <div>
+        <div class="mb-1">Animated</div>
+        <div class="progress"><div class="progress-bar progress-bar-animated w-75" role="progressbar"></div></div>
+      </div>
+      <div>
+        <div class="mb-1">Stacked</div>
+        <div class="progress progress-stacked">
+          <div class="progress w-25"><div class="progress-bar bg-primary" role="progressbar"></div></div>
+          <div class="progress w-15"><div class="progress-bar bg-success" role="progressbar"></div></div>
+          <div class="progress w-10"><div class="progress-bar bg-danger" role="progressbar"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 28 — SPINNERS -->
+<section id="spinners" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Spinners</h2>
+  <p class="text-body-secondary mb-4">CSS-only loading indicators in border (ring) and grow (pulse) styles. Colour via <code>text-{color}</code>.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>spinner-border</code></td><td>Spinning ring animation</td></tr>
+        <tr><td><code>spinner-border-sm</code></td><td>Smaller ring (1rem × 1rem)</td></tr>
+        <tr><td><code>spinner-grow</code></td><td>Pulsing grow animation</td></tr>
+        <tr><td><code>spinner-grow-sm</code></td><td>Smaller grow spinner</td></tr>
+        <tr><td><code>text-{color}</code></td><td>Applies colour to spinner</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">spinner-border</p>
+    <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
+      <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="spinner-border text-success" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="spinner-border text-warning" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="spinner-border text-info" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="spinner-border spinner-border-sm text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+    <p class="fw-semibold mb-2">spinner-grow</p>
+    <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
+      <div class="spinner-grow text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="spinner-grow text-success" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="spinner-grow text-danger" role="status"><span class="visually-hidden">Loading...</span></div>
+      <div class="spinner-grow spinner-grow-sm text-secondary" role="status"><span class="visually-hidden">Loading...</span></div>
+    </div>
+    <p class="fw-semibold mb-2">Button with spinner</p>
+    <button class="btn-primary" disabled>
+      <span class="spinner-border spinner-border-sm me-2" role="status"></span>Loading...
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 29 — TOOLTIPS -->
+<section id="tooltips" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Tooltips &amp; Popovers</h2>
+  <p class="text-body-secondary mb-4">CSS shells for positioned floating labels and rich content popovers. Positioning and show/hide requires a JS library (e.g. Floating UI / Popper.js). Shown statically below.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>tooltip</code></td><td>Outer tooltip wrapper — position absolute, z-index</td></tr>
+        <tr><td><code>tooltip-inner</code></td><td>Styled label — dark background, white text, rounded</td></tr>
+        <tr><td><code>tooltip-arrow</code></td><td>CSS triangle arrow</td></tr>
+        <tr><td><code>bs-tooltip-top / bottom / start / end</code></td><td>Directional placement — sets arrow position</td></tr>
+        <tr><td><code>popover</code></td><td>Richer floating panel — border, shadow, wider</td></tr>
+        <tr><td><code>popover-header</code></td><td>Titled section at top</td></tr>
+        <tr><td><code>popover-body</code></td><td>Content area</td></tr>
+        <tr><td><code>bs-popover-top / bottom / start / end</code></td><td>Directional margin for popover</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-3">Static demos</p>
+    <div class="d-flex flex-wrap gap-5 align-items-start">
+      <div class="position-relative">
+        <button class="btn-secondary">Tooltip above</button>
+        <div class="tooltip bs-tooltip-bottom show" style="position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);z-index:1">
+          <div class="tooltip-inner">bs-tooltip-bottom</div>
+        </div>
+      </div>
+      <div class="position-relative" style="margin-top:2rem">
+        <button class="btn-outline-primary">Popover</button>
+        <div class="popover bs-popover-bottom show" style="position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);z-index:1;min-width:180px">
+          <div class="popover-header">Popover Title</div>
+          <div class="popover-body">Rich content inside a popover. Can contain any HTML.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 30 — COLLAPSE -->
+<section id="collapse" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Collapse</h2>
+  <p class="text-body-secondary mb-4">Show and hide content via <code>data-st-collapsed</code>. The CSS handles smooth max-height + opacity transitions. Accordion (section 22) is built on this same system.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class / Attribute</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>collapse</code></td><td>Hidden by default (<code>display: none</code> when no show class)</td></tr>
+        <tr><td><code>collapse show</code></td><td>Visible collapsed content</td></tr>
+        <tr><td><code>collapsing</code></td><td>Applied during transition by JS (height animation)</td></tr>
+        <tr><td><code>data-st-collapsed="true"</code></td><td>Strata approach — max-height:0, opacity:0 via CSS</td></tr>
+        <tr><td><code>data-st-collapsed="false"</code></td><td>max-height:2000px, opacity:1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <button class="btn-primary mb-3" onclick="toggleAccordion('collapseDemo')">Toggle collapse</button>
+    <div id="collapseDemo" data-st-collapsed="false">
+      <div class="card card-body">
+        This content is collapsed/expanded via <code>data-st-collapsed</code>. The CSS in Strata's base layer handles the smooth transition on <code>max-height</code> and <code>opacity</code> whenever the attribute value changes.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 31 — CAROUSEL -->
+<section id="carousel" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Carousel</h2>
+  <p class="text-body-secondary mb-4">Slideshow component. Auto-play and prev/next controls require a Carousel JS component (coming soon). Structure shown with first slide active.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>carousel</code></td><td>Outer relative container</td></tr>
+        <tr><td><code>carousel-inner</code></td><td>Overflow-hidden slide track</td></tr>
+        <tr><td><code>carousel-item</code></td><td>Individual slide — float, transition transform</td></tr>
+        <tr><td><code>carousel-control-prev / next</code></td><td>Prev/next arrow overlays</td></tr>
+        <tr><td><code>carousel-indicators</code></td><td>Dot indicators along the bottom</td></tr>
+        <tr><td><code>carousel-caption</code></td><td>Absolute text overlay on slide</td></tr>
+        <tr><td><code>carousel-fade</code></td><td>Cross-fade instead of slide transition</td></tr>
+        <tr><td><code>carousel-dark</code></td><td>Dark controls and indicators</td></tr>
+        <tr><td><code>slide</code></td><td>Enable CSS slide transition</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="carousel slide" id="carouselDemo">
+      <div class="carousel-indicators">
+        <button type="button" class="active"></button>
+        <button type="button"></button>
+        <button type="button"></button>
+      </div>
+      <div class="carousel-inner rounded">
+        <div class="carousel-item active">
+          <div class="bg-primary d-flex align-items-center justify-content-center text-white" style="height:200px">
+            <div class="carousel-caption">
+              <h5 class="fw-bold">Slide 1</h5>
+              <p>carousel-item active — first visible slide</p>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="bg-success d-flex align-items-center justify-content-center text-white" style="height:200px">
+            <div class="carousel-caption"><h5 class="fw-bold">Slide 2</h5><p>carousel-item — hidden until active</p></div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="bg-danger d-flex align-items-center justify-content-center text-white" style="height:200px">
+            <div class="carousel-caption"><h5 class="fw-bold">Slide 3</h5><p>carousel-fade for cross-fade variant</p></div>
+          </div>
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button"><span class="visually-hidden">Previous</span></button>
+      <button class="carousel-control-next" type="button"><span class="visually-hidden">Next</span></button>
+    </div>
+    <p class="text-body-secondary mt-2 mb-0">Controls shown — slide behaviour requires the upcoming Carousel JS component.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 32 — PLACEHOLDERS -->
+<section id="placeholders" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Placeholders</h2>
+  <p class="text-body-secondary mb-4">Loading skeleton shimmer using Bootstrap-style placeholder classes. Pure CSS — no JS required. Use <code>placeholder-glow</code> or <code>placeholder-wave</code> on the parent.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>placeholder</code></td><td>Shimmer block — inline-block, background animation</td></tr>
+        <tr><td><code>placeholder-glow</code></td><td>On parent — glow pulse animation</td></tr>
+        <tr><td><code>placeholder-wave</code></td><td>On parent — wave sweep animation</td></tr>
+        <tr><td><code>placeholder-xs</code></td><td>Extra small height</td></tr>
+        <tr><td><code>placeholder-sm</code></td><td>Small height</td></tr>
+        <tr><td><code>placeholder-lg</code></td><td>Large height</td></tr>
+        <tr><td><code>col-{n}</code></td><td>Width of placeholder block</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <p class="fw-semibold mb-2">placeholder-glow</p>
+        <div class="card placeholder-glow">
+          <div class="card-body">
+            <h5 class="card-title placeholder col-6"></h5>
+            <p class="card-text">
+              <span class="placeholder col-12"></span>
+              <span class="placeholder col-10"></span>
+              <span class="placeholder col-8"></span>
+            </p>
+            <a href="#" class="btn-primary placeholder col-4" tabindex="-1"></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <p class="fw-semibold mb-2">placeholder-wave</p>
+        <div class="card placeholder-wave">
+          <div class="card-body">
+            <h5 class="card-title placeholder col-7"></h5>
+            <p class="card-text">
+              <span class="placeholder col-12"></span>
+              <span class="placeholder col-9"></span>
+              <span class="placeholder col-11"></span>
+            </p>
+            <a href="#" class="btn-success placeholder col-4" tabindex="-1"></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <p class="fw-semibold mb-2">Size variants</p>
+        <div class="placeholder-glow vstack gap-2">
+          <span class="placeholder col-12 placeholder-xs"></span>
+          <span class="placeholder col-12 placeholder-sm"></span>
+          <span class="placeholder col-12"></span>
+          <span class="placeholder col-12 placeholder-lg"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 33 — SKELETON -->
+<section id="skeleton" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Skeleton Loader</h2>
+  <p class="text-body-secondary mb-4">
+    Strata's native shimmer system. Three approaches — CSS-only for static shimmer, JS API for programmatic control, and auto-reveal for page-load transitions.
+    All three use the same <code>data-st-skeleton</code> attribute and the same CSS.
+  </p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Attribute / API</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>data-st-skeleton="true"</code></td><td>Element shimmers — CSS <code>::before</code> overlay covers content</td></tr>
+        <tr><td><code>data-st-skeleton="false"</code></td><td>Element revealed — shimmer removed, content visible</td></tr>
+        <tr><td><code>data-st-skeleton="null"</code></td><td>JS-managed parent — no parent overlay, children shimmer individually</td></tr>
+        <tr><td><code>Strata.skeleton.init(sel?)</code></td><td>Register parent(s) for JS management — smart-detects leaf children</td></tr>
+        <tr><td><code>Strata.skeleton.show(sel?)</code></td><td>Re-show skeleton on registered elements</td></tr>
+        <tr><td><code>Strata.skeleton.reveal(sel?, opts?)</code></td><td>Reveal content — supports stagger and onReveal callback</td></tr>
+        <tr><td><code>Strata.skeleton.toggle(sel?)</code></td><td>Toggle between skeleton and revealed</td></tr>
+        <tr><td><code>Strata.skeleton.isSkeleton(el)</code></td><td>Returns true if element is currently in skeleton state</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <div class="row g-4">
+
+      <!-- Column A: CSS-only -->
+      <div class="col-12 col-md-4">
+        <p class="fw-semibold mb-1">A — CSS Only</p>
+        <p class="text-body-secondary mb-3">Set <code>data-st-skeleton="true"</code> directly on the card. The CSS <code>::before</code> overlay covers all children automatically.</p>
+        <div class="card" data-st-skeleton="true">
+          <div class="card-img-top bg-body-secondary" style="height:120px">
+            <img src="" alt="placeholder">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Card Title</h5>
+            <h6 class="card-subtitle mb-2">Subtitle text</h6>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <a href="#" class="card-link">Card link</a>
+          </div>
+          <div class="card-footer">
+            <button class="btn-primary btn-sm">Action</button>
+          </div>
+        </div>
+        <p class="text-body-secondary mt-2 mb-0">Shimmer is permanent — use for static loading states.</p>
+      </div>
+
+      <!-- Column B: JS API -->
+      <div class="col-12 col-md-4">
+        <p class="fw-semibold mb-1">B — JS API</p>
+        <p class="text-body-secondary mb-3"><code>Strata.skeleton.init()</code> detects leaf elements individually. Each child gets its own shimmer bar, giving a more accurate content shape.</p>
+        <div class="card" id="skeleton-api-demo" data-st-skeleton="true">
+          <div class="card-img-top bg-body-secondary" style="height:120px">
+            <img src="" alt="placeholder">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Card Title</h5>
+            <h6 class="card-subtitle mb-2">Subtitle text</h6>
+            <p class="card-text">Body copy text that will each become individual skeleton bars matching their own width and shape.</p>
+            <a href="#" class="card-link">Card link</a>
+          </div>
+          <div class="card-footer">
+            <button class="btn-primary btn-sm">Action</button>
+          </div>
+        </div>
+        <div class="d-flex gap-2 mt-2">
+          <button class="btn-outline-secondary btn-sm" onclick="Strata.skeleton.show('#skeleton-api-demo')">Show skeleton</button>
+          <button class="btn-primary btn-sm" onclick="Strata.skeleton.reveal('#skeleton-api-demo')">Reveal</button>
+        </div>
+      </div>
+
+      <!-- Column C: Live page-load -->
+      <div class="col-12 col-md-4">
+        <p class="fw-semibold mb-1">C — Live Page Load</p>
+        <p class="text-body-secondary mb-3">Starts as skeleton on page load. <code>Strata.skeleton.reveal()</code> is called after 2 seconds, simulating an async data fetch completing.</p>
+        <div class="card" id="skeleton-live-demo" data-st-skeleton="true">
+          <div class="card-img-top bg-body-secondary" style="height:120px">
+            <img src="" alt="placeholder">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">Jane Doe</h5>
+            <h6 class="card-subtitle mb-2">Senior Designer</h6>
+            <p class="card-text">Jane has 8 years of experience in product design, specialising in design systems and component libraries.</p>
+            <a href="#" class="card-link">View profile</a>
+          </div>
+          <div class="card-footer">
+            <button class="btn-primary btn-sm">Follow</button>
+          </div>
+        </div>
+        <p class="text-body-secondary mt-2 mb-0">Reload the page to see the auto-reveal after 2 seconds.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 34 — POSITION -->
+<section id="position" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Position &amp; Overflow</h2>
+  <p class="text-body-secondary mb-4">Position context, offset coordinates, sticky/fixed placement helpers, and overflow control.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>position-static / relative / absolute / fixed / sticky</code></td><td>CSS position values</td></tr>
+        <tr><td><code>top-0 / top-50 / top-100</code></td><td>top: 0% / 50% / 100%</td></tr>
+        <tr><td><code>bottom-0 / bottom-50 / bottom-100</code></td><td>bottom: 0% / 50% / 100%</td></tr>
+        <tr><td><code>start-0 / start-50 / start-100</code></td><td>left: 0% / 50% / 100%</td></tr>
+        <tr><td><code>end-0 / end-50 / end-100</code></td><td>right: 0% / 50% / 100%</td></tr>
+        <tr><td><code>translate-middle</code></td><td>transform: translate(-50%, -50%)</td></tr>
+        <tr><td><code>translate-middle-x</code></td><td>translateX(-50%)</td></tr>
+        <tr><td><code>translate-middle-y</code></td><td>translateY(-50%)</td></tr>
+        <tr><td><code>fixed-top / fixed-bottom</code></td><td>position:fixed at top/bottom of viewport</td></tr>
+        <tr><td><code>sticky-top / sticky-bottom</code></td><td>position:sticky at top/bottom of scroll container</td></tr>
+        <tr><td><code>overflow-{auto|hidden|visible|scroll}</code></td><td>overflow property</td></tr>
+        <tr><td><code>overflow-x-{auto|hidden|visible|scroll}</code></td><td>overflow-x only</td></tr>
+        <tr><td><code>overflow-y-{auto|hidden|visible|scroll}</code></td><td>overflow-y only</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-3">Absolute positioning with top/start/translate-middle</p>
+    <div class="position-relative bg-body-secondary rounded" style="height:120px">
+      <span class="position-absolute top-0 start-0 badge badge-primary">top-0 start-0</span>
+      <span class="position-absolute top-0 end-0 badge badge-success">top-0 end-0</span>
+      <span class="position-absolute bottom-0 start-0 badge badge-danger">bottom-0 start-0</span>
+      <span class="position-absolute bottom-0 end-0 badge badge-warning">bottom-0 end-0</span>
+      <span class="position-absolute top-50 start-50 translate-middle badge badge-info">center</span>
+    </div>
+    <p class="fw-semibold mt-3 mb-2">Overflow demo</p>
+    <div class="d-flex gap-3">
+      <div class="overflow-hidden border rounded p-2" style="height:60px;width:150px">
+        <span>overflow-hidden — this text is longer than the container so it clips</span>
+      </div>
+      <div class="overflow-y-auto border rounded p-2" style="height:60px;width:150px">
+        <span>overflow-y-auto — scrolls vertically when content overflows the fixed height</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ SECTION 35 — DISPLAY -->
+<section id="display" class="py-5 border-bottom">
+  <h2 class="fw-bold mb-1">Display &amp; Visibility</h2>
+  <p class="text-body-secondary mb-4">Control element display type responsively. Hide for screen or print. Accessibility helpers for screen-reader-only content.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>d-none</code></td><td>display: none</td></tr>
+        <tr><td><code>d-block</code></td><td>display: block</td></tr>
+        <tr><td><code>d-inline</code></td><td>display: inline</td></tr>
+        <tr><td><code>d-inline-block</code></td><td>display: inline-block</td></tr>
+        <tr><td><code>d-flex</code></td><td>display: flex</td></tr>
+        <tr><td><code>d-inline-flex</code></td><td>display: inline-flex</td></tr>
+        <tr><td><code>d-grid</code></td><td>display: grid</td></tr>
+        <tr><td><code>d-{bp}-{value}</code></td><td>Responsive display — e.g. d-none d-md-block</td></tr>
+        <tr><td><code>visible / invisible</code></td><td>visibility: visible / hidden (keeps space)</td></tr>
+        <tr><td><code>visually-hidden</code></td><td>Accessible hide — visible to screen readers only</td></tr>
+        <tr><td><code>visually-hidden-focusable</code></td><td>Shown when focused (skip nav pattern)</td></tr>
+        <tr><td><code>d-print-none / d-print-block / d-print-flex</code></td><td>Show/hide for print media</td></tr>
+        <tr><td><code>d-print-inline / d-print-inline-block / d-print-grid</code></td><td>Additional print display values</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">Responsive display — resize to see changes</p>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="bg-primary text-white rounded px-2 py-1 d-none d-sm-inline-block">d-none d-sm-inline-block (visible ≥576px)</span>
+      <span class="bg-success text-white rounded px-2 py-1 d-none d-md-inline-block">d-none d-md-inline-block (visible ≥768px)</span>
+      <span class="bg-danger text-white rounded px-2 py-1 d-md-none">d-md-none (hidden ≥768px)</span>
+      <span class="bg-warning rounded px-2 py-1 d-none d-lg-inline-block">d-none d-lg-inline-block (visible ≥992px)</span>
+    </div>
+    <p class="fw-semibold mb-2">visibility vs display</p>
+    <div class="d-flex gap-3 align-items-center">
+      <span class="border rounded px-2 py-1 visible">visible — space kept, element shown</span>
+      <span class="border rounded px-2 py-1 invisible">invisible — space kept, element hidden</span>
+      <span class="border rounded px-2 py-1">← invisible element's space is here</span>
+    </div>
+    <p class="fw-semibold mt-3 mb-2">visually-hidden (screen reader accessible)</p>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn-primary">
+        <span class="visually-hidden">Save document — </span>Save
+      </button>
+      <span class="text-body-secondary">The hidden text is read by screen readers but not visible.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ SECTION 36 — MISC -->
+<section id="misc" class="py-5">
+  <h2 class="fw-bold mb-1">Helpers &amp; Misc</h2>
+  <p class="text-body-secondary mb-4">Utility classes that don't fit neatly into other categories — aspect ratios, floats, interactions, stretched links, icon links, clearfix, and more.</p>
+
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-bordered">
+      <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>ratio</code></td><td>Aspect ratio container — uses <code>--st-aspect-ratio</code> CSS variable</td></tr>
+        <tr><td><code>ratio-1x1 / ratio-4x3 / ratio-16x9 / ratio-21x9</code></td><td>Common aspect ratio presets</td></tr>
+        <tr><td><code>clearfix</code></td><td>Clears floated children via <code>::after</code></td></tr>
+        <tr><td><code>float-start / float-end / float-none</code></td><td>Float left / right / none</td></tr>
+        <tr><td><code>float-{bp}-start / end / none</code></td><td>Responsive float</td></tr>
+        <tr><td><code>stretched-link</code></td><td>Extends link click area to parent positioned container</td></tr>
+        <tr><td><code>icon-link</code></td><td>Inline flex link for icon + text pairs</td></tr>
+        <tr><td><code>icon-link-hover</code></td><td>Adds gap on hover for icon-link</td></tr>
+        <tr><td><code>user-select-all / auto / none</code></td><td>Text selection control</td></tr>
+        <tr><td><code>pe-none / pe-auto</code></td><td>pointer-events: none / auto</td></tr>
+        <tr><td><code>align-{baseline|top|middle|bottom|text-top|text-bottom}</code></td><td>Vertical alignment</td></tr>
+        <tr><td><code>bg-gradient</code></td><td>Adds a subtle gradient overlay</td></tr>
+        <tr><td><code>link-{color}</code></td><td>Semantic link colour — primary, success, danger, etc.</td></tr>
+        <tr><td><code>text-{color}-emphasis</code></td><td>Darker shade of semantic text color</td></tr>
+        <tr><td><code>fade</code></td><td>opacity:0 with opacity transition</td></tr>
+        <tr><td><code>show</code></td><td>display:block — used with tab-pane and collapse</td></tr>
+        <tr><td><code>active</code></td><td>Active state context — interpreted differently per component</td></tr>
+        <tr><td><code>hstack / vstack</code></td><td>Horizontal / vertical stack shorthand</td></tr>
+        <tr><td><code>img-fluid</code></td><td>max-width:100%; height:auto — responsive image</td></tr>
+        <tr><td><code>img-thumbnail</code></td><td>Bordered, padded thumbnail image</td></tr>
+        <tr><td><code>figure / figure-img / figure-caption</code></td><td>Semantic figure with styled caption</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="border rounded p-4">
+    <p class="fw-semibold mb-2">Aspect ratios</p>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3"><div class="ratio ratio-1x1 bg-primary-subtle border border-primary-subtle rounded d-flex align-items-center justify-content-center"><span class="fw-semibold">1×1</span></div></div>
+      <div class="col-6 col-md-3"><div class="ratio ratio-4x3 bg-success-subtle border border-success-subtle rounded d-flex align-items-center justify-content-center"><span class="fw-semibold">4×3</span></div></div>
+      <div class="col-6 col-md-3"><div class="ratio ratio-16x9 bg-warning-subtle border border-warning-subtle rounded d-flex align-items-center justify-content-center"><span class="fw-semibold">16×9</span></div></div>
+      <div class="col-6 col-md-3"><div class="ratio ratio-21x9 bg-danger-subtle border border-danger-subtle rounded d-flex align-items-center justify-content-center"><span class="fw-semibold">21×9</span></div></div>
+    </div>
+    <p class="fw-semibold mb-2">Stretched link — full card is clickable</p>
+    <div class="col-12 col-md-4">
+      <div class="card position-relative shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Clickable card</h5>
+          <p class="card-text text-body-secondary">The stretched-link extends the anchor to fill its nearest positioned ancestor.</p>
+          <a href="#misc" class="stretched-link">Open link</a>
+        </div>
+      </div>
+    </div>
+    <p class="fw-semibold mt-4 mb-2">icon-link</p>
+    <div class="vstack gap-2">
+      <a href="#" class="icon-link">
+        <span class="badge badge-primary">→</span> icon-link — flex row with icon and text
+      </a>
+      <a href="#" class="icon-link icon-link-hover">
+        <span class="badge badge-success">→</span> icon-link-hover — gap increases on hover
+      </a>
+    </div>
+    <p class="fw-semibold mt-4 mb-2">figure</p>
+    <figure>
+      <div class="bg-body-secondary border rounded d-flex align-items-center justify-content-center" style="height:100px;width:200px">
+        <span class="text-body-secondary">figure-img placeholder</span>
+      </div>
+      <figcaption class="figure-caption mt-1">figure-caption — descriptive text below a figure element.</figcaption>
+    </figure>
+    <p class="fw-semibold mt-4 mb-2">Link colours</p>
+    <div class="d-flex flex-wrap gap-3">
+      <a href="#" class="link-primary text-decoration-none">link-primary</a>
+      <a href="#" class="link-success text-decoration-none">link-success</a>
+      <a href="#" class="link-danger text-decoration-none">link-danger</a>
+      <a href="#" class="link-warning text-decoration-none">link-warning</a>
+      <a href="#" class="link-info text-decoration-none">link-info</a>
+      <a href="#" class="link-body-emphasis text-decoration-none">link-body-emphasis</a>
+    </div>
+    <p class="fw-semibold mt-4 mb-2">user-select + pointer-events</p>
+    <div class="d-flex flex-wrap gap-3">
+      <span class="border rounded px-3 py-2 user-select-all">user-select-all — triple-click selects all</span>
+      <span class="border rounded px-3 py-2 user-select-none">user-select-none — cannot be selected</span>
+      <span class="border rounded px-3 py-2 pe-none text-body-secondary">pe-none — pointer events disabled</span>
+    </div>
+  </div>
+</section>
+
+    </main>
+  </div>
+</div>
+
+<!-- placeholder footer — more sections written in next pass -->
+<footer class="bg-body-secondary border-top py-4 mt-3">
+  <div class="container text-center">
+    <p class="text-body-secondary mb-1 fw-semibold">Strata CSS v1.0</p>
+    <p class="text-body-secondary mb-0">JIT CSS framework — Bootstrap components, Tailwind speed, Cascade Layer precision.</p>
+  </div>
+</footer>
+
+<script src="../dist/strata.components.js"></script>
+<script>
+  function switchTheme(theme) {
+    document.documentElement.setAttribute('data-st-theme', theme)
+  }
+
+  function toggleAccordion(id) {
+    var el = document.getElementById(id)
+    if (!el) return
+    var btn = el.previousElementSibling && el.previousElementSibling.querySelector('.accordion-button')
+    var collapsed = el.getAttribute('data-st-collapsed') !== 'false'
+    el.setAttribute('data-st-collapsed', collapsed ? 'false' : 'true')
+    if (btn) btn.setAttribute('data-st-collapsed', collapsed ? 'false' : 'true')
+  }
+
+  function switchTab(event, tabId) {
+    event.preventDefault()
+    var nav = event.target.closest('.nav')
+    if (nav) {
+      nav.querySelectorAll('.nav-link').forEach(function (l) { l.classList.remove('active') })
+      event.target.classList.add('active')
+    }
+    var pane = document.getElementById(tabId)
+    if (!pane) return
+    var content = pane.closest('.tab-content')
+    if (content) {
+      content.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.remove('active', 'show') })
+    }
+    pane.classList.add('active', 'show')
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.Strata && window.Strata.skeleton) {
+      Strata.skeleton.init('#skeleton-api-demo')
+      Strata.skeleton.init('#skeleton-live-demo')
+      setTimeout(function () { Strata.skeleton.reveal('#skeleton-live-demo') }, 2000)
+    }
+  })
+</script>
+</body>
+</html>

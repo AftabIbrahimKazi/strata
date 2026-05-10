@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata CSS — Component & Utility Reference</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    body { padding: 2rem 0; }
+
+    .ref-section {
+      border-top: 1px solid var(--st-border);
+      padding: 3rem 0 2rem;
+    }
+
+    .ref-section:first-of-type { border-top: none; }
+
+    .ref-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--st-text);
+      margin: 0 0 0.25rem;
+    }
+
+    .ref-subtitle {
+      font-size: 0.875rem;
+      color: var(--st-text-muted);
+      margin: 0 0 2rem;
+      font-family: monospace;
+    }
+
+    .ref-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--st-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 1.5rem 0 0.5rem;
+    }
+
+    .ref-label:first-child { margin-top: 0; }
+
+    .demo-box {
+      background: var(--st-bg-secondary);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-row:last-child { margin-bottom: 0; }
+
+    .note {
+      font-size: 0.8125rem;
+      color: var(--st-text-muted);
+      margin: 0.5rem 0 0;
+      padding-left: 0.75rem;
+      border-left: 3px solid var(--st-border);
+    }
+
+    .theme-bar {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 1000;
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      padding: 0.5rem;
+      box-shadow: var(--st-shadow-sm);
+    }
+
+    .theme-btn {
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid var(--st-border);
+      background: var(--st-bg);
+      color: var(--st-text);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-btn.active {
+      background: var(--st-primary);
+      color: white;
+      border-color: var(--st-primary);
+    }
+
+    .color-swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+    }
+
+    .swatch {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .grid-demo > div {
+      background: var(--st-primary);
+      opacity: 0.15;
+      border: 1px solid var(--st-primary);
+      border-radius: 4px;
+      height: 2rem;
+    }
+
+    .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.875rem;
+      background: var(--st-primary);
+      color: white;
+      border-radius: var(--st-border-radius);
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s ease;
+    }
+
+    .btn-sm:hover { background: var(--st-primary-hover); }
+  </style>
+</head>
+<body>
+
+<!-- Theme switcher -->
+<div class="theme-bar">
+  <button class="theme-btn active" onclick="setTheme('light', this)">Light</button>
+  <button class="theme-btn" onclick="setTheme('dark', this)">Dark</button>
+  <button class="theme-btn" onclick="setTheme('dim', this)">Dim</button>
+</div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div style="padding: 4rem 0 2rem;">
+    <h1 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 0.5rem;">Strata CSS</h1>
+    <p style="font-size: 1.125rem; color: var(--st-text-muted); margin: 0 0 1rem;">
+      Component &amp; Utility Reference — every class, every variant, every option.
+    </p>
+    <p class="note">
+      Use the theme buttons top right to preview all components across light, dark and dim themes.
+      All classes shown here are generated on demand by Strata's JIT engine — only what you use gets built.
+    </p>
+  </div>
+
+
+  <!-- ─── 1. LAYOUT ─────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">1. Layout</h2>
+    <p class="ref-subtitle">container · container-fluid · row · col-*</p>
+
+    <p class="ref-label">Container</p>
+    <div class="demo-box">
+      <div style="border: 2px dashed var(--st-primary); padding: 0.75rem; border-radius: 4px; text-align: center; font-size: 0.875rem; color: var(--st-text-muted);">
+        .container — max-width 1200px, centered, responsive padding
+      </div>
+      <div style="border: 2px dashed var(--st-secondary); padding: 0.75rem; border-radius: 4px; text-align: center; font-size: 0.875rem; color: var(--st-text-muted); margin-top: 0.5rem;">
+        .container-fluid — full width at all breakpoints
+      </div>
+    </div>
+
+    <p class="ref-label">Grid — 12 column system</p>
+    <div class="demo-box">
+      <div class="row grid-demo" style="margin-bottom: 0.5rem;"><div class="col-12"><div></div></div></div>
+      <div class="row grid-demo" style="margin-bottom: 0.5rem;">
+        <div class="col-6"><div></div></div>
+        <div class="col-6"><div></div></div>
+      </div>
+      <div class="row grid-demo" style="margin-bottom: 0.5rem;">
+        <div class="col-4"><div></div></div>
+        <div class="col-4"><div></div></div>
+        <div class="col-4"><div></div></div>
+      </div>
+      <div class="row grid-demo" style="margin-bottom: 0.5rem;">
+        <div class="col-3"><div></div></div>
+        <div class="col-3"><div></div></div>
+        <div class="col-3"><div></div></div>
+        <div class="col-3"><div></div></div>
+      </div>
+      <div class="row grid-demo">
+        <div class="col-8"><div></div></div>
+        <div class="col-4"><div></div></div>
+      </div>
+    </div>
+
+    <p class="ref-label">Responsive columns — resize the browser to see them stack</p>
+    <div class="demo-box">
+      <div class="row grid-demo">
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><div></div></div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><div></div></div>
+        <div class="col-12 col-sm-6 col-md-4 col-lg-3"><div></div></div>
+        <div class="col-12 col-sm-6 col-md-12 col-lg-3"><div></div></div>
+      </div>
+    </div>
+    <p class="note">
+      Pattern: <code>col-{breakpoint}-{1-12}</code> · xs (0px) · sm (576px) · md (768px) · lg (992px) · xl (1200px) · xxl (1400px)
+    </p>
+  </div>
+
+
+  <!-- ─── 2. TYPOGRAPHY ─────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">2. Typography</h2>
+    <p class="ref-subtitle">h1–h6 · body text · inline elements · blockquote · code · pre</p>
+
+    <p class="ref-label">Headings</p>
+    <div class="demo-box">
+      <h1 style="margin:0 0 0.5rem;">h1 — The quick brown fox</h1>
+      <h2 style="margin:0 0 0.5rem;">h2 — The quick brown fox</h2>
+      <h3 style="margin:0 0 0.5rem;">h3 — The quick brown fox</h3>
+      <h4 style="margin:0 0 0.5rem;">h4 — The quick brown fox</h4>
+      <h5 style="margin:0 0 0.5rem;">h5 — The quick brown fox</h5>
+      <h6 style="margin:0;">h6 — The quick brown fox</h6>
+    </div>
+
+    <p class="ref-label">Inline elements</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <a href="#">Anchor link</a>
+        <code>inline code</code>
+        <strong>Bold</strong>
+        <em>Italic</em>
+        <small>Small</small>
+        <mark>Highlighted</mark>
+        <del>Deleted</del>
+      </div>
+    </div>
+
+    <p class="ref-label">Blockquote</p>
+    <div class="demo-box">
+      <blockquote style="margin:0;">
+        "Strata gives you Bootstrap's familiarity with Tailwind's efficiency, without the trade-offs of either."
+      </blockquote>
+    </div>
+
+    <p class="ref-label">Code and preformatted text</p>
+    <div class="demo-box">
+      <pre style="margin:0;">npm install strata-css
+npx strata init
+npm run dev</pre>
+    </div>
+
+    <p class="ref-label">Horizontal rule</p>
+    <div class="demo-box">
+      <hr style="margin: 0.5rem 0;">
+    </div>
+  </div>
+
+
+  <!-- ─── 3. COLOUR SYSTEM ──────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">3. Colour System</h2>
+    <p class="ref-subtitle">text-{colour} · bg-{colour} · border-{colour} · arbitrary values</p>
+
+    <p class="ref-label">Brand colour swatches — switch themes to see them update</p>
+    <div class="demo-box">
+      <div class="demo-row" style="flex-wrap: wrap; gap: 1rem;">
+        <span class="color-swatch"><span class="swatch bg-primary"></span> --st-primary</span>
+        <span class="color-swatch"><span class="swatch bg-secondary"></span> --st-secondary</span>
+        <span class="color-swatch"><span class="swatch bg-success"></span> --st-success</span>
+        <span class="color-swatch"><span class="swatch bg-danger"></span> --st-danger</span>
+        <span class="color-swatch"><span class="swatch bg-warning"></span> --st-warning</span>
+        <span class="color-swatch"><span class="swatch bg-info"></span> --st-info</span>
+        <span class="color-swatch"><span class="swatch bg-light" style="border: 1px solid var(--st-border);"></span> --st-light</span>
+        <span class="color-swatch"><span class="swatch bg-dark"></span> --st-dark</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Text colour utilities</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <span class="text-primary">text-primary</span>
+        <span class="text-secondary">text-secondary</span>
+        <span class="text-success">text-success</span>
+        <span class="text-danger">text-danger</span>
+        <span class="text-warning">text-warning</span>
+        <span class="text-info">text-info</span>
+        <span class="text-muted">text-muted</span>
+        <span class="text-body">text-body</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Background colour utilities</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <span class="bg-primary text-white px-3 py-1" style="border-radius:4px;">bg-primary</span>
+        <span class="bg-secondary text-white px-3 py-1" style="border-radius:4px;">bg-secondary</span>
+        <span class="bg-success text-white px-3 py-1" style="border-radius:4px;">bg-success</span>
+        <span class="bg-danger text-white px-3 py-1" style="border-radius:4px;">bg-danger</span>
+        <span class="bg-warning text-dark px-3 py-1" style="border-radius:4px;">bg-warning</span>
+        <span class="bg-info text-dark px-3 py-1" style="border-radius:4px;">bg-info</span>
+        <span class="bg-light text-dark px-3 py-1" style="border-radius:4px; border: 1px solid var(--st-border);">bg-light</span>
+        <span class="bg-dark text-white px-3 py-1" style="border-radius:4px;">bg-dark</span>
+        <span class="bg-white text-dark px-3 py-1" style="border-radius:4px; border: 1px solid var(--st-border);">bg-white</span>
+        <span class="bg-transparent text-body px-3 py-1" style="border-radius:4px; border: 1px solid var(--st-border);">bg-transparent</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Arbitrary colour values</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <span class="text-[#7c3aed]" style="font-weight:500;">text-[#7c3aed]</span>
+        <span class="bg-[#7c3aed] text-white px-3 py-1" style="border-radius:4px;">bg-[#7c3aed]</span>
+        <span class="bg-[rgba(124,58,237,0.15)] text-[#7c3aed] px-3 py-1" style="border-radius:4px;">bg-[rgba(124,58,237,0.15)]</span>
+      </div>
+    </div>
+    <p class="note">Arbitrary syntax: <code>text-[value]</code> · <code>bg-[value]</code> · <code>border-[value]</code> · any valid CSS colour works</p>
+  </div>
+
+
+  <!-- ─── 4. SPACING ────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">4. Spacing</h2>
+    <p class="ref-subtitle">m · mt · mb · ms · me · mx · my · p · pt · pb · ps · pe · px · py</p>
+
+    <p class="ref-label">Scale — 0 through 5 plus auto</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <span style="font-size: 0.875rem;">0 = 0 &nbsp;·&nbsp; 1 = 0.25rem &nbsp;·&nbsp; 2 = 0.5rem &nbsp;·&nbsp; 3 = 1rem &nbsp;·&nbsp; 4 = 1.5rem &nbsp;·&nbsp; 5 = 3rem &nbsp;·&nbsp; auto = auto</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Margin utilities</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>m-3</code><code>mt-3</code><code>mb-3</code>
+        <code>ms-3</code><code>me-3</code>
+        <code>mx-auto</code><code>mx-3</code>
+        <code>my-3</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Padding utilities</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>p-3</code><code>pt-3</code><code>pb-3</code>
+        <code>ps-3</code><code>pe-3</code>
+        <code>px-3</code><code>py-3</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Arbitrary spacing values</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>mt-[24px]</code>
+        <code>mb-[1.5rem]</code>
+        <code>px-[12px]</code>
+        <code>py-[0.75rem]</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Responsive spacing</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>mt-2 mt-md-4 mt-lg-5</code>
+        <code>px-2 px-md-4</code>
+        <code>py-1 py-md-3 py-lg-5</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Important variants — override any other spacing</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>!mt-0</code><code>!mb-0</code><code>!p-0</code><code>!mx-0</code><code>!py-0</code>
+      </div>
+      <p class="note" style="margin-top: 0.75rem;">Use sparingly. Important variants override component defaults too.</p>
+    </div>
+  </div>
+
+
+  <!-- ─── 5. DISPLAY & FLEXBOX ──────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">5. Display & Flexbox</h2>
+    <p class="ref-subtitle">d-* · flex-* · justify-content-* · align-items-*</p>
+
+    <p class="ref-label">Display values</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>d-none</code><code>d-block</code><code>d-inline</code>
+        <code>d-inline-block</code><code>d-flex</code><code>d-inline-flex</code>
+        <code>d-grid</code><code>d-table</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Responsive display — common patterns</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>d-none d-md-block</code>
+        <span style="font-size:0.875rem; color: var(--st-text-muted);">hidden on mobile, visible from md</span>
+      </div>
+      <div class="demo-row">
+        <code>d-block d-md-none</code>
+        <span style="font-size:0.875rem; color: var(--st-text-muted);">visible on mobile only</span>
+      </div>
+      <div class="demo-row">
+        <code>d-none d-md-flex</code>
+        <span style="font-size:0.875rem; color: var(--st-text-muted);">flex layout from md only</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Flex direction and wrapping</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>flex-row</code><code>flex-column</code>
+        <code>flex-wrap</code><code>flex-nowrap</code>
+        <code>flex-fill</code><code>flex-grow-1</code>
+        <code>flex-grow-0</code><code>flex-shrink-0</code><code>flex-shrink-1</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Justify content</p>
+    <div class="demo-box">
+      <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <div class="d-flex justify-content-start" style="background: var(--st-bg); border: 1px solid var(--st-border); border-radius: 4px; padding: 0.5rem;">
+          <span class="bg-primary text-white px-3 py-1" style="border-radius:4px; font-size:0.8rem;">justify-content-start</span>
+        </div>
+        <div class="d-flex justify-content-center" style="background: var(--st-bg); border: 1px solid var(--st-border); border-radius: 4px; padding: 0.5rem;">
+          <span class="bg-secondary text-white px-3 py-1" style="border-radius:4px; font-size:0.8rem;">justify-content-center</span>
+        </div>
+        <div class="d-flex justify-content-end" style="background: var(--st-bg); border: 1px solid var(--st-border); border-radius: 4px; padding: 0.5rem;">
+          <span class="bg-success text-white px-3 py-1" style="border-radius:4px; font-size:0.8rem;">justify-content-end</span>
+        </div>
+        <div class="d-flex justify-content-between" style="background: var(--st-bg); border: 1px solid var(--st-border); border-radius: 4px; padding: 0.5rem;">
+          <span class="bg-danger text-white px-3 py-1" style="border-radius:4px; font-size:0.8rem;">justify</span>
+          <span class="bg-danger text-white px-3 py-1" style="border-radius:4px; font-size:0.8rem;">content</span>
+          <span class="bg-danger text-white px-3 py-1" style="border-radius:4px; font-size:0.8rem;">between</span>
+        </div>
+        <div class="d-flex justify-content-evenly" style="background: var(--st-bg); border: 1px solid var(--st-border); border-radius: 4px; padding: 0.5rem;">
+          <span class="bg-warning text-dark px-3 py-1" style="border-radius:4px; font-size:0.8rem;">justify</span>
+          <span class="bg-warning text-dark px-3 py-1" style="border-radius:4px; font-size:0.8rem;">content</span>
+          <span class="bg-warning text-dark px-3 py-1" style="border-radius:4px; font-size:0.8rem;">evenly</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="ref-label">Align items</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>align-items-start</code><code>align-items-center</code>
+        <code>align-items-end</code><code>align-items-baseline</code>
+        <code>align-items-stretch</code>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── 6. SIZING ────────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">6. Sizing</h2>
+    <p class="ref-subtitle">w-* · h-* · scale values · arbitrary values</p>
+
+    <p class="ref-label">Width scale</p>
+    <div class="demo-box">
+      <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+        <div><div class="w-25 bg-primary" style="height:1.25rem; opacity:0.5; border-radius:4px;"></div><small class="text-muted">w-25</small></div>
+        <div><div class="w-50 bg-primary" style="height:1.25rem; opacity:0.5; border-radius:4px;"></div><small class="text-muted">w-50</small></div>
+        <div><div class="w-75 bg-primary" style="height:1.25rem; opacity:0.5; border-radius:4px;"></div><small class="text-muted">w-75</small></div>
+        <div><div class="w-100 bg-primary" style="height:1.25rem; opacity:0.5; border-radius:4px;"></div><small class="text-muted">w-100</small></div>
+      </div>
+      <div class="demo-row" style="margin-top:0.75rem;">
+        <code>w-25</code><code>w-50</code><code>w-75</code><code>w-100</code>
+        <code>w-auto</code><code>w-[200px]</code><code>w-[50vw]</code><code>w-[calc(100%-2rem)]</code>
+      </div>
+    </div>
+    <p class="note">Same pattern for height: <code>h-25</code> · <code>h-50</code> · <code>h-100</code> · <code>h-auto</code> · <code>h-[200px]</code></p>
+  </div>
+
+
+  <!-- ─── 7. TEXT UTILITIES ─────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">7. Text Utilities</h2>
+    <p class="ref-subtitle">text-{alignment} · text-{transform} · responsive variants</p>
+
+    <p class="ref-label">Text alignment</p>
+    <div class="demo-box">
+      <p class="text-start" style="margin:0 0 0.5rem; background: var(--st-bg); padding: 0.5rem; border-radius:4px; border-left: 3px solid var(--st-primary);">text-start — left aligned text content</p>
+      <p class="text-center" style="margin:0 0 0.5rem; background: var(--st-bg); padding: 0.5rem; border-radius:4px; border-left: 3px solid var(--st-secondary);">text-center — centered text content</p>
+      <p class="text-end" style="margin:0 0 0.5rem; background: var(--st-bg); padding: 0.5rem; border-radius:4px; border-left: 3px solid var(--st-success);">text-end — right aligned text content</p>
+      <p class="text-justify" style="margin:0; background: var(--st-bg); padding: 0.5rem; border-radius:4px; border-left: 3px solid var(--st-warning);">text-justify — justified text content that spans the full width of its container</p>
+    </div>
+
+    <p class="ref-label">Text transform</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <span class="text-uppercase" style="font-size:0.875rem;">text-uppercase</span>
+        <span class="text-lowercase" style="font-size:0.875rem;">TEXT-LOWERCASE</span>
+        <span class="text-capitalize" style="font-size:0.875rem;">text capitalize words</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Responsive alignment</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>text-start text-md-center text-lg-end</code>
+        <span style="font-size:0.875rem; color: var(--st-text-muted);">— changes alignment at each breakpoint</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Important text variants</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>!text-center</code><code>!text-uppercase</code><code>!text-danger</code>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── 8. BORDERS ───────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">8. Borders</h2>
+    <p class="ref-subtitle">border · border-{colour} · border-0 · arbitrary border values</p>
+
+    <p class="ref-label">Border colours</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <div class="border px-3 py-2" style="border-radius:4px;">border</div>
+        <div class="border border-primary px-3 py-2" style="border-radius:4px;">border-primary</div>
+        <div class="border border-secondary px-3 py-2" style="border-radius:4px;">border-secondary</div>
+        <div class="border border-success px-3 py-2" style="border-radius:4px;">border-success</div>
+        <div class="border border-danger px-3 py-2" style="border-radius:4px;">border-danger</div>
+        <div class="border border-warning px-3 py-2" style="border-radius:4px;">border-warning</div>
+        <div class="border-0 bg-body px-3 py-2" style="border-radius:4px;">border-0</div>
+      </div>
+    </div>
+
+    <p class="ref-label">Arbitrary border values — use underscores for spaces</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <div class="border-[2px_solid_var(--st-primary)] px-3 py-2" style="border-radius:4px;">border-[2px_solid_var(--st-primary)]</div>
+        <div class="border-[3px_dashed_var(--st-danger)] px-3 py-2" style="border-radius:4px;">border-[3px_dashed_var(--st-danger)]</div>
+        <div class="border-[1px_dotted_var(--st-secondary)] px-3 py-2" style="border-radius:4px;">border-[1px_dotted_...]</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── 9. SHADOWS, OPACITY, VISIBILITY ──────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">9. Shadows, Opacity & Visibility</h2>
+    <p class="ref-subtitle">shadow-* · opacity-* · visible · invisible</p>
+
+    <p class="ref-label">Shadow scale</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <div class="shadow-sm px-4 py-3 bg-body" style="border-radius:var(--st-border-radius);">shadow-sm</div>
+        <div class="shadow px-4 py-3 bg-body" style="border-radius:var(--st-border-radius);">shadow</div>
+        <div class="shadow-lg px-4 py-3 bg-body" style="border-radius:var(--st-border-radius);">shadow-lg</div>
+        <div class="shadow-none px-4 py-3 bg-body" style="border-radius:var(--st-border-radius); border: 1px solid var(--st-border);">shadow-none</div>
+      </div>
+    </div>
+
+    <p class="ref-label">Opacity scale</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <div class="bg-primary opacity-100 px-3 py-2 text-white" style="border-radius:4px;">100</div>
+        <div class="bg-primary opacity-75 px-3 py-2 text-white" style="border-radius:4px;">75</div>
+        <div class="bg-primary opacity-50 px-3 py-2 text-white" style="border-radius:4px;">50</div>
+        <div class="bg-primary opacity-25 px-3 py-2 text-white" style="border-radius:4px;">25</div>
+        <div class="bg-primary opacity-0 px-3 py-2 text-white" style="border-radius:4px;">0</div>
+      </div>
+      <div class="demo-row" style="margin-top:0.5rem;">
+        <code>opacity-[0.35]</code>
+        <span style="font-size:0.875rem; color:var(--st-text-muted);">arbitrary opacity value</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Visibility — element stays in document flow</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <span class="visible px-3 py-1 border" style="border-radius:4px;">visible</span>
+        <span class="invisible px-3 py-1 border" style="border-radius:4px;">invisible (hidden but takes space)</span>
+        <span style="font-size:0.875rem; color:var(--st-text-muted);">← that element is here, just invisible</span>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── 10. POSITION & Z-INDEX ────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">10. Position & Z-Index</h2>
+    <p class="ref-subtitle">position-* · overflow-* · z-* · cursor-* · object-fit-*</p>
+
+    <p class="ref-label">Position values</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>position-static</code><code>position-relative</code>
+        <code>position-absolute</code><code>position-fixed</code><code>position-sticky</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Overflow</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>overflow-auto</code><code>overflow-hidden</code>
+        <code>overflow-visible</code><code>overflow-scroll</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Z-index utilities</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>z-0</code><code>z-1</code><code>z-2</code><code>z-3</code>
+        <code>z-auto</code><code>z-[100]</code>
+      </div>
+      <p class="note" style="margin-top:0.75rem;">
+        Framework z-index scale via CSS variables: <code>var(--st-z-dropdown)</code> (1000) ·
+        <code>var(--st-z-sticky)</code> (1020) · <code>var(--st-z-fixed)</code> (1030) ·
+        <code>var(--st-z-modal)</code> (1050) · <code>var(--st-z-tooltip)</code> (1060)
+      </p>
+    </div>
+
+    <p class="ref-label">Cursor utilities</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <span class="cursor-pointer px-3 py-1 border" style="border-radius:4px;">cursor-pointer</span>
+        <span class="cursor-default px-3 py-1 border" style="border-radius:4px;">cursor-default</span>
+        <span class="cursor-not-allowed px-3 py-1 border" style="border-radius:4px;">cursor-not-allowed</span>
+        <span class="cursor-wait px-3 py-1 border" style="border-radius:4px;">cursor-wait</span>
+        <span class="cursor-text px-3 py-1 border" style="border-radius:4px;">cursor-text</span>
+        <span class="cursor-grab px-3 py-1 border" style="border-radius:4px;">cursor-grab</span>
+        <span class="cursor-move px-3 py-1 border" style="border-radius:4px;">cursor-move</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Object fit</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>object-fit-cover</code><code>object-fit-contain</code>
+        <code>object-fit-fill</code><code>object-fit-none</code><code>object-fit-scale-down</code>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─── 11. TRANSITIONS ───────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">11. Transitions</h2>
+    <p class="ref-subtitle">transition · transition-fast · transition-slow · transition-none · ease-* · duration-*</p>
+
+    <p class="ref-label">Preset speeds — hover each box to see the difference</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <div class="transition bg-primary text-white px-4 py-2" style="border-radius:4px; cursor:pointer;" onmouseenter="this.style.opacity='0.4'" onmouseleave="this.style.opacity='1'">
+          transition — 200ms
+        </div>
+        <div class="transition-fast bg-success text-white px-4 py-2" style="border-radius:4px; cursor:pointer;" onmouseenter="this.style.opacity='0.4'" onmouseleave="this.style.opacity='1'">
+          transition-fast — 100ms
+        </div>
+        <div class="transition-slow bg-info text-dark px-4 py-2" style="border-radius:4px; cursor:pointer;" onmouseenter="this.style.opacity='0.4'" onmouseleave="this.style.opacity='1'">
+          transition-slow — 400ms
+        </div>
+        <div class="transition-none bg-danger text-white px-4 py-2" style="border-radius:4px; cursor:pointer;" onmouseenter="this.style.opacity='0.4'" onmouseleave="this.style.opacity='1'">
+          transition-none — instant
+        </div>
+      </div>
+    </div>
+
+    <p class="ref-label">Easing variants</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>ease-in</code><code>ease-out</code>
+        <code>ease-in-out</code><code>ease-linear</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Arbitrary values</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>transition-[background-color_0.3s_ease]</code>
+        <code>transition-[transform_0.5s_cubic-bezier(0.34,1.56,0.64,1)]</code>
+        <code>duration-[400ms]</code>
+      </div>
+    </div>
+
+    <p class="ref-label">Developer control via CSS variables</p>
+    <div class="demo-box">
+      <pre style="margin:0; font-size:0.8rem;">/* Slow down all transitions globally */
+:root { --st-duration: 500ms; }
+
+/* Speed up one specific component */
+.btn-primary { --st-duration: 80ms; }
+
+/* Kill all transitions globally */
+:root { --st-duration: 0ms; }
+
+/* Disable on one element */
+.my-element { --st-duration: 0ms; }</pre>
+    </div>
+    <p class="note">
+      Strata automatically respects <code>prefers-reduced-motion</code> — all transitions are disabled
+      for users who have requested reduced motion in their system settings.
+    </p>
+  </div>
+
+
+  <!-- ─── 12. STATE MANAGEMENT ──────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">12. State Management</h2>
+    <p class="ref-subtitle">data-st-visible · data-st-collapsed · data-st-loading · data-st-disabled</p>
+    <p class="note" style="margin-bottom:1.5rem;">
+      All interactive states are driven by <code>data-st-*</code> attributes — never by toggling CSS classes.
+      JavaScript sets the attribute value, CSS handles the visual transition automatically.
+    </p>
+
+    <p class="ref-label">Visibility — fade in/out with slight translateY</p>
+    <div class="demo-box">
+      <div class="demo-row" style="margin-bottom:0.75rem;">
+        <div data-st-visible="true" class="bg-success text-white px-3 py-2" style="border-radius:4px;">data-st-visible="true"</div>
+        <div data-st-visible="false" class="bg-danger text-white px-3 py-2" style="border-radius:4px;">data-st-visible="false"</div>
+      </div>
+      <div class="demo-row">
+        <button class="btn-sm" onclick="toggleAttr('visible-demo', 'data-st-visible', 'true', 'false')">Toggle visibility</button>
+        <span id="visible-demo" data-st-visible="true" class="bg-primary text-white px-4 py-2" style="border-radius:4px;">I toggle with a fade!</span>
+      </div>
+    </div>
+
+    <p class="ref-label">Collapsed — smooth max-height animation</p>
+    <div class="demo-box">
+      <button class="btn-sm" onclick="toggleAttr('collapse-demo', 'data-st-collapsed', 'false', 'true')" style="margin-bottom:0.75rem;">Toggle collapse</button>
+      <div id="collapse-demo" data-st-collapsed="false" class="bg-info text-dark px-3 py-2" style="border-radius:4px;">
+        This content collapses and expands smoothly using CSS max-height transition.
+        No JavaScript animation needed — the data attribute drives it entirely.
+        Add as much content here as you like.
+      </div>
+    </div>
+
+    <p class="ref-label">Loading state — 70% opacity, cursor wait, no clicks</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <button class="btn-sm" data-st-loading="false">Normal state</button>
+        <button class="btn-sm" data-st-loading="true">Loading state</button>
+      </div>
+    </div>
+
+    <p class="ref-label">Disabled state — 50% opacity, cursor not-allowed, no clicks</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <button class="btn-sm" data-st-disabled="false">Enabled</button>
+        <button class="btn-sm" data-st-disabled="true">Disabled</button>
+      </div>
+    </div>
+
+    <p class="ref-label">JavaScript pattern</p>
+    <div class="demo-box">
+      <pre style="margin:0; font-size:0.8rem;">// Show / hide with fade
+element.setAttribute('data-st-visible', 'false')
+element.setAttribute('data-st-visible', 'true')
+
+// Collapse / expand with height animation
+element.setAttribute('data-st-collapsed', 'true')
+element.setAttribute('data-st-collapsed', 'false')
+
+// Loading state
+button.setAttribute('data-st-loading', 'true')
+
+// Disabled state
+button.setAttribute('data-st-disabled', 'true')
+
+// Never do this in Strata
+element.classList.add('hidden')    // wrong
+element.classList.toggle('active') // wrong</pre>
+    </div>
+  </div>
+
+
+  <!-- ─── 13. THEMING ──────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">13. Theme System</h2>
+    <p class="ref-subtitle">data-st-theme · CSS variable overrides · custom themes · system preference</p>
+
+    <p class="ref-label">Built-in themes — use the buttons top right to switch</p>
+    <div class="demo-box">
+      <div class="demo-row">
+        <code>data-st-theme="light"</code>
+        <code>data-st-theme="dark"</code>
+        <code>data-st-theme="dim"</code>
+      </div>
+      <p class="note" style="margin-top:0.75rem;">
+        No <code>data-st-theme</code> attribute → follows <code>prefers-color-scheme</code> automatically.
+        No configuration needed.
+      </p>
+    </div>
+
+    <p class="ref-label">Override any CSS variable in your stylesheet</p>
+    <div class="demo-box">
+      <pre style="margin:0; font-size:0.8rem;">/* Light mode overrides */
+:root {
+  --st-primary:        #7c3aed;
+  --st-border-radius:  8px;
+  --st-duration:       300ms;
+  --st-font-family:    'Inter', sans-serif;
+}
+
+/* Dark mode overrides */
+[data-st-theme="dark"] {
+  --st-primary: #a78bfa;
+  --st-bg:      #0f0f0f;
+  --st-text:    #f9fafb;
+}</pre>
+    </div>
+
+    <p class="ref-label">Custom theme — unlimited themes supported</p>
+    <div class="demo-box">
+      <pre style="margin:0; font-size:0.8rem;">/* Define in your CSS */
+[data-st-theme="brand"] {
+  --st-primary:   #7c3aed;
+  --st-secondary: #6d28d9;
+  --st-bg:        #0f0f23;
+  --st-text:      #fafafa;
+  --st-border:    #374151;
+}
+
+/* Switch via JavaScript */
+document.documentElement.setAttribute('data-st-theme', 'brand')</pre>
+    </div>
+  </div>
+
+
+  <!-- ─── 14. CUSTOM CSS ────────────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">14. Custom CSS</h2>
+    <p class="ref-subtitle">Writing custom CSS that works with Strata — no !important needed</p>
+
+    <p class="ref-label">How @layer makes custom CSS always win</p>
+    <div class="demo-box">
+      <pre style="margin:0; font-size:0.8rem;">/* Strata's CSS — inside @layer st-components */
+@layer st-components {
+  .card {
+    padding: 1rem;
+    border-radius: var(--st-border-radius);
+    background: var(--st-bg);
+    border: 1px solid var(--st-border);
+    box-shadow: var(--st-shadow-sm);
+  }
+}
+
+/* Your CSS — outside any layer, automatically wins */
+.card {
+  padding: 2rem;        /* overrides Strata */
+  border-radius: 16px;  /* overrides Strata */
+  /* background, border, shadow stay from Strata */
+  /* no !important needed anywhere */
+}</pre>
+      <p class="note" style="margin-top:0.75rem;">CSS overrides work property by property. You only override what you explicitly write. Everything else remains from Strata.</p>
+    </div>
+
+    <p class="ref-label">Targeting specific instances</p>
+    <div class="demo-box">
+      <pre style="margin:0; font-size:0.8rem;">/* Option 1 — modifier class */
+.card.checkout-card { padding: 2rem; }
+
+/* Option 2 — parent selector */
+.checkout-section .card { padding: 2rem; }
+
+/* Option 3 — data attribute variant */
+[data-st-variant="checkout"].card { padding: 2rem; }</pre>
+    </div>
+  </div>
+
+
+  <!-- ─── 15. JS/TS CONVENTION ─────────────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">15. JS / TS Naming Convention</h2>
+    <p class="ref-subtitle">-js suffix for JavaScript · -ts suffix for TypeScript</p>
+
+    <div class="demo-box">
+      <pre style="margin:0; font-size:0.8rem;">&lt;!-- Signals this element is referenced in a JS file --&gt;
+&lt;div class="modal modal-js" id="main-modal-js"&gt;&lt;/div&gt;
+
+&lt;!-- Signals this element is referenced in a TS file --&gt;
+&lt;div class="modal modal-ts" id="main-modal-ts"&gt;&lt;/div&gt;
+
+// JavaScript
+const modal = document.querySelector('.modal-js')
+const modalEl = document.getElementById('main-modal-js')
+
+// TypeScript
+const modal = document.querySelector&lt;HTMLElement&gt;('.modal-ts')!
+const modalEl = document.getElementById('main-modal-ts') as HTMLElement</pre>
+      <p class="note" style="margin-top:0.75rem;">
+        This convention is for developer communication only — it has no effect on styling.
+        It signals to anyone reading the code that this element is touched by a script.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ─── 16. CSS VARIABLE REFERENCE ───────────────────────────── -->
+  <div class="ref-section">
+    <h2 class="ref-title">16. CSS Variable Reference</h2>
+    <p class="ref-subtitle">All --st-* variables and their defaults</p>
+
+    <div class="demo-box" style="overflow-x: auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:0.8125rem; font-family:monospace;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--st-border);">
+            <th style="text-align:left; padding:0.5rem 0.75rem; color:var(--st-text-muted); font-weight:600;">Variable</th>
+            <th style="text-align:left; padding:0.5rem 0.75rem; color:var(--st-text-muted); font-weight:600;">Default (light)</th>
+            <th style="text-align:left; padding:0.5rem 0.75rem; color:var(--st-text-muted); font-weight:600;">Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-primary</td><td style="padding:0.4rem 0.75rem;">#0d6efd</td><td style="padding:0.4rem 0.75rem;">Primary brand colour</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-secondary</td><td style="padding:0.4rem 0.75rem;">#6c757d</td><td style="padding:0.4rem 0.75rem;">Secondary colour</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-success</td><td style="padding:0.4rem 0.75rem;">#198754</td><td style="padding:0.4rem 0.75rem;">Success state</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-danger</td><td style="padding:0.4rem 0.75rem;">#dc3545</td><td style="padding:0.4rem 0.75rem;">Danger / error state</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-warning</td><td style="padding:0.4rem 0.75rem;">#ffc107</td><td style="padding:0.4rem 0.75rem;">Warning state</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-info</td><td style="padding:0.4rem 0.75rem;">#0dcaf0</td><td style="padding:0.4rem 0.75rem;">Info state</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-bg</td><td style="padding:0.4rem 0.75rem;">#ffffff</td><td style="padding:0.4rem 0.75rem;">Page background</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-bg-secondary</td><td style="padding:0.4rem 0.75rem;">#f8f9fa</td><td style="padding:0.4rem 0.75rem;">Secondary background</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-text</td><td style="padding:0.4rem 0.75rem;">#212529</td><td style="padding:0.4rem 0.75rem;">Body text colour</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-text-muted</td><td style="padding:0.4rem 0.75rem;">#6c757d</td><td style="padding:0.4rem 0.75rem;">Muted / secondary text</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-border</td><td style="padding:0.4rem 0.75rem;">#dee2e6</td><td style="padding:0.4rem 0.75rem;">Border colour</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-border-radius</td><td style="padding:0.4rem 0.75rem;">0.375rem</td><td style="padding:0.4rem 0.75rem;">Default border radius</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-duration</td><td style="padding:0.4rem 0.75rem;">200ms</td><td style="padding:0.4rem 0.75rem;">Transition duration</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-duration-fast</td><td style="padding:0.4rem 0.75rem;">100ms</td><td style="padding:0.4rem 0.75rem;">Fast transition duration</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-duration-slow</td><td style="padding:0.4rem 0.75rem;">400ms</td><td style="padding:0.4rem 0.75rem;">Slow transition duration</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-easing</td><td style="padding:0.4rem 0.75rem;">cubic-bezier(0.4,0,0.2,1)</td><td style="padding:0.4rem 0.75rem;">Default easing function</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-shadow-sm</td><td style="padding:0.4rem 0.75rem;">0 0.125rem 0.25rem ...</td><td style="padding:0.4rem 0.75rem;">Small shadow</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-shadow</td><td style="padding:0.4rem 0.75rem;">0 0.5rem 1rem ...</td><td style="padding:0.4rem 0.75rem;">Default shadow</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-shadow-lg</td><td style="padding:0.4rem 0.75rem;">0 1rem 3rem ...</td><td style="padding:0.4rem 0.75rem;">Large shadow</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-font-family</td><td style="padding:0.4rem 0.75rem;">System font stack</td><td style="padding:0.4rem 0.75rem;">Body font family</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-font-size-base</td><td style="padding:0.4rem 0.75rem;">1rem</td><td style="padding:0.4rem 0.75rem;">Base font size</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-line-height-base</td><td style="padding:0.4rem 0.75rem;">1.5</td><td style="padding:0.4rem 0.75rem;">Base line height</td></tr>
+          <tr style="border-bottom: 1px solid var(--st-border);"><td style="padding:0.4rem 0.75rem;">--st-gutter-x</td><td style="padding:0.4rem 0.75rem;">1.5rem</td><td style="padding:0.4rem 0.75rem;">Grid column gutter</td></tr>
+          <tr><td style="padding:0.4rem 0.75rem;">--st-focus-ring</td><td style="padding:0.4rem 0.75rem;">0 0 0 0.25rem ...</td><td style="padding:0.4rem 0.75rem;">Focus ring shadow</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  function setTheme(theme, btn) {
+    document.documentElement.setAttribute('data-st-theme', theme)
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+  }
+
+  function toggleAttr(id, attr, valA, valB) {
+    const el = document.getElementById(id)
+    const current = el.getAttribute(attr)
+    el.setAttribute(attr, current === valA ? valB : valA)
+  }
+</script>
+
+</body>
+</html>
