@@ -10,17 +10,17 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "strata": "./bin/strata.js"
+    "strata": "bin/strata.js"
   },
   "files": [
-    "src/",
-    "bin/",
-    "strata.css",
-    "index.d.ts",
-    "README.md",
-    "LICENSE",
-    "CHANGELOG.md"
-  ],
+  "src/",
+  "bin/",
+  "strata.css",
+  "index.d.ts",
+  "README.md",
+  "LICENSE",
+  "CHANGELOG.md"
+],
   "scripts": {
     "dev": "node bin/strata.js --watch",
     "build": "node bin/strata.js --build",
@@ -49,7 +49,7 @@
   "homepage": "https://aftabibrahimkazi.github.io/strata",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AftabIbrahimKazi/strata.git"
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
   },
   "bugs": {
     "url": "https://github.com/AftabIbrahimKazi/strata/issues"
