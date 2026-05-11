@@ -4,12 +4,27 @@
 
 const fs       = require('fs')
 const path     = require('path')
+const readline = require('readline')
 const chokidar = require('chokidar')
 const strata   = require('../src/index')
 const { getWatchFiles } = require('../src/scanner/scanner')
 
 const args = process.argv.slice(2)
 const cwd  = process.cwd()
+
+function ask(rl, question) {
+  return new Promise(resolve => rl.question(question, resolve))
+}
+
+function askYesNo(rl, question, defaultYes = true) {
+  const hint = defaultYes ? '[Y/n]' : '[y/N]'
+  return new Promise(resolve => {
+    rl.question(`${question} ${hint} `, answer => {
+      if (!answer.trim()) return resolve(defaultYes)
+      resolve(answer.trim().toLowerCase().startsWith('y'))
+    })
+  })
+}
 
 function loadConfig(cwd) {
   const configPath    = path.resolve(cwd, 'strata.config.js')
@@ -151,118 +166,159 @@ function detectFramework(cwd) {
   return 'generic'
 }
 
-// ─── Script injection ─────────────────────────────────────────────────
-function injectScripts(cwd, framework) {
-  const pkgPath = path.resolve(cwd, 'package.json')
-  const strataWatch = 'node node_modules/strata-css/bin/strata.js --watch'
-  const strataBuild = 'node node_modules/strata-css/bin/strata.js --build'
+// ─── Init ─────────────────────────────────────────────────────────────
+async function init() {
+  const isESM     = isESMProject(cwd)
+  const framework = detectFramework(cwd)
+  const output    = detectOutputPath(cwd)
 
-  try {
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
+  const frameworkDev = {
+    'astro':      'astro dev',
+    'laravel':    'vite',
+    'next':       'next dev',
+    'sveltekit':  'vite dev',
+    'nuxt':       'nuxt dev',
+    'react-vite': 'vite',
+    'vue-vite':   'vite',
+    'generic':    'npm start'
+  }
+
+  const frameworkBuild = {
+    'astro':      'astro build',
+    'laravel':    'vite build',
+    'next':       'next build',
+    'sveltekit':  'vite build',
+    'nuxt':       'nuxt build',
+    'react-vite': 'vite build',
+    'vue-vite':   'vite build',
+    'generic':    'npm run build'
+  }
+
+  const rl = readline.createInterface({
+    input:  process.stdin,
+    output: process.stdout
+  })
+
+  console.log('')
+  console.log(' strata   Setup initiated.')
+  console.log('')
+  console.log(`      ◼  Framework detected : ${framework}`)
+  console.log(`      ◼  Project type       : ${isESM ? 'ESM' : 'CommonJS'}`)
+  console.log(`      ◼  Output path        : ${output}`)
+  console.log('')
+
+  const installConcurrently = await askYesNo(rl,
+    '  deps   Install concurrently for clean parallel dev?')
+
+  const updateScripts = await askYesNo(rl,
+    '  scripts  Auto-update package.json dev and build scripts?')
+
+  console.log('')
+  console.log('  html   Where is your main HTML or layout file?')
+  console.log('         Examples:')
+  console.log('           src/layouts/Layout.astro')
+  console.log('           resources/views/layouts/app.blade.php')
+  console.log('           src/App.jsx')
+  console.log('           index.html')
+  const htmlFile = await ask(rl,
+    '         Path (leave blank to skip): ')
+
+  rl.close()
+  console.log('')
+
+  // Create config files
+  const configFile  = isESM ? 'strata.config.cjs' : 'strata.config.js'
+  const postcssFile = isESM ? 'postcss.config.cjs' : 'postcss.config.js'
+
+  const configContent    = `module.exports = {\n  content: ["./src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}"],\n  input:   "./strata.css",\n  output:  "${output}"\n}\n`
+  const postcssContent   = `module.exports = {\n  plugins: [\n    require('strata-css'),\n    require('autoprefixer')\n  ]\n}\n`
+  const strataCssContent = `@strata base;\n@strata components;\n@strata utilities;\n`
+
+  fs.writeFileSync(path.resolve(cwd, configFile),   configContent)
+  fs.writeFileSync(path.resolve(cwd, postcssFile),  postcssContent)
+  fs.writeFileSync(path.resolve(cwd, 'strata.css'), strataCssContent)
+
+  console.log(`      ✔  Created: ${configFile}`)
+  console.log(`      ✔  Created: strata.css`)
+  console.log(`      ✔  Created: ${postcssFile}`)
+
+  // Install concurrently
+  if (installConcurrently) {
+    console.log('      ◼  Installing concurrently...')
+    require('child_process').execSync(
+      'npm install --save-dev concurrently',
+      { stdio: 'inherit', cwd }
+    )
+    console.log('      ✔  concurrently installed')
+  }
+
+  // Update package.json scripts
+  if (updateScripts) {
+    const strataWatch = 'node node_modules/strata-css/bin/strata.js --watch'
+    const strataBuild = 'node node_modules/strata-css/bin/strata.js --build'
+    const devCmd      = frameworkDev[framework]   || 'npm start'
+    const buildCmd    = frameworkBuild[framework] || 'npm run build'
+
+    const pkgPath = path.resolve(cwd, 'package.json')
+    const pkg     = JSON.parse(fs.readFileSync(pkgPath, 'utf8'))
     if (!pkg.scripts) pkg.scripts = {}
 
-    const frameworkDev = {
-      'astro':      'astro dev',
-      'laravel':    'vite',
-      'next':       'next dev',
-      'sveltekit':  'vite dev',
-      'nuxt':       'nuxt dev',
-      'react-vite': 'vite',
-      'vue-vite':   'vite',
-      'generic':    pkg.scripts.dev || 'npm start'
-    }
-
-    const frameworkBuild = {
-      'astro':      'astro build',
-      'laravel':    'vite build',
-      'next':       'next build',
-      'sveltekit':  'vite build',
-      'nuxt':       'nuxt build',
-      'react-vite': 'vite build',
-      'vue-vite':   'vite build',
-      'generic':    pkg.scripts.build || 'npm run build'
-    }
-
-    const devCmd   = frameworkDev[framework]
-    const buildCmd = frameworkBuild[framework]
-
-    const hasConcurrently = pkg.dependencies?.['concurrently'] ||
+    const hasConcurrently = installConcurrently ||
+                            pkg.dependencies?.['concurrently'] ||
                             pkg.devDependencies?.['concurrently']
 
-    if (hasConcurrently) {
-      pkg.scripts.dev   = `concurrently "${devCmd}" "${strataWatch}"`
-    } else {
-      pkg.scripts.dev   = `${strataWatch} & ${devCmd}`
-    }
-
-    pkg.scripts.build = `${strataBuild} && ${buildCmd}`
+    pkg.scripts.dev   = hasConcurrently
+      ? `concurrently "${strataWatch}" "${devCmd}"`
+      : `${strataWatch} & ${devCmd}`
+    pkg.scripts.build           = `${strataBuild} && ${buildCmd}`
     pkg.scripts['strata:watch'] = strataWatch
     pkg.scripts['strata:build'] = strataBuild
 
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2))
-    return true
-  } catch (e) {
-    return false
+    console.log('      ✔  Updated: package.json scripts')
   }
-}
 
-// ─── Init ─────────────────────────────────────────────────────────────
-function init() {
-  const isESM     = isESMProject(cwd)
-  const output    = detectOutputPath(cwd)
-  const framework = detectFramework(cwd)
+  // Inject CSS link and theme into HTML file
+  if (htmlFile && htmlFile.trim()) {
+    const htmlPath = path.resolve(cwd, htmlFile.trim())
+    if (fs.existsSync(htmlPath)) {
+      let content = fs.readFileSync(htmlPath, 'utf8')
+      const cssLink   = `\t\t<link rel="stylesheet" href="/strata.output.css">`
+      const themeAttr = 'data-st-theme="light"'
 
-  console.log('[Strata] Initializing project...')
-  console.log(`[Strata] Detected: ${isESM ? 'ESM' : 'CommonJS'} project`)
-  console.log(`[Strata] Framework: ${framework}`)
+      if (!content.includes('strata.output.css')) {
+        content = content.replace('</head>', `${cssLink}\n\t</head>`)
+      }
+      if (!content.includes('data-st-theme')) {
+        content = content.replace('<html', `<html ${themeAttr}`)
+      }
 
-  const configFile  = isESM ? 'strata.config.cjs' : 'strata.config.js'
-  const postcssFile = isESM ? 'postcss.config.cjs' : 'postcss.config.js'
-
-  const configContent  = `module.exports = {\n  content: ["./src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}"],\n  input:   "./strata.css",\n  output:  "${output}"\n}\n`
-  const postcssContent = `module.exports = {\n  plugins: [\n    require('strata-css'),\n    require('autoprefixer')\n  ]\n}\n`
-  const strataCssContent = `@strata base;\n@strata components;\n@strata utilities;\n`
-
-  fs.writeFileSync(path.resolve(cwd, configFile),  configContent)
-  fs.writeFileSync(path.resolve(cwd, postcssFile), postcssContent)
-  fs.writeFileSync(path.resolve(cwd, 'strata.css'), strataCssContent)
-
-  console.log(`[Strata] Created: ${configFile}`)
-  console.log(`[Strata] Created: strata.css`)
-  console.log(`[Strata] Created: ${postcssFile}`)
-
-  const injected = injectScripts(cwd, framework)
-
-  if (injected) {
-    let hasConcurrently = false
-    try {
-      const pkg = JSON.parse(fs.readFileSync(path.resolve(cwd, 'package.json'), 'utf8'))
-      hasConcurrently = !!(pkg.dependencies?.['concurrently'] || pkg.devDependencies?.['concurrently'])
-    } catch {}
-
-    console.log(`[Strata] Updated package.json scripts:`)
-    console.log(`[Strata]   dev          → runs Strata watcher + framework dev server`)
-    console.log(`[Strata]   build        → runs Strata build then framework build`)
-    console.log(`[Strata]   strata:watch → node node_modules/strata-css/bin/strata.js --watch`)
-    console.log(`[Strata]   strata:build → node node_modules/strata-css/bin/strata.js --build`)
-
-    if (!hasConcurrently) {
-      console.log(`[Strata]`)
-      console.log(`[Strata] Tip: install concurrently for cleaner parallel dev:`)
-      console.log(`[Strata]   npm install --save-dev concurrently`)
+      fs.writeFileSync(htmlPath, content)
+      console.log(`      ✔  Updated: ${htmlFile.trim()}`)
+    } else {
+      console.log(`      ✗  File not found: ${htmlFile.trim()} — skipped`)
     }
-  } else {
-    console.log(`[Strata] Warning: could not update package.json scripts — update manually.`)
   }
 
-  console.log(`[Strata] Done! Next steps:`)
-  console.log(`[Strata]   1. Add <link rel="stylesheet" href="/strata.output.css"> to your HTML`)
-  console.log(`[Strata]   2. Add data-st-theme="light" to your <html> tag`)
-  console.log(`[Strata]   3. Run: npm run dev`)
+  // Run initial build
+  console.log('      ◼  Running initial build...')
+  await strata.build(
+    path.resolve(cwd, 'strata.css'),
+    path.resolve(cwd, output.replace('./', '')),
+    { cwd }
+  )
+  console.log('      ✔  Initial build complete')
+
+  console.log('')
+  console.log(' strata   Setup complete!')
+  console.log('')
+  console.log('  next   Your project is ready.')
+  console.log('         Run npm run dev to start.')
+  console.log('')
 }
 
 // ─── Run ──────────────────────────────────────────────────────────────
-if      (args[0] === 'init')          init()
+if      (args[0] === 'init')          init().catch(console.error)
 else if (args.includes('--watch'))    watch()
 else if (args.includes('--minify'))   build(true,  true)
 else if (args.includes('--build'))    build(false, true)
