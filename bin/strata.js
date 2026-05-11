@@ -11,9 +11,19 @@ const { getWatchFiles } = require('../src/scanner/scanner')
 const args = process.argv.slice(2)
 const cwd  = process.cwd()
 
-function loadConfig() {
-  const configPath = path.resolve(cwd, 'strata.config.js')
-  try { return require(configPath) } catch { return {} }
+function loadConfig(cwd) {
+  const configPath    = path.resolve(cwd, 'strata.config.js')
+  const configPathCjs = path.resolve(cwd, 'strata.config.cjs')
+
+  if (fs.existsSync(configPathCjs)) {
+    try { return require(configPathCjs) } catch {}
+  }
+
+  if (fs.existsSync(configPath)) {
+    try { return require(configPath) } catch {}
+  }
+
+  return {}
 }
 
 // ─── JS minifier ──────────────────────────────────────────────────────
@@ -38,7 +48,7 @@ function minifyJS(src) {
 // --minify → minified CSS + minified JS     (smallest possible output)
 
 async function build(cssMinify = false, jsMinify = true) {
-  const config     = loadConfig()
+  const config     = loadConfig(cwd)
   const inputFile  = config.input  || path.join(cwd, 'strata.css')
   const outputFile = config.output || path.join(cwd, 'dist', 'strata.output.css')
 
@@ -78,7 +88,7 @@ async function watch() {
   console.log('[Strata] Starting in watch mode...')
   await build(false, false)   // unminified for dev
 
-  const config       = loadConfig()
+  const config       = loadConfig(cwd)
   const contentGlobs = config.content || ['./src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}']
   const inputFile    = config.input || path.join(cwd, 'strata.css')
   const watchFiles   = [inputFile, ...getWatchFiles(contentGlobs)]
@@ -100,28 +110,56 @@ async function watch() {
   console.log('[Strata] Watching for changes...')
 }
 
+// ─── ESM / framework helpers ──────────────────────────────────────────
+function isESMProject(cwd) {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.resolve(cwd, 'package.json'), 'utf8'))
+    return pkg.type === 'module'
+  } catch {
+    return false
+  }
+}
+
+function detectOutputPath(cwd) {
+  try {
+    const pkg  = JSON.parse(fs.readFileSync(path.resolve(cwd, 'package.json'), 'utf8'))
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies }
+    if (deps['astro'])                return './public/strata.output.css'
+    if (deps['laravel-vite-plugin'])  return './public/strata.output.css'
+    if (deps['next'])                 return './public/strata.output.css'
+    if (deps['react'])                return './public/strata.output.css'
+    if (deps['vue'])                  return './public/strata.output.css'
+    if (deps['@sveltejs/kit'])        return './public/strata.output.css'
+  } catch {}
+  return './dist/strata.output.css'
+}
+
 // ─── Init ─────────────────────────────────────────────────────────────
 function init() {
+  const isESM  = isESMProject(cwd)
+  const output = detectOutputPath(cwd)
+
   console.log('[Strata] Initializing project...')
+  console.log(`[Strata] Detected: ${isESM ? 'ESM' : 'CommonJS'} project`)
 
-  const files = {
-    'strata.config.js': `module.exports = {\n  content: ["./src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}"],\n  input:   "./strata.css",\n  output:  "./dist/strata.output.css"\n}\n`,
-    'strata.css':       `@strata base;\n@strata components;\n@strata utilities;\n`,
-    'postcss.config.js':`module.exports = { plugins: [require('strata-css'), require('autoprefixer')] }\n`,
-  }
+  const configFile  = isESM ? 'strata.config.cjs' : 'strata.config.js'
+  const postcssFile = isESM ? 'postcss.config.cjs' : 'postcss.config.js'
 
-  for (const [filename, content] of Object.entries(files)) {
-    const filePath = path.join(cwd, filename)
-    if (fs.existsSync(filePath)) {
-      console.log(`[Strata] Skipped (exists): ${filename}`)
-    } else {
-      fs.writeFileSync(filePath, content)
-      console.log(`[Strata] Created: ${filename}`)
-    }
-  }
+  const configContent  = `module.exports = {\n  content: ["./src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}"],\n  input:   "./strata.css",\n  output:  "${output}"\n}\n`
+  const postcssContent = `module.exports = {\n  plugins: [\n    require('strata-css'),\n    require('autoprefixer')\n  ]\n}\n`
+  const strataCssContent = `@strata base;\n@strata components;\n@strata utilities;\n`
 
-  fs.mkdirSync(path.join(cwd, 'dist'), { recursive: true })
-  console.log('\n[Strata] Done! Run: npm run dev')
+  fs.writeFileSync(path.resolve(cwd, configFile),  configContent)
+  fs.writeFileSync(path.resolve(cwd, postcssFile), postcssContent)
+  fs.writeFileSync(path.resolve(cwd, 'strata.css'), strataCssContent)
+
+  console.log(`[Strata] Created: ${configFile}`)
+  console.log(`[Strata] Created: strata.css`)
+  console.log(`[Strata] Created: ${postcssFile}`)
+  console.log(`[Strata] Done! Next steps:`)
+  console.log(`[Strata]   1. Add <link rel="stylesheet" href="/strata.output.css"> to your HTML`)
+  console.log(`[Strata]   2. Add data-st-theme="light" to your <html> tag`)
+  console.log(`[Strata]   3. Run: node node_modules/strata-css/bin/strata.js --build`)
 }
 
 // ─── Run ──────────────────────────────────────────────────────────────
