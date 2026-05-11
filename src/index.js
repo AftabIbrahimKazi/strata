@@ -22,19 +22,18 @@ let cachedConfigPath  = null
 let cachedConfigMtime = 0
 
 function loadConfig(cwd) {
-  const configPath = path.resolve(cwd, 'strata.config.js')
-  let mtime = 0
-  try { mtime = fs.statSync(configPath).mtimeMs } catch {}
-  if (cachedConfig && cachedConfigPath === configPath && cachedConfigMtime === mtime) {
-    return cachedConfig
+  const configPath    = path.resolve(cwd, 'strata.config.js')
+  const configPathCjs = path.resolve(cwd, 'strata.config.cjs')
+
+  if (fs.existsSync(configPathCjs)) {
+    try { return require(configPathCjs) } catch {}
   }
-  try {
-    delete require.cache[require.resolve(configPath)]
-    cachedConfig      = require(configPath)
-    cachedConfigPath  = configPath
-    cachedConfigMtime = mtime
-  } catch { cachedConfig = {} }
-  return cachedConfig
+
+  if (fs.existsSync(configPath)) {
+    try { return require(configPath) } catch {}
+  }
+
+  return {}
 }
 
 // ─── Base CSS ─────────────────────────────────────────────────────────
