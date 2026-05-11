@@ -1,6 +1,7 @@
 {
   "name": "strata-css",
   "version": "1.0.0",
+  "_versioningNote": "Stable: 1.0.0 / 1.1.0 / 2.0.0  |  Beta: 1.1.0-beta.1 / 1.1.0-beta.2",
   "description": "A modern CSS framework combining Bootstrap components with Tailwind JIT processing",
   "main": "src/index.js",
   "types": "index.d.ts",
@@ -24,7 +25,9 @@
     "dev": "node bin/strata.js --watch",
     "build": "node bin/strata.js --build",
     "minify": "node bin/strata.js --minify",
-    "benchmark": "node --expose-gc benchmark/run.js"
+    "benchmark": "node --expose-gc benchmark/run.js",
+    "publish:stable": "npm publish --tag latest",
+    "publish:beta": "npm publish --tag beta"
   },
   "keywords": [
     "css",
