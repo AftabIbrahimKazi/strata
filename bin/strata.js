@@ -132,8 +132,8 @@ else if (args.includes('--build'))    build(false, true)
 else console.log(`
 Strata CSS
 
-  strata init       scaffold a new project
-  strata --watch    development mode  (unminified, fast rebuild)
-  strata --build    production build  (minified JS, readable CSS)
-  strata --minify   production build  (minified CSS + JS, smallest output)
+  strata-css init       scaffold a new project
+  strata-css --watch    development mode  (unminified, fast rebuild)
+  strata-css --build    production build  (minified JS, readable CSS)
+  strata-css --minify   production build  (minified CSS + JS, smallest output)
 `)
