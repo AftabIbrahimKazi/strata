@@ -7,8 +7,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)]()
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)]()
+[![npm](https://img.shields.io/badge/npm-strata--css-red.svg)](https://www.npmjs.com/package/strata-css)
+[![css-framework](https://img.shields.io/badge/css--framework-%E2%9C%93-blue.svg)]()
+[![PostCSS plugin](https://img.shields.io/badge/postcss-plugin-orange.svg)]()
+[![JIT](https://img.shields.io/badge/JIT-enabled-green.svg)]()
+[![Themes](https://img.shields.io/badge/themes-light%20%7C%20dark%20%7C%20dim-purple.svg)]()
 
-[Getting Started](#getting-started) · [Components](#components) · [Utilities](#utilities) · [Theming](#theming) · [Configuration](#configuration)
+`css-framework` · `tailwindcss` · `bootstrap` · `postcss` · `postcss-plugin` · `jit` · `component-library` · `theming` · `utility-first`
+
+[Getting Started](#getting-started) · [Live Demo](#live-demo) · [Components](#components) · [Utilities](#utilities) · [Theming](#theming) · [Configuration](#configuration)
 
 </div>
 
@@ -43,6 +50,16 @@ Strata outperforms Tailwind on every metric in watch mode — the speed develope
 | Warm rebuild average | 0.14ms | 2.70ms |
 | Warm rebuild p95 | 0.23ms | 6.12ms |
 
+Results generated via `npm run benchmark`. See [`benchmark/`](./benchmark/) for the reproducible script.
+
+---
+
+## Live Demo
+
+View the interactive component showcase: [aftabibrahimkazi.github.io/strata](https://aftabibrahimkazi.github.io/strata)
+
+To view locally: open `docs/index.html` directly in a browser — no build step required.
+
 ---
 
 ## Getting Started
@@ -52,6 +69,8 @@ Strata outperforms Tailwind on every metric in watch mode — the speed develope
 ```bash
 npm install strata-css
 ```
+
+> **Publishing:** Run `npm publish --dry-run` to verify the package contents, then `npm publish` to release.
 
 ### Scaffold a new project
 
@@ -519,6 +538,19 @@ Strata builds on the shoulders of excellent prior work:
 - **[PostCSS](https://postcss.org/)** (MIT) — the build pipeline that powers Strata's `@strata` directive processing
 
 Strata's component architecture, cascade layer system, `data-st-*` state model, theming engine, and JIT registry are original work.
+
+---
+
+## Creating a GitHub Release
+
+The v1.0.0 tag already exists. To publish the GitHub Release from it:
+
+```bash
+gh release create v1.0.0 \
+  --title "Strata CSS v1.0.0" \
+  --notes-file CHANGELOG.md \
+  --verify-tag
+```
 
 ---
 

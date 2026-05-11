@@ -1,17 +1,60 @@
 {
-  "name": "strata",
+  "name": "strata-css",
   "version": "1.0.0",
   "description": "A modern CSS framework combining Bootstrap components with Tailwind JIT processing",
   "main": "src/index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "strata": "./bin/strata.js"
+  },
+  "files": [
+    "src/",
+    "bin/",
+    "strata.css",
+    "index.d.ts",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "dev": "node bin/strata.js --watch",
     "build": "node bin/strata.js --build",
-    "minify": "node bin/strata.js --minify"
+    "minify": "node bin/strata.js --minify",
+    "benchmark": "node --expose-gc benchmark/run.js"
   },
-  "keywords": ["css", "framework", "postcss", "jit"],
+  "keywords": [
+    "css",
+    "framework",
+    "postcss",
+    "postcss-plugin",
+    "jit",
+    "tailwind",
+    "tailwindcss",
+    "bootstrap",
+    "component-library",
+    "utility-first",
+    "theming",
+    "dark-mode",
+    "css-framework"
+  ],
   "author": "Aftab Ibrahim Kazi",
   "license": "MIT",
+  "homepage": "https://aftabibrahimkazi.github.io/strata",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AftabIbrahimKazi/strata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
+  },
   "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "autoprefixer": "^10.5.0",
     "chokidar": "^5.0.0",

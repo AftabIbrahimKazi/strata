@@ -92,8 +92,15 @@ function getWatchFiles(contentGlobs) {
 }
 
 function clearFileCache(filePath) {
-  if (filePath) { fileCache.delete(filePath); globCache.clear() }
-  else { fileCache.clear(); globCache.clear() }
+  if (filePath) {
+    fileCache.delete(filePath)
+    globCache.clear()   // a specific file change may mean add/delete — re-glob
+  } else {
+    fileCache.clear()
+    // Full invalidate only clears content cache, not glob results.
+    // Which files exist hasn't changed — only their content did.
+    // Preserving globCache avoids an expensive filesystem scan every build.
+  }
 }
 
 module.exports = { scanFiles, extractClassesFromFile, getWatchFiles, clearFileCache }

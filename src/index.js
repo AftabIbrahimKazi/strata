@@ -47,6 +47,24 @@ function getBaseAST() {
   return BASE_AST
 }
 
+// ─── Input CSS cache ───────────────────────────────────────────────────
+// strata.css rarely changes — cache it with mtime check
+let cachedInputCSS   = null
+let cachedInputPath  = null
+let cachedInputMtime = 0
+
+function readInputCSS(inputCSSPath) {
+  let mtime = 0
+  try { mtime = fs.statSync(inputCSSPath).mtimeMs } catch {}
+  if (cachedInputCSS && cachedInputPath === inputCSSPath && cachedInputMtime === mtime) {
+    return cachedInputCSS
+  }
+  cachedInputCSS   = fs.readFileSync(inputCSSPath, 'utf8')
+  cachedInputPath  = inputCSSPath
+  cachedInputMtime = mtime
+  return cachedInputCSS
+}
+
 // ─── PostCSS Plugin ───────────────────────────────────────────────────
 // Only runs on cold builds — warm builds bypass via strata.build()
 
@@ -96,36 +114,49 @@ module.exports = plugin
 // Warm builds bypass PostCSS entirely — zero allocation, zero GC pressure
 
 module.exports.build = async (inputCSSPath, outputCSSPath, opts = {}) => {
-  if (!postcss) postcss = require('postcss')
-
-  const inputCSS = fs.readFileSync(inputCSSPath, 'utf8')
-
-  // ── Warm path: return cached CSS, no PostCSS at all ───────────────
+  // ── Warm path: return cached CSS, no work at all ──────────────────
   if (!dirty && cachedCSS) {
     if (outputCSSPath) fs.writeFileSync(outputCSSPath, cachedCSS)
     return cachedCSS
   }
 
-  // ── Cold path: full PostCSS pipeline ─────────────────────────────
-  const plugins = [plugin(opts)]
+  // ── Cold path: string assembly — no PostCSS parse/stringify ───────
+  // PostCSS parse → AST clone → replaceWith → stringify is a costly
+  // round-trip that adds no transformation. We replace @strata directives
+  // via regex on the raw string, which is O(n) on the input file only.
+  const cwd    = opts.cwd || process.cwd()
+  const config = loadConfig(cwd)
 
-  const result = await postcss(plugins).process(inputCSS, {
-    from: inputCSSPath,
-    to:   outputCSSPath,
-    map:  opts.sourceMap ? { inline: false } : false
-  })
+  const { scanFiles } = require('./scanner/scanner')
+  const { generate }  = require('./generator/generator')
 
-  // Cache the final output — includes autoprefixer etc. already applied
-  cachedCSS = result.css
-  dirty = false
+  const contentGlobs = config.content || [
+    './src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}'
+  ]
+
+  const classNames = scanFiles(contentGlobs)
+  const { componentCSS, utilityCSS } = generate(classNames, config)
+
+  // Read input CSS (cached by mtime — strata.css rarely changes)
+  const inputCSS = readInputCSS(inputCSSPath)
+
+  // Replace @strata directives with pre-built CSS strings.
+  // Use function replacements (not string literals) so any `$` sequences
+  // in the CSS (e.g. inside comments) are never treated as regex back-references.
+  const css = inputCSS
+    .replace(/^\s*@strata\s+base\s*;/m,       () => BASE_CSS)
+    .replace(/^\s*@strata\s+components\s*;/m, () => componentCSS || '')
+    .replace(/^\s*@strata\s+utilities\s*;/m,  () => utilityCSS   || '')
+
+  cachedCSS = css
+  dirty     = false
 
   if (outputCSSPath) {
     fs.mkdirSync(path.dirname(outputCSSPath), { recursive: true })
-    fs.writeFileSync(outputCSSPath, result.css)
-    if (result.map) fs.writeFileSync(outputCSSPath + '.map', result.map.toString())
+    fs.writeFileSync(outputCSSPath, css)
   }
 
-  return result.css
+  return css
 }
 
 // ─── Cache invalidation ───────────────────────────────────────────────
