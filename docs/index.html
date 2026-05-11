@@ -1,615 +1,82 @@
 <!DOCTYPE html>
-<html lang="en" data-st-theme="light">
+<html data-st-theme="light">
 <head>
-  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Strata CSS — Live Demo</title>
+  <title>Strata Test</title>
   <link rel="stylesheet" href="../dist/strata.output.css">
-  <style>
-    /* ── Demo page chrome ── */
-    body {
-      padding: 0;
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: var(--st-bg);
-      color: var(--st-text);
-      transition: background 0.25s, color 0.25s;
-    }
-
-    .demo-header {
-      background: var(--st-bg-secondary);
-      border-bottom: 1px solid var(--st-border);
-      padding: 1.25rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .demo-header h1 {
-      margin: 0;
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--st-text);
-    }
-
-    .demo-header h1 span {
-      color: var(--st-primary);
-    }
-
-    .theme-controls {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    .theme-btn {
-      padding: 0.35rem 0.85rem;
-      border-radius: var(--st-border-radius);
-      border: 1px solid var(--st-border);
-      background: var(--st-bg);
-      color: var(--st-text);
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .theme-btn:hover { background: var(--st-primary); color: #fff; border-color: var(--st-primary); }
-    .theme-btn.active { background: var(--st-primary); color: #fff; border-color: var(--st-primary); }
-
-    .demo-nav {
-      background: var(--st-bg-secondary);
-      border-bottom: 1px solid var(--st-border);
-      padding: 0 2rem;
-      display: flex;
-      gap: 0;
-      overflow-x: auto;
-    }
-
-    .demo-nav a {
-      display: block;
-      padding: 0.65rem 1rem;
-      font-size: 0.85rem;
-      color: var(--st-text-muted);
-      text-decoration: none;
-      border-bottom: 2px solid transparent;
-      white-space: nowrap;
-      transition: color 0.15s, border-color 0.15s;
-    }
-
-    .demo-nav a:hover { color: var(--st-primary); border-bottom-color: var(--st-primary); }
-
-    .demo-main {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 2rem 2rem 4rem;
-    }
-
-    .demo-section {
-      padding: 2.5rem 0;
-      border-bottom: 1px solid var(--st-border);
-    }
-
-    .demo-section:last-child { border-bottom: none; }
-
-    .section-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin: 0 0 0.25rem;
-      color: var(--st-text);
-    }
-
-    .section-sub {
-      font-size: 0.82rem;
-      color: var(--st-text-muted);
-      font-family: monospace;
-      margin: 0 0 1.5rem;
-    }
-
-    .demo-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--st-text-muted);
-      margin: 1.25rem 0 0.5rem;
-    }
-
-    .demo-label:first-child { margin-top: 0; }
-
-    .demo-box {
-      background: var(--st-bg-secondary);
-      border: 1px solid var(--st-border);
-      border-radius: var(--st-border-radius);
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .demo-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .demo-row:last-child { margin-bottom: 0; }
-
-    .code-tag {
-      display: inline-block;
-      background: var(--st-bg-secondary);
-      border: 1px solid var(--st-border);
-      border-radius: 4px;
-      padding: 0.15rem 0.45rem;
-      font-family: monospace;
-      font-size: 0.78rem;
-      color: var(--st-primary);
-    }
-
-    /* transition demo boxes */
-    .trans-box {
-      display: inline-block;
-      padding: 0.5rem 1rem;
-      background: var(--st-primary);
-      color: #fff;
-      border-radius: var(--st-border-radius);
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    .trans-box:hover { background: var(--st-primary-hover); transform: translateY(-2px); box-shadow: var(--st-shadow); }
-
-    /* state demo */
-    .state-demo-area {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .state-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .state-target {
-      padding: 0.6rem 1.2rem;
-      background: var(--st-bg);
-      border: 1px solid var(--st-border);
-      border-radius: var(--st-border-radius);
-      font-size: 0.875rem;
-      min-width: 180px;
-    }
-
-    .toggle-btn {
-      font-size: 0.8rem;
-      padding: 0.35rem 0.8rem;
-      cursor: pointer;
-      border-radius: var(--st-border-radius);
-      border: 1px solid var(--st-border);
-      background: var(--st-bg);
-      color: var(--st-text);
-      transition: all 0.15s;
-    }
-    .toggle-btn:hover { background: var(--st-primary); color: #fff; border-color: var(--st-primary); }
-
-    /* spacing demo swatches */
-    .spacing-swatch {
-      background: var(--st-primary);
-      opacity: 0.75;
-      height: 28px;
-      border-radius: 4px;
-      display: inline-block;
-    }
-
-    /* colour swatches */
-    .color-swatch {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--st-border-radius);
-      border: 1px solid var(--st-border);
-      display: inline-block;
-    }
-
-    /* utility display demo */
-    .util-box {
-      background: var(--st-primary);
-      opacity: 0.15;
-      border-radius: 4px;
-      padding: 0.5rem;
-      font-size: 0.75rem;
-      color: var(--st-text);
-      text-align: center;
-    }
-  </style>
 </head>
 <body>
+  <div class="container mt-3">
+    <div class="row">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <p class="text-center mt-3 text-danger">Hello World this is Strata.</p>
+        <p class="text-center mt-2 bg-success text-white px-[12px]">Success</p>
+      </div>
+    </div>
 
-<!-- ── Header ── -->
-<header class="demo-header">
-  <h1>Strata <span>CSS</span> — Live Demo</h1>
-  <div class="theme-controls">
-    <span style="font-size:0.8rem;color:var(--st-text-muted);margin-right:0.25rem">Theme:</span>
-    <button class="theme-btn active" onclick="setTheme('light', this)">Light</button>
-    <button class="theme-btn" onclick="setTheme('dark', this)">Dark</button>
-    <button class="theme-btn" onclick="setTheme('dim', this)">Dim</button>
+    <div class="mt-3">
+      <!-- Triggers -->
+      <button class="btn-primary" data-st-toggle="modal" data-st-target="#demoModal">Default Modal</button>
+      <button class="btn-secondary" data-st-toggle="modal" data-st-target="#centeredModal">Centered</button>
+      <button class="btn-danger" data-st-toggle="modal" data-st-target="#staticModal">Static Backdrop</button>
+    </div>
   </div>
-</header>
 
-<!-- ── Section nav ── -->
-<nav class="demo-nav">
-  <a href="#buttons">Buttons</a>
-  <a href="#cards">Cards</a>
-  <a href="#grid">Grid</a>
-  <a href="#utilities">Utilities</a>
-  <a href="#transitions">Transitions</a>
-  <a href="#state">State</a>
-</nav>
-
-<main class="demo-main">
-
-  <!-- ══════════════════════════════════════════════════════ BUTTONS -->
-  <section class="demo-section" id="buttons">
-    <h2 class="section-title">Buttons</h2>
-    <p class="section-sub">btn-primary · btn-secondary · btn-success · btn-danger · btn-warning · btn-info · btn-light · btn-dark</p>
-
-    <div class="demo-label">All variants</div>
-    <div class="demo-box">
-      <div class="demo-row">
-        <button class="btn-primary">Primary</button>
-        <button class="btn-secondary">Secondary</button>
-        <button class="btn-success">Success</button>
-        <button class="btn-danger">Danger</button>
-        <button class="btn-warning">Warning</button>
-        <button class="btn-info">Info</button>
-        <button class="btn-light">Light</button>
-        <button class="btn-dark">Dark</button>
-      </div>
-    </div>
-
-    <div class="demo-label">States — hover, focus, active (interact to test)</div>
-    <div class="demo-box">
-      <div class="demo-row">
-        <button class="btn-primary">Hover me</button>
-        <button class="btn-primary" data-st-loading="true">Loading</button>
-        <button class="btn-primary" data-st-disabled="true">Disabled</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════════════ CARDS -->
-  <section class="demo-section" id="cards">
-    <h2 class="section-title">Cards</h2>
-    <p class="section-sub">card · card-header · card-body · card-footer</p>
-
-    <div class="demo-box" style="background:transparent;border:none;padding:0">
-      <div style="display:flex;gap:1.5rem;flex-wrap:wrap">
-
-        <div class="card" style="flex:1;min-width:240px;max-width:320px">
-          <div class="card-header">Card Header</div>
-          <div class="card-body">
-            <p style="margin:0 0 1rem">This is a standard card body. Add any content here.</p>
-            <button class="btn-primary">Action</button>
-          </div>
-          <div class="card-footer">Card Footer</div>
+  <!-- Default Modal -->
+  <div class="modal" id="demoModal" aria-hidden="true" aria-labelledby="demoModalLabel">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="demoModalLabel">Modal Title</h5>
+          <button type="button" class="btn-close" data-st-dismiss="modal" aria-label="Close"></button>
         </div>
-
-        <div class="card" style="flex:1;min-width:240px;max-width:320px">
-          <div class="card-body">
-            <h5 style="margin:0 0 0.5rem;font-weight:600">Card without header</h5>
-            <p style="margin:0;color:var(--st-text-muted);font-size:0.875rem">A minimal card using only card-body. Clean and simple.</p>
-          </div>
+        <div class="modal-body">
+          <p>This modal is powered by <strong>Strata JS</strong>. Open/close via <code>data-st-toggle</code>, <code>data-st-dismiss</code>, backdrop click, or <kbd>Escape</kbd>.</p>
         </div>
-
-        <div class="card" style="flex:1;min-width:240px;max-width:320px">
-          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
-            Status
-            <span style="background:var(--st-success);color:#fff;font-size:0.7rem;padding:0.2rem 0.5rem;border-radius:999px">Active</span>
-          </div>
-          <div class="card-body">
-            <p style="margin:0;font-size:0.875rem;color:var(--st-text-muted)">Cards accept any markup in their body. Mix in utilities freely.</p>
-          </div>
-          <div class="card-footer" style="display:flex;gap:0.5rem">
-            <button class="btn-primary" style="font-size:0.8rem;padding:0.35rem 0.8rem">Accept</button>
-            <button class="btn-secondary" style="font-size:0.8rem;padding:0.35rem 0.8rem">Dismiss</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════════════ GRID -->
-  <section class="demo-section" id="grid">
-    <h2 class="section-title">Grid &amp; Layout</h2>
-    <p class="section-sub">container · row · col-* · col-md-* · col-lg-*</p>
-
-    <div class="demo-label">Equal columns (col-4)</div>
-    <div class="demo-box" style="padding:1rem">
-      <div class="row" style="gap:0.5rem 0">
-        <div class="col-4"><div class="util-box" style="opacity:1;background:var(--st-primary);color:#fff">col-4</div></div>
-        <div class="col-4"><div class="util-box" style="opacity:1;background:var(--st-secondary);color:#fff">col-4</div></div>
-        <div class="col-4"><div class="util-box" style="opacity:1;background:var(--st-info);color:#fff">col-4</div></div>
-      </div>
-    </div>
-
-    <div class="demo-label">Responsive — stacks on mobile, side-by-side at md+</div>
-    <div class="demo-box" style="padding:1rem">
-      <div class="row">
-        <div class="col-12 col-md-8">
-          <div class="util-box" style="opacity:1;background:var(--st-success);color:#fff;height:60px;display:flex;align-items:center;justify-content:center">col-12 col-md-8</div>
-        </div>
-        <div class="col-12 col-md-4">
-          <div class="util-box" style="opacity:1;background:var(--st-danger);color:#fff;height:60px;display:flex;align-items:center;justify-content:center">col-12 col-md-4</div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" data-st-dismiss="modal">Close</button>
+          <button type="button" class="btn-primary">Save changes</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="demo-label">Three-column at lg, two at md, stacked below</div>
-    <div class="demo-box" style="padding:1rem">
-      <div class="row">
-        <div class="col-12 col-md-6 col-lg-4"><div class="util-box" style="opacity:1;background:var(--st-primary);color:#fff;margin-bottom:0.5rem;text-align:center;padding:0.75rem">col-12 col-md-6 col-lg-4</div></div>
-        <div class="col-12 col-md-6 col-lg-4"><div class="util-box" style="opacity:1;background:var(--st-warning);color:#212529;margin-bottom:0.5rem;text-align:center;padding:0.75rem">col-12 col-md-6 col-lg-4</div></div>
-        <div class="col-12 col-md-6 col-lg-4"><div class="util-box" style="opacity:1;background:var(--st-info);color:#fff;margin-bottom:0.5rem;text-align:center;padding:0.75rem">col-12 col-md-6 col-lg-4</div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════════════ UTILITIES -->
-  <section class="demo-section" id="utilities">
-    <h2 class="section-title">Utilities</h2>
-    <p class="section-sub">spacing · display · colors · sizing · flexbox</p>
-
-    <div class="demo-label">Spacing — mt-* / mb-* / px-* / mx-auto</div>
-    <div class="demo-box">
-      <div style="display:flex;align-items:flex-end;gap:0.5rem;flex-wrap:wrap">
-        <div>
-          <div class="spacing-swatch" style="width:16px"></div>
-          <div style="font-size:0.7rem;text-align:center;margin-top:4px;color:var(--st-text-muted)">mt-1</div>
+  <!-- Centered Modal -->
+  <div class="modal" id="centeredModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Centered Modal</h5>
+          <button type="button" class="btn-close" data-st-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div>
-          <div class="spacing-swatch" style="width:24px"></div>
-          <div style="font-size:0.7rem;text-align:center;margin-top:4px;color:var(--st-text-muted)">mt-2</div>
+        <div class="modal-body">
+          <p>Vertically centered in the viewport.</p>
         </div>
-        <div>
-          <div class="spacing-swatch" style="width:32px"></div>
-          <div style="font-size:0.7rem;text-align:center;margin-top:4px;color:var(--st-text-muted)">mt-3</div>
-        </div>
-        <div>
-          <div class="spacing-swatch" style="width:48px"></div>
-          <div style="font-size:0.7rem;text-align:center;margin-top:4px;color:var(--st-text-muted)">mt-4</div>
-        </div>
-        <div>
-          <div class="spacing-swatch" style="width:64px"></div>
-          <div style="font-size:0.7rem;text-align:center;margin-top:4px;color:var(--st-text-muted)">mt-5</div>
-        </div>
-        <div style="margin-left:1rem">
-          <span class="code-tag">mx-auto</span> — auto horizontal margin
-        </div>
-      </div>
-
-      <div style="margin-top:1rem">
-        <span class="code-tag">mt-[24px]</span>
-        <span class="code-tag">px-[1.5rem]</span>
-        <span class="code-tag">mb-[2em]</span>
-        <span style="font-size:0.8rem;color:var(--st-text-muted);margin-left:0.5rem">— arbitrary values</span>
-      </div>
-    </div>
-
-    <div class="demo-label">Display utilities — d-flex · d-none · d-block · d-grid</div>
-    <div class="demo-box">
-      <div class="d-flex" style="gap:0.5rem;flex-wrap:wrap;align-items:center">
-        <span class="code-tag">d-flex</span>
-        <span class="code-tag">d-block</span>
-        <span class="code-tag">d-grid</span>
-        <span class="code-tag">d-none</span>
-        <span class="code-tag">d-inline-flex</span>
-        <span style="color:var(--st-text-muted);font-size:0.8rem">+ responsive: <span class="code-tag">d-md-flex</span> <span class="code-tag">d-lg-none</span></span>
-      </div>
-    </div>
-
-    <div class="demo-label">Text colours — text-primary · text-success · text-danger · text-muted</div>
-    <div class="demo-box">
-      <p style="margin:0 0 0.5rem;font-weight:500" class="">
-        <span style="color:var(--st-primary)">text-primary</span> ·
-        <span style="color:var(--st-secondary)">text-secondary</span> ·
-        <span style="color:var(--st-success)">text-success</span> ·
-        <span style="color:var(--st-danger)">text-danger</span> ·
-        <span style="color:var(--st-warning)">text-warning</span> ·
-        <span style="color:var(--st-info)">text-info</span> ·
-        <span style="color:var(--st-text-muted)">text-muted</span>
-      </p>
-      <p style="margin:0;font-size:0.8rem;color:var(--st-text-muted)">
-        Arbitrary: <span class="code-tag">text-[#ff0000]</span> <span class="code-tag">text-[rgb(100,200,50)]</span>
-      </p>
-    </div>
-
-    <div class="demo-label">Background colours — bg-primary · bg-success · bg-warning · etc.</div>
-    <div class="demo-box">
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
-        <div class="color-swatch" style="background:var(--st-primary)" title="bg-primary"></div>
-        <div class="color-swatch" style="background:var(--st-secondary)" title="bg-secondary"></div>
-        <div class="color-swatch" style="background:var(--st-success)" title="bg-success"></div>
-        <div class="color-swatch" style="background:var(--st-danger)" title="bg-danger"></div>
-        <div class="color-swatch" style="background:var(--st-warning)" title="bg-warning"></div>
-        <div class="color-swatch" style="background:var(--st-info)" title="bg-info"></div>
-        <div class="color-swatch" style="background:var(--st-light);border-color:var(--st-border)" title="bg-light"></div>
-        <div class="color-swatch" style="background:var(--st-dark)" title="bg-dark"></div>
-        <div class="color-swatch" style="background:var(--st-bg-secondary)" title="bg-secondary"></div>
-      </div>
-      <p style="margin:0.75rem 0 0;font-size:0.8rem;color:var(--st-text-muted)">
-        Arbitrary: <span class="code-tag">bg-[#ff0000]</span> <span class="code-tag">bg-[rgba(0,0,0,0.5)]</span>
-      </p>
-    </div>
-
-    <div class="demo-label">Flexbox — justify-content-* · align-items-* · flex-wrap</div>
-    <div class="demo-box">
-      <div style="display:flex;gap:0.5rem;flex-direction:column">
-        <div style="display:flex;justify-content:space-between;background:var(--st-bg);padding:0.5rem;border-radius:var(--st-border-radius);border:1px solid var(--st-border)">
-          <div style="background:var(--st-primary);color:#fff;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem">A</div>
-          <div style="background:var(--st-secondary);color:#fff;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem">B</div>
-          <div style="background:var(--st-success);color:#fff;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem">C</div>
-          <span style="font-size:0.75rem;color:var(--st-text-muted);align-self:center">justify-content-between</span>
-        </div>
-        <div style="display:flex;justify-content:center;align-items:center;gap:0.5rem;background:var(--st-bg);padding:0.5rem;border-radius:var(--st-border-radius);border:1px solid var(--st-border)">
-          <div style="background:var(--st-info);color:#fff;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem">D</div>
-          <div style="background:var(--st-warning);padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem">E</div>
-          <span style="font-size:0.75rem;color:var(--st-text-muted)">justify-content-center + align-items-center</span>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" data-st-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- ══════════════════════════════════════════════════════ TRANSITIONS -->
-  <section class="demo-section" id="transitions">
-    <h2 class="section-title">Transitions</h2>
-    <p class="section-sub">transition · transition-fast · transition-slow · transition-none · duration-[*] · ease-in · ease-out</p>
-
-    <div class="demo-label">Hover each box to feel the difference</div>
-    <div class="demo-box">
-      <div style="display:flex;gap:1rem;flex-wrap:wrap">
-        <div class="trans-box" style="transition:all 0.1s ease-in-out">
-          transition-fast<br><small style="opacity:0.75">100ms</small>
+  <!-- Static Backdrop Modal -->
+  <div class="modal" id="staticModal" data-st-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Static Backdrop</h5>
+          <button type="button" class="btn-close" data-st-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="trans-box" style="transition:all 0.2s ease-in-out">
-          transition<br><small style="opacity:0.75">200ms (default)</small>
+        <div class="modal-body">
+          <p>Clicking outside or pressing <kbd>Escape</kbd> won't close this modal — only the close button works.</p>
         </div>
-        <div class="trans-box" style="transition:all 0.5s ease-in-out">
-          transition-slow<br><small style="opacity:0.75">500ms</small>
-        </div>
-        <div class="trans-box" style="transition:none">
-          transition-none<br><small style="opacity:0.75">instant</small>
+        <div class="modal-footer">
+          <button type="button" class="btn-danger" data-st-dismiss="modal">Dismiss</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="demo-label">Easing variants — hover to compare</div>
-    <div class="demo-box">
-      <div style="display:flex;gap:1rem;flex-wrap:wrap">
-        <div class="trans-box" style="transition:all 0.4s ease-in">
-          ease-in<br><small style="opacity:0.75">slow start</small>
-        </div>
-        <div class="trans-box" style="transition:all 0.4s ease-out">
-          ease-out<br><small style="opacity:0.75">slow end</small>
-        </div>
-        <div class="trans-box" style="transition:all 0.4s ease-in-out">
-          ease-in-out<br><small style="opacity:0.75">both</small>
-        </div>
-        <div class="trans-box" style="transition:all 0.4s cubic-bezier(0.4,0,0.2,1)">
-          ease (Strata default)<br><small style="opacity:0.75">material-style</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="demo-label">Theme switching also uses transitions — try the theme buttons above</div>
-    <div class="demo-box">
-      <p style="margin:0;font-size:0.875rem;color:var(--st-text-muted)">
-        All CSS variables transition smoothly when <code>data-st-theme</code> changes.
-        Click <strong>Light → Dark → Dim</strong> in the header to see it in action.
-      </p>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════════════ STATE MANAGEMENT -->
-  <section class="demo-section" id="state">
-    <h2 class="section-title">State Management</h2>
-    <p class="section-sub">data-st-visible · data-st-collapsed · data-st-loading · data-st-disabled</p>
-
-    <div class="demo-label">JavaScript sets the attribute — CSS handles the visual</div>
-
-    <div class="state-demo-area">
-
-      <!-- data-st-visible -->
-      <div class="demo-box">
-        <div class="demo-label" style="margin-top:0">data-st-visible — fade + slide transition</div>
-        <div class="state-row">
-          <div class="state-target" id="vis-target" data-st-visible="true">
-            I am <strong>visible</strong>. Toggle me.
-          </div>
-          <button class="toggle-btn" onclick="toggleAttr('vis-target', 'data-st-visible', 'true', 'false')">
-            Toggle data-st-visible
-          </button>
-          <code class="code-tag" id="vis-code">data-st-visible="true"</code>
-        </div>
-      </div>
-
-      <!-- data-st-collapsed -->
-      <div class="demo-box">
-        <div class="demo-label" style="margin-top:0">data-st-collapsed — smooth max-height expand/collapse</div>
-        <div class="state-row">
-          <div style="flex:1;min-width:200px">
-            <div data-st-collapsed="false" id="col-target" style="background:var(--st-bg);border:1px solid var(--st-border);border-radius:var(--st-border-radius);padding:1rem">
-              <p style="margin:0">This content collapses and expands smoothly using <code>max-height</code> transition. No JavaScript animation needed — pure CSS.</p>
-            </div>
-          </div>
-          <button class="toggle-btn" onclick="toggleAttr('col-target', 'data-st-collapsed', 'false', 'true')">
-            Toggle data-st-collapsed
-          </button>
-          <code class="code-tag" id="col-code">data-st-collapsed="false"</code>
-        </div>
-      </div>
-
-      <!-- data-st-loading -->
-      <div class="demo-box">
-        <div class="demo-label" style="margin-top:0">data-st-loading — reduced opacity + disabled pointer events</div>
-        <div class="state-row">
-          <button class="btn-primary" id="load-target" data-st-loading="false">Submit Form</button>
-          <button class="toggle-btn" onclick="toggleAttr('load-target', 'data-st-loading', 'false', 'true')">
-            Toggle data-st-loading
-          </button>
-          <code class="code-tag" id="load-code">data-st-loading="false"</code>
-        </div>
-      </div>
-
-      <!-- data-st-disabled -->
-      <div class="demo-box">
-        <div class="demo-label" style="margin-top:0">data-st-disabled — opacity + not-allowed cursor</div>
-        <div class="state-row">
-          <button class="btn-danger" id="dis-target" data-st-disabled="false">Delete Item</button>
-          <button class="toggle-btn" onclick="toggleAttr('dis-target', 'data-st-disabled', 'false', 'true')">
-            Toggle data-st-disabled
-          </button>
-          <code class="code-tag" id="dis-code">data-st-disabled="false"</code>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-</main>
-
-<script>
-  // ── Theme switcher ─────────────────────────────────────────────────────────
-  function setTheme(theme, btn) {
-    document.documentElement.setAttribute('data-st-theme', theme)
-    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'))
-    btn.classList.add('active')
-  }
-
-  // ── Generic attribute toggler for state demos ──────────────────────────────
-  function toggleAttr(id, attr, valA, valB) {
-    const el = document.getElementById(id)
-    const codeEl = document.getElementById(id.replace('-target', '-code'))
-    const current = el.getAttribute(attr)
-    const next = current === valA ? valB : valA
-    el.setAttribute(attr, next)
-    if (codeEl) codeEl.textContent = `${attr}="${next}"`
-  }
-
-  // ── Set active theme btn on load ───────────────────────────────────────────
-  ;(function () {
-    const theme = document.documentElement.getAttribute('data-st-theme') || 'light'
-    document.querySelectorAll('.theme-btn').forEach(b => {
-      if (b.textContent.trim().toLowerCase() === theme) b.classList.add('active')
-      else b.classList.remove('active')
-    })
-  })()
-</script>
-
+  <script src="../dist/strata.components.js"></script>
 </body>
 </html>
