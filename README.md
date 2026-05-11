@@ -252,6 +252,49 @@ If no `data-st-theme` is set, Strata automatically follows the user's system pre
 document.documentElement.setAttribute('data-st-theme', 'dark')
 ```
 
+### Theme Toggle
+
+Cycle through all built-in themes with a single button — no framework needed.
+
+```html
+<button id="theme-toggle">Toggle Theme</button>
+
+<script>
+  const themes = ['light', 'dark', 'dim']
+  let current = 0
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    current = (current + 1) % themes.length
+    document.documentElement.setAttribute('data-st-theme', themes[current])
+  })
+</script>
+```
+
+To start from the user's current theme rather than always resetting to `light`, read the attribute first:
+
+```js
+const themes = ['light', 'dark', 'dim']
+const initial = document.documentElement.getAttribute('data-st-theme') || 'light'
+let current = themes.indexOf(initial)
+if (current === -1) current = 0
+```
+
+To include your own custom themes in the cycle, add them to the array:
+
+```js
+const themes = ['light', 'dark', 'dim', 'brand']
+```
+
+Any theme in the array must have its CSS variables defined before it can be toggled to:
+
+```css
+[data-st-theme="brand"] {
+  --st-primary: #7c3aed;
+  --st-bg:      #0f0f0f;
+  --st-text:    #fafafa;
+}
+```
+
 ### Override CSS variables
 
 ```css
@@ -330,6 +373,128 @@ element.setAttribute('data-st-visible', 'false')
 // Collapse/expand
 element.setAttribute('data-st-collapsed', 'true')
 ```
+
+---
+
+## Skeleton Loader
+
+Skeleton loading shows animated shimmer placeholders while content is fetching — preventing layout shift and giving users instant visual feedback that something is coming.
+
+Strata's skeleton system is entirely attribute-driven. There are no class names to add. Instead, set `data-st-skeleton` on your elements and use the `Strata.skeleton` JS utility to manage the lifecycle.
+
+### Attribute states
+
+| Value | Meaning |
+|---|---|
+| `"true"` | Element shimmers (CSS applies animated `::before` overlay) |
+| `"false"` | Element revealed (shimmer removed, content shows) |
+| `"null"` | JS-managed parent — no overlay on the parent itself, children shimmer individually |
+
+### Basic usage
+
+Mark a container and call `Strata.skeleton.init()` — Strata auto-detects the leaf nodes inside and shimmers them individually.
+
+```html
+<div class="card" data-st-skeleton="true">
+  <div class="card-header">
+    <h3>Card Title</h3>
+  </div>
+  <div class="card-body">
+    <p>Some body text that will load soon.</p>
+    <button class="btn-primary">Action</button>
+  </div>
+</div>
+```
+
+```js
+// Initialise — auto-detects leaf nodes inside all [data-st-skeleton="true"] parents
+Strata.skeleton.init()
+
+// Simulate data loading, then reveal
+fetchData().then(() => {
+  Strata.skeleton.reveal()
+})
+```
+
+### JS API
+
+```js
+Strata.skeleton.init()              // auto-discover all skeleton parents on page
+Strata.skeleton.init('.card')       // manage specific elements
+Strata.skeleton.show('.card')       // re-enter skeleton state
+Strata.skeleton.reveal('.card')     // reveal content (removes shimmer)
+Strata.skeleton.toggle('.card')     // toggle between skeleton and revealed
+Strata.skeleton.revealAt('.card', 0) // reveal one element by index
+Strata.skeleton.isSkeleton(el)      // returns true if element is currently shimmering
+```
+
+### Staggered reveal
+
+Reveal a list of cards one by one with a delay between each:
+
+```js
+Strata.skeleton.reveal('.card', { stagger: 150 })
+```
+
+### Opt out a child element
+
+Set `data-st-skeleton="false"` on any child to exclude it from shimmering entirely:
+
+```html
+<div class="card" data-st-skeleton="true">
+  <div class="card-header">
+    <h3>Title</h3>
+    <span data-st-skeleton="false">Always visible badge</span>
+  </div>
+</div>
+```
+
+### Customise the shimmer
+
+Control the shimmer appearance via CSS variables:
+
+```css
+:root {
+  --st-skeleton-base:     #e2e8f0;  /* bar background colour */
+  --st-skeleton-shine:    #f8fafc;  /* highlight colour */
+  --st-skeleton-duration: 1.5s;     /* animation speed */
+  --st-skeleton-radius:   4px;      /* corner rounding on bars */
+}
+```
+
+### Realistic card example
+
+A card that shimmers while data loads, then transitions to real content:
+
+```html
+<div class="card" id="profile-card" data-st-skeleton="true">
+  <div class="card-header">
+    <div class="img-wrap">
+      <img src="" alt="Avatar" id="avatar">
+    </div>
+    <h3 id="name"></h3>
+  </div>
+  <div class="card-body">
+    <p id="bio"></p>
+    <a href="#" id="profile-link" class="btn-primary">View Profile</a>
+  </div>
+</div>
+
+<script>
+  Strata.skeleton.init('#profile-card')
+
+  loadUser(42).then(user => {
+    document.getElementById('avatar').src       = user.avatarUrl
+    document.getElementById('name').textContent = user.name
+    document.getElementById('bio').textContent  = user.bio
+    document.getElementById('profile-link').href = user.profileUrl
+
+    Strata.skeleton.reveal('#profile-card')
+  })
+</script>
+```
+
+> **Note on images:** Browsers do not support `::before` on replaced elements (`img`, `video`, `iframe`). Wrap media in a `div` — Strata will shimmer the wrapper instead.
 
 ---
 
