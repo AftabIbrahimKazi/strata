@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata Chart — Tutorial</title>
+
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    /* ── Required: chart plugin ────────────────────────────────────────── */
+    .strata-chart        { position: relative; overflow: hidden; border-radius: var(--st-border-radius); }
+    .strata-chart-canvas { display: block; width: 100% !important; height: 100% !important; }
+
+    .strata-chart-tooltip {
+      position: absolute; pointer-events: none; z-index: 20;
+      background: var(--st-bg); border: var(--st-border-width) solid var(--st-border);
+      border-radius: var(--st-border-radius); padding: .35rem .65rem;
+      font-family: var(--st-font-family); font-size: .8rem; color: var(--st-text);
+      box-shadow: var(--st-shadow-sm); display: flex; flex-direction: column; gap: .1rem;
+      min-width: 90px; opacity: 0; transform: translateY(4px);
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+    [data-st-chart-tooltip="true"]  { opacity: 1; transform: translateY(0); }
+    .strata-chart-tooltip-label     { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .strata-chart-tooltip-value     { color: var(--st-primary); font-weight: 700; }
+
+    [data-st-chart-loading="true"]  .strata-chart-canvas { opacity: .45; }
+    [data-st-chart-animated="true"] .strata-chart-canvas { cursor: wait; }
+    [data-st-chart-hovered="true"]  .strata-chart-canvas { cursor: crosshair; }
+    [data-st-chart-view="2d"] { border-top: 2px solid var(--st-primary); }
+    [data-st-chart-view="3d"] { border-top: 2px solid transparent; }
+
+    /* ── Base ──────────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html   { scroll-behavior: smooth; }
+    body   { margin: 0; font-family: var(--st-font-family, system-ui, sans-serif);
+             background: var(--st-bg-secondary); color: var(--st-text); }
+
+    /* ── Top bar ────────────────────────────────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--st-bg); border-bottom: 1px solid var(--st-border);
+      box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    }
+    .topbar-inner {
+      max-width: 1100px; margin: 0 auto;
+      padding: .6rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+    }
+    .topbar-brand { font-weight: 700; font-size: 1rem; color: var(--st-text); text-decoration: none; }
+    .topbar-brand span { color: var(--st-primary); }
+    .topbar-actions { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+
+    /* ── Hero ───────────────────────────────────────────────────────────── */
+    .hero {
+      background: var(--st-bg);
+      border-bottom: 1px solid var(--st-border);
+      padding: 3rem 1.25rem 2.5rem;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 5vw, 2.6rem);
+      font-weight: 800; margin: 0 0 .5rem;
+      color: var(--st-text);
+    }
+    .hero p { font-size: 1rem; color: var(--st-text-muted); margin: 0 0 1.5rem; max-width: 540px; margin-left: auto; margin-right: auto; }
+    .hero-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; margin-bottom: 2rem; }
+
+    /* Jump link grid */
+    .jump-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: .5rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .jump-link {
+      display: flex; align-items: center; gap: .5rem;
+      padding: .55rem .85rem;
+      background: var(--st-bg-secondary); border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius);
+      text-decoration: none; font-size: .82rem; color: var(--st-text-muted);
+      transition: border-color 120ms, color 120ms;
+    }
+    .jump-link:hover { border-color: var(--st-primary); color: var(--st-primary); }
+    .jump-link .jn  { font-weight: 700; font-size: .7rem; color: var(--st-primary); min-width: 1.2rem; }
+
+    /* ── Tutorial steps ─────────────────────────────────────────────────── */
+    .tut-wrap { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+    .tut-step {
+      background: var(--st-bg);
+      border: 1px solid var(--st-border);
+      border-radius: calc(var(--st-border-radius) * 2);
+      padding: 2rem;
+      margin-top: 2rem;
+      scroll-margin-top: 72px;
+    }
+
+    .step-header {
+      display: flex; align-items: center; gap: .75rem;
+      margin-bottom: 1rem;
+    }
+    .step-num {
+      display: flex; align-items: center; justify-content: center;
+      width: 2rem; height: 2rem; min-width: 2rem;
+      background: var(--st-primary); color: #fff;
+      border-radius: 50%; font-weight: 800; font-size: .8rem;
+    }
+    .step-header h2 {
+      margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--st-text);
+    }
+    .step-desc { color: var(--st-text-muted); margin-bottom: 1.25rem; font-size: .92rem; line-height: 1.65; }
+    .step-desc p { margin: 0 0 .5rem; }
+    .step-desc p:last-child { margin: 0; }
+
+    /* ── Code blocks ────────────────────────────────────────────────────── */
+    pre {
+      background: #1e1e2e; color: #cdd6f4;
+      border-radius: var(--st-border-radius);
+      padding: 1rem 1.15rem; overflow-x: auto; margin: 0;
+      font-size: .78rem; line-height: 1.65;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+    pre .kw  { color: #89b4fa; }
+    pre .st  { color: #a6e3a1; }
+    pre .cm  { color: #6c7086; }
+    pre .fn  { color: #89dceb; }
+    pre .nm  { color: #fab387; }
+    pre .nb  { color: #f5c2e7; }
+    pre .tg  { color: #f38ba8; }
+
+    /* ── Demo layout ────────────────────────────────────────────────────── */
+    .demo-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    @media (min-width: 768px) {
+      .demo-row { grid-template-columns: 1fr 1fr; }
+      .demo-row.code-wide { grid-template-columns: 1.15fr 1fr; }
+    }
+    @media (min-width: 992px) {
+      .demo-row.code-wide { grid-template-columns: 1.3fr 1fr; }
+    }
+
+    .demo-chart { height: 220px; }
+    @media (min-width: 768px) { .demo-chart { height: 260px; } }
+
+    .demo-chart-sm { height: 180px; }
+    @media (min-width: 768px) { .demo-chart-sm { height: 210px; } }
+
+    .demo-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+
+    /* ── Info callout ───────────────────────────────────────────────────── */
+    .callout {
+      border-left: 3px solid var(--st-primary);
+      background: color-mix(in srgb, var(--st-primary) 8%, var(--st-bg));
+      border-radius: 0 var(--st-border-radius) var(--st-border-radius) 0;
+      padding: .65rem 1rem; font-size: .85rem; color: var(--st-text-muted);
+      margin-top: 1rem;
+    }
+    .callout strong { color: var(--st-text); }
+    .callout.warn  { border-color: var(--st-warning); background: color-mix(in srgb, var(--st-warning) 8%, var(--st-bg)); }
+    .callout.success { border-color: var(--st-success); background: color-mix(in srgb, var(--st-success) 8%, var(--st-bg)); }
+
+    /* ── Result log ─────────────────────────────────────────────────────── */
+    .result-log {
+      font-family: monospace; font-size: .78rem; min-height: 2rem;
+      padding: .45rem .75rem; color: var(--st-text-muted);
+      background: var(--st-bg-secondary); border: 1px solid var(--st-border);
+      border-radius: var(--st-border-radius); margin-top: .75rem;
+    }
+
+    /* ── API tables ─────────────────────────────────────────────────────── */
+    .tut-step.api-section { background: var(--st-bg-secondary); }
+    .api-section h2 { font-size: 1.1rem; font-weight: 700; color: var(--st-text); margin: 0 0 .5rem; }
+    .api-section h3 { font-size: .95rem; font-weight: 700; color: var(--st-text); margin: 1.5rem 0 .4rem; }
+
+    .api-table { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: .5rem; }
+    .api-table th {
+      background: var(--st-bg); text-align: left; padding: .45rem .6rem;
+      border: 1px solid var(--st-border); font-weight: 600; color: var(--st-text);
+      white-space: nowrap;
+    }
+    .api-table td { padding: .4rem .6rem; border: 1px solid var(--st-border); vertical-align: top; color: var(--st-text-muted); }
+    .api-table td code { font-size: .77rem; color: var(--st-primary); }
+    .api-table th code { font-size: .77rem; }
+    .api-table tr:hover td { background: color-mix(in srgb, var(--st-primary) 4%, var(--st-bg)); }
+    .api-table .row-group td { background: var(--st-bg-secondary); font-weight: 600; color: var(--st-text); font-size: .78rem; }
+
+    .pill-req { display:inline-block; font-size:.62rem; font-weight:700; background:#dc3545; color:#fff; padding:.1rem .4rem; border-radius:999px; }
+    .pill-opt { display:inline-block; font-size:.62rem; font-weight:700; background:#6c757d; color:#fff; padding:.1rem .4rem; border-radius:999px; }
+
+    /* ── Type grid ──────────────────────────────────────────────────────── */
+    .type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    @media (min-width: 768px) { .type-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .type-card { border: 1px solid var(--st-border); border-radius: var(--st-border-radius); overflow: hidden; }
+    .type-card-label { font-size: .75rem; font-weight: 600; text-align: center; padding: .35rem; background: var(--st-bg-secondary); color: var(--st-text-muted); border-bottom: 1px solid var(--st-border); }
+
+    /* ── Feature toggle buttons ─────────────────────────────────────────── */
+    .feat-toggles { display: flex; flex-direction: column; gap: .5rem; }
+    .feat-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .45rem .75rem; font-size: .82rem;
+      border: 1px solid var(--st-border); border-radius: var(--st-border-radius);
+      background: var(--st-bg-secondary); cursor: pointer; color: var(--st-text-muted);
+      transition: border-color 120ms, background 120ms, color 120ms;
+    }
+    .feat-btn:hover { border-color: var(--st-primary); color: var(--st-text); }
+    .feat-btn.on { border-color: var(--st-primary); background: color-mix(in srgb, var(--st-primary) 10%, var(--st-bg)); color: var(--st-text); }
+    .feat-btn .state { font-weight: 700; font-size: .72rem; padding: .1rem .4rem; border-radius: 999px; background: var(--st-border); }
+    .feat-btn.on .state { background: var(--st-primary); color: #fff; }
+
+    /* ── Color samples ──────────────────────────────────────────────────── */
+    .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-top: 1.25rem; }
+    @media (min-width: 576px) { .color-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    /* ── Back to top ────────────────────────────────────────────────────── */
+    .btt {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 200;
+      width: 2.5rem; height: 2.5rem;
+      background: var(--st-primary); color: #fff;
+      border: none; border-radius: 50%; cursor: pointer;
+      font-size: 1.1rem; line-height: 1;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      opacity: 0; pointer-events: none;
+      transition: opacity 200ms;
+    }
+    .btt.visible { opacity: 1; pointer-events: auto; }
+
+    /* ── Divider ─────────────────────────────────────────────────────────── */
+    .section-label {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
+      color: var(--st-text-muted); padding: 2rem 0 0;
+    }
+
+    /* ── Responsive tweaks ───────────────────────────────────────────────── */
+    @media (max-width: 575px) {
+      .tut-step { padding: 1.25rem; }
+      .hero      { padding: 2rem 1rem 1.75rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ── Top bar ─────────────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="#" class="topbar-brand">Strata <span>Chart</span></a>
+    <div class="topbar-actions">
+      <a href="chart.html" class="btn btn-outline-secondary btn-sm">← Live Demo</a>
+      <button class="btn btn-outline-secondary btn-sm" id="themeBtn">Toggle Theme</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Hero ────────────────────────────────────────────────────────────────── -->
+<div class="hero">
+  <h1>Strata Chart — Tutorial</h1>
+  <p>Learn how to build interactive 3D/2D charts step by step. Every section includes a live example you can interact with.</p>
+  <div class="hero-badges">
+    <span class="badge bg-primary">Three.js WebGL</span>
+    <span class="badge bg-success">TypeScript source</span>
+    <span class="badge bg-warning text-dark">2D ↔ 3D transition</span>
+    <span class="badge bg-info text-dark">Raycaster interaction</span>
+    <span class="badge bg-secondary">Grid &amp; Labels</span>
+    <span class="badge bg-secondary">Dynamic data</span>
+  </div>
+  <div class="jump-grid">
+    <a class="jump-link" href="#step-setup">      <span class="jn">1</span> Setup</a>
+    <a class="jump-link" href="#step-first">      <span class="jn">2</span> First Chart</a>
+    <a class="jump-link" href="#step-types">      <span class="jn">3</span> Chart Types</a>
+    <a class="jump-link" href="#step-views">      <span class="jn">4</span> 2D / 3D Views</a>
+    <a class="jump-link" href="#step-interact">   <span class="jn">5</span> Interactions</a>
+    <a class="jump-link" href="#step-data">       <span class="jn">6</span> Data Format</a>
+    <a class="jump-link" href="#step-grid">       <span class="jn">7</span> Grid &amp; Labels</a>
+    <a class="jump-link" href="#step-highlight">  <span class="jn">8</span> Grid Highlighting</a>
+    <a class="jump-link" href="#step-dynamic">    <span class="jn">9</span> Dynamic Data</a>
+    <a class="jump-link" href="#step-colors">     <span class="jn">10</span> Colors &amp; Themes</a>
+    <a class="jump-link" href="#step-api">        <span class="jn">★</span> API Reference</a>
+  </div>
+</div>
+
+<!-- ── Tutorial steps ──────────────────────────────────────────────────────── -->
+<div class="tut-wrap">
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 1: Setup                                                           -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-setup">
+    <div class="step-header">
+      <div class="step-num">1</div>
+      <h2>Setup — Load the dependencies</h2>
+    </div>
+    <div class="step-desc">
+      <p>Strata Chart renders via WebGL using <strong>Three.js</strong>. You need to load Three.js and OrbitControls <em>before</em> <code>strata.components.js</code>. That's it — no bundler or npm install required.</p>
+    </div>
+    <pre><span class="cm">&lt;!-- 1. Strata CSS --&gt;</span>
+<span class="tg">&lt;link</span> rel=<span class="st">"stylesheet"</span> href=<span class="st">"strata.output.css"</span><span class="tg">&gt;</span>
+
+<span class="cm">&lt;!-- 2. Three.js + OrbitControls via CDN --&gt;</span>
+<span class="tg">&lt;script</span> src=<span class="st">"https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"</span><span class="tg">&gt;&lt;/script&gt;</span>
+<span class="tg">&lt;script</span> src=<span class="st">"https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"</span><span class="tg">&gt;&lt;/script&gt;</span>
+
+<span class="cm">&lt;!-- 3. Strata components (chart plugin is bundled here) --&gt;</span>
+<span class="tg">&lt;script</span> src=<span class="st">"strata.components.js"</span><span class="tg">&gt;&lt;/script&gt;</span>
+
+<span class="cm">&lt;!-- Required CSS for the chart plugin --&gt;</span>
+<span class="tg">&lt;style&gt;</span>
+  .strata-chart        { position: relative; overflow: hidden; }
+  .strata-chart-canvas { display: block; width: 100% !important; height: 100% !important; }
+
+  .strata-chart-tooltip {
+    position: absolute; pointer-events: none; opacity: 0;
+    transition: opacity 150ms ease;
+    <span class="cm">/* style it however you like */</span>
+  }
+  [data-st-chart-tooltip=<span class="st">"true"</span>] { opacity: 1; }
+<span class="tg">&lt;/style&gt;</span></pre>
+    <div class="callout">
+      <strong>OrbitControls is optional.</strong> If you omit it the chart will still render and animate perfectly — users just won't be able to drag-rotate in 3D.
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 2: First Chart                                                     -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-first">
+    <div class="step-header">
+      <div class="step-num">2</div>
+      <h2>Your first chart</h2>
+    </div>
+    <div class="step-desc">
+      <p>Call <code>Strata.Chart.create(selector, options)</code>. Give it a container element and a <code>data</code> array — that's all that's required. The chart will fill 100% of the container's width and the height you set on it.</p>
+    </div>
+    <div class="demo-row code-wide">
+      <pre><span class="cm">&lt;!-- Give the container a height --&gt;</span>
+<span class="tg">&lt;div</span> id=<span class="st">"myChart"</span> style=<span class="st">"height: 280px"</span><span class="tg">&gt;&lt;/div&gt;</span>
+
+<span class="kw">const</span> chart = <span class="fn">Strata.Chart.create</span>(<span class="st">'#myChart'</span>, {
+  type: <span class="st">'bar'</span>,   <span class="cm">// 'bar' | 'line' | 'pie' | 'scatter'</span>
+  data: [
+    { label: <span class="st">'Jan'</span>, value: <span class="nb">120</span>, category: <span class="st">'Jan'</span> },
+    { label: <span class="st">'Feb'</span>, value: <span class="nb">180</span>, category: <span class="st">'Feb'</span> },
+    { label: <span class="st">'Mar'</span>, value: <span class="nb">95</span>,  category: <span class="st">'Mar'</span> },
+    { label: <span class="st">'Apr'</span>, value: <span class="nb">210</span>, category: <span class="st">'Apr'</span> },
+    { label: <span class="st">'May'</span>, value: <span class="nb">160</span>, category: <span class="st">'May'</span> },
+  ],
+})
+
+<span class="cm">// chart is now live — drag to orbit, hover bars to inspect</span></pre>
+      <div>
+        <div class="demo-chart" id="c-first"></div>
+        <div class="callout success" style="margin-top:.75rem">
+          ↑ <strong>Live chart.</strong> Drag to orbit in 3D. Hover a bar to see the tooltip.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 3: Chart Types                                                     -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-types">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <h2>Chart types</h2>
+    </div>
+    <div class="step-desc">
+      <p>Set <code>type</code> to one of four values. Each renders differently but shares the same camera, interaction, and transition system.</p>
+    </div>
+
+    <div class="type-grid">
+      <div class="type-card">
+        <div class="type-card-label">bar</div>
+        <div class="demo-chart-sm" id="c-type-bar"></div>
+      </div>
+      <div class="type-card">
+        <div class="type-card-label">line</div>
+        <div class="demo-chart-sm" id="c-type-line"></div>
+      </div>
+      <div class="type-card">
+        <div class="type-card-label">pie</div>
+        <div class="demo-chart-sm" id="c-type-pie"></div>
+      </div>
+      <div class="type-card">
+        <div class="type-card-label">scatter</div>
+        <div class="demo-chart-sm" id="c-type-scatter"></div>
+      </div>
+    </div>
+
+    <pre style="margin-top:1.25rem"><span class="cm">// Bar  — categories aggregated, 3D boxes extruded</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, { type: <span class="st">'bar'</span>,     data: [...] })
+
+<span class="cm">// Line — points connected by polyline, no aggregation</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, { type: <span class="st">'line'</span>,    data: [...] })
+
+<span class="cm">// Pie  — arc slices, categories aggregated</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, { type: <span class="st">'pie'</span>,     data: [...] })
+
+<span class="cm">// Scatter — spheres sized by value, no aggregation</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, { type: <span class="st">'scatter'</span>, data: [...] })</pre>
+
+    <div class="callout">
+      <strong>Category aggregation:</strong> bar and pie charts group data by the <code>category</code> field and sum values. Line and scatter plot each point individually.
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 4: 2D / 3D Views                                                  -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-views">
+    <div class="step-header">
+      <div class="step-num">4</div>
+      <h2>2D ↔ 3D views</h2>
+    </div>
+    <div class="step-desc">
+      <p>Every chart supports seamless animated transitions between a cinematic 3D angle and a near-orthographic 2D view. A <strong>single PerspectiveCamera</strong> is used throughout — FOV, position, mesh depth, and group rotation all lerp together over 600ms.</p>
+    </div>
+    <div class="demo-row code-wide">
+      <pre><span class="kw">const</span> chart = <span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, {
+  type: <span class="st">'bar'</span>,
+  view: <span class="st">'3d'</span>,   <span class="cm">// '2d' | '3d' — default '3d'</span>
+  data: [...],
+})
+
+<span class="cm">// Flip the current view with a smooth transition</span>
+chart.<span class="fn">toggleView</span>()
+
+<span class="cm">// Go to a specific view</span>
+chart.<span class="fn">setView</span>(<span class="st">'2d'</span>)
+chart.<span class="fn">setView</span>(<span class="st">'3d'</span>)
+
+<span class="cm">// Listen for when the transition finishes</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, {
+  data: [...],
+  onChange: <span class="kw">function</span>(view) {
+    console.<span class="fn">log</span>(<span class="st">'Now in'</span>, view) <span class="cm">// '2d' or '3d'</span>
+  },
+})</pre>
+      <div>
+        <div class="demo-chart" id="c-views"></div>
+        <div class="demo-actions">
+          <button class="btn btn-primary btn-sm" onclick="cViews.toggleView()">toggleView()</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="cViews.setView('2d')">setView('2d')</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="cViews.setView('3d')">setView('3d')</button>
+        </div>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Pie charts</strong> rotate on the X axis so the 2D view shows the flat circular face directly — no perspective distortion. All other chart types animate mesh depth (scale.z).
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 5: Interactions                                                    -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-interact">
+    <div class="step-header">
+      <div class="step-num">5</div>
+      <h2>Hover &amp; click interactions</h2>
+    </div>
+    <div class="step-desc">
+      <p>A raycaster runs every animation frame. Hovering any data point emits an emissive glow and positions a tooltip. Clicking fires the <code>onClick</code> callback and the <code>st:chart:click</code> document event. Both work in 2D and 3D.</p>
+    </div>
+    <div class="demo-row code-wide">
+      <pre><span class="kw">const</span> chart = <span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, {
+  type: <span class="st">'bar'</span>,
+  data: [...],
+
+  <span class="cm">// Fires when user clicks a hovered bar/point/slice</span>
+  onClick: <span class="kw">function</span>(point) {
+    console.<span class="fn">log</span>(point.label)    <span class="cm">// 'Jan'</span>
+    console.<span class="fn">log</span>(point.value)    <span class="cm">// 120</span>
+    console.<span class="fn">log</span>(point.category) <span class="cm">// 'Revenue'</span>
+    console.<span class="fn">log</span>(point.index)    <span class="cm">// position in data array</span>
+  },
+})
+
+<span class="cm">// Or listen globally on document</span>
+document.<span class="fn">addEventListener</span>(<span class="st">'st:chart:click'</span>, <span class="kw">function</span>(e) {
+  console.<span class="fn">log</span>(e.detail) <span class="cm">// same { label, value, category, index }</span>
+})</pre>
+      <div>
+        <div class="demo-chart" id="c-interact"></div>
+        <div id="interact-log" class="result-log">Hover a bar then click it to see the data here…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 6: Data Format                                                     -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-data">
+    <div class="step-header">
+      <div class="step-num">6</div>
+      <h2>Data format</h2>
+    </div>
+    <div class="step-desc">
+      <p>The <code>data</code> option accepts an array of plain objects. Only <code>value</code> is required — everything else is optional.</p>
+    </div>
+    <pre><span class="kw">const</span> data = [
+  <span class="cm">// Minimal — only value is required</span>
+  { value: <span class="nb">42</span> },
+
+  <span class="cm">// Common — label shows in tooltip, category drives aggregation</span>
+  { label: <span class="st">'January'</span>, value: <span class="nb">120</span>, category: <span class="st">'Revenue'</span> },
+
+  <span class="cm">// Full — timestamp and meta pass through to callbacks unchanged</span>
+  {
+    label:     <span class="st">'March'</span>,
+    value:     <span class="nb">198</span>,
+    category:  <span class="st">'Revenue'</span>,
+    timestamp: <span class="st">'2024-03-01'</span>,
+    meta:      { region: <span class="st">'APAC'</span>, forecast: <span class="nb">210</span> },
+  },
+
+  <span class="cm">// null / undefined → treated as 0, no error thrown</span>
+  { label: <span class="st">'May'</span>, value: <span class="kw">null</span>, category: <span class="st">'Revenue'</span> },
+]
+
+<span class="cm">// Bar + pie aggregate by category — two rows with the same category</span>
+<span class="cm">// are summed into one bar/slice</span>
+<span class="kw">const</span> barData = [
+  { label: <span class="st">'Mon'</span>, value: <span class="nb">50</span>,  category: <span class="st">'Week 1'</span> },
+  { label: <span class="st">'Tue'</span>, value: <span class="nb">80</span>,  category: <span class="st">'Week 1'</span> }, <span class="cm">// → summed into 'Week 1' bar</span>
+  { label: <span class="st">'Wed'</span>, value: <span class="nb">120</span>, category: <span class="st">'Week 2'</span> },
+]</pre>
+    <div class="callout warn">
+      <strong>Security:</strong> all string values are HTML-stripped before use. Labels are capped at 256 chars, categories at 128 chars. Max 100,000 data points.
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 7: Grid & Labels                                                   -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-grid">
+    <div class="step-header">
+      <div class="step-num">7</div>
+      <h2>Grid view, axis labels &amp; scale</h2>
+    </div>
+    <div class="step-desc">
+      <p>Four opt-in flags add reference lines and text labels directly into the Three.js scene using billboard sprites — visible and readable in both 2D and 3D. All default to <code>false</code> so they never impact performance when unused.</p>
+    </div>
+    <div class="demo-row">
+      <div>
+        <div class="demo-chart" id="c-grid"></div>
+        <div class="demo-actions" style="margin-top:.75rem">
+          <button class="btn btn-outline-secondary btn-sm" onclick="rebuildGridChart()">Randomise data</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="cGridRef.toggleView()">Toggle 2D / 3D</button>
+        </div>
+      </div>
+      <div>
+        <p class="small fw-semibold mb-2" style="color:var(--st-text)">Toggle flags live</p>
+        <div class="feat-toggles" id="grid-toggles">
+          <button class="feat-btn" data-key="gridView">
+            <span>gridView</span><span class="state">off</span>
+          </button>
+          <button class="feat-btn" data-key="showAxisLabels">
+            <span>showAxisLabels</span><span class="state">off</span>
+          </button>
+          <button class="feat-btn" data-key="showScale">
+            <span>showScale</span><span class="state">off</span>
+          </button>
+          <button class="feat-btn" data-key="showGridLabels">
+            <span>showGridLabels <small style="opacity:.6">(needs gridView)</small></span><span class="state">off</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <pre style="margin-top:1.25rem"><span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, {
+  type: <span class="st">'bar'</span>,
+  data: [...],
+
+  gridView:       <span class="kw">true</span>,  <span class="cm">// horizontal scale lines + vertical column lines</span>
+  showAxisLabels: <span class="kw">true</span>,  <span class="cm">// category name sprites below each data point</span>
+  showScale:      <span class="kw">true</span>,  <span class="cm">// numeric Y-axis ticks on the left (0 → max)</span>
+  showGridLabels: <span class="kw">true</span>,  <span class="cm">// numeric values at the right end of each grid line</span>
+                          <span class="cm">// ↑ requires gridView: true</span>
+})</pre>
+    <div class="callout">
+      All four flags work on <strong>bar, line, and scatter</strong> charts. They are not applicable to pie charts.
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 8: Grid Highlighting                                               -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-highlight">
+    <div class="step-header">
+      <div class="step-num">8</div>
+      <h2>Interactive grid highlighting</h2>
+    </div>
+    <div class="step-desc">
+      <p>When <code>highlightGridOnInteract</code> is enabled, hovering a data point turns its column grid line and the nearest horizontal scale line blue. They restore the moment the cursor leaves. Requires <code>gridView: true</code>.</p>
+    </div>
+    <div class="demo-row code-wide">
+      <pre><span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, {
+  type: <span class="st">'bar'</span>,
+  data: [...],
+
+  <span class="cm">// Both flags are needed</span>
+  gridView:                <span class="kw">true</span>,
+  highlightGridOnInteract: <span class="kw">true</span>,
+
+  <span class="cm">// Optional: add scale labels so you can read</span>
+  <span class="cm">// the highlighted Y value</span>
+  showScale:               <span class="kw">true</span>,
+})
+
+<span class="cm">// Works on line and scatter too</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, {
+  type: <span class="st">'scatter'</span>,
+  data: [...],
+  gridView:                <span class="kw">true</span>,
+  highlightGridOnInteract: <span class="kw">true</span>,
+})</pre>
+      <div>
+        <div class="demo-chart" id="c-highlight"></div>
+        <div class="callout" style="margin-top:.75rem">
+          ↑ <strong>Hover any bar</strong> to see the column and scale lines light up in blue. The highlight updates every animation frame — no extra code needed.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 9: Dynamic Data                                                    -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-dynamic">
+    <div class="step-header">
+      <div class="step-num">9</div>
+      <h2>Dynamic data entries</h2>
+    </div>
+    <div class="step-desc">
+      <p>Add, remove, or patch individual data points after the chart is created — without recreating it. Every method validates through the same pipeline, updates the geometry in place, and fires <code>st:chart:update</code>. The scale, grid, and labels all adjust automatically.</p>
+    </div>
+    <div class="demo-row code-wide">
+      <pre><span class="kw">const</span> chart = <span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, {
+  type: <span class="st">'bar'</span>,
+  data: [
+    { label: <span class="st">'Jan'</span>, value: <span class="nb">120</span>, category: <span class="st">'Jan'</span> },
+    { label: <span class="st">'Feb'</span>, value: <span class="nb">180</span>, category: <span class="st">'Feb'</span> },
+  ],
+})
+
+<span class="cm">// Add one point</span>
+chart.<span class="fn">addDataPoint</span>({ label: <span class="st">'Mar'</span>, value: <span class="nb">95</span>, category: <span class="st">'Mar'</span> })
+
+<span class="cm">// Add multiple at once</span>
+chart.<span class="fn">addDataPoints</span>([
+  { label: <span class="st">'Apr'</span>, value: <span class="nb">210</span>, category: <span class="st">'Apr'</span> },
+  { label: <span class="st">'May'</span>, value: <span class="nb">160</span>, category: <span class="st">'May'</span> },
+])
+
+<span class="cm">// Remove by index (into the original data array)</span>
+chart.<span class="fn">removeDataPoint</span>(<span class="nb">0</span>)           <span class="cm">// remove first</span>
+chart.<span class="fn">removeDataPoints</span>([<span class="nb">1</span>, <span class="nb">3</span>])     <span class="cm">// remove multiple</span>
+
+<span class="cm">// Patch one field without touching the rest</span>
+chart.<span class="fn">updateDataPoint</span>(<span class="nb">0</span>, { value: <span class="nb">999</span> })
+chart.<span class="fn">updateDataPoint</span>(<span class="nb">1</span>, { label: <span class="st">'Renamed'</span>, value: <span class="nb">55</span> })</pre>
+      <div>
+        <div class="demo-chart" id="c-dynamic"></div>
+        <div class="demo-actions">
+          <button class="btn btn-success  btn-sm" id="dyn-add">    addDataPoint()</button>
+          <button class="btn btn-danger   btn-sm" id="dyn-remove"> removeDataPoint(last)</button>
+          <button class="btn btn-warning  btn-sm text-dark" id="dyn-update"> updateDataPoint(first)</button>
+          <button class="btn btn-outline-secondary btn-sm" id="dyn-reset">  reset</button>
+        </div>
+        <div id="dyn-log" class="result-log">Use the buttons above</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 10: Colors & Themes                                                -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="tut-step" id="step-colors">
+    <div class="step-header">
+      <div class="step-num">10</div>
+      <h2>Colors &amp; themes</h2>
+    </div>
+    <div class="step-desc">
+      <p>Pass a <code>colors</code> array of any hex or CSS color strings. The plugin cycles through it if you have more data points than colors. When omitted it reads <code>--st-primary</code>, <code>--st-secondary</code>, <code>--st-success</code>, <code>--st-warning</code>, <code>--st-info</code> from the active Strata theme.</p>
+      <p>The <code>theme</code> option sets the scene background — <code>'auto'</code> reads <code>data-st-theme</code> from <code>&lt;html&gt;</code> at creation time.</p>
+    </div>
+
+    <div class="color-grid">
+      <div>
+        <p class="small fw-semibold mb-1" style="color:var(--st-text)">Default (Strata vars)</p>
+        <div class="demo-chart-sm" id="c-col-auto"></div>
+      </div>
+      <div>
+        <p class="small fw-semibold mb-1" style="color:var(--st-text)">Warm palette</p>
+        <div class="demo-chart-sm" id="c-col-warm"></div>
+      </div>
+      <div>
+        <p class="small fw-semibold mb-1" style="color:var(--st-text)">Cool palette</p>
+        <div class="demo-chart-sm" id="c-col-cool"></div>
+      </div>
+    </div>
+
+    <pre style="margin-top:1.25rem"><span class="cm">// Default — auto-reads Strata CSS vars</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, { data: [...] })
+
+<span class="cm">// Custom palette — cycles if more points than colors</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, {
+  data: [...],
+  colors: [<span class="st">'#ff6b6b'</span>, <span class="st">'#ffa07a'</span>, <span class="st">'#ffd700'</span>, <span class="st">'#ff8c00'</span>, <span class="st">'#dc143c'</span>],
+})
+
+<span class="cm">// Theme: 'auto' | 'light' | 'dark'</span>
+<span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, { data: [...], theme: <span class="st">'dark'</span> })
+
+<span class="cm">// To re-theme a live chart: destroy and re-create</span>
+chart.<span class="fn">destroy</span>()
+chart = <span class="fn">Strata.Chart.create</span>(<span class="st">'#el'</span>, { ..., theme: <span class="st">'auto'</span> })</pre>
+
+    <div class="demo-actions" style="margin-top:1.25rem">
+      <span class="small text-muted me-1">Re-create with theme:</span>
+      <button class="btn btn-outline-secondary btn-sm" onclick="setThemeAndRebuild('light')">Light</button>
+      <button class="btn btn-outline-secondary btn-sm" onclick="setThemeAndRebuild('dark')">Dark</button>
+      <button class="btn btn-outline-secondary btn-sm" onclick="setThemeAndRebuild('dim')">Dim</button>
+    </div>
+    <div style="margin-top:.75rem">
+      <div class="demo-chart" id="c-theme"></div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <!-- Step 11 / API Reference                                                 -->
+  <!-- ─────────────────────────────────────────────────────────────────────── -->
+  <div class="section-label">Complete API Reference</div>
+
+  <div class="tut-step api-section" id="step-api">
+
+    <h2>Options</h2>
+    <p class="small text-muted mb-0">All options passed to <code>Strata.Chart.create(selector, options)</code>.</p>
+
+    <div style="overflow-x:auto; margin-top:.75rem">
+      <table class="api-table">
+        <thead>
+          <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>data</code></td><td><code>RawPoint[]</code></td><td><span class="pill-req">required</span></td><td>Array of data objects. See Step 6 for the full data format.</td></tr>
+          <tr><td><code>type</code></td><td><code>'bar'|'line'|'pie'|'scatter'</code></td><td><code>'bar'</code></td><td>Chart geometry. Bar and pie aggregate by <code>category</code>; line and scatter do not.</td></tr>
+          <tr><td><code>view</code></td><td><code>'2d'|'3d'</code></td><td><code>'3d'</code></td><td>Initial view. The camera starts here with no transition animation.</td></tr>
+          <tr><td><code>colors</code></td><td><code>string[]</code></td><td>Strata CSS vars</td><td>Hex/rgb color strings. Cycles if more data points than colors.</td></tr>
+          <tr><td><code>theme</code></td><td><code>'auto'|'light'|'dark'</code></td><td><code>'auto'</code></td><td>Scene background. <code>'auto'</code> reads <code>data-st-theme</code> from <code>&lt;html&gt;</code> at creation time.</td></tr>
+          <tr><td><code>camera3d</code></td><td><code>{x?,y?,z?,fov?}</code></td><td>—</td><td>Override any field of the 3D camera. Default: <code>{x:3.5, y:6.5, z:9.5, fov:42}</code>.</td></tr>
+          <tr><td><code>camera2d</code></td><td><code>{x?,y?,z?,fov?}</code></td><td>—</td><td>Override any field of the 2D camera. Default: <code>{x:0, y:2, z:22, fov:18}</code>.</td></tr>
+          <tr><td><code>onReady</code></td><td><code>(chart)=>void</code></td><td>—</td><td>Called once immediately after the first render.</td></tr>
+          <tr><td><code>onChange</code></td><td><code>(view)=>void</code></td><td>—</td><td>Called after each 2D/3D transition completes. Receives the new view string.</td></tr>
+          <tr><td><code>onClick</code></td><td><code>(point)=>void</code></td><td>—</td><td>Called when a hovered mesh is clicked. Receives <code>{label, value, category, index}</code>.</td></tr>
+          <tr class="row-group"><td colspan="4">Feature flags — all default <code>false</code>, opt-in only</td></tr>
+          <tr><td><code>gridView</code></td><td><code>boolean</code></td><td><code>false</code></td><td>XY-plane horizontal scale lines and vertical column lines. Bar, line, scatter.</td></tr>
+          <tr><td><code>showAxisLabels</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Billboard sprites below each point showing the X-axis category name.</td></tr>
+          <tr><td><code>showScale</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Numeric Y-axis tick labels on the left at five scale steps (0 → max).</td></tr>
+          <tr><td><code>showGridLabels</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Numeric value at the right end of each horizontal grid line. Requires <code>gridView: true</code>.</td></tr>
+          <tr><td><code>highlightGridOnInteract</code></td><td><code>boolean</code></td><td><code>false</code></td><td>Highlight column + nearest horizontal grid line on hover. Requires <code>gridView: true</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods</h3>
+    <div style="overflow-x:auto">
+      <table class="api-table">
+        <thead>
+          <tr><th>Method</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>chart.toggleView()</code></td><td>Flip between 2D and 3D with the full animated transition.</td></tr>
+          <tr><td><code>chart.setView('2d'|'3d')</code></td><td>Go to a specific view. No-op if already there.</td></tr>
+          <tr><td><code>chart.update(newData)</code></td><td>Replace the full dataset. Preserves view, camera, and interaction state.</td></tr>
+          <tr><td><code>chart.addDataPoint(point)</code></td><td>Append one raw data point. Fires <code>st:chart:update</code>.</td></tr>
+          <tr><td><code>chart.addDataPoints(points[])</code></td><td>Append multiple raw data points in one rebuild.</td></tr>
+          <tr><td><code>chart.removeDataPoint(index)</code></td><td>Remove one point by index in the raw data array.</td></tr>
+          <tr><td><code>chart.removeDataPoints(indices[])</code></td><td>Remove multiple points in one rebuild.</td></tr>
+          <tr><td><code>chart.updateDataPoint(index, partial)</code></td><td>Patch any fields of one raw data point.</td></tr>
+          <tr><td><code>chart.destroy()</code></td><td>Remove canvas, free all Three.js memory, disconnect ResizeObserver, clear registry.</td></tr>
+          <tr><td><code>Strata.Chart.destroyAll()</code></td><td>Call <code>destroy()</code> on every mounted chart on the page.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Document events</h3>
+    <div style="overflow-x:auto">
+      <table class="api-table">
+        <thead>
+          <tr><th>Event name</th><th><code>event.detail</code></th><th>When fired</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>st:chart:ready</code></td><td><code>{chart, view}</code></td><td>After first render</td></tr>
+          <tr><td><code>st:chart:change</code></td><td><code>{chart, from, to}</code></td><td>After a 2D/3D transition completes</td></tr>
+          <tr><td><code>st:chart:update</code></td><td><code>{chart}</code></td><td>After <code>.update()</code> or any dynamic data method</td></tr>
+          <tr><td><code>st:chart:click</code></td><td><code>{label, value, category, index}</code></td><td>When a hovered mesh is clicked</td></tr>
+          <tr><td><code>st:chart:destroy</code></td><td><code>{chart}</code></td><td>After <code>.destroy()</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Data attributes set on the container</h3>
+    <div style="overflow-x:auto">
+      <table class="api-table">
+        <thead>
+          <tr><th>Attribute</th><th>Values</th><th>Meaning</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>data-st-chart-view</code></td><td><code>"2d"</code> / <code>"3d"</code></td><td>Current view. Set immediately when transition begins.</td></tr>
+          <tr><td><code>data-st-chart-type</code></td><td><code>"bar"</code> etc.</td><td>Chart type, set at init.</td></tr>
+          <tr><td><code>data-st-chart-loading</code></td><td><code>"true"</code> / <code>"false"</code></td><td><code>"true"</code> while data processing runs.</td></tr>
+          <tr><td><code>data-st-chart-animated</code></td><td><code>"true"</code> / <code>"false"</code></td><td><code>"true"</code> during a 2D/3D camera transition.</td></tr>
+          <tr><td><code>data-st-chart-hovered</code></td><td><code>"true"</code> / <code>"false"</code></td><td><code>"true"</code> while any mesh is under the cursor.</td></tr>
+          <tr><td><code>data-st-chart-tooltip</code></td><td><code>"true"</code> / <code>"false"</code></td><td>On the tooltip element. Target with CSS to animate it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <pre style="margin-top:1.25rem"><span class="cm">/* Example: CSS driven entirely by data attributes */</span>
+[data-st-chart-view=<span class="st">"2d"</span>] { border-top: 2px solid var(--st-primary); }
+[data-st-chart-hovered=<span class="st">"true"</span>] .strata-chart-canvas { cursor: crosshair; }
+[data-st-chart-loading=<span class="st">"true"</span>] .strata-chart-canvas { opacity: .4; }
+[data-st-chart-animated=<span class="st">"true"</span>] .strata-chart-canvas { cursor: wait; }</pre>
+  </div>
+
+</div><!-- /.tut-wrap -->
+
+<!-- ── Back to top ──────────────────────────────────────────────────────────── -->
+<button class="btt" id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<!-- ── Scripts ─────────────────────────────────────────────────────────────── -->
+<script src="../dist/strata.components.js"></script>
+<script>
+// ── Helpers ───────────────────────────────────────────────────────────────
+var MONTHS  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+var REGIONS = ['North','South','East','West','Central']
+
+function rndBar(n) {
+  return MONTHS.slice(0, n || 6).map(function(m) {
+    return { label: m, value: Math.round(Math.random() * 200 + 30), category: m }
+  })
+}
+function rndLine(n) {
+  return Array.from({ length: n || 7 }, function(_, i) {
+    return { label: 'W' + (i + 1), value: Math.round(Math.random() * 140 + 20), category: 'Series' }
+  })
+}
+function rndPie() {
+  return REGIONS.map(function(r) {
+    return { label: r, value: Math.round(Math.random() * 300 + 60), category: r }
+  })
+}
+function rndScatter(n) {
+  return Array.from({ length: n || 14 }, function(_, i) {
+    return { label: 'P' + (i + 1), value: Math.round(Math.random() * 150 + 10), category: 'Set' }
+  })
+}
+
+// ── Step 2: First Chart ───────────────────────────────────────────────────
+Strata.Chart.create('#c-first', {
+  type: 'bar',
+  data: [
+    { label: 'Jan', value: 120, category: 'Jan' },
+    { label: 'Feb', value: 180, category: 'Feb' },
+    { label: 'Mar', value: 95,  category: 'Mar' },
+    { label: 'Apr', value: 210, category: 'Apr' },
+    { label: 'May', value: 160, category: 'May' },
+  ],
+})
+
+// ── Step 3: Chart Types ───────────────────────────────────────────────────
+Strata.Chart.create('#c-type-bar',     { type: 'bar',     data: rndBar(5) })
+Strata.Chart.create('#c-type-line',    { type: 'line',    data: rndLine(6),  colors: ['#198754','#20c997','#0dcaf0'] })
+Strata.Chart.create('#c-type-pie',     { type: 'pie',     data: rndPie(),    colors: ['#ffc107','#fd7e14','#dc3545','#6f42c1','#0dcaf0'] })
+Strata.Chart.create('#c-type-scatter', { type: 'scatter', data: rndScatter(12), colors: ['#0dcaf0','#6f42c1','#d63384'] })
+
+// ── Step 4: Views ─────────────────────────────────────────────────────────
+var cViews = Strata.Chart.create('#c-views', { type: 'bar', data: rndBar(6) })
+
+// ── Step 5: Interaction ───────────────────────────────────────────────────
+var interactLog = document.getElementById('interact-log')
+Strata.Chart.create('#c-interact', {
+  type: 'bar',
+  data: rndBar(7),
+  onClick: function(point) {
+    interactLog.innerHTML =
+      '&#9654; <strong>' + point.label + '</strong> — value: <strong>' + point.value + '</strong>' +
+      ', category: ' + point.category + ', index: ' + point.index
+  },
+})
+
+// ── Step 7: Grid & Labels ─────────────────────────────────────────────────
+var gridOpts = { gridView: false, showAxisLabels: false, showScale: false, showGridLabels: false }
+var gridView = '3d'
+var cGridRef = null
+
+function rebuildGridChart() {
+  if (cGridRef) cGridRef.destroy()
+  cGridRef = Strata.Chart.create('#c-grid', Object.assign({ type: 'bar', view: gridView, data: rndBar(6) }, gridOpts))
+}
+rebuildGridChart()
+
+document.getElementById('grid-toggles').addEventListener('click', function(e) {
+  var btn = e.target.closest('.feat-btn')
+  if (!btn) return
+  var key = btn.getAttribute('data-key')
+  gridOpts[key] = !gridOpts[key]
+  var on = gridOpts[key]
+  btn.classList.toggle('on', on)
+  btn.querySelector('.state').textContent = on ? 'on' : 'off'
+  rebuildGridChart()
+})
+
+// ── Step 8: Grid Highlighting ─────────────────────────────────────────────
+Strata.Chart.create('#c-highlight', {
+  type: 'bar', data: rndBar(7), view: '3d',
+  gridView: true, showScale: true, showAxisLabels: true,
+  highlightGridOnInteract: true,
+})
+
+// ── Step 9: Dynamic Data ──────────────────────────────────────────────────
+var dynData = MONTHS.slice(0, 5).map(function(m) {
+  return { label: m, value: Math.round(Math.random() * 180 + 40), category: m }
+})
+var cDynamic = Strata.Chart.create('#c-dynamic', {
+  type: 'bar', data: dynData.slice(),
+  gridView: true, showScale: true, showAxisLabels: true,
+})
+var dynLog = document.getElementById('dyn-log')
+var dynIdx = 5
+
+document.getElementById('dyn-add').addEventListener('click', function() {
+  var m = MONTHS[dynIdx % 12], v = Math.round(Math.random() * 180 + 40)
+  var pt = { label: m, value: v, category: m }
+  dynData.push(pt)
+  cDynamic.addDataPoint(pt)
+  dynLog.textContent = 'addDataPoint({ label: "' + m + '", value: ' + v + ' })  →  ' + dynData.length + ' bars'
+  dynIdx++
+})
+document.getElementById('dyn-remove').addEventListener('click', function() {
+  if (dynData.length <= 1) { dynLog.textContent = 'Need at least 1 point'; return }
+  var idx = dynData.length - 1
+  dynData.splice(idx, 1)
+  cDynamic.removeDataPoint(idx)
+  dynLog.textContent = 'removeDataPoint(' + idx + ')  →  ' + dynData.length + ' bars'
+})
+document.getElementById('dyn-update').addEventListener('click', function() {
+  var v = Math.round(Math.random() * 220 + 20)
+  dynData[0] = Object.assign({}, dynData[0], { value: v })
+  cDynamic.updateDataPoint(0, { value: v })
+  dynLog.textContent = 'updateDataPoint(0, { value: ' + v + ' })  →  first bar updated'
+})
+document.getElementById('dyn-reset').addEventListener('click', function() {
+  dynIdx  = 5
+  dynData = MONTHS.slice(0, 5).map(function(m) {
+    return { label: m, value: Math.round(Math.random() * 180 + 40), category: m }
+  })
+  cDynamic.update(dynData.slice())
+  dynLog.textContent = 'update() — reset to 5 bars'
+})
+
+// ── Step 10: Colors & Themes ──────────────────────────────────────────────
+var pieData = rndPie()
+Strata.Chart.create('#c-col-auto', { type: 'pie', data: pieData })
+Strata.Chart.create('#c-col-warm', { type: 'pie', data: pieData, colors: ['#ff6b6b','#ffa07a','#ffd700','#ff8c00','#dc143c'] })
+Strata.Chart.create('#c-col-cool', { type: 'pie', data: pieData, colors: ['#0dcaf0','#4a90e2','#6f42c1','#0d6efd','#00b4d8'] })
+
+var cTheme = null
+function buildThemeChart() {
+  if (cTheme) cTheme.destroy()
+  cTheme = Strata.Chart.create('#c-theme', { type: 'bar', data: rndBar(6), theme: 'auto' })
+}
+buildThemeChart()
+
+function setThemeAndRebuild(t) {
+  document.documentElement.setAttribute('data-st-theme', t)
+  buildThemeChart()
+}
+
+// ── Global theme toggle ───────────────────────────────────────────────────
+document.getElementById('themeBtn').addEventListener('click', function() {
+  var cur = document.documentElement.getAttribute('data-st-theme')
+  document.documentElement.setAttribute('data-st-theme', cur === 'dark' ? 'light' : 'dark')
+  buildThemeChart()
+})
+
+// ── Back to top ───────────────────────────────────────────────────────────
+var btt = document.getElementById('btt')
+window.addEventListener('scroll', function() {
+  btt.classList.toggle('visible', window.scrollY > 400)
+}, { passive: true })
+</script>
+
+</body>
+</html>
