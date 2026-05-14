@@ -12,4 +12,5 @@
  * Current components:
  *   modal.js    — Modal    (data-st-toggle, data-st-dismiss, data-st-backdrop)
  *   skeleton.js — Skeleton (Strata.skeleton.init / show / reveal / toggle)
+ *   chart.js    — Chart    (Strata.Chart.create / toggleView / update / destroy) — requires Three.js
  */
