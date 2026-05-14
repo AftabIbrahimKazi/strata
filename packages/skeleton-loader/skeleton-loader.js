@@ -1,5 +1,5 @@
 /**
- * Skeleton Loader — Standalone JS
+ * Skeleton Loader
  * Version: 1.0.0
  *
  * Usage (standalone):
@@ -7,10 +7,12 @@
  *   SkeletonLoader.init('#my-card')
  *
  * Usage (with Strata):
- *   The Strata build already includes this utility as Strata.skeleton.
- *   Do not load this file when using Strata.
+ *   Included in strata.components.js — available as Strata.skeleton.init()
+ *   Do not load this file separately when using Strata.
  *
  * UMD — works as a browser global, CommonJS module, or AMD module.
+ * When Strata is present on the page, registers as Strata.skeleton.
+ * Otherwise registers as SkeletonLoader.
  */
 
 ;(function (root, factory) {
@@ -19,7 +21,11 @@
   } else if (typeof module === 'object' && module.exports) {
     module.exports = factory()
   } else {
-    root.SkeletonLoader = factory()
+    if (root.Strata) {
+      root.Strata.skeleton = factory()
+    } else {
+      root.SkeletonLoader = factory()
+    }
   }
 }(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict'

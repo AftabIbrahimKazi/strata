@@ -79,12 +79,16 @@ async function build(cssMinify = false, jsMinify = true) {
   }
 
   // Bundle + optionally minify JS components
-  const componentsDir = path.join(__dirname, '..', 'src', 'components', 'modules')
-  const jsDest        = path.join(path.dirname(outputFile), 'strata.components.js')
+  const componentsDir  = path.join(__dirname, '..', 'src', 'components', 'modules')
+  const skeletonPkg    = path.join(__dirname, '..', 'packages', 'skeleton-loader', 'skeleton-loader.js')
+  const jsDest         = path.join(path.dirname(outputFile), 'strata.components.js')
   if (fs.existsSync(componentsDir)) {
     const files  = fs.readdirSync(componentsDir).filter(f => f.endsWith('.js')).sort()
     const banner = `/*! Strata Components — built ${new Date().toISOString().slice(0,10)} */\n`
-    const raw    = files.map(f => fs.readFileSync(path.join(componentsDir, f), 'utf8')).join('\n')
+    // modules first (init.js sets data-strata), then skeleton-loader from packages
+    const parts  = files.map(f => fs.readFileSync(path.join(componentsDir, f), 'utf8'))
+    if (fs.existsSync(skeletonPkg)) parts.push(fs.readFileSync(skeletonPkg, 'utf8'))
+    const raw    = parts.join('\n')
     const output = jsMinify ? banner + minifyJS(raw) : banner + raw
     fs.mkdirSync(path.dirname(jsDest), { recursive: true })
     fs.writeFileSync(jsDest, output)
