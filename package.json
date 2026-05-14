@@ -29,7 +29,9 @@
     "benchmark": "node --expose-gc benchmark/run.js",
     "publish:stable": "npm publish --tag latest",
     "publish:beta": "npm publish --tag beta",
-    "publish:skeleton": "npm publish --workspace packages/skeleton-loader --tag latest"
+    "publish:skeleton": "npm publish --workspace packages/skeleton-loader --tag latest",
+    "publish:modal":    "npm publish --workspace packages/modal --tag latest",
+    "publish:chart":    "npm publish --workspace packages/chart --tag latest"
   },
   "keywords": [
     "css",
