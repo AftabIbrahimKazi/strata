@@ -28,7 +28,8 @@
     "build:chart": "tsc -p src/components/modules/chart/tsconfig.json",
     "benchmark": "node --expose-gc benchmark/run.js",
     "publish:stable": "npm publish --tag latest",
-    "publish:beta": "npm publish --tag beta"
+    "publish:beta": "npm publish --tag beta",
+    "publish:skeleton": "npm publish --workspace packages/skeleton-loader --tag latest"
   },
   "keywords": [
     "css",
@@ -55,6 +56,9 @@
   "bugs": {
     "url": "https://github.com/AftabIbrahimKazi/strata/issues"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "type": "commonjs",
   "engines": {
     "node": ">=18.0.0"
