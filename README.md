@@ -43,9 +43,9 @@ Strata is an open source CSS framework that takes the best from Bootstrap and Ta
 
 | Metric | Strata | Tailwind CSS 3 |
 |---|---|---|
-| Cold build average | 10.66ms | 7.21ms |
-| Cold build median | 10.37ms | 4.55ms |
-| Cold build p95 | 14.09ms | 6.12ms |
+| Cold build average | 3.82ms | 7.21ms |
+| Cold build median | 3.78ms | 4.55ms |
+| Cold build p95 | 4.40ms | 6.12ms |
 
 > Tailwind figures are official watch-mode reference numbers. Strata numbers are from a cold build with cache invalidated on every run — the most conservative possible measurement. Warm rebuilds (the common case in development) are significantly faster as unchanged output is returned from cache with zero reprocessing.
 
