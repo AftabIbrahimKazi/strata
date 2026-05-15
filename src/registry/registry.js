@@ -189,6 +189,7 @@ reg('border-0', 'utilities', '.border-0 { border: none; }')
 Object.entries(BORDER_COLOR_MAP).forEach(([k, v]) => {
   reg(`border-${k}`, 'utilities', `.border-${k} { border-color: ${v}; }`)
 })
+reg('border-muted', 'utilities', `.border-muted { border-color: var(--st-text-muted); }`)
 
 // Sizing
 Object.entries(SIZE_SCALE).forEach(([k, v]) => {
@@ -2795,6 +2796,59 @@ reg('tooltip-arrow', 'components', TOOLTIP_ARROW)
 ].forEach(([cls, arrowSide, arrowSize, arrowStyle]) => {
   reg(cls, 'components', `.${cls} { margin-${arrowSide}: ${arrowSize}; }
 .${cls} > .popover-arrow::before { ${arrowStyle} }`)
+})
+
+// ─── List utilities ───────────────────────────────────────────────────
+reg('list-unstyled', 'utilities', `.list-unstyled {
+  padding-left: 0;
+  margin-top:   0;
+  margin-bottom: 0;
+  list-style:   none;
+}`)
+
+reg('list-inline', 'utilities', `.list-inline {
+  padding-left: 0;
+  margin-top:   0;
+  margin-bottom: 0;
+  list-style:   none;
+}`)
+
+reg('list-inline-item', 'utilities', `.list-inline-item {
+  display: inline-block;
+}
+
+.list-inline-item:not(:last-child) {
+  margin-right: 0.5rem;
+}`)
+
+// ─── Form group ───────────────────────────────────────────────────────
+reg('form-group', 'components', `.form-group {
+  margin-bottom: 1rem;
+}`)
+
+// ─── Outline utilities ────────────────────────────────────────────────
+reg('outline-none', 'utilities', `.outline-none { outline: none; }`)
+
+const OUTLINE_COLOR_MAP = {
+  primary:   'var(--st-primary)',
+  secondary: 'var(--st-secondary)',
+  success:   'var(--st-success)',
+  danger:    'var(--st-danger)',
+  warning:   'var(--st-warning)',
+  info:      'var(--st-info)',
+  light:     'var(--st-light)',
+  dark:      'var(--st-dark)',
+}
+
+Object.entries(OUTLINE_COLOR_MAP).forEach(([k, v]) => {
+  reg(`outline-${k}`, 'utilities', `.outline-${k} {
+  outline: 2px solid ${v};
+  outline-offset: 2px;
+}`)
+})
+
+;[1, 2, 3, 4, 5].forEach(n => {
+  reg(`outline-${n}`, 'utilities', `.outline-${n} { outline-width: ${n}px; }`)
 })
 
 // ─── Arbitrary value patterns — regex fallback ────────────────────────
