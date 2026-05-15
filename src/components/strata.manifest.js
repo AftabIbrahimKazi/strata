@@ -10,6 +10,10 @@
  *   2. Run: npm run build
  *
  * Current components:
- *   modal.js    — Modal    (data-st-toggle, data-st-dismiss, data-st-backdrop)
- *   skeleton.js — Skeleton (Strata.skeleton.init / show / reveal / toggle)
+ *   init.js — Runtime marker (sets data-strata on <html> for plugin detection)
+ *
+ * Sourced from packages/ (single source of truth for Strata + standalone):
+ *   modal/modal.js                     — Modal   (Strata.Modal / StrataModal)
+ *   skeleton-loader/skeleton-loader.js — Skeleton (Strata.skeleton / SkeletonLoader)
+ *   chart/chart.js                     — Chart   (Strata.Chart / StrataChart) — requires Three.js
  */
