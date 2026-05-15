@@ -1,6 +1,7 @@
 {
   "name": "strata-css",
-  "version": "1.0.0",
+  "version": "1.0.4",
+  "_versioningNote": "Stable: 1.0.0 / 1.1.0 / 2.0.0  |  Beta: 1.1.0-beta.1 / 1.1.0-beta.2",
   "description": "A modern CSS framework combining Bootstrap components with Tailwind JIT processing",
   "main": "src/index.js",
   "types": "index.d.ts",
@@ -9,7 +10,7 @@
     "./package.json": "./package.json"
   },
   "bin": {
-    "strata": "./bin/strata.js"
+    "strata-css": "bin/strata.js"
   },
   "files": [
     "src/",
@@ -22,9 +23,15 @@
   ],
   "scripts": {
     "dev": "node bin/strata.js --watch",
-    "build": "node bin/strata.js --build",
-    "minify": "node bin/strata.js --minify",
-    "benchmark": "node --expose-gc benchmark/run.js"
+    "build": "npm run build:chart && node bin/strata.js --build",
+    "minify": "npm run build:chart && node bin/strata.js --minify",
+    "build:chart": "tsc -p src/components/modules/chart/tsconfig.json",
+    "benchmark": "node --expose-gc benchmark/run.js",
+    "publish:stable": "npm publish --tag latest",
+    "publish:beta": "npm publish --tag beta",
+    "publish:skeleton": "npm publish --workspace packages/skeleton-loader --tag latest",
+    "publish:modal":    "npm publish --workspace packages/modal --tag latest",
+    "publish:chart":    "npm publish --workspace packages/chart --tag latest"
   },
   "keywords": [
     "css",
@@ -46,11 +53,14 @@
   "homepage": "https://aftabibrahimkazi.github.io/strata",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AftabIbrahimKazi/strata.git"
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
   },
   "bugs": {
     "url": "https://github.com/AftabIbrahimKazi/strata/issues"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "type": "commonjs",
   "engines": {
     "node": ">=18.0.0"
@@ -61,5 +71,8 @@
     "cssnano": "^8.0.1",
     "glob": "^13.0.6",
     "postcss": "^8.5.14"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }

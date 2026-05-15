@@ -11,3 +11,4 @@ npm-debug.log*
 Thumbs.db
 .env
 .env.local
+src/index.html
