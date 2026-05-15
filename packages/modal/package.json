@@ -1,0 +1,40 @@
+{
+  "name": "@strata-css/modal",
+  "version": "1.0.0",
+  "description": "Lightweight modal component. Works standalone or with Strata CSS.",
+  "main": "modal.js",
+  "style": "modal.css",
+  "exports": {
+    ".":     "./modal.js",
+    "./css": "./modal.css"
+  },
+  "files": [
+    "modal.js",
+    "modal.css"
+  ],
+  "keywords": [
+    "modal",
+    "dialog",
+    "overlay",
+    "strata",
+    "strata-css"
+  ],
+  "author": "Aftab Ibrahim Kazi",
+  "license": "MIT",
+  "homepage": "https://aftabibrahimkazi.github.io/strata",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
+  },
+  "peerDependencies": {
+    "strata-css": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "strata-css": {
+      "optional": true
+    }
+  }
+}
