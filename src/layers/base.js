@@ -80,9 +80,9 @@ const BASE_CSS = `
     --st-shadow:           0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     --st-shadow-lg:        0 1rem 3rem rgba(0, 0, 0, 0.175);
 
-    /* Transitions */
-    --st-transition:       all 0.2s ease-in-out;
-    --st-transition-fast:  all 0.1s ease-in-out;
+    /* Transitions — shorthand helpers (use --st-duration / --st-easing for granular control) */
+    --st-transition:       all var(--st-duration) var(--st-easing);
+    --st-transition-fast:  all var(--st-duration-fast) var(--st-easing);
 
     /* Z-index scale */
     --st-z-dropdown:       1000;
@@ -321,12 +321,14 @@ const BASE_CSS = `
 
   /* ─── Transition Variables ───────────────────────────────────────── */
   :root {
-    --st-duration:      200ms;
-    --st-duration-fast: 100ms;
-    --st-duration-slow: 400ms;
-    --st-easing:        cubic-bezier(0.4, 0, 0.2, 1);
-    --st-easing-in:     cubic-bezier(0.4, 0, 1, 1);
-    --st-easing-out:    cubic-bezier(0, 0, 0.2, 1);
+    --st-duration:        200ms;
+    --st-duration-fast:   100ms;
+    --st-duration-slow:   400ms;
+    --st-duration-theme:  150ms;
+    --st-easing:          cubic-bezier(0.4, 0, 0.2, 1);
+    --st-easing-in:       cubic-bezier(0.4, 0, 1, 1);
+    --st-easing-out:      cubic-bezier(0, 0, 0.2, 1);
+    --st-easing-theme:    cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   /* ─── Global Interactive Transitions ─────────────────────────────── */
@@ -340,8 +342,8 @@ const BASE_CSS = `
   label,
   summary {
     transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-    transition-duration: 200ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: var(--st-duration);
+    transition-timing-function: var(--st-easing);
   }
 
   /* ─── Theme Transition ────────────────────────────────────────────── */
@@ -349,8 +351,8 @@ const BASE_CSS = `
   *::before,
   *::after {
     transition-property: background-color, border-color, color, box-shadow;
-    transition-duration: 150ms;
-    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-duration: var(--st-duration-theme);
+    transition-timing-function: var(--st-easing-theme);
   }
 
   /* Prevent theme transition on page load — only on user-triggered changes */
@@ -365,8 +367,8 @@ const BASE_CSS = `
   /* Visibility — fade in/out instead of instant show/hide */
   [data-st-visible] {
     transition-property: opacity, visibility, transform;
-    transition-duration: 200ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: var(--st-duration);
+    transition-timing-function: var(--st-easing);
   }
 
   [data-st-visible="true"] {
@@ -386,15 +388,15 @@ const BASE_CSS = `
   /* Active state — subtle scale for tactile feel */
   [data-st-active] {
     transition-property: color, background-color, border-color, box-shadow, transform;
-    transition-duration: 150ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: var(--st-duration-theme);
+    transition-timing-function: var(--st-easing);
   }
 
   /* Collapsed state — for accordions, drawers etc */
   [data-st-collapsed] {
     transition-property: max-height, opacity, transform;
-    transition-duration: 300ms;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: var(--st-duration-slow);
+    transition-timing-function: var(--st-easing);
     overflow: hidden;
   }
 
@@ -413,7 +415,7 @@ const BASE_CSS = `
     opacity: 0.7;
     pointer-events: none;
     cursor: wait;
-    transition: opacity 200ms ease;
+    transition: opacity var(--st-duration) var(--st-easing);
   }
 
   /* Disabled state */
@@ -421,7 +423,7 @@ const BASE_CSS = `
     opacity: 0.5;
     pointer-events: none;
     cursor: not-allowed;
-    transition: opacity 200ms ease;
+    transition: opacity var(--st-duration) var(--st-easing);
   }
 
   /* ─── Reduced Motion Accessibility ──────────────────────────────── */
