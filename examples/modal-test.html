@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html data-st-theme="light">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata Test</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+</head>
+<body>
+  <div class="container mt-3">
+    <div class="row">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <p class="text-center mt-3 text-danger">Hello World this is Strata.</p>
+        <p class="text-center mt-2 bg-success text-white px-[12px]">Success</p>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <!-- Triggers -->
+      <button class="btn-primary" data-st-toggle="modal" data-st-target="#demoModal">Default Modal</button>
+      <button class="btn-secondary" data-st-toggle="modal" data-st-target="#centeredModal">Centered</button>
+      <button class="btn-danger" data-st-toggle="modal" data-st-target="#staticModal">Static Backdrop</button>
+    </div>
+  </div>
+
+  <!-- Default Modal -->
+  <div class="modal" id="demoModal" aria-hidden="true" aria-labelledby="demoModalLabel">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="demoModalLabel">Modal Title</h5>
+          <button type="button" class="btn-close" data-st-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>This modal is powered by <strong>Strata JS</strong>. Open/close via <code>data-st-toggle</code>, <code>data-st-dismiss</code>, backdrop click, or <kbd>Escape</kbd>.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" data-st-dismiss="modal">Close</button>
+          <button type="button" class="btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Centered Modal -->
+  <div class="modal" id="centeredModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Centered Modal</h5>
+          <button type="button" class="btn-close" data-st-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Vertically centered in the viewport.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" data-st-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Static Backdrop Modal -->
+  <div class="modal" id="staticModal" data-st-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Static Backdrop</h5>
+          <button type="button" class="btn-close" data-st-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Clicking outside or pressing <kbd>Escape</kbd> won't close this modal — only the close button works.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-danger" data-st-dismiss="modal">Dismiss</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../dist/strata.components.js"></script>
+</body>
+</html>
