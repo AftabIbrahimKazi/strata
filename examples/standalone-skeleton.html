@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@strata-css/skeleton-loader — Standalone Guide</title>
+
+  <!--
+    STANDALONE USAGE
+    ─────────────────────────────────────────────────────────────────────────
+    Load the CSS and JS from the package. No Strata required.
+    API: SkeletonLoader.init / show / reveal / toggle / revealAt / isSkeleton
+    ─────────────────────────────────────────────────────────────────────────
+  -->
+  <link rel="stylesheet" href="../packages/skeleton-loader/skeleton-loader.css">
+  <script src="../packages/skeleton-loader/skeleton-loader.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f8fafc; color: #212529; margin: 0; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+    .subtitle { color: #6c757d; font-size: 0.9rem; margin: 0 0 2rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 1rem; border-bottom: 1px solid #dee2e6; padding-bottom: 0.5rem; }
+    .demo-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    button { padding: 0.4rem 1rem; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; cursor: pointer; font-size: 0.875rem; }
+    button:hover { background: #f1f5f9; }
+    button.primary { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+
+    /* Card */
+    .card { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 1.25rem; width: 260px; }
+    .card-avatar { width: 48px; height: 48px; border-radius: 50%; background: #e2e8f0; margin-bottom: 1rem; }
+    .card-title { font-weight: 600; margin: 0 0 0.25rem; }
+    .card-text { color: #6c757d; font-size: 0.875rem; margin: 0 0 1rem; }
+    .card-btn { display: inline-block; padding: 0.35rem 1rem; background: #0d6efd; color: #fff; border-radius: 4px; font-size: 0.875rem; text-decoration: none; }
+
+    /* List */
+    .list-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid #f1f5f9; }
+    .list-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e2e8f0; flex-shrink: 0; }
+    .list-name { font-weight: 500; margin: 0 0 0.2rem; }
+    .list-sub { color: #6c757d; font-size: 0.8rem; margin: 0; }
+
+    /* Code block */
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.8rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+  <h1>@strata-css/skeleton-loader</h1>
+  <p class="subtitle">Standalone usage — no Strata CSS required</p>
+
+  <!-- ─── Example 1: Profile card ─────────────────────────────────────── -->
+  <h2>Profile card</h2>
+  <div class="controls">
+    <button onclick="SkeletonLoader.show('#card1')" >Show skeleton</button>
+    <button onclick="SkeletonLoader.reveal('#card1')" class="primary">Reveal</button>
+  </div>
+  <div class="demo-row">
+    <div class="card" id="card1" data-st-skeleton="true">
+      <div class="card-avatar"></div>
+      <p class="card-title">Aftab Ibrahim</p>
+      <p class="card-text">Frontend developer building open source tools.</p>
+      <a href="#" class="card-btn">View profile</a>
+    </div>
+  </div>
+
+  <!-- ─── Example 2: List items with staggered reveal ─────────────────── -->
+  <h2>List — staggered reveal</h2>
+  <div class="controls">
+    <button onclick="SkeletonLoader.show('.list-item')" >Show skeleton</button>
+    <button onclick="SkeletonLoader.reveal('.list-item', { stagger: 120 })" class="primary">Reveal staggered</button>
+  </div>
+  <div style="width:320px">
+    <div class="list-item" data-st-skeleton="true">
+      <div class="list-avatar"></div>
+      <div>
+        <p class="list-name">Alice Johnson</p>
+        <p class="list-sub">alice@example.com</p>
+      </div>
+    </div>
+    <div class="list-item" data-st-skeleton="true">
+      <div class="list-avatar"></div>
+      <div>
+        <p class="list-name">Bob Martinez</p>
+        <p class="list-sub">bob@example.com</p>
+      </div>
+    </div>
+    <div class="list-item" data-st-skeleton="true">
+      <div class="list-avatar"></div>
+      <div>
+        <p class="list-name">Carol White</p>
+        <p class="list-sub">carol@example.com</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Example 3: CSS-only (no JS) ─────────────────────────────────── -->
+  <h2>CSS-only (no JS needed)</h2>
+  <p style="font-size:0.875rem;color:#6c757d;margin:0 0 1rem">Set <code>data-st-skeleton="true"</code> directly in HTML — no JS required for simple cases.</p>
+  <div class="demo-row">
+    <div class="card" data-st-skeleton="true" style="height:120px"></div>
+    <div class="card" data-st-skeleton="true" style="height:120px;border-radius:50%;width:120px"></div>
+    <p data-st-skeleton="true" style="width:200px;height:1rem;margin:0"></p>
+  </div>
+
+  <!-- ─── Example 4: Opt-out a child ───────────────────────────────────── -->
+  <h2>Opt-out a child element</h2>
+  <p style="font-size:0.875rem;color:#6c757d;margin:0 0 1rem">Set <code>data-st-skeleton="false"</code> on a child to keep it always visible.</p>
+  <div class="controls">
+    <button onclick="SkeletonLoader.toggle('#card2')">Toggle</button>
+  </div>
+  <div class="demo-row">
+    <div class="card" id="card2" data-st-skeleton="true">
+      <p class="card-title">Article title</p>
+      <p class="card-text">This paragraph shimmers.</p>
+      <span data-st-skeleton="false" style="font-size:0.75rem;background:#dcfce7;color:#166534;padding:0.2rem 0.5rem;border-radius:4px">
+        Always visible badge
+      </span>
+    </div>
+  </div>
+
+  <!-- ─── API reference ────────────────────────────────────────────────── -->
+  <h2>API reference</h2>
+  <pre>
+// Initialise — auto-discover all [data-st-skeleton="true"] on page
+SkeletonLoader.init()
+
+// Initialise specific elements
+SkeletonLoader.init('.card')
+SkeletonLoader.init('#my-id')
+
+// Show / reveal
+SkeletonLoader.show('.card')
+SkeletonLoader.reveal('.card')
+
+// Staggered reveal — 150ms delay between each
+SkeletonLoader.reveal('.card', { stagger: 150 })
+
+// Reveal with callback after last element
+SkeletonLoader.reveal('.card', { onReveal: () => console.log('done') })
+
+// Toggle between skeleton and revealed
+SkeletonLoader.toggle('.card')
+
+// Reveal one element by index
+SkeletonLoader.revealAt('.card', 0)
+
+// Check if currently shimmering
+SkeletonLoader.isSkeleton(el)   // → true | false
+  </pre>
+
+  <!-- ─── Custom tokens reference ──────────────────────────────────────── -->
+  <h2>Customise via CSS variables</h2>
+  <pre>
+:root {
+  --st-skeleton-base:     #e2e8f0;  /* shimmer base colour */
+  --st-skeleton-shine:    #f8fafc;  /* shimmer highlight */
+  --st-skeleton-duration: 1.5s;     /* animation speed */
+  --st-skeleton-radius:   4px;      /* bar corner rounding */
+}
+  </pre>
+
+  <script>
+    SkeletonLoader.init('#card1')
+    SkeletonLoader.init('.list-item')
+    SkeletonLoader.init('#card2')
+  </script>
+
+</body>
+</html>
