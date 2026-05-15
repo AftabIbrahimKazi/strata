@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata Chart — Demo</title>
+
+  <!-- Strata CSS -->
+  <link rel="stylesheet" href="../dist/strata.output.css">
+
+  <!-- Three.js r128 — must load before strata.components.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    /* ── Required chart styles ── */
+    .strata-chart          { position: relative; overflow: hidden; border-radius: var(--st-border-radius); }
+    .strata-chart-canvas   { display: block; width: 100% !important; height: 100% !important; }
+
+    .strata-chart-tooltip {
+      position: absolute; pointer-events: none; z-index: 10;
+      background: var(--st-bg); border: var(--st-border-width) solid var(--st-border);
+      border-radius: var(--st-border-radius); padding: 0.35rem 0.65rem;
+      font-size: 0.8rem; font-family: var(--st-font-family); color: var(--st-text);
+      box-shadow: var(--st-shadow-sm); display: flex; flex-direction: column; gap: 0.1rem;
+      min-width: 90px; opacity: 0; transform: translateY(4px);
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+    [data-st-chart-tooltip="true"]  { opacity: 1; transform: translateY(0); }
+    .strata-chart-tooltip-label     { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .strata-chart-tooltip-value     { color: var(--st-primary); font-weight: 700; }
+
+    /* ── State-driven styles ── */
+    [data-st-chart-loading="true"]  .strata-chart-canvas { opacity: 0.4; }
+    [data-st-chart-animated="true"] .strata-chart-canvas { cursor: wait; }
+    [data-st-chart-hovered="true"]  .strata-chart-canvas { cursor: crosshair; }
+    [data-st-chart-view="2d"] { border-top: 2px solid var(--st-primary); }
+    [data-st-chart-view="3d"] { border-top: 2px solid transparent; }
+
+    /* ── Chart heights ── */
+    .chart-h { height: 260px; }
+    @media (max-width: 576px) { .chart-h { height: 210px; } }
+
+    /* ── Event log ── */
+    #event-log { font-size: 0.78rem; font-family: monospace; max-height: 120px; overflow-y: auto; color: var(--st-text-muted); }
+    #event-log p { margin: 0; padding: 0.15rem 0; border-bottom: 1px solid var(--st-border); }
+    #event-log p:last-child { border-bottom: none; }
+
+    /* ── Feature toggle buttons — active state ── */
+    .btn-feat-active { outline: 2px solid currentColor; outline-offset: 2px; }
+
+    /* ── Dynamic log ── */
+    .dyn-log { font-family: monospace; font-size: 0.78rem; min-height: 2rem; padding: 0.4rem 0.6rem; background: var(--st-bg-secondary); border: 1px solid var(--st-border); border-radius: var(--st-border-radius); color: var(--st-text-muted); }
+  </style>
+</head>
+
+<body class="bg-light">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <div class="bg-white border-bottom shadow-sm mb-4">
+    <div class="container py-3">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+          <h1 class="h5 mb-0 fw-bold">Strata Chart</h1>
+          <p class="text-muted small mb-0">3D/2D charts · Grid &amp; labels · Interactive highlighting · Dynamic data</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="chart-guide.html" class="btn btn-outline-secondary btn-sm">Guide →</a>
+          <button class="btn btn-outline-secondary btn-sm" id="themeBtn">Toggle Theme</button>
+          <button class="btn btn-outline-secondary btn-sm" id="toggleAllBtn">Toggle All 2D / 3D</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container pb-5">
+
+    <!-- ── Section: Chart Types ──────────────────────────────────────────────── -->
+    <p class="text-muted small text-uppercase fw-semibold mb-3" style="letter-spacing:.07em">Chart Types</p>
+    <div class="row">
+
+      <!-- Bar -->
+      <div class="col-12 col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex align-items-center justify-content-between">
+              <h2 class="h6 mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
+                Bar Chart <span class="badge bg-primary ms-1" id="bar-badge">3D</span>
+              </h2>
+              <span class="small text-muted">Hover bars · Drag to orbit</span>
+            </div>
+            <div class="chart-h" id="barChart"></div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-primary btn-sm"           onclick="barChart.toggleView()">Toggle 2D / 3D</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="barChart.update(randomBar())">Randomise</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="barChart.setView('2d')">2D</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="barChart.setView('3d')">3D</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Line -->
+      <div class="col-12 col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex align-items-center justify-content-between">
+              <h2 class="h6 mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
+                Line Chart <span class="badge bg-success ms-1" id="line-badge">3D</span>
+              </h2>
+              <span class="small text-muted">Hover points · Drag to orbit</span>
+            </div>
+            <div class="chart-h" id="lineChart"></div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-success btn-sm"           onclick="lineChart.toggleView()">Toggle 2D / 3D</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="lineChart.update(randomLine())">New Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie -->
+      <div class="col-12 col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex align-items-center justify-content-between">
+              <h2 class="h6 mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
+                Pie Chart <span class="badge bg-warning ms-1" id="pie-badge">3D</span>
+              </h2>
+              <span class="small text-muted">Hover slices · 2D top face</span>
+            </div>
+            <div class="chart-h" id="pieChart"></div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-warning btn-sm"           onclick="pieChart.toggleView()">Toggle 2D / 3D</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="pieChart.update(randomPie())">Randomise</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scatter -->
+      <div class="col-12 col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex align-items-center justify-content-between">
+              <h2 class="h6 mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
+                Scatter Plot <span class="badge bg-info ms-1" id="scatter-badge">3D</span>
+              </h2>
+              <span class="small text-muted">Hover points · Drag to orbit</span>
+            </div>
+            <div class="chart-h" id="scatterChart"></div>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-info btn-sm"              onclick="scatterChart.toggleView()">Toggle 2D / 3D</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="scatterChart.update(randomScatter(18))">New Points</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Section: Grid, Labels & Highlighting ───────────────────────────────── -->
+    <p class="text-muted small text-uppercase fw-semibold mb-3 mt-2" style="letter-spacing:.07em">Feature 1–3 · Grid, Labels &amp; Interactive Highlighting</p>
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body d-flex flex-column gap-3">
+            <div>
+              <p class="small text-muted mb-0">
+                Toggle each flag — the chart rebuilds immediately with the new config.
+                Enable <strong>gridView</strong> first, then <strong>highlightGrid</strong> and hover a bar to see the grid lines light up.
+              </p>
+            </div>
+            <div class="row g-3">
+              <div class="col-12 col-lg-8">
+                <div class="chart-h" id="featureChart"></div>
+              </div>
+              <div class="col-12 col-lg-4 d-flex flex-column gap-3 justify-content-center">
+                <div>
+                  <p class="small fw-semibold mb-2">Feature flags</p>
+                  <div class="d-flex flex-column gap-2">
+                    <button class="btn btn-sm btn-outline-primary  text-start" id="btnGrid">      gridView: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-success  text-start" id="btnLabels">    showAxisLabels: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-warning  text-start" id="btnScale">     showScale: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-info     text-start" id="btnGridLbls">  showGridLabels: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-danger   text-start" id="btnHighlight"> highlightGridOnInteract: <strong>off</strong></button>
+                  </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  <button class="btn btn-sm btn-secondary"         id="featToggleView">Toggle 2D / 3D</button>
+                  <button class="btn btn-sm btn-outline-secondary" onclick="rebuildFeatureChart()">Randomise data</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section: Dynamic Data Entries ─────────────────────────────────────── -->
+    <p class="text-muted small text-uppercase fw-semibold mb-3" style="letter-spacing:.07em">Feature 4 · Dynamic Data Entries</p>
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body d-flex flex-column gap-3">
+            <p class="small text-muted mb-0">
+              Add, remove, and patch individual data points at runtime. The chart rebuilds in place — no destroy/recreate needed.
+              The scale grid updates automatically as data grows or shrinks.
+            </p>
+            <div class="row g-3">
+              <div class="col-12 col-lg-8">
+                <div class="chart-h" id="dynamicChart"></div>
+              </div>
+              <div class="col-12 col-lg-4 d-flex flex-column gap-3 justify-content-center">
+                <div>
+                  <p class="small fw-semibold mb-2">Methods</p>
+                  <div class="d-flex flex-column gap-2">
+                    <button class="btn btn-sm btn-success           text-start" id="btnAdd">    addDataPoint()</button>
+                    <button class="btn btn-sm btn-danger            text-start" id="btnRemove"> removeDataPoint(last)</button>
+                    <button class="btn btn-sm btn-warning text-dark text-start" id="btnUpdate"> updateDataPoint(first, random value)</button>
+                    <button class="btn btn-sm btn-outline-secondary text-start" id="btnReset">  reset to 5 points</button>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-secondary" id="dynToggleView">Toggle 2D / 3D</button>
+                </div>
+                <div class="dyn-log" id="dyn-log">Ready — use the buttons above</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Event log ─────────────────────────────────────────────────────────── -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h3 class="h6 mb-0 fw-semibold">Event Log <span class="text-muted fw-normal small">(st:chart:change · st:chart:click · st:chart:update)</span></h3>
+          <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('event-log').innerHTML=''">Clear</button>
+        </div>
+        <div id="event-log"><p class="text-muted">Events appear here as you interact…</p></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Strata components (chart plugin bundled here) -->
+  <script src="../dist/strata.components.js"></script>
+
+  <script>
+  // ── Data generators ───────────────────────────────────────────────────────
+  var MONTHS  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  var REGIONS = ['North','South','East','West','Central']
+
+  function randomBar(n) {
+    n = n || 7
+    return MONTHS.slice(0, n).map(function(m) {
+      return { label: m, value: Math.round(Math.random() * 220 + 30), category: m }
+    })
+  }
+  function randomLine() {
+    return Array.from({ length: 9 }, function(_, i) {
+      return { label: 'W' + (i + 1), value: Math.round(Math.random() * 120 + 15), category: 'Series A' }
+    })
+  }
+  function randomPie() {
+    return REGIONS.map(function(r) {
+      return { label: r, value: Math.round(Math.random() * 350 + 60), category: r }
+    })
+  }
+  function randomScatter(n) {
+    return Array.from({ length: n }, function(_, i) {
+      return { label: 'P' + (i + 1), value: Math.round(Math.random() * 160 + 10), category: 'Set A' }
+    })
+  }
+
+  function badge(id, view) {
+    document.getElementById(id).textContent = view.toUpperCase()
+  }
+
+  // ── Chart Types ───────────────────────────────────────────────────────────
+  var barChart = Strata.Chart.create('#barChart', {
+    type: 'bar', view: '3d', data: randomBar(), theme: 'auto',
+    onChange: function(v) { badge('bar-badge', v) },
+  })
+  var lineChart = Strata.Chart.create('#lineChart', {
+    type: 'line', view: '3d', data: randomLine(), theme: 'auto',
+    colors: ['#198754','#20c997','#0dcaf0','#6f42c1','#d63384','#fd7e14'],
+    onChange: function(v) { badge('line-badge', v) },
+  })
+  var pieChart = Strata.Chart.create('#pieChart', {
+    type: 'pie', view: '3d', data: randomPie(), theme: 'auto',
+    colors: ['#ffc107','#fd7e14','#dc3545','#6f42c1','#0dcaf0'],
+    onChange: function(v) { badge('pie-badge', v) },
+  })
+  var scatterChart = Strata.Chart.create('#scatterChart', {
+    type: 'scatter', view: '3d', data: randomScatter(18), theme: 'auto',
+    colors: ['#0dcaf0','#6f42c1','#d63384','#198754'],
+    onChange: function(v) { badge('scatter-badge', v) },
+  })
+
+  var _allView = '3d'
+  document.getElementById('toggleAllBtn').addEventListener('click', function() {
+    _allView = _allView === '3d' ? '2d' : '3d'
+    barChart.setView(_allView)
+    lineChart.setView(_allView)
+    pieChart.setView(_allView)
+    scatterChart.setView(_allView)
+  })
+  document.getElementById('themeBtn').addEventListener('click', function() {
+    var cur = document.documentElement.getAttribute('data-st-theme')
+    document.documentElement.setAttribute('data-st-theme', cur === 'dark' ? 'light' : 'dark')
+  })
+
+  // ── Feature 1–3: Grid, Labels & Highlighting ──────────────────────────────
+  var featOpts = {
+    gridView:                false,
+    showAxisLabels:          false,
+    showScale:               false,
+    showGridLabels:          false,
+    highlightGridOnInteract: false,
+  }
+  var featView    = '3d'
+  var featChart   = null
+
+  function rebuildFeatureChart() {
+    if (featChart) featChart.destroy()
+    featChart = Strata.Chart.create('#featureChart', Object.assign({
+      type: 'bar', view: featView, theme: 'auto', data: randomBar(6),
+    }, featOpts))
+  }
+  rebuildFeatureChart()
+
+  document.getElementById('featToggleView').addEventListener('click', function() {
+    featView = featView === '3d' ? '2d' : '3d'
+    rebuildFeatureChart()
+  })
+
+  var featBtnMap = [
+    { id: 'btnGrid',      key: 'gridView',               label: 'gridView' },
+    { id: 'btnLabels',    key: 'showAxisLabels',          label: 'showAxisLabels' },
+    { id: 'btnScale',     key: 'showScale',               label: 'showScale' },
+    { id: 'btnGridLbls',  key: 'showGridLabels',          label: 'showGridLabels' },
+    { id: 'btnHighlight', key: 'highlightGridOnInteract', label: 'highlightGridOnInteract' },
+  ]
+  featBtnMap.forEach(function(item) {
+    document.getElementById(item.id).addEventListener('click', function() {
+      featOpts[item.key] = !featOpts[item.key]
+      var on = featOpts[item.key]
+      this.innerHTML = item.label + ': <strong>' + (on ? 'on' : 'off') + '</strong>'
+      this.classList.toggle('feat-active', on)
+      rebuildFeatureChart()
+    })
+  })
+
+  // ── Feature 4: Dynamic Data Entries ──────────────────────────────────────
+  var dynMonths = MONTHS.slice()
+  var _dynData  = dynMonths.slice(0, 5).map(function(m) {
+    return { label: m, value: Math.round(Math.random() * 180 + 40), category: m }
+  })
+  var dynChart  = Strata.Chart.create('#dynamicChart', {
+    type: 'bar', view: '3d', theme: 'auto',
+    data: _dynData.slice(),
+    gridView: true, showScale: true, showAxisLabels: true,
+  })
+  var _dynIdx   = 5
+  var dynLog    = document.getElementById('dyn-log')
+
+  document.getElementById('dynToggleView').addEventListener('click', function() {
+    dynChart.toggleView()
+  })
+  document.getElementById('btnAdd').addEventListener('click', function() {
+    var m  = dynMonths[_dynIdx % 12]
+    var v  = Math.round(Math.random() * 180 + 40)
+    var pt = { label: m, value: v, category: m }
+    _dynData.push(pt)
+    dynChart.addDataPoint(pt)
+    dynLog.textContent = 'addDataPoint({ label: "' + m + '", value: ' + v + ' })  →  ' + _dynData.length + ' points'
+    _dynIdx++
+  })
+  document.getElementById('btnRemove').addEventListener('click', function() {
+    if (_dynData.length <= 1) { dynLog.textContent = 'Cannot remove — need at least 1 point'; return }
+    var idx = _dynData.length - 1
+    _dynData.splice(idx, 1)
+    dynChart.removeDataPoint(idx)
+    dynLog.textContent = 'removeDataPoint(' + idx + ')  →  ' + _dynData.length + ' points'
+  })
+  document.getElementById('btnUpdate').addEventListener('click', function() {
+    var v = Math.round(Math.random() * 200 + 20)
+    _dynData[0] = Object.assign({}, _dynData[0], { value: v })
+    dynChart.updateDataPoint(0, { value: v })
+    dynLog.textContent = 'updateDataPoint(0, { value: ' + v + ' })  →  first bar updated'
+  })
+  document.getElementById('btnReset').addEventListener('click', function() {
+    _dynIdx  = 5
+    _dynData = dynMonths.slice(0, 5).map(function(m) {
+      return { label: m, value: Math.round(Math.random() * 180 + 40), category: m }
+    })
+    dynChart.update(_dynData.slice())
+    dynLog.textContent = 'update()  →  reset to 5 points'
+  })
+
+  // ── Event log ─────────────────────────────────────────────────────────────
+  var LOGGED = ['st:chart:change', 'st:chart:click', 'st:chart:update']
+  LOGGED.forEach(function(ev) {
+    document.addEventListener(ev, function(e) {
+      var log  = document.getElementById('event-log')
+      var d    = e.detail
+      var time = new Date().toLocaleTimeString()
+      var msg  = ev === 'st:chart:click'
+        ? '[' + time + '] ' + ev + ' → ' + d.label + ' = ' + d.value + ' (' + d.category + ')'
+        : '[' + time + '] ' + ev + (d.to ? ' → ' + d.to : '')
+      var p = document.createElement('p')
+      p.textContent = msg
+      log.insertBefore(p, log.firstChild)
+      while (log.children.length > 20) log.removeChild(log.lastChild)
+    })
+  })
+  </script>
+
+</body>
+</html>

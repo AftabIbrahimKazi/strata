@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@strata-css/modal — Standalone Guide</title>
+
+  <!--
+    STANDALONE USAGE
+    ─────────────────────────────────────────────────────────────────────────
+    Load the CSS and JS from the package. No Strata required.
+    API: StrataModal.open(selector) / StrataModal.close()
+    ─────────────────────────────────────────────────────────────────────────
+  -->
+  <link rel="stylesheet" href="../packages/modal/modal.css">
+  <script src="../packages/modal/modal.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f8fafc; color: #212529; margin: 0; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+    .subtitle { color: #6c757d; font-size: 0.9rem; margin: 0 0 2rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 1rem; border-bottom: 1px solid #dee2e6; padding-bottom: 0.5rem; }
+    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    button.btn { padding: 0.4rem 1rem; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; cursor: pointer; font-size: 0.875rem; }
+    button.btn:hover { background: #f1f5f9; }
+    button.btn-primary { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+    button.btn-secondary { background: #6c757d; color: #fff; border-color: #6c757d; }
+    button.btn-danger { background: #dc3545; color: #fff; border-color: #dc3545; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.8rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+  <h1>@strata-css/modal</h1>
+  <p class="subtitle">Standalone usage — no Strata CSS required</p>
+
+  <!-- ─── Example 1: Default modal ─────────────────────────────────────── -->
+  <h2>Default modal</h2>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="modal" data-st-target="#defaultModal">
+      Open via attribute
+    </button>
+    <button class="btn btn-secondary" onclick="StrataModal.open('#defaultModal')">
+      Open via JS API
+    </button>
+  </div>
+
+  <div class="modal" id="defaultModal" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Default Modal</h5>
+          <button class="btn" data-st-dismiss="modal" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>This is a standard modal opened via <code>data-st-toggle="modal"</code> or <code>StrataModal.open()</code>.</p>
+          <p>Press <kbd>Esc</kbd> or click outside to close.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-st-dismiss="modal">Close</button>
+          <button class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Example 2: Centered modal ────────────────────────────────────── -->
+  <h2>Vertically centered</h2>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="modal" data-st-target="#centeredModal">Open centered</button>
+  </div>
+
+  <div class="modal" id="centeredModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Centered Modal</h5>
+          <button class="btn" data-st-dismiss="modal" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>This modal is vertically centered using <code>.modal-dialog-centered</code>.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-st-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Example 3: Static backdrop ──────────────────────────────────── -->
+  <h2>Static backdrop</h2>
+  <p style="font-size:0.875rem;color:#6c757d;margin:0 0 1rem">Clicking outside shakes the modal instead of closing it.</p>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="modal" data-st-target="#staticModal">Open static</button>
+  </div>
+
+  <div class="modal" id="staticModal" data-st-backdrop="static" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Static Backdrop</h5>
+        </div>
+        <div class="modal-body">
+          <p>You must use the Close button — clicking outside or pressing Esc does nothing.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-danger" data-st-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Example 4: Size variants ─────────────────────────────────────── -->
+  <h2>Size variants</h2>
+  <div class="controls">
+    <button class="btn" data-st-toggle="modal" data-st-target="#smModal">Small</button>
+    <button class="btn" data-st-toggle="modal" data-st-target="#lgModal">Large</button>
+    <button class="btn" data-st-toggle="modal" data-st-target="#xlModal">XL</button>
+  </div>
+
+  <div class="modal modal-sm" id="smModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Small (300px)</h5>
+          <button class="btn" data-st-dismiss="modal" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+        </div>
+        <div class="modal-body"><p>Small modal.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal modal-lg" id="lgModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Large (800px)</h5>
+          <button class="btn" data-st-dismiss="modal" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+        </div>
+        <div class="modal-body"><p>Large modal.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal modal-xl" id="xlModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Extra Large (1140px)</h5>
+          <button class="btn" data-st-dismiss="modal" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+        </div>
+        <div class="modal-body"><p>XL modal.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Example 5: Events ─────────────────────────────────────────────── -->
+  <h2>Events</h2>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="modal" data-st-target="#eventModal">Open (watch console)</button>
+  </div>
+  <div class="modal" id="eventModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Event demo</h5>
+          <button class="btn" data-st-dismiss="modal" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+        </div>
+        <div class="modal-body"><p>Open and close — check the browser console.</p></div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-st-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── API reference ────────────────────────────────────────────────── -->
+  <h2>API reference</h2>
+  <pre>
+// Open by CSS selector
+StrataModal.open('#myModal')
+
+// Open by element reference
+const el = document.querySelector('#myModal')
+StrataModal.open(el)
+
+// Close the current open modal
+StrataModal.close()
+
+// Events fired on document
+document.addEventListener('st:modal:open',  e => { /* e.detail.modal */ })
+document.addEventListener('st:modal:close', e => { /* e.detail.modal */ })
+  </pre>
+
+  <h2>HTML attributes</h2>
+  <pre>
+&lt;!-- Trigger: opens the modal matching data-st-target --&gt;
+&lt;button data-st-toggle="modal" data-st-target="#myModal"&gt;Open&lt;/button&gt;
+
+&lt;!-- Dismiss: closes the current open modal --&gt;
+&lt;button data-st-dismiss="modal"&gt;Close&lt;/button&gt;
+
+&lt;!-- Static backdrop: clicking outside shakes, not closes --&gt;
+&lt;div class="modal" data-st-backdrop="static"&gt;
+  </pre>
+
+  <script>
+    document.addEventListener('st:modal:open',  e => console.log('[modal] opened', e.detail.modal.id))
+    document.addEventListener('st:modal:close', e => console.log('[modal] closed', e.detail.modal.id))
+  </script>
+
+</body>
+</html>

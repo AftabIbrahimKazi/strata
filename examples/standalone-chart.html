@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@strata-css/chart — Standalone Guide</title>
+
+  <!--
+    STANDALONE USAGE
+    ─────────────────────────────────────────────────────────────────────────
+    Requires Three.js loaded BEFORE chart.js.
+    API: StrataChart.create(selector, options) / .destroy() / .update() etc.
+    No CSS file needed — chart renders entirely via WebGL canvas.
+    ─────────────────────────────────────────────────────────────────────────
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="../packages/chart/chart.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f8fafc; color: #212529; margin: 0; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+    .subtitle { color: #6c757d; font-size: 0.9rem; margin: 0 0 2rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 1rem; border-bottom: 1px solid #dee2e6; padding-bottom: 0.5rem; }
+    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0 0 1rem; }
+    button { padding: 0.4rem 1rem; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; cursor: pointer; font-size: 0.875rem; }
+    button:hover { background: #f1f5f9; }
+    button.primary { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.8rem; overflow-x: auto; }
+
+    /* Required chart container styles */
+    .strata-chart        { position: relative; overflow: hidden; border-radius: 8px; border: 1px solid #dee2e6; background: #fff; }
+    .strata-chart-canvas { display: block; width: 100% !important; height: 100% !important; }
+    .strata-chart-tooltip {
+      position: absolute; pointer-events: none; z-index: 20;
+      background: #fff; border: 1px solid #dee2e6; border-radius: 4px;
+      padding: 0.35rem 0.65rem; font-size: 0.8rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>@strata-css/chart</h1>
+  <p class="subtitle">Standalone usage — no Strata CSS required. Requires Three.js.</p>
+
+  <!-- ─── Example 1: Bar chart ──────────────────────────────────────────── -->
+  <h2>Bar chart</h2>
+  <div class="controls">
+    <button class="primary" onclick="barChart.toggleView()">Toggle 2D / 3D</button>
+    <button onclick="barChart.update(randomData(6))">Randomise data</button>
+  </div>
+  <div class="strata-chart" id="barChart" style="height:340px;max-width:640px"></div>
+
+  <!-- ─── Example 2: Line chart ─────────────────────────────────────────── -->
+  <h2>Line chart</h2>
+  <div class="controls">
+    <button onclick="lineChart.toggleView()">Toggle 2D / 3D</button>
+  </div>
+  <div class="strata-chart" id="lineChart" style="height:300px;max-width:640px"></div>
+
+  <!-- ─── Example 3: Pie chart ──────────────────────────────────────────── -->
+  <h2>Pie chart</h2>
+  <div class="strata-chart" id="pieChart" style="height:300px;max-width:400px"></div>
+
+  <!-- ─── Example 4: Scatter chart ─────────────────────────────────────── -->
+  <h2>Scatter chart</h2>
+  <div class="strata-chart" id="scatterChart" style="height:300px;max-width:640px"></div>
+
+  <!-- ─── API reference ────────────────────────────────────────────────── -->
+  <h2>API reference</h2>
+  <pre>
+// Create a chart
+const chart = StrataChart.create('#myChart', {
+  type:  'bar' | 'line' | 'pie' | 'scatter',
+  view:  '2d' | '3d',     // default '2d'
+  theme: 'auto' | 'light' | 'dark',
+  data: [
+    { label: 'Jan', value: 120, category: 'Sales' },
+    { label: 'Feb', value: 95,  category: 'Sales' },
+  ],
+  colors: ['#0d6efd', '#198754', '#dc3545'],
+
+  // Feature flags (all default false)
+  gridView:                false,
+  showAxisLabels:          true,
+  showScale:               true,
+  showGridLabels:          false,
+  highlightGridOnInteract: true,
+
+  // Callbacks
+  onReady:  (chart) => console.log('ready'),
+  onChange: (view)  => console.log('view changed', view),
+  onClick:  (point) => console.log('clicked', point),
+})
+
+// Instance methods
+chart.toggleView()                    // toggle between 2D and 3D
+chart.setView('3d')                   // set specific view
+chart.update(newData)                 // replace all data
+chart.addDataPoint({ label, value })  // add one point
+chart.removeDataPoint(index)          // remove by index
+chart.addDataPoints(points)           // add multiple
+chart.removeDataPoints([0, 2])        // remove multiple by index
+chart.updateDataPoint(1, newData)     // update one by index
+chart.destroy()                       // unmount and clean up
+
+// Destroy all charts at once
+StrataChart.destroyAll()
+  </pre>
+
+  <h2>Required container CSS</h2>
+  <pre>
+/* Minimum required — add to your own stylesheet */
+.strata-chart        { position: relative; overflow: hidden; }
+.strata-chart-canvas { display: block; width: 100% !important; height: 100% !important; }
+.strata-chart-tooltip {
+  position: absolute; pointer-events: none; z-index: 20;
+  background: #fff; border: 1px solid #dee2e6; border-radius: 4px;
+  padding: 0.35rem 0.65rem; font-size: 0.8rem;
+}
+  </pre>
+
+  <h2>Events</h2>
+  <pre>
+document.addEventListener('st:chart:ready',   e => { /* e.detail.chart, e.detail.view */ })
+document.addEventListener('st:chart:change',  e => { /* e.detail.from, e.detail.to */ })
+document.addEventListener('st:chart:update',  e => { /* e.detail.chart */ })
+document.addEventListener('st:chart:click',   e => { /* e.detail.label, value, category, index */ })
+document.addEventListener('st:chart:destroy', e => { /* e.detail.chart */ })
+  </pre>
+
+  <script>
+    function randomData(n) {
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+      return Array.from({ length: n }, (_, i) => ({
+        label: months[i % 12],
+        value: Math.floor(Math.random() * 150) + 20,
+        category: i % 2 === 0 ? 'A' : 'B'
+      }))
+    }
+
+    const barChart = StrataChart.create('#barChart', {
+      type: 'bar',
+      view: '2d',
+      showAxisLabels: true,
+      showScale: true,
+      highlightGridOnInteract: true,
+      data: randomData(6),
+      onReady: () => console.log('[chart] bar ready')
+    })
+
+    const lineChart = StrataChart.create('#lineChart', {
+      type: 'line',
+      view: '2d',
+      showAxisLabels: true,
+      data: randomData(8)
+    })
+
+    StrataChart.create('#pieChart', {
+      type: 'pie',
+      data: [
+        { label: 'Chrome',  value: 65 },
+        { label: 'Safari',  value: 19 },
+        { label: 'Firefox', value: 4  },
+        { label: 'Other',   value: 12 }
+      ]
+    })
+
+    StrataChart.create('#scatterChart', {
+      type: 'scatter',
+      showAxisLabels: true,
+      data: randomData(12)
+    })
+  </script>
+
+</body>
+</html>

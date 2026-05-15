@@ -1,0 +1,194 @@
+/**
+ * Strata Modal — Standalone CSS
+ * Version: 1.0.0
+ *
+ * Usage:
+ *   Standalone : import this file once in your project.
+ *   With Strata: do NOT import this file — Strata generates these styles via JIT.
+ *
+ * Strata detection:
+ *   Tokens are scoped to :root:not([data-strata]) and are suppressed when
+ *   Strata is present. All modal classes work identically in both contexts.
+ */
+
+/* ─── Tokens — light theme (standalone only) ─────────────────────────────── */
+
+:root:not([data-strata]) {
+  --st-bg:               #ffffff;
+  --st-text:             #212529;
+  --st-border:           #dee2e6;
+  --st-border-radius:    0.375rem;
+  --st-shadow:           0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --st-duration:         200ms;
+  --st-easing:           cubic-bezier(0.4, 0, 0.2, 1);
+  --st-z-modal-backdrop: 1040;
+  --st-z-modal:          1050;
+}
+
+/* ─── Dark mode — system preference (standalone only) ───────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-strata]) {
+    --st-bg:     #212529;
+    --st-text:   #dee2e6;
+    --st-border: #495057;
+    --st-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ─── Keyframe ───────────────────────────────────────────────────────────── */
+
+@keyframes st-modal-shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-5px); }
+  75%       { transform: translateX(5px); }
+}
+
+/* ─── Modal rules ────────────────────────────────────────────────────────── */
+
+.modal {
+  position:            fixed;
+  inset:               0;
+  z-index:             var(--st-z-modal, 1050);
+  overflow-x:          hidden;
+  overflow-y:          auto;
+  visibility:          hidden;
+  opacity:             0;
+  transition:          opacity var(--st-duration, 200ms) var(--st-easing, ease),
+                       visibility var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.modal[data-st-visible="true"] {
+  visibility: visible;
+  opacity:    1;
+}
+
+.modal.modal-static .modal-dialog {
+  animation: st-modal-shake 0.25s var(--st-easing, ease);
+}
+
+body.modal-open {
+  overflow:      hidden;
+  padding-right: var(--st-scrollbar-width, 0);
+}
+
+.modal-backdrop {
+  position:   fixed;
+  inset:      0;
+  z-index:    var(--st-z-modal-backdrop, 1040);
+  background: rgba(0, 0, 0, 0.5);
+  visibility: hidden;
+  opacity:    0;
+  transition: opacity var(--st-duration, 200ms) var(--st-easing, ease),
+              visibility var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.modal-backdrop[data-st-visible="true"] {
+  visibility: visible;
+  opacity:    1;
+}
+
+.modal-dialog {
+  position:       relative;
+  width:          auto;
+  max-width:      500px;
+  margin:         1.75rem auto;
+  transform:      translateY(-20px);
+  transition:     transform var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+@media (max-width: 575.98px) {
+  .modal-dialog { margin: 0.5rem; }
+}
+
+.modal[data-st-visible="true"] .modal-dialog {
+  transform: translateY(0);
+}
+
+.modal-dialog-centered {
+  display:     flex;
+  align-items: center;
+  min-height:  calc(100% - 3.5rem);
+}
+
+.modal-dialog-scrollable {
+  height: calc(100% - 3.5rem);
+}
+
+.modal-dialog-scrollable .modal-content {
+  max-height: 100%;
+  overflow:   hidden;
+}
+
+.modal-dialog-scrollable .modal-body {
+  overflow-y: auto;
+}
+
+.modal-content {
+  position:         relative;
+  display:          flex;
+  flex-direction:   column;
+  width:            100%;
+  pointer-events:   auto;
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    calc(var(--st-border-radius, 0.375rem) * 1.5);
+  box-shadow:       var(--st-shadow, 0 0.5rem 1rem rgba(0,0,0,0.15));
+  outline:          0;
+}
+
+.modal-header {
+  display:         flex;
+  flex-shrink:     0;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         1rem 1.25rem;
+  border-bottom:   1px solid var(--st-border, #dee2e6);
+  border-radius:   calc(var(--st-border-radius, 0.375rem) * 1.5) calc(var(--st-border-radius, 0.375rem) * 1.5) 0 0;
+}
+
+.modal-title {
+  margin:      0;
+  font-size:   1.125rem;
+  font-weight: 600;
+  color:       var(--st-text, #212529);
+  line-height: 1.5;
+}
+
+.modal-body {
+  position: relative;
+  flex:     1 1 auto;
+  padding:  1.25rem;
+  color:    var(--st-text, #212529);
+}
+
+.modal-footer {
+  display:         flex;
+  flex-shrink:     0;
+  flex-wrap:       wrap;
+  align-items:     center;
+  justify-content: flex-end;
+  padding:         0.75rem 1.25rem;
+  gap:             0.5rem;
+  border-top:      1px solid var(--st-border, #dee2e6);
+  border-radius:   0 0 calc(var(--st-border-radius, 0.375rem) * 1.5) calc(var(--st-border-radius, 0.375rem) * 1.5);
+}
+
+/* ─── Size variants ──────────────────────────────────────────────────────── */
+
+.modal-sm         .modal-dialog { max-width: 300px; }
+.modal-lg         .modal-dialog { max-width: 800px; }
+.modal-xl         .modal-dialog { max-width: 1140px; }
+
+.modal-fullscreen .modal-dialog {
+  width:     100vw;
+  max-width: none;
+  height:    100%;
+  margin:    0;
+}
+
+.modal-fullscreen .modal-content {
+  height:        100%;
+  border:        0;
+  border-radius: 0;
+}
