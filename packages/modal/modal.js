@@ -1,18 +1,45 @@
-/*!
- * Strata Modal Component
+/**
+ * Strata Modal
+ * Version: 1.0.0
  *
- * Usage:
- *   Trigger:  <button data-st-toggle="modal" data-st-target="#myModal">Open</button>
- *   Dismiss:  <button data-st-dismiss="modal">Close</button>
- *   Static:   <div class="modal" data-st-backdrop="static" ...>
- *   API:      Strata.Modal.open('#myModal')  /  Strata.Modal.close()
+ * Usage (standalone):
+ *   <script src="modal.js"></script>
+ *   StrataModal.open('#myModal')  /  StrataModal.close()
+ *
+ * Usage (with Strata):
+ *   Included in strata.components.js — available as Strata.Modal.open() / Strata.Modal.close()
+ *   Do not load this file separately when using Strata.
+ *
+ * Trigger:  <button data-st-toggle="modal" data-st-target="#myModal">Open</button>
+ * Dismiss:  <button data-st-dismiss="modal">Close</button>
+ * Static:   <div class="modal" data-st-backdrop="static" ...>
  *
  * Events fired on document:
  *   st:modal:open   — detail: { modal }
  *   st:modal:close  — detail: { modal }
+ *
+ * UMD — works as a browser global, CommonJS module, or AMD module.
+ * When Strata is present on the page, registers as Strata.Modal.
+ * Otherwise registers as StrataModal.
  */
-;(function (win, doc) {
+
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory)
+  } else if (typeof module === 'object' && module.exports) {
+    module.exports = factory()
+  } else {
+    if (root.Strata) {
+      root.Strata.Modal = factory()
+    } else {
+      root.StrataModal = factory()
+    }
+  }
+}(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict'
+
+  var win = typeof window !== 'undefined' ? window : {}
+  var doc = typeof document !== 'undefined' ? document : {}
 
   var currentModal = null
   var backdrop     = null
@@ -47,14 +74,14 @@
     modal.setAttribute('aria-modal', 'true')
 
     var bd = ensureBackdrop()
-    void bd.offsetHeight  // force reflow so transition plays
+    void bd.offsetHeight
     bd.setAttribute('data-st-visible', 'true')
 
     lockScroll()
 
     var focusTarget = modal.querySelector('[autofocus]') ||
                       modal.querySelector('.modal-content')
-    if (focusTarget) setTimeout(function() { focusTarget.focus() }, 50)
+    if (focusTarget) setTimeout(function () { focusTarget.focus() }, 50)
 
     doc.dispatchEvent(new CustomEvent('st:modal:open', { detail: { modal: modal } }))
   }
@@ -76,7 +103,7 @@
     doc.dispatchEvent(new CustomEvent('st:modal:close', { detail: { modal: modal } }))
   }
 
-  doc.addEventListener('click', function(e) {
+  doc.addEventListener('click', function (e) {
     var trigger = e.target.closest('[data-st-toggle="modal"]')
     if (trigger) {
       var sel = trigger.getAttribute('data-st-target') || trigger.getAttribute('href')
@@ -97,27 +124,25 @@
       if (isStatic) {
         currentModal.classList.add('modal-static')
         var m = currentModal
-        setTimeout(function() { m.classList.remove('modal-static') }, 300)
+        setTimeout(function () { m.classList.remove('modal-static') }, 300)
       } else {
         closeModal()
       }
     }
   })
 
-  doc.addEventListener('keydown', function(e) {
+  doc.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && currentModal) {
       var isStatic = currentModal.getAttribute('data-st-backdrop') === 'static'
       if (!isStatic) closeModal()
     }
   })
 
-  win.Strata = win.Strata || {}
-  win.Strata.Modal = {
-    open:  function(selector) {
+  return {
+    open: function (selector) {
       var el = typeof selector === 'string' ? doc.querySelector(selector) : selector
       if (el) openModal(el)
     },
     close: closeModal
   }
-
-}(window, document))
+}))
