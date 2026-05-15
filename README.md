@@ -74,8 +74,10 @@ npm install strata-css
 ### Scaffold a new project
 
 ```bash
-npx strata init
+npx strata-css init
 ```
+
+> **Note:** Use `strata-css` (with the hyphen), not `strata` — there is an unrelated npm package called `strata` that will be picked up instead.
 
 This creates:
 ```
