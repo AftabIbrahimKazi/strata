@@ -5,7 +5,7 @@
 **A modern CSS framework combining Bootstrap's component architecture with Tailwind's JIT processing.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)]()
+[![Version](https://img.shields.io/badge/version-1.0.4-green.svg)]()
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)]()
 [![npm](https://img.shields.io/badge/npm-strata--css-red.svg)](https://www.npmjs.com/package/strata-css)
 [![css-framework](https://img.shields.io/badge/css--framework-%E2%9C%93-blue.svg)]()
@@ -41,14 +41,13 @@ Strata is an open source CSS framework that takes the best from Bootstrap and Ta
 
 ## Benchmarks
 
-Strata outperforms Tailwind on every metric in watch mode — the speed developers actually feel on every file save.
-
-| Metric | Strata | Tailwind |
+| Metric | Strata | Tailwind CSS 3 |
 |---|---|---|
-| Cold build average | 1.89ms | 7.21ms |
-| Cold build median | 0.15ms | 4.55ms |
-| Warm rebuild average | 0.14ms | 2.70ms |
-| Warm rebuild p95 | 0.23ms | 6.12ms |
+| Cold build average | 3.82ms | 7.21ms |
+| Cold build median | 3.78ms | 4.55ms |
+| Cold build p95 | 4.40ms | 6.12ms |
+
+> Tailwind figures are official watch-mode reference numbers. Strata numbers are from a cold build with cache invalidated on every run — the most conservative possible measurement. Warm rebuilds (the common case in development) are significantly faster as unchanged output is returned from cache with zero reprocessing.
 
 Results generated via `npm run benchmark`. See [`benchmark/`](./benchmark/) for the reproducible script.
 
@@ -75,8 +74,10 @@ npm install strata-css
 ### Scaffold a new project
 
 ```bash
-npx strata init
+npx strata-css init
 ```
+
+> **Note:** Use `strata-css` (with the hyphen), not `strata` — there is an unrelated npm package called `strata` that will be picked up instead.
 
 This creates:
 ```
@@ -252,6 +253,49 @@ If no `data-st-theme` is set, Strata automatically follows the user's system pre
 document.documentElement.setAttribute('data-st-theme', 'dark')
 ```
 
+### Theme Toggle
+
+Cycle through all built-in themes with a single button — no framework needed.
+
+```html
+<button id="theme-toggle">Toggle Theme</button>
+
+<script>
+  const themes = ['light', 'dark', 'dim']
+  let current = 0
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    current = (current + 1) % themes.length
+    document.documentElement.setAttribute('data-st-theme', themes[current])
+  })
+</script>
+```
+
+To start from the user's current theme rather than always resetting to `light`, read the attribute first:
+
+```js
+const themes = ['light', 'dark', 'dim']
+const initial = document.documentElement.getAttribute('data-st-theme') || 'light'
+let current = themes.indexOf(initial)
+if (current === -1) current = 0
+```
+
+To include your own custom themes in the cycle, add them to the array:
+
+```js
+const themes = ['light', 'dark', 'dim', 'brand']
+```
+
+Any theme in the array must have its CSS variables defined before it can be toggled to:
+
+```css
+[data-st-theme="brand"] {
+  --st-primary: #7c3aed;
+  --st-bg:      #0f0f0f;
+  --st-text:    #fafafa;
+}
+```
+
 ### Override CSS variables
 
 ```css
@@ -329,6 +373,230 @@ element.setAttribute('data-st-visible', 'false')
 
 // Collapse/expand
 element.setAttribute('data-st-collapsed', 'true')
+```
+
+---
+
+## Standalone Packages
+
+All Strata plugins are available as independent packages. Use them without Strata, or use them with Strata — the API is identical either way.
+
+| Package | Standalone global | With Strata | Install |
+|---|---|---|---|
+| `@strata-css/skeleton-loader` | `SkeletonLoader` | `Strata.skeleton` | `npm i @strata-css/skeleton-loader` |
+| `@strata-css/modal` | `StrataModal` | `Strata.Modal` | `npm i @strata-css/modal` |
+| `@strata-css/chart` | `StrataChart` | `Strata.Chart` | `npm i @strata-css/chart` |
+
+### How detection works
+
+When `strata.components.js` is loaded it sets `data-strata` on `<html>`. Each plugin checks for this at runtime and registers under the Strata namespace if present, or its own standalone global if not. **No configuration required from you** — it is automatic.
+
+### Standalone usage (no Strata)
+
+```html
+<!-- Skeleton -->
+<link rel="stylesheet" href="node_modules/@strata-css/skeleton-loader/skeleton-loader.css">
+<script src="node_modules/@strata-css/skeleton-loader/skeleton-loader.js"></script>
+<script>SkeletonLoader.init('.card')</script>
+
+<!-- Modal -->
+<link rel="stylesheet" href="node_modules/@strata-css/modal/modal.css">
+<script src="node_modules/@strata-css/modal/modal.js"></script>
+<script>StrataModal.open('#myModal')</script>
+
+<!-- Chart (requires Three.js) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="node_modules/@strata-css/chart/chart.js"></script>
+<script>StrataChart.create('#myChart', { type: 'bar', data: [...] })</script>
+```
+
+### Migrating from standalone to Strata
+
+If you installed a standalone package first and later add Strata, **no code changes are required.** Strata's presence is detected automatically and the plugin re-registers under the Strata namespace. Your existing markup and JS calls continue to work.
+
+---
+
+## Skeleton Loader
+
+Skeleton loading shows animated shimmer placeholders while content is fetching — preventing layout shift and giving users instant visual feedback that something is coming.
+
+Strata's skeleton system is entirely attribute-driven. There are no class names to add. Instead, set `data-st-skeleton` on your elements and use the `Strata.skeleton` JS utility to manage the lifecycle.
+
+### Attribute states
+
+| Value | Meaning |
+|---|---|
+| `"true"` | Element shimmers (CSS applies animated `::before` overlay) |
+| `"false"` | Element revealed (shimmer removed, content shows) |
+| `"null"` | JS-managed parent — no overlay on the parent itself, children shimmer individually |
+
+### Basic usage
+
+Mark a container and call `Strata.skeleton.init()` — Strata auto-detects the leaf nodes inside and shimmers them individually.
+
+```html
+<div class="card" data-st-skeleton="true">
+  <div class="card-header">
+    <h3>Card Title</h3>
+  </div>
+  <div class="card-body">
+    <p>Some body text that will load soon.</p>
+    <button class="btn-primary">Action</button>
+  </div>
+</div>
+```
+
+```js
+// Initialise — auto-detects leaf nodes inside all [data-st-skeleton="true"] parents
+Strata.skeleton.init()
+
+// Simulate data loading, then reveal
+fetchData().then(() => {
+  Strata.skeleton.reveal()
+})
+```
+
+### JS API
+
+```js
+Strata.skeleton.init()              // auto-discover all skeleton parents on page
+Strata.skeleton.init('.card')       // manage specific elements
+Strata.skeleton.show('.card')       // re-enter skeleton state
+Strata.skeleton.reveal('.card')     // reveal content (removes shimmer)
+Strata.skeleton.toggle('.card')     // toggle between skeleton and revealed
+Strata.skeleton.revealAt('.card', 0) // reveal one element by index
+Strata.skeleton.isSkeleton(el)      // returns true if element is currently shimmering
+```
+
+### Staggered reveal
+
+Reveal a list of cards one by one with a delay between each:
+
+```js
+Strata.skeleton.reveal('.card', { stagger: 150 })
+```
+
+### Opt out a child element
+
+Set `data-st-skeleton="false"` on any child to exclude it from shimmering entirely:
+
+```html
+<div class="card" data-st-skeleton="true">
+  <div class="card-header">
+    <h3>Title</h3>
+    <span data-st-skeleton="false">Always visible badge</span>
+  </div>
+</div>
+```
+
+### Customise the shimmer
+
+Control the shimmer appearance via CSS variables:
+
+```css
+:root {
+  --st-skeleton-base:     #e2e8f0;  /* bar background colour */
+  --st-skeleton-shine:    #f8fafc;  /* highlight colour */
+  --st-skeleton-duration: 1.5s;     /* animation speed */
+  --st-skeleton-radius:   4px;      /* corner rounding on bars */
+}
+```
+
+### Realistic card example
+
+A card that shimmers while data loads, then transitions to real content:
+
+```html
+<div class="card" id="profile-card" data-st-skeleton="true">
+  <div class="card-header">
+    <div class="img-wrap">
+      <img src="" alt="Avatar" id="avatar">
+    </div>
+    <h3 id="name"></h3>
+  </div>
+  <div class="card-body">
+    <p id="bio"></p>
+    <a href="#" id="profile-link" class="btn-primary">View Profile</a>
+  </div>
+</div>
+
+<script>
+  Strata.skeleton.init('#profile-card')
+
+  loadUser(42).then(user => {
+    document.getElementById('avatar').src       = user.avatarUrl
+    document.getElementById('name').textContent = user.name
+    document.getElementById('bio').textContent  = user.bio
+    document.getElementById('profile-link').href = user.profileUrl
+
+    Strata.skeleton.reveal('#profile-card')
+  })
+</script>
+```
+
+> **Note on images:** Browsers do not support `::before` on replaced elements (`img`, `video`, `iframe`). Wrap media in a `div` — Strata will shimmer the wrapper instead.
+
+---
+
+## Modal
+
+Strata's modal is attribute-driven. Open and close modals via `data-st-*` attributes or the JS API — no class toggling.
+
+### Basic usage
+
+```html
+<!-- Trigger -->
+<button data-st-toggle="modal" data-st-target="#myModal">Open Modal</button>
+
+<!-- Modal -->
+<div class="modal" id="myModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Title</h5>
+        <button data-st-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Modal content here.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-st-dismiss="modal">Close</button>
+        <button class="btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### JS API
+
+```js
+Strata.Modal.open('#myModal')   // open by selector or element
+Strata.Modal.close()            // close current modal
+```
+
+### Static backdrop
+
+```html
+<div class="modal" data-st-backdrop="static" ...>
+```
+
+Clicking outside the modal shakes it instead of closing it.
+
+### Size variants
+
+```html
+<div class="modal modal-sm">   <!-- 300px -->
+<div class="modal modal-lg">   <!-- 800px -->
+<div class="modal modal-xl">   <!-- 1140px -->
+<div class="modal modal-fullscreen">
+```
+
+### Events
+
+```js
+document.addEventListener('st:modal:open',  e => console.log('opened', e.detail.modal))
+document.addEventListener('st:modal:close', e => console.log('closed', e.detail.modal))
 ```
 
 ---

@@ -1,0 +1,42 @@
+{
+  "name": "@strata-css/skeleton-loader",
+  "version": "1.0.0",
+  "description": "Lightweight skeleton loader plugin. Works standalone or with Strata CSS.",
+  "main": "skeleton-loader.js",
+  "style": "skeleton-loader.css",
+  "exports": {
+    ".":    "./skeleton-loader.js",
+    "./css": "./skeleton-loader.css"
+  },
+  "files": [
+    "skeleton-loader.js",
+    "skeleton-loader.css"
+  ],
+  "keywords": [
+    "skeleton",
+    "skeleton-loader",
+    "shimmer",
+    "loading",
+    "placeholder",
+    "strata",
+    "strata-css"
+  ],
+  "author": "Aftab Ibrahim Kazi",
+  "license": "MIT",
+  "homepage": "https://aftabibrahimkazi.github.io/strata",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AftabIbrahimKazi/skeleton-loader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/skeleton-loader/issues"
+  },
+  "peerDependencies": {
+    "strata-css": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "strata-css": {
+      "optional": true
+    }
+  }
+}
