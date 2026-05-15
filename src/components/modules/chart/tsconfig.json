@@ -7,7 +7,7 @@
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "outFile": "../chart.js",
+    "outFile": "../../../../packages/chart/chart.js",
     "rootDir": "./src",
     "declaration": false,
     "sourceMap": false,

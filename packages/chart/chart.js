@@ -883,13 +883,11 @@ class StrataChart {
 // ─── Bootstrap IIFE ───────────────────────────────────────────────────────────
 ;
 (function (win) {
-    var _a;
     if (!win['THREE']) {
-        console.error('[Strata Chart] Three.js (window.THREE) is required. Load it before strata.components.js.');
+        console.error('[Strata Chart] Three.js (window.THREE) is required. Load it before this script.');
         return;
     }
-    win.Strata = (_a = win.Strata) !== null && _a !== void 0 ? _a : {};
-    win.Strata.Chart = {
+    const api = {
         create(selector, options) {
             const container = typeof selector === 'string' ? document.querySelector(selector) : selector;
             if (!container) {
@@ -914,4 +912,10 @@ class StrataChart {
         },
         destroyAll() { registry.forEach(inst => inst.destroy()); },
     };
+    if (win.Strata) {
+        win.Strata.Chart = api;
+    }
+    else {
+        win.StrataChart = api;
+    }
 }(window));

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata CSS</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .card {
+      max-width: 560px;
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 2.5rem;
+      text-align: center;
+    }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; color: #f8fafc; }
+    p  { color: #94a3b8; margin-bottom: 2rem; line-height: 1.6; }
+    .links { display: flex; flex-direction: column; gap: 0.75rem; }
+    a {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.15s;
+    }
+    a:hover { opacity: 0.85; }
+    .primary { background: #4a90e2; color: #fff; }
+    .secondary { background: #334155; color: #e2e8f0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Strata CSS</h1>
+    <p>A modern CSS framework combining Bootstrap components with Tailwind JIT processing.</p>
+    <div class="links">
+      <a class="primary" href="https://github.com/AftabIbrahimKazi/strata">View on GitHub</a>
+      <a class="secondary" href="https://github.com/AftabIbrahimKazi/strata/blob/main/README.md">Documentation</a>
+      <a class="secondary" href="https://www.npmjs.com/package/strata-css">npm package</a>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,119 @@
+/**
+ * Skeleton Loader — Standalone CSS
+ * Version: 1.0.0
+ *
+ * Usage:
+ *   Standalone : import this file once in your project.
+ *   With Strata: do NOT import this file — Strata provides these styles automatically.
+ *
+ * Strata detection:
+ *   Tokens are scoped to :root:not([data-strata]) so they are automatically
+ *   suppressed if Strata is present on the page. The shimmer rules are always
+ *   present but reference the same token names Strata defines, so there is no
+ *   visual conflict.
+ */
+
+/* ─── Tokens — light theme (standalone only) ─────────────────────────────── */
+/* Scoped away when Strata is detected via [data-strata] on <html>            */
+
+:root:not([data-strata]) {
+  --st-skeleton-base:     #e2e8f0;
+  --st-skeleton-shine:    #f8fafc;
+  --st-skeleton-duration: 1.5s;
+  --st-skeleton-radius:   4px;
+}
+
+/* ─── Dark mode — system preference (standalone only) ───────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-strata]) {
+    --st-skeleton-base:  #2d3748;
+    --st-skeleton-shine: #4a5568;
+  }
+}
+
+/* ─── Keyframe ───────────────────────────────────────────────────────────── */
+
+@keyframes st-shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Skeleton rules ─────────────────────────────────────────────────────── */
+
+[data-st-skeleton="true"] {
+  position:       relative;
+  overflow:       hidden;
+  pointer-events: none;
+  user-select:    none;
+  cursor:         wait;
+  border-radius:  var(--st-skeleton-radius);
+}
+
+/* Inline elements need block context for overflow and ::before to work */
+[data-st-skeleton="true"]:is(a, span, label, strong, em, small, abbr) {
+  display: inline-block;
+}
+
+/* Buttons — block so overlay covers them fully */
+[data-st-skeleton="true"]:is(button, input[type="button"], input[type="submit"], input[type="reset"]) {
+  display: block;
+  width:   fit-content;
+}
+
+/* Shimmer overlay */
+[data-st-skeleton="true"]::before {
+  content:         '';
+  position:        absolute;
+  inset:           0;
+  z-index:         9999;
+  border-radius:   inherit;
+  background:      linear-gradient(
+                     90deg,
+                     var(--st-skeleton-base)  25%,
+                     var(--st-skeleton-shine) 50%,
+                     var(--st-skeleton-base)  75%
+                   );
+  background-size: 200% 100%;
+  animation:       st-shimmer var(--st-skeleton-duration, 1.5s) infinite linear;
+}
+
+/* JS managed parent — neutral container, no overlay */
+[data-st-skeleton="null"] {
+  position:       relative;
+  pointer-events: none;
+  user-select:    none;
+  cursor:         wait;
+}
+
+/* Opt-out — child surfaces above the overlay */
+[data-st-skeleton="true"]  [data-st-skeleton="false"],
+[data-st-skeleton="null"]   [data-st-skeleton="false"] {
+  position:       relative;
+  z-index:        10000;
+  pointer-events: auto;
+  cursor:         auto;
+}
+
+/* Replaced elements fallback (img/video/canvas set directly by developer) */
+[data-st-skeleton="true"]:is(img, video, canvas) {
+  background:      linear-gradient(
+                     90deg,
+                     var(--st-skeleton-base)  25%,
+                     var(--st-skeleton-shine) 50%,
+                     var(--st-skeleton-base)  75%
+                   );
+  background-size: 200% 100%;
+  animation:       st-shimmer var(--st-skeleton-duration, 1.5s) infinite linear;
+  object-fit:      none;
+  object-position: 9999px 9999px;
+  border-radius:   var(--st-skeleton-radius);
+}
+
+/* Reduced motion — static placeholder, no animation */
+@media (prefers-reduced-motion: reduce) {
+  [data-st-skeleton="true"]::before {
+    animation:  none;
+    background: var(--st-skeleton-base);
+  }
+}

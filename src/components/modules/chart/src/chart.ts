@@ -1097,15 +1097,14 @@ class StrataChart {
 
 // ─── Bootstrap IIFE ───────────────────────────────────────────────────────────
 
-;(function (win: Window & typeof globalThis & { Strata?: Partial<StrataNamespace> }) {
+;(function (win: Window & typeof globalThis & { Strata?: Partial<StrataNamespace>; StrataChart?: Partial<StrataNamespace['Chart']> }) {
   if (!(win as unknown as Record<string, unknown>)['THREE']) {
-    console.error('[Strata Chart] Three.js (window.THREE) is required. Load it before strata.components.js.')
+    console.error('[Strata Chart] Three.js (window.THREE) is required. Load it before this script.')
     return
   }
 
-  win.Strata = win.Strata ?? {}
-  win.Strata.Chart = {
-    create(selector, options) {
+  const api = {
+    create(selector: string | Element, options: ChartOptions): StrataChart | null {
       const container = typeof selector === 'string' ? document.querySelector(selector) : selector as Element
       if (!container) { console.error(`[Strata Chart] Element not found: ${String(selector)}`); return null }
       if (registry.has(container)) {
@@ -1122,5 +1121,11 @@ class StrataChart {
       return instance
     },
     destroyAll() { registry.forEach(inst => inst.destroy()) },
+  }
+
+  if (win.Strata) {
+    win.Strata.Chart = api
+  } else {
+    win.StrataChart = api
   }
 }(window))

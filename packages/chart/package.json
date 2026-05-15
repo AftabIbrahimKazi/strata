@@ -1,0 +1,40 @@
+{
+  "name": "@strata-css/chart",
+  "version": "1.0.0",
+  "description": "Three.js chart component. Works standalone or with Strata CSS.",
+  "main": "chart.js",
+  "exports": {
+    ".": "./chart.js"
+  },
+  "files": [
+    "chart.js"
+  ],
+  "keywords": [
+    "chart",
+    "graph",
+    "three.js",
+    "webgl",
+    "data-visualization",
+    "strata",
+    "strata-css"
+  ],
+  "author": "Aftab Ibrahim Kazi",
+  "license": "MIT",
+  "homepage": "https://aftabibrahimkazi.github.io/strata",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
+  },
+  "peerDependencies": {
+    "three": ">=0.150.0",
+    "strata-css": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "strata-css": {
+      "optional": true
+    }
+  }
+}
