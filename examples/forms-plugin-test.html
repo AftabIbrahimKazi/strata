@@ -22,6 +22,7 @@
       min-height: 2rem;
     }
     .output strong { color: var(--st-primary); }
+    .hint { font-size: 0.78rem; color: var(--st-text-muted); font-style: italic; }
 
     .theme-bar {
       position:      sticky;
@@ -109,6 +110,80 @@
       <option value="main">Main Branch</option>
       <option value="city">City Branch</option>
     </select>
+  </section>
+
+  <!-- ─── AUTO-WIDTH TESTS ─────────────────────────────────────────── -->
+
+  <!-- 3a. Narrow input, long content — autoWidth expands dropdown -->
+  <section>
+    <h2>3a — autoWidth: narrow input, long option text</h2>
+    <p class="desc">data-st-auto-width — dropdown expands to fit content, never squashes text</p>
+    <label class="form-label">Service (narrow input)</label>
+    <div style="max-width: 180px;">
+      <select id="sel-aw1" data-st-select data-st-auto-width name="service-narrow">
+        <option value="">Choose…</option>
+        <option value="hair">Hair Styling — Full blowout and styling session</option>
+        <option value="nails">Nail Art — Gel, acrylic, and nail art designs available</option>
+        <option value="facial">Luxury Facial — Deep cleanse and hydration treatment</option>
+        <option value="massage">Hot Stone Massage — 60 minute full body experience</option>
+      </select>
+    </div>
+    <p class="hint mt-2">↑ Input is 180px wide. Dropdown expands to fit the longest option.</p>
+  </section>
+
+  <!-- 3b. autoWidth with maxWidth cap -->
+  <section>
+    <h2>3b — autoWidth + maxWidth cap</h2>
+    <p class="desc">data-st-auto-width data-st-max-width="280" — expands but caps at 280px</p>
+    <label class="form-label">Country (capped at 280px)</label>
+    <div style="max-width: 160px;">
+      <select id="sel-aw2" data-st-select data-st-auto-width data-st-max-width="280" name="country">
+        <option value="">Select a country…</option>
+        <option value="uk">United Kingdom of Great Britain and Northern Ireland</option>
+        <option value="us">United States of America</option>
+        <option value="au">Australia</option>
+        <option value="ca">Canada</option>
+        <option value="nz">New Zealand</option>
+        <option value="de">Germany</option>
+      </select>
+    </div>
+    <p class="hint mt-2">↑ Long text is capped at 280px, overflow handled by CSS ellipsis.</p>
+  </section>
+
+  <!-- 3c. Right-edge detection — flip alignment -->
+  <section>
+    <h2>3c — autoWidth: right-edge detection</h2>
+    <p class="desc">Select boxes near the right edge automatically flip to right-aligned</p>
+    <div style="display: flex; justify-content: flex-end;">
+      <div style="width: 140px;">
+        <label class="form-label">Near right edge</label>
+        <select id="sel-aw3" data-st-select data-st-auto-width name="edge-test">
+          <option value="">Choose…</option>
+          <option value="a">Short</option>
+          <option value="b">This is a much longer option that would overflow right</option>
+          <option value="c">Another long option label that needs space</option>
+          <option value="d">Medium length option</option>
+        </select>
+      </div>
+    </div>
+    <p class="hint mt-2">↑ Dropdown opens left-aligned to the right edge of the trigger instead of overflowing off-screen.</p>
+  </section>
+
+  <!-- 3d. Programmatic autoWidth -->
+  <section>
+    <h2>3d — Programmatic autoWidth</h2>
+    <p class="desc">StrataForms.select('#mySelect', { autoWidth: true, maxWidth: 320 })</p>
+    <label class="form-label">Staff (programmatic, maxWidth 320)</label>
+    <div style="max-width: 160px;">
+      <select id="sel-aw4" name="staff-prog">
+        <option value="">Select staff member…</option>
+        <option value="alice">Alice Chen — Senior Stylist</option>
+        <option value="bob">Bob Taylor — Nail Technician</option>
+        <option value="cara">Cara Smith — Beauty Therapist</option>
+        <option value="dan">Dan Miller — Massage Therapist</option>
+      </select>
+    </div>
+    <div class="output" id="sel-aw4-out">Selected: <strong>none</strong></div>
   </section>
 
   <!-- ─── 4. Date Picker — basic ──────────────────────────────────── -->
@@ -282,14 +357,21 @@
     document.getElementById('dp2').setAttribute('data-st-min', today.toISOString().slice(0,10))
     document.getElementById('dp2').setAttribute('data-st-max', in30.toISOString().slice(0,10))
 
+    // Programmatic autoWidth init (sel-aw4 has no data-st-select so auto-init skips it)
+    document.addEventListener('DOMContentLoaded', function() {
+      var aw4 = (typeof StrataForms !== 'undefined' ? StrataForms : Strata.Forms)
+        .select('#sel-aw4', { autoWidth: true, maxWidth: 320 })
+    })
+
     // Event listeners — show output
     function fmt(val) { return val || '<em>none</em>' }
 
     document.addEventListener('st:select:change', function(e) {
       var map = { sel1: 'sel1-out', sel2: 'sel2-out', bookSvc: null, bookStaff: null, progSel: null }
       var id  = e.detail.select.id
-      if (id === 'sel1') document.getElementById('sel1-out').innerHTML = 'Selected: <strong>' + (e.detail.text || 'none') + '</strong>'
-      if (id === 'sel2') document.getElementById('sel2-out').innerHTML = 'Selected: <strong>' + (e.detail.text || 'none') + '</strong>'
+      if (id === 'sel1')   document.getElementById('sel1-out').innerHTML   = 'Selected: <strong>' + (e.detail.text || 'none') + '</strong>'
+      if (id === 'sel2')   document.getElementById('sel2-out').innerHTML   = 'Selected: <strong>' + (e.detail.text || 'none') + '</strong>'
+      if (id === 'sel-aw4') document.getElementById('sel-aw4-out').innerHTML = 'Selected: <strong>' + (e.detail.text || 'none') + '</strong>'
     })
 
     document.addEventListener('st:datepicker:change', function(e) {
