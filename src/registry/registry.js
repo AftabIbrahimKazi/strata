@@ -2864,10 +2864,15 @@ const ARBITRARY_PATTERNS = [
     const decl = props.map(p => `  ${p}: ${val}${i};`).join('\n')
     return { layer: 'utilities', css: `.${escapeClass(m[0])} {\n${decl}\n}` }
   }},
-  // Text color arbitrary: text-[#ff0000]
+  // Text arbitrary: text-[#ff0000] → color, text-[15px] → font-size
+  // Values ending in a CSS length unit are font-size; everything else is color.
   { re: /^(!?)text-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { color: ${m[2]}${i}; }` }
+    const i    = m[1] ? ' !important' : ''
+    const val  = m[2]
+    const prop = /^[\d.]+(px|rem|em|%|vw|vh|ch|ex|pt|cm|mm)$/.test(val)
+      ? 'font-size'
+      : 'color'
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${prop}: ${val}${i}; }` }
   }},
   // BG arbitrary: bg-[#ff0000]
   { re: /^(!?)bg-\[(.+)\]$/, fn: (m) => {
