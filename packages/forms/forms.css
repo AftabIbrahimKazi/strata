@@ -176,6 +176,221 @@
   font-weight:      500;
 }
 
+/* ─── Multi-select trigger ───────────────────────────────────────────────── */
+
+.st-select-trigger.st-select-multi {
+  display:        flex;
+  align-items:    center;
+  flex-wrap:      nowrap;
+  gap:            0;
+  height:         auto;
+  min-height:     2.5rem;
+  padding:        0.25rem 0.5rem 0.25rem 0.5rem;
+  cursor:         text;
+}
+
+.st-chips {
+  display:     flex;
+  flex-wrap:   wrap;
+  gap:         0.25rem;
+  flex:        1 1 auto;
+  align-items: center;
+  min-width:   0;
+}
+
+.st-chip {
+  display:          inline-flex;
+  align-items:      center;
+  gap:              0.25rem;
+  padding:          0.15rem 0.25rem 0.15rem 0.5rem;
+  font-size:        0.8125rem;
+  background-color: color-mix(in srgb, var(--st-primary, #0d6efd) 12%, var(--st-bg, #fff));
+  color:            var(--st-primary, #0d6efd);
+  border-radius:    calc(var(--st-border-radius, 0.375rem) * 0.75);
+  white-space:      nowrap;
+  max-width:        200px;
+}
+
+.st-chip-remove {
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  width:            1rem;
+  height:           1rem;
+  padding:          0;
+  font-size:        0.75rem;
+  line-height:      1;
+  background:       none;
+  border:           none;
+  cursor:           pointer;
+  color:            inherit;
+  opacity:          0.6;
+  border-radius:    50%;
+  flex-shrink:      0;
+  transition:       opacity var(--st-duration, 200ms) var(--st-easing, ease),
+                    background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-chip-remove:hover {
+  opacity:          1;
+  background-color: color-mix(in srgb, var(--st-primary, #0d6efd) 25%, var(--st-bg, #fff));
+}
+
+.st-chips-search {
+  border:     none;
+  outline:    none;
+  background: transparent;
+  font-size:  0.9375rem;
+  color:      var(--st-text, #212529);
+  min-width:  4rem;
+  flex:       1 1 4rem;
+  padding:    0.125rem 0;
+}
+
+.st-chips-search::placeholder {
+  color: var(--st-text-muted, #6c757d);
+}
+
+/* ─── Controls (clear + arrow) ───────────────────────────────────────────── */
+
+.st-select-controls {
+  display:      flex;
+  align-items:  center;
+  gap:          0.125rem;
+  flex-shrink:  0;
+  margin-left:  0.375rem;
+}
+
+.st-select-clear {
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  width:            1.25rem;
+  height:           1.25rem;
+  padding:          0;
+  font-size:        1rem;
+  line-height:      1;
+  background:       none;
+  border:           none;
+  cursor:           pointer;
+  color:            var(--st-text-muted, #6c757d);
+  border-radius:    50%;
+  opacity:          0;
+  pointer-events:   none;
+  transition:       opacity var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-select.has-value .st-select-clear {
+  opacity:        0.6;
+  pointer-events: auto;
+}
+
+.st-select.has-value .st-select-clear:hover {
+  opacity: 1;
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+/* ─── Search inside listbox (single searchable) ──────────────────────────── */
+
+.st-search-wrap {
+  position:         sticky;
+  top:              0;
+  background-color: var(--st-bg, #fff);
+  padding:          0.35rem 0.5rem;
+  border-bottom:    1px solid var(--st-border, #dee2e6);
+  list-style:       none;
+  z-index:          1;
+}
+
+.st-select-search {
+  display:          block;
+  width:            100%;
+  padding:          0.25rem 0.5rem;
+  font-size:        0.875rem;
+  color:            var(--st-text, #212529);
+  background:       var(--st-bg-secondary, #f8f9fa);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    calc(var(--st-border-radius, 0.375rem) * 0.75);
+  outline:          none;
+}
+
+.st-select-search:focus {
+  border-color: var(--st-primary, #0d6efd);
+  box-shadow:   var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+/* ─── Group labels ───────────────────────────────────────────────────────── */
+
+.st-select-group-label {
+  padding:        0.35rem 0.75rem 0.2rem;
+  font-size:      0.7rem;
+  font-weight:    700;
+  color:          var(--st-text-muted, #6c757d);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  list-style:     none;
+  cursor:         default;
+}
+
+/* ─── Empty / loading / create states ───────────────────────────────────── */
+
+.st-select-no-results,
+.st-select-loading {
+  padding:    0.6rem 0.75rem;
+  font-size:  0.875rem;
+  color:      var(--st-text-muted, #6c757d);
+  font-style: italic;
+  list-style: none;
+  cursor:     default;
+}
+
+.st-select-create {
+  padding:    0.5rem 0.75rem;
+  font-size:  0.875rem;
+  color:      var(--st-primary, #0d6efd);
+  cursor:     pointer;
+  list-style: none;
+  transition: background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-select-create:hover {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+.st-select-create::before {
+  content: '+ ';
+  font-weight: 700;
+}
+
+/* ─── Avatar / image select helpers ─────────────────────────────────────── */
+
+.st-sel-avatar {
+  width:         1.5rem;
+  height:        1.5rem;
+  border-radius: 50%;
+  object-fit:    cover;
+  flex-shrink:   0;
+  vertical-align: middle;
+  margin-right:  0.375rem;
+}
+
+.st-sel-option-meta {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.1rem;
+}
+
+.st-sel-option-meta small {
+  font-size: 0.75rem;
+  color:     var(--st-text-muted, #6c757d);
+}
+
+.st-select-option {
+  display:     flex;
+  align-items: center;
+  gap:         0.375rem;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    DATE PICKER
    ═══════════════════════════════════════════════════════════════════════════ */

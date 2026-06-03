@@ -108,103 +108,365 @@
     options = options || {}
     if (selectRegistry.has(nativeEl)) return selectRegistry.get(nativeEl)
 
-    var placeholder  = options.placeholder
-                    || nativeEl.getAttribute('data-st-placeholder')
-                    || 'Select…'
-    var autoWidth    = options.autoWidth != null
-                    ? options.autoWidth
-                    : nativeEl.hasAttribute('data-st-auto-width')
-    var maxWidth     = options.maxWidth != null
-                    ? parseInt(options.maxWidth, 10)
-                    : nativeEl.getAttribute('data-st-max-width')
-                      ? parseInt(nativeEl.getAttribute('data-st-max-width'), 10)
-                      : null
-    var opts         = Array.from(nativeEl.options)
-    var selectedIdx  = nativeEl.selectedIndex >= 0 ? nativeEl.selectedIndex : 0
-    var isOpen       = false
-    var disabled     = nativeEl.disabled
+    // ── Config ──────────────────────────────────────────────────────
+    var placeholder   = options.placeholder  || nativeEl.getAttribute('data-st-placeholder') || 'Select…'
+    var multiSelect   = options.multiSelect  != null ? options.multiSelect  : (nativeEl.multiple || nativeEl.hasAttribute('data-st-multi'))
+    var searchable    = options.searchable   != null ? options.searchable   : nativeEl.hasAttribute('data-st-searchable')
+    var clearable     = options.clearable    != null ? options.clearable    : nativeEl.hasAttribute('data-st-clearable')
+    var creatable     = options.creatable    != null ? options.creatable    : nativeEl.hasAttribute('data-st-creatable')
+    var maxItems      = options.maxItems     != null ? parseInt(options.maxItems, 10)
+                      : nativeEl.getAttribute('data-st-max-items') ? parseInt(nativeEl.getAttribute('data-st-max-items'), 10) : null
+    var autoWidth     = options.autoWidth    != null ? options.autoWidth    : nativeEl.hasAttribute('data-st-auto-width')
+    var maxWidth      = options.maxWidth     != null ? parseInt(options.maxWidth, 10)
+                      : nativeEl.getAttribute('data-st-max-width') ? parseInt(nativeEl.getAttribute('data-st-max-width'), 10) : null
+    var loadOptions   = options.loadOptions  || null
+    var renderOption  = options.renderOption || null
+    var renderValue   = options.renderValue  || null
+    var isRequired    = nativeEl.hasAttribute('required')
+    var disabled      = nativeEl.disabled
 
-    var isRequired = nativeEl.hasAttribute('required')
+    // If multiSelect forced via option but native isn't multiple, upgrade it
+    if (multiSelect && !nativeEl.multiple) nativeEl.multiple = true
 
-    // Hide native select but keep it in the DOM for form submission.
-    // tabindex="-1" prevents the browser from scrolling to/focusing it
-    // during constraint validation — we handle that on the trigger instead.
-    nativeEl.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;tabindex:-1;'
+    // ── State ───────────────────────────────────────────────────────
+    var opts          = []      // [{value, text, el, data, groupLabel, disabled}]
+    var selectedSet   = new Set()  // flat indices of selected opts
+    var searchQuery   = ''
+    var isOpen        = false
+    var isLoading     = false
+    var debounceTimer = null
+
+    function buildOpts() {
+      opts = []
+      Array.from(nativeEl.children).forEach(function (child) {
+        if (child.tagName === 'OPTGROUP') {
+          Array.from(child.children).forEach(function (opt) {
+            if (opt.tagName === 'OPTION') opts.push({ value: opt.value, text: opt.text, el: opt, data: opt.dataset, groupLabel: child.label, disabled: opt.disabled })
+          })
+        } else if (child.tagName === 'OPTION') {
+          opts.push({ value: child.value, text: child.text, el: child, data: child.dataset, groupLabel: null, disabled: child.disabled })
+        }
+      })
+      // Sync initial selectedSet from native
+      selectedSet = new Set()
+      opts.forEach(function (o, i) { if (o.el.selected) selectedSet.add(i) })
+    }
+
+    buildOpts()
+
+    // ── Hide native ─────────────────────────────────────────────────
+    nativeEl.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;'
     nativeEl.setAttribute('tabindex', '-1')
 
-    // Build DOM
-    var valueSpan = makeEl('span', { 'class': 'st-select-value' })
-    var arrowSpan = makeEl('span', { 'class': 'st-select-arrow', 'aria-hidden': 'true' })
-    var trigger   = makeEl('button', {
-      'class':           'st-select-trigger',
-      'type':            'button',
-      'role':            'combobox',
-      'aria-haspopup':   'listbox',
-      'aria-expanded':   'false',
-      'aria-disabled':   disabled ? 'true' : 'false',
-      'aria-required':   isRequired ? 'true' : 'false',
-    }, [valueSpan, arrowSpan])
+    // ── Build trigger ───────────────────────────────────────────────
+    // Multi uses a <div> (can contain interactive children like chip × buttons)
+    // Single uses a <button>
+    var trigger
+    var chipsWrap   // multi only
+    var searchInput // searchable
 
-    var listbox = makeEl('ul', {
-      'class': 'st-select-listbox',
-      'role':  'listbox',
-    })
-    var wrapper = makeEl('div', { 'class': 'st-select' + (disabled ? ' is-disabled' : '') })
+    var arrowSpan = makeEl('span', { 'class': 'st-select-arrow', 'aria-hidden': 'true' })
+    var controls  = makeEl('div',  { 'class': 'st-select-controls' })
+
+    if (clearable) {
+      var clearBtn = makeEl('button', { 'class': 'st-select-clear', 'type': 'button', 'aria-label': 'Clear selection' }, ['×'])
+      clearBtn.addEventListener('click', function (e) { e.stopPropagation(); clearAll() })
+      controls.appendChild(clearBtn)
+    }
+    controls.appendChild(arrowSpan)
+
+    if (multiSelect) {
+      chipsWrap = makeEl('div', { 'class': 'st-chips' })
+      trigger   = makeEl('div', {
+        'class':         'st-select-trigger st-select-multi',
+        'tabindex':      disabled ? '-1' : '0',
+        'role':          'combobox',
+        'aria-haspopup': 'listbox',
+        'aria-expanded': 'false',
+        'aria-required': isRequired ? 'true' : 'false',
+        'aria-disabled': disabled  ? 'true' : 'false',
+        'aria-multiselectable': 'true',
+      })
+      if (searchable) {
+        searchInput = makeEl('input', {
+          'class':       'st-select-search st-chips-search',
+          'type':        'text',
+          'placeholder': selectedSet.size === 0 ? placeholder : 'Add more…',
+          'autocomplete':'off',
+        })
+        searchInput.addEventListener('input', function () { searchQuery = this.value; renderListbox(); if (!isOpen) open() })
+        searchInput.addEventListener('keydown', onSearchKey)
+        chipsWrap.appendChild(searchInput)
+      }
+      trigger.appendChild(chipsWrap)
+      trigger.appendChild(controls)
+    } else {
+      var valueSpan = makeEl('span', { 'class': 'st-select-value' })
+      trigger = makeEl('button', {
+        'class':         'st-select-trigger',
+        'type':          'button',
+        'role':          'combobox',
+        'aria-haspopup': 'listbox',
+        'aria-expanded': 'false',
+        'aria-required': isRequired ? 'true' : 'false',
+        'aria-disabled': disabled  ? 'true' : 'false',
+      }, [valueSpan, controls])
+    }
+
+    var listbox = makeEl('ul', { 'class': 'st-select-listbox', 'role': 'listbox' })
+    var wrapper = makeEl('div', { 'class': 'st-select' + (disabled ? ' is-disabled' : '') + (multiSelect ? ' st-select--multi' : '') })
 
     if (nativeEl.id) {
-      trigger.id               = nativeEl.id + '-trigger'
+      trigger.id = nativeEl.id + '-trigger'
       trigger.setAttribute('aria-controls', nativeEl.id + '-listbox')
       listbox.id = nativeEl.id + '-listbox'
     }
 
-    function updateDisplay() {
-      var opt = opts[selectedIdx]
-      var hasVal = opt && opt.value !== ''
-      valueSpan.textContent = hasVal ? opt.text : placeholder
-      valueSpan.classList.toggle('st-select-placeholder', !hasVal)
-      trigger.setAttribute('aria-activedescendant',
-        hasVal && listbox.children[selectedIdx]
-          ? listbox.children[selectedIdx].id || ''
-          : '')
+    // ── Render helpers ──────────────────────────────────────────────
+
+    function getOptContent(opt, forValue) {
+      var fn = forValue ? renderValue : renderOption
+      if (fn) {
+        var s = makeEl('span')
+        s.innerHTML = fn(opt.el)
+        return s
+      }
+      return doc.createTextNode(opt.text)
+    }
+
+    function filteredOpts() {
+      if (!searchQuery) return opts.map(function (o, i) { return { opt: o, idx: i } })
+      var q = searchQuery.toLowerCase()
+      return opts.reduce(function (acc, o, i) {
+        if (o.text.toLowerCase().indexOf(q) >= 0) acc.push({ opt: o, idx: i })
+        return acc
+      }, [])
     }
 
     function renderListbox() {
       listbox.innerHTML = ''
-      opts.forEach(function (opt, i) {
+
+      // Search row — single mode only (multi has it inline in trigger)
+      if (searchable && !multiSelect) {
+        var searchWrap = makeEl('li', { 'class': 'st-search-wrap' })
+        var sInput = makeEl('input', {
+          'class':        'st-select-search',
+          'type':         'text',
+          'placeholder':  'Search…',
+          'autocomplete': 'off',
+          'value':        searchQuery,
+        })
+        sInput.addEventListener('input', function () { searchQuery = this.value; renderListbox() })
+        sInput.addEventListener('keydown', onSearchKey)
+        searchWrap.appendChild(sInput)
+        listbox.appendChild(searchWrap)
+        // Auto-focus search on next tick
+        setTimeout(function () { sInput.focus() }, 0)
+      }
+
+      // Loading state
+      if (isLoading) {
+        listbox.appendChild(makeEl('li', { 'class': 'st-select-loading' }, ['Loading…']))
+        return
+      }
+
+      var visible  = filteredOpts()
+      var lastGroup = undefined
+
+      visible.forEach(function (item) {
+        var opt = item.opt, idx = item.idx
+
+        // Group header
+        if (opt.groupLabel !== lastGroup) {
+          lastGroup = opt.groupLabel
+          if (opt.groupLabel) {
+            listbox.appendChild(makeEl('li', { 'class': 'st-select-group-label', 'aria-disabled': 'true' }, [opt.groupLabel]))
+          }
+        }
+
+        var isSel    = selectedSet.has(idx)
+        var isMaxed  = multiSelect && maxItems && selectedSet.size >= maxItems && !isSel
+        var cls = 'st-select-option'
+          + (isSel ? ' is-selected' : '')
+          + (opt.disabled || isMaxed ? ' is-disabled' : '')
+
         var li = makeEl('li', {
-          'class':       'st-select-option' + (i === selectedIdx ? ' is-selected' : ''),
-          'role':        'option',
-          'data-value':  opt.value,
-          'aria-selected': i === selectedIdx ? 'true' : 'false',
-          'id':          (nativeEl.id || 'st-sel') + '-opt-' + i,
-        }, [opt.text])
-        li.addEventListener('click', function () { pick(i) })
+          'class':         cls,
+          'role':          'option',
+          'data-value':    opt.value,
+          'aria-selected': isSel ? 'true' : 'false',
+          'id':            (nativeEl.id || 'st-sel') + '-opt-' + idx,
+        })
+        li.appendChild(getOptContent(opt, false))
+
+        if (!(opt.disabled || isMaxed)) {
+          li.addEventListener('click', function (e) {
+            e.stopPropagation()
+            multiSelect ? toggleMulti(idx) : pick(idx)
+          })
+        }
         listbox.appendChild(li)
       })
+
+      // No results
+      if (visible.length === 0 && !isLoading) {
+        if (creatable && searchQuery) {
+          var createLi = makeEl('li', { 'class': 'st-select-create' }, ['Add "' + searchQuery + '"'])
+          createLi.addEventListener('click', function () { createOption(searchQuery) })
+          listbox.appendChild(createLi)
+        } else {
+          listbox.appendChild(makeEl('li', { 'class': 'st-select-no-results' }, ['No results']))
+        }
+      }
     }
 
+    // ── Update trigger display ──────────────────────────────────────
+
+    function updateDisplay() {
+      if (multiSelect) {
+        // Rebuild chips
+        var children = Array.from(chipsWrap.children)
+        children.forEach(function (c) { if (!c.classList.contains('st-chips-search')) chipsWrap.removeChild(c) })
+
+        selectedSet.forEach(function (idx) {
+          var opt  = opts[idx]
+          if (!opt) return
+          var chip = makeEl('span', { 'class': 'st-chip' })
+          var content = getOptContent(opt, true)
+          chip.appendChild(content)
+          var rm = makeEl('button', { 'class': 'st-chip-remove', 'type': 'button', 'aria-label': 'Remove ' + opt.text }, ['×'])
+          ;(function (i) { rm.addEventListener('click', function (e) { e.stopPropagation(); toggleMulti(i) }) })(idx)
+          chip.appendChild(rm)
+          chipsWrap.insertBefore(chip, searchInput || null)
+        })
+
+        // Placeholder
+        if (selectedSet.size === 0) {
+          if (!searchInput) chipsWrap.appendChild(makeEl('span', { 'class': 'st-select-placeholder' }, [placeholder]))
+        }
+        if (searchInput) searchInput.placeholder = selectedSet.size === 0 ? placeholder : ''
+
+        // Show/hide clear
+        wrapper.classList.toggle('has-value', selectedSet.size > 0)
+
+        // Max-items indicator
+        if (maxItems) {
+          var remaining = maxItems - selectedSet.size
+          trigger.setAttribute('aria-label', remaining > 0 ? remaining + ' more' : 'Maximum reached')
+        }
+      } else {
+        // Single
+        var selIdx  = selectedSet.size > 0 ? Array.from(selectedSet)[0] : -1
+        var selOpt  = selIdx >= 0 ? opts[selIdx] : null
+        var hasVal  = selOpt && selOpt.value !== ''
+        valueSpan.innerHTML = ''
+        if (hasVal) {
+          valueSpan.appendChild(getOptContent(selOpt, true))
+          valueSpan.classList.remove('st-select-placeholder')
+        } else {
+          valueSpan.textContent = placeholder
+          valueSpan.classList.add('st-select-placeholder')
+        }
+        wrapper.classList.toggle('has-value', !!hasVal)
+      }
+    }
+
+    // ── Pick / toggle ───────────────────────────────────────────────
+
     function pick(idx) {
-      selectedIdx            = idx
-      nativeEl.selectedIndex = idx
-      nativeEl.dispatchEvent(new Event('change', { bubbles: true }))
-      // Clear any validation error state
-      trigger.classList.remove('is-invalid')
-      trigger.removeAttribute('aria-invalid')
+      selectedSet.clear()
+      if (idx >= 0 && opts[idx]) selectedSet.add(idx)
+      syncNative()
+      clearError()
       updateDisplay()
       renderListbox()
       close()
+      emitChange()
+    }
+
+    function toggleMulti(idx) {
+      if (selectedSet.has(idx)) {
+        selectedSet.delete(idx)
+      } else {
+        if (maxItems && selectedSet.size >= maxItems) return
+        selectedSet.add(idx)
+      }
+      syncNative()
+      clearError()
+      updateDisplay()
+      renderListbox()
+      emitChange()
+    }
+
+    function clearAll() {
+      selectedSet.clear()
+      syncNative()
+      updateDisplay()
+      renderListbox()
+      emitChange()
+      wrapper.classList.remove('has-value')
+    }
+
+    function syncNative() {
+      opts.forEach(function (o, i) { o.el.selected = selectedSet.has(i) })
+      nativeEl.dispatchEvent(new Event('change', { bubbles: true }))
+    }
+
+    function emitChange() {
+      var values = Array.from(selectedSet).map(function (i) { return opts[i] ? opts[i].value : '' })
+      var texts  = Array.from(selectedSet).map(function (i) { return opts[i] ? opts[i].text  : '' })
       emit('st:select:change', {
-        select: nativeEl,
-        value:  opts[idx] ? opts[idx].value : '',
-        text:   opts[idx] ? opts[idx].text  : '',
-        index:  idx,
+        select:  nativeEl,
+        value:   multiSelect ? values : (values[0] || ''),
+        text:    multiSelect ? texts  : (texts[0]  || ''),
+        values:  values,
       })
     }
+
+    function clearError() {
+      trigger.classList.remove('is-invalid')
+      trigger.removeAttribute('aria-invalid')
+    }
+
+    // ── Creatable ───────────────────────────────────────────────────
+
+    function createOption(text) {
+      var opt = new Option(text, text)
+      nativeEl.add(opt)
+      buildOpts()
+      var newIdx = opts.length - 1
+      multiSelect ? toggleMulti(newIdx) : pick(newIdx)
+      if (searchInput) { searchInput.value = ''; searchQuery = '' }
+      if (!multiSelect) close()
+    }
+
+    // ── Async ───────────────────────────────────────────────────────
+
+    function loadAsync(query) {
+      if (!loadOptions) return
+      isLoading = true
+      renderListbox()
+      loadOptions(query, function (items) {
+        isLoading = false
+        while (nativeEl.options.length) nativeEl.remove(0)
+        items.forEach(function (item) {
+          var o = new Option(item.text, item.value)
+          if (item.data) Object.keys(item.data).forEach(function (k) { o.dataset[k] = item.data[k] })
+          nativeEl.add(o)
+        })
+        buildOpts()
+        renderListbox()
+      })
+    }
+
+    // ── Open / close ────────────────────────────────────────────────
 
     function open() {
       if (isOpen || disabled) return
       isOpen = true
-      renderListbox()
+      searchQuery = ''
+      if (loadOptions) loadAsync('')
+      else renderListbox()
       wrapper.appendChild(listbox)
       wrapper.classList.add('is-open')
       trigger.setAttribute('aria-expanded', 'true')
@@ -216,6 +478,7 @@
     function close() {
       if (!isOpen) return
       isOpen = false
+      searchQuery = ''
       wrapper.classList.remove('is-open')
       trigger.setAttribute('aria-expanded', 'false')
       if (listbox.parentNode) listbox.parentNode.removeChild(listbox)
@@ -223,60 +486,42 @@
       emit('st:select:close', { select: nativeEl })
     }
 
-    function positionListbox() {
-      var wRect      = wrapper.getBoundingClientRect()
-      var viewportW  = win.innerWidth  || doc.documentElement.clientWidth
-      var viewportH  = win.innerHeight || doc.documentElement.clientHeight
+    // ── Position ─────────────────────────────────────────────────────
 
-      // ── Vertical: dropup if not enough space below ──────────────
-      var lbH = listbox.offsetHeight || 200
+    function positionListbox() {
+      var wRect     = wrapper.getBoundingClientRect()
+      var viewportW = win.innerWidth  || doc.documentElement.clientWidth
+      var viewportH = win.innerHeight || doc.documentElement.clientHeight
+      var lbH       = listbox.offsetHeight || 200
+
       if (viewportH - wRect.bottom < lbH && wRect.top > lbH) {
         wrapper.classList.add('st-select-dropup')
       } else {
         wrapper.classList.remove('st-select-dropup')
       }
 
-      if (!autoWidth) return   // default: CSS width:100% handles it
+      if (!autoWidth) return
 
-      // ── Auto-width: measure natural content width ────────────────
-      // 1. Let listbox size to its content
-      listbox.style.width     = 'max-content'
-      listbox.style.minWidth  = wRect.width + 'px'   // never narrower than trigger
-      listbox.style.left      = '0'
-      listbox.style.right     = 'auto'
+      listbox.style.width    = 'max-content'
+      listbox.style.minWidth = wRect.width + 'px'
+      listbox.style.left     = '0'
+      listbox.style.right    = 'auto'
 
-      var naturalW  = listbox.scrollWidth
-      var triggerW  = wRect.width
-      var desiredW  = Math.max(triggerW, naturalW)
-
-      // 2. Apply maxWidth cap if set
+      var naturalW   = listbox.scrollWidth
+      var desiredW   = Math.max(wRect.width, naturalW)
       if (maxWidth) desiredW = Math.min(desiredW, maxWidth)
 
-      // 3. Viewport edge detection
-      var spaceRight = viewportW - wRect.left - 8   // room to the right of trigger
-      var spaceLeft  = wRect.right - 8              // room to the left of trigger
+      var spaceRight = viewportW - wRect.left - 8
+      var spaceLeft  = wRect.right - 8
 
       if (desiredW <= spaceRight) {
-        // Fits left-aligned — normal case
-        listbox.style.width = desiredW + 'px'
-        listbox.style.left  = '0'
-        listbox.style.right = 'auto'
+        listbox.style.width = desiredW + 'px'; listbox.style.left = '0'; listbox.style.right = 'auto'
       } else if (desiredW <= spaceLeft) {
-        // Doesn't fit right, but fits left-aligned to right edge of trigger
-        listbox.style.width = desiredW + 'px'
-        listbox.style.left  = 'auto'
-        listbox.style.right = '0'
+        listbox.style.width = desiredW + 'px'; listbox.style.left = 'auto'; listbox.style.right = '0'
+      } else if (spaceRight >= spaceLeft) {
+        listbox.style.width = spaceRight + 'px'; listbox.style.left = '0'; listbox.style.right = 'auto'
       } else {
-        // Doesn't fit either way — use largest available side
-        if (spaceRight >= spaceLeft) {
-          listbox.style.width = spaceRight + 'px'
-          listbox.style.left  = '0'
-          listbox.style.right = 'auto'
-        } else {
-          listbox.style.width = spaceLeft + 'px'
-          listbox.style.left  = 'auto'
-          listbox.style.right = '0'
-        }
+        listbox.style.width = spaceLeft + 'px'; listbox.style.left = 'auto'; listbox.style.right = '0'
       }
     }
 
@@ -284,51 +529,89 @@
       if (!wrapper.contains(e.target)) close()
     }
 
-    // Required validation — intercept browser's default invalid behaviour
-    // so the tooltip and focus land on the visible trigger, not the hidden native.
+    // ── Keyboard ────────────────────────────────────────────────────
+
+    function onSearchKey(e) {
+      if (e.key === 'Escape') close()
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        var vis = filteredOpts()
+        if (vis.length === 1) { multiSelect ? toggleMulti(vis[0].idx) : pick(vis[0].idx) }
+        else if (vis.length === 0 && creatable && searchQuery) createOption(searchQuery)
+      }
+      if (e.key === 'Backspace' && !e.target.value && multiSelect && selectedSet.size > 0) {
+        // Remove last chip on backspace when search is empty
+        var last = Array.from(selectedSet).pop()
+        if (last != null) toggleMulti(last)
+      }
+    }
+
+    trigger.addEventListener('keydown', function (e) {
+      if (multiSelect) {
+        if (e.key === 'Escape') close()
+        if ((e.key === 'Enter' || e.key === ' ') && !searchable) { e.preventDefault(); isOpen ? close() : open() }
+        return
+      }
+      if (e.key === 'ArrowDown') { e.preventDefault(); isOpen ? null : open() }
+      if (e.key === 'ArrowUp')   { e.preventDefault(); isOpen ? null : open() }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); isOpen ? close() : open() }
+      if (e.key === 'Escape') close()
+    })
+
+    trigger.addEventListener('click', function (e) {
+      if (e.target.classList.contains('st-chip-remove')) return
+      if (e.target.classList.contains('st-select-clear'))  return
+      e.stopPropagation()
+      isOpen ? close() : open()
+    })
+
+    // ── Required validation ─────────────────────────────────────────
+
     if (isRequired) {
       nativeEl.addEventListener('invalid', function (e) {
-        e.preventDefault()                          // stop browser tooltip on hidden element
+        e.preventDefault()
         trigger.classList.add('is-invalid')
         trigger.setAttribute('aria-invalid', 'true')
         trigger.focus()
       })
     }
 
-    // Keyboard
-    trigger.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        isOpen ? pick(Math.min(selectedIdx + 1, opts.length - 1)) : open()
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        isOpen ? pick(Math.max(selectedIdx - 1, 0)) : open()
-      }
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); isOpen ? close() : open() }
-      if (e.key === 'Escape') close()
-    })
-
-    trigger.addEventListener('click', function (e) {
-      e.stopPropagation()
-      isOpen ? close() : open()
-    })
+    // ── Init ────────────────────────────────────────────────────────
 
     wrapper.appendChild(trigger)
     nativeEl.parentNode.insertBefore(wrapper, nativeEl.nextSibling)
     updateDisplay()
 
+    // ── Public API ──────────────────────────────────────────────────
+
     var api = {
-      open:     open,
-      close:    close,
+      open:  open,
+      close: close,
+
       setValue: function (val) {
         var idx = opts.findIndex(function (o) { return o.value === val })
         if (idx >= 0) pick(idx)
       },
-      getValue: function () { return opts[selectedIdx] ? opts[selectedIdx].value : '' },
-      destroy:  function () {
+      setValues: function (vals) {
+        selectedSet.clear()
+        vals.forEach(function (v) {
+          var idx = opts.findIndex(function (o) { return o.value === v })
+          if (idx >= 0) selectedSet.add(idx)
+        })
+        syncNative(); updateDisplay(); renderListbox()
+      },
+      getValue:  function () {
+        var idxs = Array.from(selectedSet)
+        return multiSelect
+          ? idxs.map(function (i) { return opts[i] ? opts[i].value : '' })
+          : (opts[idxs[0]] ? opts[idxs[0]].value : '')
+      },
+      clear:   clearAll,
+      destroy: function () {
         wrapper.remove()
         nativeEl.style.cssText = ''
+        nativeEl.removeAttribute('tabindex')
+        if (multiSelect) nativeEl.multiple = false
         selectRegistry.delete(nativeEl)
       },
     }
