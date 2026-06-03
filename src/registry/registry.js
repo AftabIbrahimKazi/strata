@@ -18,6 +18,10 @@ function escapeClass(cls) {
     .replace(/\//g, '\\/')
     .replace(/:/g,  '\\:')
     .replace(/\./g, '\\.')
+    .replace(/#/g,  '\\#')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/,/g,  '\\,')
 }
 
 function parseArbitrary(value) {
