@@ -314,6 +314,36 @@
     </div>
   </section>
 
+  <!-- ─── Backend friendliness — required validation ─────────────── -->
+  <section>
+    <h2>Backend — required field validation</h2>
+    <p class="desc">required attribute on native &lt;select&gt; — custom trigger shows error state, tooltip stays on trigger not hidden element</p>
+    <form id="reqForm" onsubmit="handleReqSubmit(event)" novalidate>
+      <div class="row g-3">
+        <div class="col-12 col-md-5">
+          <label class="form-label">Service <span class="text-danger">*</span></label>
+          <select id="sel-req" data-st-select name="service" required>
+            <option value="">Choose a service…</option>
+            <option value="hair">Hair Styling</option>
+            <option value="nails">Nails</option>
+            <option value="facial">Facial</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-5">
+          <label class="form-label">Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="name" required placeholder="Your name">
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn-primary">Submit form</button>
+          <span class="text-muted ms-3" style="font-size:0.8rem">
+            Try submitting without selecting a service — error state appears on the custom trigger.
+          </span>
+        </div>
+      </div>
+    </form>
+    <div class="output mt-3" id="req-out" style="display:none"></div>
+  </section>
+
   <!-- ─── 10. Programmatic API ─────────────────────────────────────── -->
   <section>
     <h2>10 — Programmatic API</h2>
@@ -386,6 +416,21 @@
       if (id === 'tp1') document.getElementById('tp1-out').innerHTML = 'Selected: <strong>' + (e.detail.value || 'none') + '</strong>'
       if (id === 'tp2') document.getElementById('tp2-out').innerHTML = 'Selected: <strong>' + (e.detail.value || 'none') + '</strong>'
     })
+
+    // Required form
+    function handleReqSubmit(e) {
+      e.preventDefault()
+      var form = e.target
+      if (!form.checkValidity()) {
+        // Trigger native validation — this fires 'invalid' events on each invalid field
+        form.reportValidity()
+        return
+      }
+      var fd  = new FormData(form)
+      var out = document.getElementById('req-out')
+      out.style.display = 'block'
+      out.innerHTML = '✓ Submitted — service: <strong>' + fd.get('service') + '</strong>, name: <strong>' + fd.get('name') + '</strong>'
+    }
 
     // Booking form
     function handleSubmit(e) {
