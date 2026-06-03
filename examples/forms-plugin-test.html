@@ -430,10 +430,10 @@
     <div class="output" id="sel-create-out">Selected: <strong>none</strong></div>
   </section>
 
-  <!-- ─── AVATAR SELECT ────────────────────────────────────────────── -->
+  <!-- ─── AVATAR SELECT — single ─────────────────────────────────── -->
   <section>
-    <h2>Avatar / image select</h2>
-    <p class="desc">renderOption + renderValue — custom HTML per option, reads data-* attributes</p>
+    <h2>Avatar select (single)</h2>
+    <p class="desc">renderOption + renderValue — shows avatar + name + role in dropdown, avatar + name in trigger</p>
     <label class="form-label">Assign staff member</label>
     <select id="sel-avatar" name="staff-avatar">
       <option value="">Choose a stylist…</option>
@@ -443,6 +443,25 @@
       <option value="dan"   data-avatar="https://i.pravatar.cc/40?img=8" data-role="Massage Therapist">Dan Miller</option>
     </select>
     <div class="output" id="sel-avatar-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── AVATAR MULTI — maxDisplay ────────────────────────────────── -->
+  <section>
+    <h2>Avatar multi-select with maxDisplay</h2>
+    <p class="desc">multiSelect + renderValue (avatar only) + maxDisplay:3 — trigger stays fixed height, excess shown as +N badge</p>
+    <label class="form-label">Assign staff (select multiple)</label>
+    <div style="max-width: 300px;">
+      <select id="sel-avatar-multi" name="staff-multi[]" multiple>
+        <option value="alice" data-avatar="https://i.pravatar.cc/40?img=1">Alice Chen</option>
+        <option value="bob"   data-avatar="https://i.pravatar.cc/40?img=3">Bob Taylor</option>
+        <option value="cara"  data-avatar="https://i.pravatar.cc/40?img=5">Cara Smith</option>
+        <option value="dan"   data-avatar="https://i.pravatar.cc/40?img=8">Dan Miller</option>
+        <option value="eve"   data-avatar="https://i.pravatar.cc/40?img=10">Eve Johnson</option>
+        <option value="frank" data-avatar="https://i.pravatar.cc/40?img=12">Frank Lee</option>
+      </select>
+    </div>
+    <p class="hint mt-2">↑ Select more than 3 — trigger stays single-row height, excess shown as +N badge</p>
+    <div class="output" id="sel-avatar-multi-out">Selected: <strong>none</strong></div>
   </section>
 
   <!-- ─── ASYNC SELECT ─────────────────────────────────────────────── -->
@@ -550,6 +569,23 @@
         }
       })
 
+      // Avatar multi with maxDisplay
+      Forms.select('#sel-avatar-multi', {
+        multiSelect:  true,
+        searchable:   true,
+        clearable:    true,
+        maxDisplay:   3,
+        renderOption: function(opt) {
+          if (!opt.value) return opt.text
+          return '<img src="' + opt.dataset.avatar + '" class="st-sel-avatar">'
+               + '<span>' + opt.text + '</span>'
+        },
+        renderValue: function(opt) {
+          // Avatar only — no name text in chip
+          return '<img src="' + opt.dataset.avatar + '" class="st-sel-avatar" title="' + opt.text + '">'
+        }
+      })
+
       // Async select
       var MOCK_CLIENTS = [
         { value: 'c1', text: 'Sarah Johnson' },
@@ -595,7 +631,8 @@
         'sel-clear':  'sel-clear-out',
         'sel-group':  'sel-group-out',
         'sel-create': 'sel-create-out',
-        'sel-avatar': 'sel-avatar-out',
+        'sel-avatar':       'sel-avatar-out',
+        'sel-avatar-multi': 'sel-avatar-multi-out',
         'sel-async':  'sel-async-out',
       }
       var outId = outputMap[id]
