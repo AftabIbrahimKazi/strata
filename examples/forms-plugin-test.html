@@ -314,6 +314,148 @@
     </div>
   </section>
 
+  <!-- ─── MULTI SELECT ────────────────────────────────────────────── -->
+  <section>
+    <h2>Multi-select</h2>
+    <p class="desc">data-st-multi — select multiple values as removable chips</p>
+    <label class="form-label">Services (choose any)</label>
+    <select id="sel-multi" data-st-select data-st-multi name="services[]" multiple>
+      <option value="hair">Hair Styling</option>
+      <option value="nails">Nails</option>
+      <option value="facial">Facial</option>
+      <option value="massage">Massage</option>
+      <option value="waxing">Waxing</option>
+      <option value="brows">Eyebrow Threading</option>
+    </select>
+    <div class="output" id="sel-multi-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>Multi-select with max items</h2>
+    <p class="desc">data-st-multi data-st-max-items="2" — caps selection at 2</p>
+    <label class="form-label">Choose up to 2 services</label>
+    <select id="sel-max" data-st-select data-st-multi data-st-max-items="2" name="services-max[]" multiple>
+      <option value="hair">Hair Styling</option>
+      <option value="nails">Nails</option>
+      <option value="facial">Facial</option>
+      <option value="massage">Massage</option>
+    </select>
+    <div class="output" id="sel-max-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── SEARCHABLE ───────────────────────────────────────────────── -->
+  <section>
+    <h2>Searchable (single)</h2>
+    <p class="desc">data-st-searchable — type to filter options</p>
+    <label class="form-label">Country</label>
+    <select id="sel-search" data-st-select data-st-searchable name="country">
+      <option value="">Choose a country…</option>
+      <option value="uk">United Kingdom</option>
+      <option value="us">United States</option>
+      <option value="au">Australia</option>
+      <option value="ca">Canada</option>
+      <option value="nz">New Zealand</option>
+      <option value="de">Germany</option>
+      <option value="fr">France</option>
+      <option value="jp">Japan</option>
+      <option value="br">Brazil</option>
+      <option value="za">South Africa</option>
+    </select>
+    <div class="output" id="sel-search-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>Searchable multi</h2>
+    <p class="desc">data-st-multi + data-st-searchable — type inside the chip area to filter</p>
+    <label class="form-label">Tags</label>
+    <select id="sel-smulti" data-st-select data-st-multi data-st-searchable name="tags[]" multiple>
+      <option value="vip">VIP Client</option>
+      <option value="new">New Client</option>
+      <option value="regular">Regular</option>
+      <option value="sensitive">Sensitive Skin</option>
+      <option value="allergy">Known Allergy</option>
+      <option value="loyalty">Loyalty Member</option>
+    </select>
+    <div class="output" id="sel-smulti-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── CLEARABLE ────────────────────────────────────────────────── -->
+  <section>
+    <h2>Clearable</h2>
+    <p class="desc">data-st-clearable — × button appears when a value is selected</p>
+    <label class="form-label">Staff member</label>
+    <select id="sel-clear" data-st-select data-st-clearable name="staff">
+      <option value="">No preference</option>
+      <option value="alice">Alice Chen</option>
+      <option value="bob">Bob Taylor</option>
+      <option value="cara">Cara Smith</option>
+    </select>
+    <div class="output" id="sel-clear-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── GROUPED ──────────────────────────────────────────────────── -->
+  <section>
+    <h2>Grouped options (optgroup)</h2>
+    <p class="desc">Native &lt;optgroup&gt; renders as category headers — zero extra config</p>
+    <label class="form-label">Service category</label>
+    <select id="sel-group" data-st-select name="service-group">
+      <option value="">Choose a service…</option>
+      <optgroup label="Hair">
+        <option value="cut">Hair Cut</option>
+        <option value="color">Hair Colour</option>
+        <option value="blowout">Blowout</option>
+      </optgroup>
+      <optgroup label="Nails">
+        <option value="mani">Manicure</option>
+        <option value="pedi">Pedicure</option>
+        <option value="gel">Gel Nails</option>
+      </optgroup>
+      <optgroup label="Skin">
+        <option value="facial">Facial</option>
+        <option value="peel">Chemical Peel</option>
+      </optgroup>
+    </select>
+    <div class="output" id="sel-group-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── CREATABLE ────────────────────────────────────────────────── -->
+  <section>
+    <h2>Creatable (multi)</h2>
+    <p class="desc">data-st-searchable data-st-creatable — type a new value and press Enter or click "Add"</p>
+    <label class="form-label">Custom tags</label>
+    <select id="sel-create" data-st-select data-st-multi data-st-searchable data-st-creatable name="custom-tags[]" multiple>
+      <option value="vip">VIP</option>
+      <option value="new">New Client</option>
+    </select>
+    <div class="output" id="sel-create-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── AVATAR SELECT ────────────────────────────────────────────── -->
+  <section>
+    <h2>Avatar / image select</h2>
+    <p class="desc">renderOption + renderValue — custom HTML per option, reads data-* attributes</p>
+    <label class="form-label">Assign staff member</label>
+    <select id="sel-avatar" name="staff-avatar">
+      <option value="">Choose a stylist…</option>
+      <option value="alice" data-avatar="https://i.pravatar.cc/40?img=1" data-role="Senior Stylist">Alice Chen</option>
+      <option value="bob"   data-avatar="https://i.pravatar.cc/40?img=3" data-role="Nail Technician">Bob Taylor</option>
+      <option value="cara"  data-avatar="https://i.pravatar.cc/40?img=5" data-role="Beauty Therapist">Cara Smith</option>
+      <option value="dan"   data-avatar="https://i.pravatar.cc/40?img=8" data-role="Massage Therapist">Dan Miller</option>
+    </select>
+    <div class="output" id="sel-avatar-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── ASYNC SELECT ─────────────────────────────────────────────── -->
+  <section>
+    <h2>Async (loadOptions)</h2>
+    <p class="desc">loadOptions(query, callback) — simulated API call with 400ms delay</p>
+    <label class="form-label">Search client (type to search)</label>
+    <select id="sel-async" name="client">
+      <option value="">Search for a client…</option>
+    </select>
+    <div class="output" id="sel-async-out">Selected: <strong>none</strong></div>
+  </section>
+
   <!-- ─── Backend friendliness — required validation ─────────────── -->
   <section>
     <h2>Backend — required field validation</h2>
@@ -387,10 +529,53 @@
     document.getElementById('dp2').setAttribute('data-st-min', today.toISOString().slice(0,10))
     document.getElementById('dp2').setAttribute('data-st-max', in30.toISOString().slice(0,10))
 
-    // Programmatic autoWidth init (sel-aw4 has no data-st-select so auto-init skips it)
+    // Programmatic inits (elements without data-st-select — manual init required)
     document.addEventListener('DOMContentLoaded', function() {
-      var aw4 = (typeof StrataForms !== 'undefined' ? StrataForms : Strata.Forms)
-        .select('#sel-aw4', { autoWidth: true, maxWidth: 320 })
+      var Forms = typeof StrataForms !== 'undefined' ? StrataForms : Strata.Forms
+
+      // autoWidth programmatic
+      Forms.select('#sel-aw4', { autoWidth: true, maxWidth: 320 })
+
+      // Avatar select — custom render functions
+      Forms.select('#sel-avatar', {
+        autoWidth: true,
+        renderOption: function(opt) {
+          if (!opt.value) return opt.text
+          return '<img src="' + opt.dataset.avatar + '" class="st-sel-avatar">'
+               + '<span class="st-sel-option-meta"><strong>' + opt.text + '</strong><small>' + (opt.dataset.role || '') + '</small></span>'
+        },
+        renderValue: function(opt) {
+          if (!opt.value) return opt.text
+          return '<img src="' + opt.dataset.avatar + '" class="st-sel-avatar">' + opt.text
+        }
+      })
+
+      // Async select
+      var MOCK_CLIENTS = [
+        { value: 'c1', text: 'Sarah Johnson' },
+        { value: 'c2', text: 'Michael Brown' },
+        { value: 'c3', text: 'Emma Williams' },
+        { value: 'c4', text: 'James Smith'   },
+        { value: 'c5', text: 'Olivia Davis'  },
+        { value: 'c6', text: 'William Wilson' },
+        { value: 'c7', text: 'Sophia Moore'  },
+        { value: 'c8', text: 'Liam Taylor'   },
+      ]
+
+      Forms.select('#sel-async', {
+        searchable:  true,
+        autoWidth:   true,
+        placeholder: 'Search for a client…',
+        loadOptions: function(query, callback) {
+          // Simulate API delay
+          setTimeout(function() {
+            var filtered = MOCK_CLIENTS.filter(function(c) {
+              return !query || c.text.toLowerCase().indexOf(query.toLowerCase()) >= 0
+            })
+            callback(filtered)
+          }, 400)
+        }
+      })
     })
 
     // Event listeners — show output
@@ -399,9 +584,27 @@
     document.addEventListener('st:select:change', function(e) {
       var map = { sel1: 'sel1-out', sel2: 'sel2-out', bookSvc: null, bookStaff: null, progSel: null }
       var id  = e.detail.select.id
-      if (id === 'sel1')   document.getElementById('sel1-out').innerHTML   = 'Selected: <strong>' + (e.detail.text || 'none') + '</strong>'
-      if (id === 'sel2')   document.getElementById('sel2-out').innerHTML   = 'Selected: <strong>' + (e.detail.text || 'none') + '</strong>'
-      if (id === 'sel-aw4') document.getElementById('sel-aw4-out').innerHTML = 'Selected: <strong>' + (e.detail.text || 'none') + '</strong>'
+      var outputMap = {
+        'sel1':       'sel1-out',
+        'sel2':       'sel2-out',
+        'sel-aw4':    'sel-aw4-out',
+        'sel-multi':  'sel-multi-out',
+        'sel-max':    'sel-max-out',
+        'sel-search': 'sel-search-out',
+        'sel-smulti': 'sel-smulti-out',
+        'sel-clear':  'sel-clear-out',
+        'sel-group':  'sel-group-out',
+        'sel-create': 'sel-create-out',
+        'sel-avatar': 'sel-avatar-out',
+        'sel-async':  'sel-async-out',
+      }
+      var outId = outputMap[id]
+      if (outId) {
+        var val = Array.isArray(e.detail.text)
+          ? (e.detail.text.join(', ') || 'none')
+          : (e.detail.text || 'none')
+        document.getElementById(outId).innerHTML = 'Selected: <strong>' + val + '</strong>'
+      }
     })
 
     document.addEventListener('st:datepicker:change', function(e) {
