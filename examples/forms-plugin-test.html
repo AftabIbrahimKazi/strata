@@ -186,73 +186,98 @@
     <div class="output" id="sel-aw4-out">Selected: <strong>none</strong></div>
   </section>
 
-  <!-- ─── 4. Date Picker — basic ──────────────────────────────────── -->
+  <!-- ═══ DATE PICKER ════════════════════════════════════════════════ -->
+
   <section>
-    <h2>4 — Date Picker (declarative)</h2>
-    <p class="desc">&lt;input data-st-datepicker&gt; — click to open calendar</p>
+    <h2>4 — Date Picker (basic)</h2>
+    <p class="desc">data-st-datepicker — click title to drill into month/year grid</p>
     <label class="form-label">Appointment date</label>
-    <input id="dp1"
-           data-st-datepicker
-           class="form-control"
-           name="date"
-           placeholder="Select a date">
+    <input id="dp1" data-st-datepicker class="form-control" name="date" placeholder="Select a date">
     <div class="output" id="dp1-out">Selected: <strong>none</strong></div>
   </section>
 
-  <!-- ─── 5. Date Picker — with min/max ───────────────────────────── -->
   <section>
-    <h2>5 — Date Picker (min/max range)</h2>
-    <p class="desc">data-st-min and data-st-max restrict selectable dates. Dates outside range are greyed out.</p>
-    <label class="form-label">Available dates (next 30 days only)</label>
-    <input id="dp2"
-           data-st-datepicker
-           class="form-control"
-           name="restricted-date"
-           placeholder="Select within range">
+    <h2>5 — Date Picker (min/max + disabled weekdays)</h2>
+    <p class="desc">data-st-min/max + data-st-disabled-days="0,6" — no Sat or Sun</p>
+    <label class="form-label">Booking date (weekdays only, next 60 days)</label>
+    <input id="dp2" data-st-datepicker data-st-disabled-days="0,6" class="form-control" name="booking-date" placeholder="Select a weekday">
     <div class="output" id="dp2-out">Selected: <strong>none</strong></div>
   </section>
 
-  <!-- ─── 6. Date Picker — custom format ──────────────────────────── -->
   <section>
-    <h2>6 — Date Picker (custom format)</h2>
-    <p class="desc">data-st-format="DD/MM/YYYY" — output format changes</p>
+    <h2>6 — Date Picker (custom format + Monday week start)</h2>
+    <p class="desc">data-st-format="DD/MM/YYYY" data-st-week-start="1"</p>
     <label class="form-label">Date of birth</label>
-    <input id="dp3"
-           data-st-datepicker
-           data-st-format="DD/MM/YYYY"
-           class="form-control"
-           name="dob"
-           placeholder="DD/MM/YYYY">
+    <input id="dp3" data-st-datepicker data-st-format="DD/MM/YYYY" data-st-week-start="1" class="form-control" name="dob" placeholder="DD/MM/YYYY">
     <div class="output" id="dp3-out">Selected: <strong>none</strong></div>
   </section>
 
-  <!-- ─── 7. Time Picker — 12h ────────────────────────────────────── -->
+  <section>
+    <h2>6b — Date Range picker</h2>
+    <p class="desc">data-st-range data-st-end-input="#dp-range-end" — two inputs, range highlighted between</p>
+    <div class="d-flex gap-2 flex-wrap">
+      <div style="flex:1; min-width:160px;">
+        <label class="form-label">From</label>
+        <input id="dp-range-start" data-st-datepicker data-st-range data-st-end-input="#dp-range-end" class="form-control" name="start" placeholder="Start date">
+      </div>
+      <div style="flex:1; min-width:160px;">
+        <label class="form-label">To</label>
+        <input id="dp-range-end" class="form-control" name="end" placeholder="End date" readonly>
+      </div>
+    </div>
+    <div class="output mt-2" id="dp-range-out">Range: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>6c — Date Picker with presets</h2>
+    <p class="desc">data-st-presets — sidebar with Today / Yesterday / Last 7 days / This month etc.</p>
+    <label class="form-label">Report period</label>
+    <input id="dp-presets" data-st-datepicker data-st-presets class="form-control" name="report-date" placeholder="Select or choose preset">
+    <div class="output" id="dp-presets-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>6d — Inline Date Picker</h2>
+    <p class="desc">data-st-inline — always visible, no popup, embedded in page</p>
+    <label class="form-label">Departure date</label>
+    <input id="dp-inline" data-st-datepicker data-st-inline class="form-control" name="departure" placeholder="Selecting...">
+    <div class="output mt-2" id="dp-inline-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ═══ TIME PICKER ══════════════════════════════════════════════════ -->
+
   <section>
     <h2>7 — Time Picker (12h, 15 min steps)</h2>
-    <p class="desc">&lt;input data-st-timepicker data-st-step="15"&gt;</p>
+    <p class="desc">data-st-timepicker data-st-step="15"</p>
     <label class="form-label">Appointment time</label>
-    <input id="tp1"
-           data-st-timepicker
-           data-st-step="15"
-           class="form-control"
-           name="time"
-           placeholder="Select time">
+    <input id="tp1" data-st-timepicker data-st-step="15" class="form-control" name="time" placeholder="Select time">
     <div class="output" id="tp1-out">Selected: <strong>none</strong></div>
   </section>
 
-  <!-- ─── 8. Time Picker — 24h ────────────────────────────────────── -->
   <section>
-    <h2>8 — Time Picker (24h, 30 min steps)</h2>
-    <p class="desc">&lt;input data-st-timepicker data-st-hour24="true" data-st-step="30"&gt;</p>
-    <label class="form-label">Opening time</label>
-    <input id="tp2"
-           data-st-timepicker
-           data-st-hour24="true"
-           data-st-step="30"
-           class="form-control"
-           name="opening-time"
-           placeholder="HH:MM">
+    <h2>8 — Time Picker (24h + seconds)</h2>
+    <p class="desc">data-st-hour24="true" data-st-show-seconds data-st-step="1"</p>
+    <label class="form-label">Precise time</label>
+    <input id="tp2" data-st-timepicker data-st-hour24="true" data-st-show-seconds data-st-step="1" class="form-control" name="precise-time" placeholder="HH:MM:SS">
     <div class="output" id="tp2-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ═══ DATETIME PICKER ══════════════════════════════════════════════ -->
+
+  <section>
+    <h2>8b — DateTime Picker (combined)</h2>
+    <p class="desc">data-st-datetimepicker — calendar + time columns in one popup</p>
+    <label class="form-label">Appointment date &amp; time</label>
+    <input id="dtp1" data-st-datetimepicker class="form-control" name="appointment" placeholder="Select date and time">
+    <div class="output" id="dtp1-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>8c — DateTime 24h (programmatic, disable weekends)</h2>
+    <p class="desc">Strata.Forms.datetimepicker('#dtp2', { hour24: true, disable: [fn] })</p>
+    <label class="form-label">Business appointment (weekdays only)</label>
+    <input id="dtp2" class="form-control" name="biz-appointment" placeholder="Weekdays only, 24h time">
+    <div class="output" id="dtp2-out">Selected: <strong>none</strong></div>
   </section>
 
   <!-- ─── 9. Booking form — all three together ────────────────────── -->
@@ -620,9 +645,22 @@
     document.getElementById('dp2').setAttribute('data-st-min', today.toISOString().slice(0,10))
     document.getElementById('dp2').setAttribute('data-st-max', in30.toISOString().slice(0,10))
 
+    // Set min/max for dp2 (weekdays only, next 60 days)
+    var today2 = new Date(), in60 = new Date(today2.getTime() + 60*24*60*60*1000)
+    document.getElementById('dp2').setAttribute('data-st-min', today2.toISOString().slice(0,10))
+    document.getElementById('dp2').setAttribute('data-st-max', in60.toISOString().slice(0,10))
+
     // Programmatic inits (elements without data-st-select — manual init required)
     document.addEventListener('DOMContentLoaded', function() {
       var Forms = typeof StrataForms !== 'undefined' ? StrataForms : Strata.Forms
+
+      // datetime 24h weekdays only
+      Forms.datetimepicker('#dtp2', {
+        format:  'YYYY-MM-DD HH:mm',
+        hour24:  true,
+        step:    30,
+        disable: [function(date) { return date.getDay() === 0 || date.getDay() === 6 }],
+      })
 
       // autoWidth programmatic
       Forms.select('#sel-aw4', { autoWidth: true, maxWidth: 320 })
@@ -730,16 +768,31 @@
     })
 
     document.addEventListener('st:datepicker:change', function(e) {
-      var id = e.detail.input.id
-      if (id === 'dp1') document.getElementById('dp1-out').innerHTML = 'Selected: <strong>' + (e.detail.formatted || 'none') + '</strong>'
-      if (id === 'dp2') document.getElementById('dp2-out').innerHTML = 'Selected: <strong>' + (e.detail.formatted || 'none') + '</strong>'
-      if (id === 'dp3') document.getElementById('dp3-out').innerHTML = 'Selected: <strong>' + (e.detail.formatted || 'none') + '</strong>'
+      var id  = e.detail.input.id
+      var map = {
+        'dp1':         'dp1-out',
+        'dp2':         'dp2-out',
+        'dp3':         'dp3-out',
+        'dp-presets':  'dp-presets-out',
+        'dp-inline':   'dp-inline-out',
+      }
+      if (map[id]) document.getElementById(map[id]).innerHTML = 'Selected: <strong>' + (e.detail.formatted || 'none') + '</strong>'
+      if (id === 'dp-range-start') {
+        document.getElementById('dp-range-out').innerHTML =
+          'Range: <strong>' + (e.detail.formatted || '?') + '</strong> → <strong>' + (e.detail.formattedEnd || '?') + '</strong>'
+      }
     })
 
     document.addEventListener('st:timepicker:change', function(e) {
-      var id = e.detail.input.id
-      if (id === 'tp1') document.getElementById('tp1-out').innerHTML = 'Selected: <strong>' + (e.detail.value || 'none') + '</strong>'
-      if (id === 'tp2') document.getElementById('tp2-out').innerHTML = 'Selected: <strong>' + (e.detail.value || 'none') + '</strong>'
+      var id  = e.detail.input.id
+      var map = { 'tp1': 'tp1-out', 'tp2': 'tp2-out' }
+      if (map[id]) document.getElementById(map[id]).innerHTML = 'Selected: <strong>' + (e.detail.value || 'none') + '</strong>'
+    })
+
+    document.addEventListener('st:datetimepicker:change', function(e) {
+      var id  = e.detail.input.id
+      var map = { 'dtp1': 'dtp1-out', 'dtp2': 'dtp2-out' }
+      if (map[id]) document.getElementById(map[id]).innerHTML = 'Selected: <strong>' + (e.detail.value || 'none') + '</strong>'
     })
 
     // Required form

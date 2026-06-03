@@ -711,40 +711,89 @@
     return api
   }
 
-  // ─── Date Picker ────────────────────────────────────────────────────────────
+  // ─── Date / Time Picker ─────────────────────────────────────────────────────
 
   var dpRegistry = new Map()
+  var tpRegistry = new Map()
+  var dtRegistry = new Map()
 
-  var MONTHS   = ['January','February','March','April','May','June',
-                  'July','August','September','October','November','December']
-  var DAYS_SHORT = ['Su','Mo','Tu','We','Th','Fr','Sa']
+  var MONTHS      = ['January','February','March','April','May','June',
+                     'July','August','September','October','November','December']
+  var MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun',
+                      'Jul','Aug','Sep','Oct','Nov','Dec']
+  var DAYS_SHORT  = ['Su','Mo','Tu','We','Th','Fr','Sa']
+
+  var DEFAULT_PRESETS = [
+    { label: 'Today',        range: function(t) { return [t, t] } },
+    { label: 'Yesterday',    range: function(t) { var d=new Date(t); d.setDate(d.getDate()-1); return [d,d] } },
+    { label: 'Last 7 days',  range: function(t) { var d=new Date(t); d.setDate(d.getDate()-6); return [d,t] } },
+    { label: 'Last 30 days', range: function(t) { var d=new Date(t); d.setDate(d.getDate()-29); return [d,t] } },
+    { label: 'This month',   range: function(t) { return [new Date(t.getFullYear(),t.getMonth(),1), new Date(t.getFullYear(),t.getMonth()+1,0)] } },
+    { label: 'Last month',   range: function(t) { return [new Date(t.getFullYear(),t.getMonth()-1,1), new Date(t.getFullYear(),t.getMonth(),0)] } },
+  ]
+
+  // ── Shared date helpers ──────────────────────────────────────────────────────
+
+  function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()) }
+
+  function sameDay(a, b) {
+    return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate()
+  }
+
+  function parseDate(str) {
+    if (!str) return null
+    // Try ISO first, then native parse
+    var iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/)
+    if (iso) return startOfDay(new Date(+iso[1], +iso[2]-1, +iso[3]))
+    var d = new Date(str)
+    return isNaN(d.getTime()) ? null : startOfDay(d)
+  }
 
   function createDatepicker(input, options) {
     options = options || {}
     if (dpRegistry.has(input)) return dpRegistry.get(input)
 
-    var fmt      = options.format || input.getAttribute('data-st-format') || 'YYYY-MM-DD'
-    var minDateS = options.min    || input.getAttribute('data-st-min')
-    var maxDateS = options.max    || input.getAttribute('data-st-max')
-    var minDate  = minDateS ? startOfDay(new Date(minDateS)) : null
-    var maxDate  = maxDateS ? startOfDay(new Date(maxDateS)) : null
+    // ── Config ────────────────────────────────────────────────────────────────
+    var fmt        = options.format    || input.getAttribute('data-st-format')    || 'YYYY-MM-DD'
+    var weekStart  = parseInt(options.weekStart || input.getAttribute('data-st-week-start') || 0, 10)
+    var rangeMode  = options.range     != null ? options.range     : input.hasAttribute('data-st-range')
+    var endInputEl = options.endInput  ? resolveEl(options.endInput)
+                   : input.getAttribute('data-st-end-input') ? resolveEl(input.getAttribute('data-st-end-input')) : null
+    var inlineMode = options.inline    != null ? options.inline    : input.hasAttribute('data-st-inline')
+    var showPresets= options.presets   != null && options.presets !== false
+                   ? true : input.hasAttribute('data-st-presets')
+    var customPresets = Array.isArray(options.presets) ? options.presets : null
+    var minDateS   = options.min  || input.getAttribute('data-st-min')
+    var maxDateS   = options.max  || input.getAttribute('data-st-max')
+    var minDate    = minDateS ? startOfDay(new Date(minDateS)) : null
+    var maxDate    = maxDateS ? startOfDay(new Date(maxDateS)) : null
 
-    var today       = startOfDay(new Date())
-    var viewYear    = today.getFullYear()
-    var viewMonth   = today.getMonth()
-    var selectedDay = null   // Date | null
-    var isOpen      = false
-
-    var popup = makeEl('div', {
-      'class':      'st-datepicker-popup',
-      'role':       'dialog',
-      'aria-modal': 'true',
-      'aria-label': 'Date picker',
+    // disable: array of date strings or functions
+    var disableFns = []
+    var ddays = input.getAttribute('data-st-disabled-days')
+    if (ddays) {
+      var ddArr = ddays.split(',').map(Number)
+      disableFns.push(function(d) { return ddArr.indexOf(d.getDay()) >= 0 })
+    }
+    ;(options.disable || []).forEach(function(d) {
+      if (typeof d === 'function') { disableFns.push(d) }
+      else { var t = startOfDay(new Date(d)).getTime(); disableFns.push(function(dt) { return startOfDay(dt).getTime() === t }) }
     })
 
-    function startOfDay(d) {
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate())
-    }
+    // ── State ─────────────────────────────────────────────────────────────────
+    var today         = startOfDay(new Date())
+    var viewYear      = today.getFullYear()
+    var viewMonth     = today.getMonth()
+    var viewMode      = 'days'   // 'days' | 'months' | 'years'
+    var yearPageStart = Math.floor(today.getFullYear() / 12) * 12
+    var selectedStart = null
+    var selectedEnd   = null
+    var hoverDate     = null
+    var rangePhase    = 'start'  // 'start' | 'end' — which end we're picking
+    var isOpen        = false
+    var activePreset  = null
+
+    // ── Format helpers ────────────────────────────────────────────────────────
 
     function fmtDate(d) {
       var Y = d.getFullYear()
@@ -753,182 +802,345 @@
       return fmt.replace('YYYY', Y).replace('MM', M).replace('DD', D)
     }
 
-    function sameDay(a, b) {
-      return a && b &&
-        a.getFullYear() === b.getFullYear() &&
-        a.getMonth()    === b.getMonth()    &&
-        a.getDate()     === b.getDate()
+    function isDisabled(d) {
+      if (minDate && d < minDate) return true
+      if (maxDate && d > maxDate) return true
+      return disableFns.some(function(fn) { return fn(d) })
     }
 
-    function isOutOfRange(d) {
-      return (minDate && d < minDate) || (maxDate && d > maxDate)
+    function isInRange(d) {
+      var s = selectedStart, e = selectedEnd || hoverDate
+      if (!s || !e) return false
+      var lo = s < e ? s : e, hi = s < e ? e : s
+      return d > lo && d < hi
     }
+
+    // ── Popup ─────────────────────────────────────────────────────────────────
+
+    var popup = makeEl('div', { 'class': 'st-datepicker-popup', 'role': 'dialog', 'aria-modal': 'true', 'aria-label': 'Date picker' })
+    var calWrap = makeEl('div', { 'class': 'st-dp-cal' })
+    popup.appendChild(calWrap)
+
+    // ── Render ────────────────────────────────────────────────────────────────
 
     function render() {
-      popup.innerHTML = ''
+      // Presets sidebar
+      var existingPresets = popup.querySelector('.st-dp-presets')
+      if (existingPresets) popup.removeChild(existingPresets)
 
-      // Header row
-      var prevBtn = makeEl('button', {
-        'class': 'st-dp-nav st-dp-prev', 'type': 'button', 'aria-label': 'Previous month',
-      }, ['‹'])
-      var nextBtn = makeEl('button', {
-        'class': 'st-dp-nav st-dp-next', 'type': 'button', 'aria-label': 'Next month',
-      }, ['›'])
-      var title = makeEl('span', { 'class': 'st-dp-title' },
+      if (showPresets) {
+        var presetList = customPresets || DEFAULT_PRESETS
+        var presetsEl  = makeEl('div', { 'class': 'st-dp-presets' })
+        presetList.forEach(function(p, pi) {
+          var btn = makeEl('button', {
+            'class': 'st-dp-preset' + (activePreset === pi ? ' is-active' : ''),
+            'type':  'button',
+          }, [p.label])
+          btn.addEventListener('click', function() {
+            var range = p.range(today)
+            activePreset  = pi
+            selectedStart = startOfDay(range[0])
+            selectedEnd   = rangeMode ? startOfDay(range[1]) : null
+            if (!rangeMode) {
+              applyDate(selectedStart)
+            } else {
+              applyRange(selectedStart, selectedEnd)
+            }
+            viewYear  = selectedStart.getFullYear()
+            viewMonth = selectedStart.getMonth()
+            renderCal()
+            if (presetsEl.parentNode) {
+              presetsEl.querySelectorAll('.st-dp-preset').forEach(function(b, i) {
+                b.classList.toggle('is-active', i === pi)
+              })
+            }
+          })
+          presetsEl.appendChild(btn)
+        })
+        popup.insertBefore(presetsEl, calWrap)
+      }
+
+      renderCal()
+    }
+
+    function renderCal() {
+      calWrap.innerHTML = ''
+      if (viewMode === 'days')   renderDays()
+      if (viewMode === 'months') renderMonths()
+      if (viewMode === 'years')  renderYears()
+    }
+
+    function renderDays() {
+      // Header
+      var prevBtn = makeEl('button', { 'class': 'st-dp-nav', 'type': 'button', 'aria-label': 'Previous month' }, ['‹'])
+      var nextBtn = makeEl('button', { 'class': 'st-dp-nav', 'type': 'button', 'aria-label': 'Next month'     }, ['›'])
+      var titleBtn = makeEl('button', { 'class': 'st-dp-title', 'type': 'button', 'aria-label': 'Select month and year' },
         [MONTHS[viewMonth] + ' ' + viewYear])
-      var header = makeEl('div', { 'class': 'st-dp-header' }, [prevBtn, title, nextBtn])
+      var header = makeEl('div', { 'class': 'st-dp-header' }, [prevBtn, titleBtn, nextBtn])
+      prevBtn.addEventListener('click',  function() { navigate(-1) })
+      nextBtn.addEventListener('click',  function() { navigate(1) })
+      titleBtn.addEventListener('click', function() { viewMode = 'months'; renderCal() })
+      calWrap.appendChild(header)
 
-      prevBtn.addEventListener('click', function () { navigate(-1) })
-      nextBtn.addEventListener('click', function () { navigate(1) })
-      popup.appendChild(header)
-
-      // Day-name row
+      // Day-name row (respects weekStart)
       var dayRow = makeEl('div', { 'class': 'st-dp-day-names' })
-      DAYS_SHORT.forEach(function (d) {
-        dayRow.appendChild(makeEl('span', { 'class': 'st-dp-day-name' }, [d]))
-      })
-      popup.appendChild(dayRow)
+      for (var di = 0; di < 7; di++) {
+        dayRow.appendChild(makeEl('span', { 'class': 'st-dp-day-name' }, [DAYS_SHORT[(di + weekStart) % 7]]))
+      }
+      calWrap.appendChild(dayRow)
 
       // Grid
-      var grid = makeEl('div', { 'class': 'st-dp-grid', 'role': 'grid' })
-      var firstWeekday = new Date(viewYear, viewMonth, 1).getDay()
-      var daysInMonth  = new Date(viewYear, viewMonth + 1, 0).getDate()
+      var grid        = makeEl('div', { 'class': 'st-dp-grid', 'role': 'grid' })
+      var firstDay    = new Date(viewYear, viewMonth, 1).getDay()
+      var leadBlanks  = (firstDay - weekStart + 7) % 7
+      var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
+      var cells       = []
 
-      // Leading blank cells
-      for (var b = 0; b < firstWeekday; b++) {
+      for (var b = 0; b < leadBlanks; b++) {
         grid.appendChild(makeEl('div', { 'class': 'st-dp-cell st-dp-blank' }))
       }
 
-      // Day cells
       for (var d = 1; d <= daysInMonth; d++) {
         var cellDate = new Date(viewYear, viewMonth, d)
-        var classes  = 'st-dp-cell'
-        if (sameDay(cellDate, today))        classes += ' is-today'
-        if (sameDay(cellDate, selectedDay))  classes += ' is-selected'
-        if (isOutOfRange(cellDate))          classes += ' is-disabled'
+        var cls = 'st-dp-cell'
+        if (sameDay(cellDate, today))         cls += ' is-today'
+        if (sameDay(cellDate, selectedStart)) cls += ' is-selected is-range-start'
+        if (sameDay(cellDate, selectedEnd))   cls += ' is-selected is-range-end'
+        if (rangeMode && isInRange(cellDate)) cls += ' is-in-range'
+        if (isDisabled(cellDate))             cls += ' is-disabled'
 
-        var cell = makeEl('div', {
-          'class':       classes,
-          'role':        'gridcell',
-          'aria-label':  cellDate.toLocaleDateString(),
-          'aria-selected': sameDay(cellDate, selectedDay) ? 'true' : 'false',
-          'tabindex':    sameDay(cellDate, selectedDay) ? '0' : '-1',
-        }, [String(d)]);
+        var cell = makeEl('div', { 'class': cls, 'role': 'gridcell', 'data-ts': cellDate.getTime() }, [String(d)])
+        cells.push({ el: cell, date: cellDate })
 
-        ;(function (date) {
-          cell.addEventListener('click', function () {
-            if (!isOutOfRange(date)) selectDay(date)
-          })
-        }(cellDate))
+        ;(function(date, cellEl) {
+          if (!isDisabled(date)) {
+            cellEl.addEventListener('click', function() { onDayClick(date) })
+            if (rangeMode) {
+              cellEl.addEventListener('mouseenter', function() {
+                if (rangePhase === 'end' && selectedStart) {
+                  hoverDate = date
+                  updateRangeHighlight(cells)
+                }
+              })
+            }
+          }
+        })(cellDate, cell)
 
         grid.appendChild(cell)
       }
 
-      popup.appendChild(grid)
+      grid.addEventListener('mouseleave', function() { hoverDate = null; updateRangeHighlight(cells) })
+      calWrap.appendChild(grid)
 
-      // Today shortcut
-      var footer = makeEl('div', { 'class': 'st-dp-footer' })
+      // Footer
+      var footer   = makeEl('div', { 'class': 'st-dp-footer' })
       var todayBtn = makeEl('button', { 'class': 'st-dp-today', 'type': 'button' }, ['Today'])
-      todayBtn.addEventListener('click', function () {
-        if (!isOutOfRange(today)) {
-          viewYear  = today.getFullYear()
-          viewMonth = today.getMonth()
-          selectDay(today)
-        }
+      todayBtn.addEventListener('click', function() {
+        if (!isDisabled(today)) { viewYear = today.getFullYear(); viewMonth = today.getMonth(); onDayClick(today) }
       })
       var clearBtn = makeEl('button', { 'class': 'st-dp-clear', 'type': 'button' }, ['Clear'])
-      clearBtn.addEventListener('click', function () {
-        selectedDay  = null
-        input.value  = ''
+      clearBtn.addEventListener('click', function() {
+        selectedStart = selectedEnd = null; activePreset = null; rangePhase = 'start'
+        input.value = ''; if (endInputEl) endInputEl.value = ''
         input.dispatchEvent(new Event('change', { bubbles: true }))
-        emit('st:datepicker:change', { input: input, date: null, formatted: '' })
-        render()
+        emit('st:datepicker:change', { input: input, date: null, dateEnd: null, formatted: '', formattedEnd: '' })
+        renderCal()
       })
       footer.appendChild(todayBtn)
       footer.appendChild(clearBtn)
-      popup.appendChild(footer)
+      calWrap.appendChild(footer)
     }
+
+    function renderMonths() {
+      var prevBtn  = makeEl('button', { 'class': 'st-dp-nav', 'type': 'button', 'aria-label': 'Previous year' }, ['‹'])
+      var nextBtn  = makeEl('button', { 'class': 'st-dp-nav', 'type': 'button', 'aria-label': 'Next year'     }, ['›'])
+      var titleBtn = makeEl('button', { 'class': 'st-dp-title', 'type': 'button' }, [String(viewYear)])
+      var header   = makeEl('div', { 'class': 'st-dp-header' }, [prevBtn, titleBtn, nextBtn])
+      prevBtn.addEventListener('click',  function() { viewYear--; renderCal() })
+      nextBtn.addEventListener('click',  function() { viewYear++; renderCal() })
+      titleBtn.addEventListener('click', function() { viewMode = 'years'; renderCal() })
+      calWrap.appendChild(header)
+
+      var grid = makeEl('div', { 'class': 'st-dp-month-grid' })
+      MONTHS_SHORT.forEach(function(name, mi) {
+        var isCur = mi === viewMonth && viewYear === today.getFullYear()
+        var cell  = makeEl('button', { 'class': 'st-dp-month-cell' + (isCur ? ' is-today' : ''), 'type': 'button' }, [name])
+        cell.addEventListener('click', function() { viewMonth = mi; viewMode = 'days'; renderCal() })
+        grid.appendChild(cell)
+      })
+      calWrap.appendChild(grid)
+    }
+
+    function renderYears() {
+      var prevBtn  = makeEl('button', { 'class': 'st-dp-nav', 'type': 'button', 'aria-label': 'Previous years' }, ['‹'])
+      var nextBtn  = makeEl('button', { 'class': 'st-dp-nav', 'type': 'button', 'aria-label': 'Next years'     }, ['›'])
+      var titleEl  = makeEl('span', { 'class': 'st-dp-title st-dp-title--static' }, [yearPageStart + ' – ' + (yearPageStart + 11)])
+      var header   = makeEl('div', { 'class': 'st-dp-header' }, [prevBtn, titleEl, nextBtn])
+      prevBtn.addEventListener('click', function() { yearPageStart -= 12; renderCal() })
+      nextBtn.addEventListener('click', function() { yearPageStart += 12; renderCal() })
+      calWrap.appendChild(header)
+
+      var grid = makeEl('div', { 'class': 'st-dp-year-grid' })
+      for (var yi = 0; yi < 12; yi++) {
+        var yr    = yearPageStart + yi
+        var isCur = yr === today.getFullYear()
+        var cell  = makeEl('button', { 'class': 'st-dp-year-cell' + (isCur ? ' is-today' : ''), 'type': 'button' }, [String(yr)])
+        ;(function(y) { cell.addEventListener('click', function() { viewYear = y; viewMode = 'months'; renderCal() }) })(yr)
+        grid.appendChild(cell)
+      }
+      calWrap.appendChild(grid)
+    }
+
+    function updateRangeHighlight(cells) {
+      cells.forEach(function(c) {
+        var inRange = rangeMode && isInRange(c.date)
+        c.el.classList.toggle('is-in-range', inRange)
+        c.el.classList.toggle('is-range-hover', !!(rangeMode && hoverDate && !selectedEnd && inRange))
+      })
+    }
+
+    // ── Selection logic ───────────────────────────────────────────────────────
+
+    function onDayClick(date) {
+      activePreset = null
+      if (!rangeMode) {
+        selectedStart = date
+        applyDate(date)
+        if (!inlineMode) close()
+        return
+      }
+      // Range mode
+      if (rangePhase === 'start' || (selectedStart && selectedEnd)) {
+        selectedStart = date; selectedEnd = null; rangePhase = 'end'
+        renderCal()
+      } else {
+        // Ensure start ≤ end
+        if (date < selectedStart) { selectedEnd = selectedStart; selectedStart = date }
+        else { selectedEnd = date }
+        rangePhase = 'start'
+        applyRange(selectedStart, selectedEnd)
+        if (!inlineMode) close()
+      }
+    }
+
+    function applyDate(date) {
+      input.value = fmtDate(date)
+      input.dispatchEvent(new Event('change', { bubbles: true }))
+      emit('st:datepicker:change', { input: input, date: date, formatted: input.value })
+    }
+
+    function applyRange(start, end) {
+      input.value   = start ? fmtDate(start) : ''
+      if (endInputEl) endInputEl.value = end ? fmtDate(end) : ''
+      input.dispatchEvent(new Event('change', { bubbles: true }))
+      emit('st:datepicker:change', {
+        input: input, date: start, dateEnd: end,
+        formatted: input.value, formattedEnd: endInputEl ? endInputEl.value : '',
+      })
+    }
+
+    // ── Navigate ──────────────────────────────────────────────────────────────
 
     function navigate(dir) {
       viewMonth += dir
       if (viewMonth > 11) { viewMonth = 0; viewYear++ }
       if (viewMonth < 0)  { viewMonth = 11; viewYear-- }
-      render()
+      emit('st:datepicker:monthChange', { input: input, year: viewYear, month: viewMonth })
+      renderCal()
     }
 
-    function selectDay(date) {
-      selectedDay  = date
-      input.value  = fmtDate(date)
-      input.dispatchEvent(new Event('change', { bubbles: true }))
-      emit('st:datepicker:change', { input: input, date: date, formatted: input.value })
-      close()
-    }
+    // ── Open / close ──────────────────────────────────────────────────────────
 
     function open() {
-      if (isOpen) return
+      if (inlineMode || isOpen) return
       isOpen = true
-
-      // Sync view to existing input value
       var existing = parseDate(input.value)
-      if (existing) {
-        selectedDay = existing
-        viewYear    = existing.getFullYear()
-        viewMonth   = existing.getMonth()
-      }
-
+      if (existing) { selectedStart = existing; viewYear = existing.getFullYear(); viewMonth = existing.getMonth() }
       render()
       doc.body.appendChild(popup)
       positionBelow(popup, input)
-      // Trigger reflow so transition plays
       void popup.offsetHeight
       popup.classList.add('is-open')
       input.setAttribute('aria-expanded', 'true')
       emit('st:datepicker:open', { input: input })
-      setTimeout(function () { doc.addEventListener('click', outsideClick, true) }, 0)
+      setTimeout(function() { doc.addEventListener('click', outsideClick, true) }, 0)
     }
 
     function close() {
-      if (!isOpen) return
+      if (inlineMode || !isOpen) return
       isOpen = false
+      hoverDate = null
       popup.classList.remove('is-open')
       input.setAttribute('aria-expanded', 'false')
       doc.removeEventListener('click', outsideClick, true)
       emit('st:datepicker:close', { input: input })
       var p = popup
-      setTimeout(function () { if (p.parentNode) p.parentNode.removeChild(p) }, 200)
-    }
-
-    function parseDate(str) {
-      if (!str) return null
-      var d = new Date(str)
-      return isNaN(d.getTime()) ? null : startOfDay(d)
+      setTimeout(function() { if (p.parentNode) p.parentNode.removeChild(p) }, 200)
     }
 
     function outsideClick(e) {
-      if (!popup.contains(e.target) && e.target !== input) close()
+      var targets = [popup, input]
+      if (endInputEl) targets.push(endInputEl)
+      if (!targets.some(function(t) { return t.contains(e.target) || t === e.target })) close()
     }
 
-    input.setAttribute('autocomplete', 'off')
-    input.setAttribute('aria-expanded', 'false')
-    input.setAttribute('aria-haspopup', 'dialog')
-    input.addEventListener('click', function () { isOpen ? close() : open() })
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') close()
-      if ((e.key === 'Enter' || e.key === ' ') && !isOpen) { e.preventDefault(); open() }
-    })
+    // ── Keyboard ──────────────────────────────────────────────────────────────
+
+    function setupInput(el, isEnd) {
+      el.setAttribute('autocomplete', 'off')
+      el.setAttribute('aria-haspopup', 'dialog')
+      el.setAttribute('aria-expanded', 'false')
+      el.addEventListener('click', function() {
+        if (isEnd) { rangePhase = 'end'; if (selectedStart) { viewYear = selectedStart.getFullYear(); viewMonth = selectedStart.getMonth() } }
+        isOpen ? close() : open()
+      })
+      el.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') close()
+        if ((e.key === 'Enter' || e.key === ' ') && !isOpen) { e.preventDefault(); open() }
+        if (isOpen && viewMode === 'days') {
+          var cur = isEnd ? selectedEnd : selectedStart
+          if (!cur) return
+          var next = new Date(cur)
+          if (e.key === 'ArrowRight') { e.preventDefault(); next.setDate(next.getDate() + 1) }
+          if (e.key === 'ArrowLeft')  { e.preventDefault(); next.setDate(next.getDate() - 1) }
+          if (e.key === 'ArrowDown')  { e.preventDefault(); next.setDate(next.getDate() + 7) }
+          if (e.key === 'ArrowUp')    { e.preventDefault(); next.setDate(next.getDate() - 7) }
+          if (next !== cur && !isDisabled(startOfDay(next))) {
+            if (next.getMonth() !== viewMonth) { viewYear = next.getFullYear(); viewMonth = next.getMonth() }
+            onDayClick(startOfDay(next))
+          }
+          if (e.key === 'Enter') { e.preventDefault(); onDayClick(cur); if (!inlineMode) close() }
+        }
+      })
+    }
+
+    setupInput(input, false)
+    if (endInputEl) setupInput(endInputEl, true)
+
+    // Inline mode — render immediately into a wrapper after input
+    if (inlineMode) {
+      popup.classList.add('is-inline')
+      render()
+      input.parentNode.insertBefore(popup, input.nextSibling)
+    }
 
     var api = {
-      open:    open,
-      close:   close,
-      setDate: function (val) {
-        var d = new Date(val)
-        if (!isNaN(d.getTime())) selectDay(startOfDay(d))
+      open:  open,
+      close: close,
+      setDate: function(val, isEnd) {
+        var d = parseDate(val)
+        if (!d) return
+        if (isEnd) { selectedEnd = d } else { selectedStart = d }
+        if (inlineMode) renderCal(); else if (isOpen) renderCal()
+        applyRange(selectedStart, selectedEnd)
       },
-      getDate: function () { return selectedDay ? new Date(selectedDay) : null },
-      destroy: function () {
-        input.removeAttribute('aria-expanded')
-        input.removeAttribute('aria-haspopup')
-        input.removeAttribute('autocomplete')
+      getDate:  function() { return selectedStart ? new Date(selectedStart) : null },
+      getRange: function() { return { start: selectedStart ? new Date(selectedStart) : null, end: selectedEnd ? new Date(selectedEnd) : null } },
+      destroy:  function() {
+        ;[input, endInputEl].forEach(function(el) {
+          if (!el) return
+          el.removeAttribute('aria-expanded'); el.removeAttribute('aria-haspopup'); el.removeAttribute('autocomplete')
+        })
         if (popup.parentNode) popup.parentNode.removeChild(popup)
         dpRegistry.delete(input)
       },
@@ -938,32 +1150,19 @@
     return api
   }
 
-  // ─── Time Picker ────────────────────────────────────────────────────────────
+  // ── Shared time-picker renderer (used by both timepicker and datetimepicker) ─
 
-  var tpRegistry = new Map()
+  function buildTimePart(opts, onConfirm) {
+    // opts: { use24h, step, showSeconds, container, showConfirm }
+    var use24h      = opts.use24h      || false
+    var step        = opts.step        || 5
+    var showSeconds = opts.showSeconds || false
+    var container   = opts.container   || makeEl('div', {})
 
-  function createTimepicker(input, options) {
-    options = options || {}
-    if (tpRegistry.has(input)) return tpRegistry.get(input)
-
-    var use24h  = options.hour24 === true
-               || input.getAttribute('data-st-hour24') === 'true'
-               || false
-    var step    = parseInt(options.step || input.getAttribute('data-st-step') || '5', 10)
-
-    // Display state
-    // displayHour: 1-12 (12h mode) or 0-23 (24h mode)
     var displayHour = null
     var selMin      = 0
-    var selPeriod   = 'AM'   // only used in 12h mode
-    var isOpen      = false
-
-    var popup = makeEl('div', {
-      'class':      'st-timepicker-popup',
-      'role':       'dialog',
-      'aria-modal': 'true',
-      'aria-label': 'Time picker',
-    })
+    var selSec      = 0
+    var selPeriod   = 'AM'
 
     function getActual24Hour() {
       if (displayHour === null) return null
@@ -975,135 +1174,140 @@
     function formatTime() {
       var h24 = getActual24Hour()
       if (h24 === null) return ''
-      var m   = String(selMin).padStart(2, '0')
-      if (use24h) return String(h24).padStart(2, '0') + ':' + m
-      var h12 = displayHour === null ? 12 : displayHour
-      return h12 + ':' + m + ' ' + selPeriod
+      var h = String(use24h ? h24 : (displayHour || 12)).padStart(2, '0')
+      var m = String(selMin).padStart(2, '0')
+      var s = String(selSec).padStart(2, '0')
+      var base = h + ':' + m + (showSeconds ? ':' + s : '')
+      return use24h ? base : base + ' ' + selPeriod
     }
 
-    function applyValue() {
-      var formatted = formatTime()
-      if (!formatted) return
-      input.value = formatted
-      input.dispatchEvent(new Event('change', { bubbles: true }))
-      emit('st:timepicker:change', {
-        input:    input,
-        value:    formatted,
-        hour:     getActual24Hour(),
-        minute:   selMin,
-        period:   use24h ? null : selPeriod,
-      })
-    }
-
-    function buildColumn(label, items, getSelectedFn, onClickFn) {
+    function buildCol(label, items, isSelFn, onClickFn) {
       var wrap = makeEl('div', { 'class': 'st-tp-col-wrap' })
       var lbl  = makeEl('div', { 'class': 'st-tp-col-label' }, [label])
       var col  = makeEl('div', { 'class': 'st-tp-col', 'role': 'listbox', 'aria-label': label })
-
-      items.forEach(function (item) {
-        var isSel = getSelectedFn(item.value)
-        var li    = makeEl('div', {
+      items.forEach(function(item) {
+        var isSel = isSelFn(item.value)
+        var li = makeEl('div', {
           'class':       'st-tp-item' + (isSel ? ' is-selected' : ''),
           'role':        'option',
           'aria-selected': isSel ? 'true' : 'false',
           'data-value':  String(item.value),
         }, [item.label])
-        li.addEventListener('click', function () { onClickFn(item.value) })
+        ;(function(v) { li.addEventListener('click', function() { onClickFn(v); render() }) })(item.value)
         col.appendChild(li)
       })
-
-      wrap.appendChild(lbl)
-      wrap.appendChild(col)
+      wrap.appendChild(lbl); wrap.appendChild(col)
       return wrap
     }
 
     function render() {
-      popup.innerHTML = ''
-
+      container.innerHTML = ''
       var cols = makeEl('div', { 'class': 'st-tp-cols' })
 
-      // Hours column
-      var hours = []
-      var hourStart = use24h ? 0 : 1
-      var hourEnd   = use24h ? 23 : 12
-      for (var h = hourStart; h <= hourEnd; h++) {
-        hours.push({ value: h, label: String(h).padStart(2, '0') })
-      }
+      // Hours
+      var hours = [], hs = use24h ? 0 : 1, he = use24h ? 23 : 12
+      for (var h = hs; h <= he; h++) hours.push({ value: h, label: String(h).padStart(2,'0') })
+      cols.appendChild(buildCol('Hour', hours,
+        function(v) { return displayHour === v },
+        function(v) { displayHour = v }
+      ))
 
-      var hourCol = buildColumn('Hour', hours,
-        function (v) { return displayHour === v },
-        function (v) {
-          displayHour = v
-          renderAndApply()
-        }
-      )
-      cols.appendChild(hourCol)
-
-      // Minutes column
+      // Minutes
       var mins = []
-      for (var m = 0; m < 60; m += step) {
-        mins.push({ value: m, label: String(m).padStart(2, '0') })
+      for (var mi = 0; mi < 60; mi += step) mins.push({ value: mi, label: String(mi).padStart(2,'0') })
+      cols.appendChild(buildCol('Min', mins,
+        function(v) { return selMin === v },
+        function(v) { selMin = v }
+      ))
+
+      // Seconds
+      if (showSeconds) {
+        var secs = []
+        for (var si = 0; si < 60; si += step) secs.push({ value: si, label: String(si).padStart(2,'0') })
+        cols.appendChild(buildCol('Sec', secs,
+          function(v) { return selSec === v },
+          function(v) { selSec = v }
+        ))
       }
 
-      var minCol = buildColumn('Min', mins,
-        function (v) { return selMin === v },
-        function (v) {
-          selMin = v
-          renderAndApply()
-        }
-      )
-      cols.appendChild(minCol)
-
-      // AM/PM column (12h only)
+      // AM/PM
       if (!use24h) {
-        var periods = [{ value: 'AM', label: 'AM' }, { value: 'PM', label: 'PM' }]
-        var periodCol = buildColumn('', periods,
-          function (v) { return selPeriod === v },
-          function (v) {
-            selPeriod = v
-            renderAndApply()
-          }
-        )
-        cols.appendChild(periodCol)
+        cols.appendChild(buildCol('', [{ value:'AM', label:'AM' }, { value:'PM', label:'PM' }],
+          function(v) { return selPeriod === v },
+          function(v) { selPeriod = v }
+        ))
       }
 
-      popup.appendChild(cols)
+      container.appendChild(cols)
 
-      // Confirm button
-      var footer    = makeEl('div', { 'class': 'st-tp-footer' })
-      var confirmBtn = makeEl('button', { 'class': 'st-tp-confirm', 'type': 'button' }, ['Set time'])
-      confirmBtn.addEventListener('click', function () {
-        if (displayHour === null) displayHour = use24h ? 0 : 12
-        applyValue()
-        close()
-      })
-      footer.appendChild(confirmBtn)
-      popup.appendChild(footer)
+      if (opts.showConfirm !== false) {
+        var footer = makeEl('div', { 'class': 'st-tp-footer' })
+        var btn = makeEl('button', { 'class': 'st-tp-confirm', 'type': 'button' }, ['Set time'])
+        btn.addEventListener('click', function() {
+          if (displayHour === null) displayHour = use24h ? 0 : 12
+          if (onConfirm) onConfirm(formatTime(), getActual24Hour(), selMin, selSec, selPeriod)
+        })
+        footer.appendChild(btn)
+        container.appendChild(footer)
+      }
 
       // Scroll selected items into view
-      setTimeout(function () {
-        popup.querySelectorAll('.st-tp-item.is-selected').forEach(function (el) {
+      setTimeout(function() {
+        container.querySelectorAll('.st-tp-item.is-selected').forEach(function(el) {
           el.parentNode.scrollTop = el.offsetTop - el.parentNode.offsetHeight / 2
         })
       }, 0)
     }
 
-    function renderAndApply() {
-      render()
-      applyValue()
+    render()
+
+    return {
+      el:        container,
+      getTime:   formatTime,
+      setTime:   function(h, m, s) {
+        if (use24h) { displayHour = Math.max(0, Math.min(23, h)) }
+        else { selPeriod = h >= 12 ? 'PM' : 'AM'; displayHour = h % 12 || 12 }
+        selMin = Math.max(0, Math.min(59, m || 0))
+        selSec = Math.max(0, Math.min(59, s || 0))
+        render()
+      },
+      getDetail: function() { return { hour: getActual24Hour(), minute: selMin, second: selSec, period: use24h ? null : selPeriod } }
     }
+  }
+
+  function createTimepicker(input, options) {
+    options = options || {}
+    if (tpRegistry.has(input)) return tpRegistry.get(input)
+
+    var use24h      = options.hour24      === true || input.getAttribute('data-st-hour24') === 'true'
+    var step        = parseInt(options.step || input.getAttribute('data-st-step') || '5', 10)
+    var showSeconds = options.showSeconds === true || input.hasAttribute('data-st-show-seconds')
+    var isOpen      = false
+    var timePart    = null
+
+    var popup = makeEl('div', { 'class': 'st-timepicker-popup', 'role': 'dialog', 'aria-modal': 'true', 'aria-label': 'Time picker' })
 
     function open() {
       if (isOpen) return
       isOpen = true
-      render()
+      popup.innerHTML = ''
+      timePart = buildTimePart({
+        use24h: use24h, step: step, showSeconds: showSeconds, showConfirm: true,
+      }, function(formatted) {
+        input.value = formatted
+        input.dispatchEvent(new Event('change', { bubbles: true }))
+        var d = timePart.getDetail()
+        emit('st:timepicker:change', { input: input, value: formatted, hour: d.hour, minute: d.minute, second: d.second, period: d.period })
+        close()
+      })
+      popup.appendChild(timePart.el)
       doc.body.appendChild(popup)
       positionBelow(popup, input)
       void popup.offsetHeight
       popup.classList.add('is-open')
       input.setAttribute('aria-expanded', 'true')
       emit('st:timepicker:open', { input: input })
-      setTimeout(function () { doc.addEventListener('click', outsideClick, true) }, 0)
+      setTimeout(function() { doc.addEventListener('click', outsideClick, true) }, 0)
     }
 
     function close() {
@@ -1114,7 +1318,7 @@
       doc.removeEventListener('click', outsideClick, true)
       emit('st:timepicker:close', { input: input })
       var p = popup
-      setTimeout(function () { if (p.parentNode) p.parentNode.removeChild(p) }, 200)
+      setTimeout(function() { if (p.parentNode) p.parentNode.removeChild(p) }, 200)
     }
 
     function outsideClick(e) {
@@ -1122,40 +1326,140 @@
     }
 
     input.setAttribute('autocomplete', 'off')
-    input.setAttribute('aria-expanded', 'false')
     input.setAttribute('aria-haspopup', 'dialog')
-    input.addEventListener('click', function () { isOpen ? close() : open() })
-    input.addEventListener('keydown', function (e) {
+    input.setAttribute('aria-expanded', 'false')
+    input.addEventListener('click', function() { isOpen ? close() : open() })
+    input.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') close()
       if ((e.key === 'Enter' || e.key === ' ') && !isOpen) { e.preventDefault(); open() }
     })
 
     var api = {
-      open:    open,
-      close:   close,
-      setTime: function (h, m) {
-        if (use24h) {
-          displayHour = Math.max(0, Math.min(23, h))
-        } else {
-          selPeriod   = h >= 12 ? 'PM' : 'AM'
-          displayHour = h % 12 || 12
-        }
-        selMin = Math.max(0, Math.min(59, m))
-        applyValue()
-      },
-      getTime: function () {
-        return { hour: getActual24Hour(), minute: selMin, formatted: formatTime() }
-      },
-      destroy: function () {
-        input.removeAttribute('aria-expanded')
-        input.removeAttribute('aria-haspopup')
-        input.removeAttribute('autocomplete')
+      open:  open,
+      close: close,
+      setTime: function(h, m, s) { if (timePart) timePart.setTime(h, m, s) },
+      getTime: function() { return timePart ? { formatted: timePart.getTime(), ...timePart.getDetail() } : {} },
+      destroy: function() {
+        input.removeAttribute('aria-expanded'); input.removeAttribute('aria-haspopup'); input.removeAttribute('autocomplete')
         if (popup.parentNode) popup.parentNode.removeChild(popup)
         tpRegistry.delete(input)
       },
     }
 
     tpRegistry.set(input, api)
+    return api
+  }
+
+  // ─── Datetime Picker ────────────────────────────────────────────────────────
+
+  function createDatetimepicker(input, options) {
+    options = options || {}
+    if (dtRegistry.has(input)) return dtRegistry.get(input)
+
+    // Split format into date and time parts (split on first space before time tokens)
+    var fullFmt  = options.format || input.getAttribute('data-st-format') || 'YYYY-MM-DD HH:mm'
+    var parts    = fullFmt.split(' ')
+    var dateFmt  = parts[0]  || 'YYYY-MM-DD'
+    var timeFmt  = parts.slice(1).join(' ') || 'HH:mm'
+    var use24h   = options.hour24      === true || input.getAttribute('data-st-hour24') === 'true' || timeFmt.indexOf('HH') >= 0
+    var step     = parseInt(options.step || input.getAttribute('data-st-step') || '5', 10)
+    var showSecs = options.showSeconds === true || input.hasAttribute('data-st-show-seconds') || timeFmt.indexOf('ss') >= 0
+    var isOpen   = false
+    var timePart = null
+
+    // Build a combined popup: calendar section + time section side by side
+    var popup    = makeEl('div', { 'class': 'st-datetimepicker-popup', 'role': 'dialog', 'aria-modal': 'true', 'aria-label': 'Date and time picker' })
+    var calSection  = makeEl('div', { 'class': 'st-dtp-cal' })
+    var timeSection = makeEl('div', { 'class': 'st-dtp-time' })
+    popup.appendChild(calSection)
+    popup.appendChild(timeSection)
+
+    // Inline date picker rendering inside calSection
+    var dpOpts = Object.assign({}, options, { format: dateFmt, inline: true })
+    var dpInput = makeEl('input', { 'type': 'hidden', 'value': '' })
+    doc.body.appendChild(dpInput)  // needs to be in DOM for dpRegistry
+    var dpApi = createDatepicker(dpInput, dpOpts)
+    calSection.appendChild(dpApi._popup || dpInput.nextSibling)
+    // Swap the popup into our section
+    if (dpInput.nextSibling) calSection.appendChild(dpInput.nextSibling)
+
+    function buildTime() {
+      timeSection.innerHTML = ''
+      var lbl = makeEl('div', { 'class': 'st-dtp-time-label' }, ['Time'])
+      timeSection.appendChild(lbl)
+      timePart = buildTimePart({
+        use24h: use24h, step: step, showSeconds: showSecs, showConfirm: false,
+      }, null)
+      timeSection.appendChild(timePart.el)
+
+      var footer = makeEl('div', { 'class': 'st-tp-footer' })
+      var applyBtn = makeEl('button', { 'class': 'st-tp-confirm', 'type': 'button' }, ['Apply'])
+      applyBtn.addEventListener('click', function() {
+        var dateVal = dpInput.value || ''
+        var timeVal = timePart.getTime()
+        if (dateVal && timeVal) {
+          input.value = dateVal + ' ' + timeVal
+          input.dispatchEvent(new Event('change', { bubbles: true }))
+          var d = timePart.getDetail()
+          emit('st:datetimepicker:change', { input: input, value: input.value, date: dpApi.getDate(), hour: d.hour, minute: d.minute })
+          close()
+        }
+      })
+      footer.appendChild(applyBtn)
+      timeSection.appendChild(footer)
+    }
+
+    // Wire dpInput changes to re-render time section
+    dpInput.addEventListener('change', function() { buildTime() })
+
+    function open() {
+      if (isOpen) return
+      isOpen = true
+      buildTime()
+      doc.body.appendChild(popup)
+      positionBelow(popup, input)
+      void popup.offsetHeight
+      popup.classList.add('is-open')
+      input.setAttribute('aria-expanded', 'true')
+      emit('st:datetimepicker:open', { input: input })
+      setTimeout(function() { doc.addEventListener('click', outsideClick, true) }, 0)
+    }
+
+    function close() {
+      if (!isOpen) return
+      isOpen = false
+      popup.classList.remove('is-open')
+      input.setAttribute('aria-expanded', 'false')
+      doc.removeEventListener('click', outsideClick, true)
+      emit('st:datetimepicker:close', { input: input })
+      var p = popup
+      setTimeout(function() { if (p.parentNode) p.parentNode.removeChild(p) }, 200)
+    }
+
+    function outsideClick(e) {
+      if (!popup.contains(e.target) && e.target !== input) close()
+    }
+
+    input.setAttribute('autocomplete', 'off')
+    input.setAttribute('aria-haspopup', 'dialog')
+    input.setAttribute('aria-expanded', 'false')
+    input.addEventListener('click', function() { isOpen ? close() : open() })
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') close()
+      if ((e.key === 'Enter' || e.key === ' ') && !isOpen) { e.preventDefault(); open() }
+    })
+
+    var api = {
+      open: open, close: close,
+      destroy: function() {
+        input.removeAttribute('aria-expanded'); input.removeAttribute('aria-haspopup'); input.removeAttribute('autocomplete')
+        dpApi.destroy(); if (dpInput.parentNode) dpInput.parentNode.removeChild(dpInput)
+        if (popup.parentNode) popup.parentNode.removeChild(popup)
+        dtRegistry.delete(input)
+      }
+    }
+
+    dtRegistry.set(input, api)
     return api
   }
 
@@ -1179,12 +1483,9 @@
     doc.querySelectorAll(SELECT_INIT_SELECTOR).forEach(function (el) {
       if (!seen.has(el)) { seen.add(el); createSelect(el) }
     })
-    doc.querySelectorAll('[data-st-datepicker]').forEach(function (el) {
-      createDatepicker(el)
-    })
-    doc.querySelectorAll('[data-st-timepicker]').forEach(function (el) {
-      createTimepicker(el)
-    })
+    doc.querySelectorAll('[data-st-datepicker]').forEach(function (el) { createDatepicker(el) })
+    doc.querySelectorAll('[data-st-timepicker]').forEach(function (el) { createTimepicker(el) })
+    doc.querySelectorAll('[data-st-datetimepicker]').forEach(function (el) { createDatetimepicker(el) })
   }
 
   if (typeof doc.readyState === 'string') {
@@ -1210,10 +1511,14 @@
       var el = resolveEl(selector)
       return el ? createTimepicker(el, options) : null
     },
+    datetimepicker: function (selector, options) {
+      var el = resolveEl(selector)
+      return el ? createDatetimepicker(el, options) : null
+    },
     destroy: function (selector) {
       var target = resolveEl(selector)
       if (!target) return
-      ;[selectRegistry, dpRegistry, tpRegistry].forEach(function (reg) {
+      ;[selectRegistry, dpRegistry, tpRegistry, dtRegistry].forEach(function (reg) {
         if (reg.has(target)) reg.get(target).destroy()
       })
     },
