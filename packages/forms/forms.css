@@ -1,0 +1,482 @@
+/**
+ * Strata Forms — Standalone CSS
+ * Version: 1.0.0
+ *
+ * Usage:
+ *   Standalone : import this file once in your project.
+ *   With Strata: do NOT import this file — Strata generates these styles via JIT.
+ *
+ * Strata detection:
+ *   Tokens are scoped to :root:not([data-strata]) and are suppressed when
+ *   Strata is present. All component classes work identically in both contexts.
+ */
+
+/* ─── Tokens — light theme (standalone only) ─────────────────────────────── */
+
+:root:not([data-strata]) {
+  --st-bg:             #ffffff;
+  --st-bg-secondary:   #f8f9fa;
+  --st-text:           #212529;
+  --st-text-muted:     #6c757d;
+  --st-border:         #dee2e6;
+  --st-border-radius:  0.375rem;
+  --st-primary:        #0d6efd;
+  --st-primary-hover:  #0b5ed7;
+  --st-duration:       200ms;
+  --st-easing:         cubic-bezier(0.4, 0, 0.2, 1);
+  --st-focus-ring:     0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  --st-shadow:         0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --st-shadow-sm:      0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* ─── Dark mode — system preference (standalone only) ───────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-strata]) {
+    --st-bg:           #212529;
+    --st-bg-secondary: #2b3035;
+    --st-text:         #dee2e6;
+    --st-text-muted:   #8c959e;
+    --st-border:       #495057;
+    --st-shadow:       0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    --st-shadow-sm:    0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --st-focus-ring:   0 0 0 0.25rem rgba(110, 168, 254, 0.25);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CUSTOM SELECT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.st-select {
+  position: relative;
+  display:  inline-block;
+  width:    100%;
+}
+
+.st-select-trigger {
+  --st-select-height: 2.5rem;
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  gap:              0.5rem;
+  width:            100%;
+  height:           var(--st-select-height);
+  padding:          0.375rem 0.75rem;
+  font-size:        1rem;
+  font-weight:      400;
+  line-height:      1.5;
+  color:            var(--st-text, #212529);
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    var(--st-border-radius, 0.375rem);
+  cursor:           pointer;
+  text-align:       left;
+  white-space:      nowrap;
+  transition:       border-color var(--st-duration, 200ms) var(--st-easing, ease),
+                    box-shadow   var(--st-duration, 200ms) var(--st-easing, ease);
+  appearance:       none;
+}
+
+.st-select-trigger:focus-visible {
+  outline:    none;
+  box-shadow: var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+.st-select.is-open .st-select-trigger {
+  border-color: var(--st-primary, #0d6efd);
+  box-shadow:   var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+.st-select.is-disabled .st-select-trigger {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+  opacity:          0.65;
+  cursor:           not-allowed;
+}
+
+.st-select-value {
+  flex:          1 1 auto;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
+.st-select-placeholder {
+  color: var(--st-text-muted, #6c757d);
+}
+
+/* Chevron arrow — CSS only, no icon font needed */
+.st-select-arrow {
+  flex-shrink:  0;
+  width:        0.8em;
+  height:       0.8em;
+  border-right: 2px solid currentColor;
+  border-bottom:2px solid currentColor;
+  transform:    rotate(45deg) translateY(-2px);
+  opacity:      0.5;
+  transition:   transform var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-select.is-open .st-select-arrow {
+  transform: rotate(225deg) translateY(-2px);
+}
+
+/* Listbox dropdown */
+.st-select-listbox {
+  position:         absolute;
+  top:              calc(100% + 4px);
+  left:             0;
+  z-index:          1000;
+  width:            100%;
+  max-height:       240px;
+  overflow-y:       auto;
+  margin:           0;
+  padding:          0.25rem 0;
+  list-style:       none;
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    var(--st-border-radius, 0.375rem);
+  box-shadow:       var(--st-shadow, 0 0.5rem 1rem rgba(0,0,0,0.15));
+  animation:        st-forms-fadein var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+/* Dropup variant — opens above */
+.st-select.st-select-dropup .st-select-listbox {
+  top:    auto;
+  bottom: calc(100% + 4px);
+}
+
+.st-select-option {
+  display:  block;
+  padding:  0.5rem 0.75rem;
+  color:    var(--st-text, #212529);
+  cursor:   pointer;
+  font-size:0.9375rem;
+  transition: background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-select-option:hover,
+.st-select-option:focus {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+.st-select-option.is-selected {
+  background-color: color-mix(in srgb, var(--st-primary, #0d6efd) 12%, var(--st-bg, #fff));
+  color:            var(--st-primary, #0d6efd);
+  font-weight:      500;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DATE PICKER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.st-datepicker-popup {
+  --st-dp-cell-size: 2.25rem;
+  position:         fixed;
+  z-index:          1010;
+  width:            280px;
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    var(--st-border-radius, 0.375rem);
+  box-shadow:       var(--st-shadow, 0 0.5rem 1rem rgba(0,0,0,0.15));
+  padding:          0.75rem;
+  opacity:          0;
+  transform:        translateY(-6px);
+  pointer-events:   none;
+  transition:       opacity    var(--st-duration, 200ms) var(--st-easing, ease),
+                    transform  var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-datepicker-popup.is-open {
+  opacity:        1;
+  transform:      translateY(0);
+  pointer-events: auto;
+}
+
+/* Flip-up variant */
+.st-datepicker-popup.st-pop-up {
+  transform: translateY(6px);
+}
+.st-datepicker-popup.st-pop-up.is-open {
+  transform: translateY(0);
+}
+
+/* Header */
+.st-dp-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   0.5rem;
+}
+
+.st-dp-title {
+  font-weight: 600;
+  font-size:   0.9375rem;
+  color:       var(--st-text, #212529);
+}
+
+.st-dp-nav {
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  width:            2rem;
+  height:           2rem;
+  padding:          0;
+  background:       none;
+  border:           1px solid transparent;
+  border-radius:    var(--st-border-radius, 0.375rem);
+  cursor:           pointer;
+  font-size:        1.125rem;
+  color:            var(--st-text-muted, #6c757d);
+  line-height:      1;
+  transition:       background-color var(--st-duration, 200ms) var(--st-easing, ease),
+                    color            var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-dp-nav:hover {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+  color:            var(--st-text, #212529);
+}
+
+.st-dp-nav:focus-visible {
+  outline:    none;
+  box-shadow: var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+/* Day names row */
+.st-dp-day-names {
+  display:               grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom:         0.25rem;
+}
+
+.st-dp-day-name {
+  display:     flex;
+  align-items: center;
+  justify-content: center;
+  height:      var(--st-dp-cell-size);
+  font-size:   0.75rem;
+  font-weight: 600;
+  color:       var(--st-text-muted, #6c757d);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Grid */
+.st-dp-grid {
+  display:               grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap:                   2px;
+}
+
+.st-dp-blank {
+  height: var(--st-dp-cell-size);
+}
+
+.st-dp-cell {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  height:          var(--st-dp-cell-size);
+  font-size:       0.875rem;
+  color:           var(--st-text, #212529);
+  border-radius:   var(--st-border-radius, 0.375rem);
+  cursor:          pointer;
+  transition:      background-color var(--st-duration, 200ms) var(--st-easing, ease),
+                   color            var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-dp-cell:hover:not(.is-disabled):not(.is-selected) {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+.st-dp-cell.is-today {
+  font-weight: 700;
+  color:       var(--st-primary, #0d6efd);
+}
+
+.st-dp-cell.is-selected {
+  background-color: var(--st-primary, #0d6efd);
+  color:            #fff;
+  font-weight:      600;
+}
+
+.st-dp-cell.is-disabled {
+  color:          var(--st-text-muted, #6c757d);
+  opacity:        0.4;
+  cursor:         not-allowed;
+  pointer-events: none;
+}
+
+.st-dp-cell:focus-visible {
+  outline:    none;
+  box-shadow: var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+/* Footer */
+.st-dp-footer {
+  display:         flex;
+  justify-content: space-between;
+  margin-top:      0.75rem;
+  padding-top:     0.5rem;
+  border-top:      1px solid var(--st-border, #dee2e6);
+}
+
+.st-dp-today,
+.st-dp-clear {
+  padding:    0.25rem 0.5rem;
+  font-size:  0.8125rem;
+  background: none;
+  border:     none;
+  cursor:     pointer;
+  border-radius: var(--st-border-radius, 0.375rem);
+  color:      var(--st-primary, #0d6efd);
+  transition: background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-dp-today:hover,
+.st-dp-clear:hover {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+.st-dp-clear {
+  color: var(--st-text-muted, #6c757d);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TIME PICKER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.st-timepicker-popup {
+  position:         fixed;
+  z-index:          1010;
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    var(--st-border-radius, 0.375rem);
+  box-shadow:       var(--st-shadow, 0 0.5rem 1rem rgba(0,0,0,0.15));
+  padding:          0.75rem 0.75rem 0.5rem;
+  opacity:          0;
+  transform:        translateY(-6px);
+  pointer-events:   none;
+  transition:       opacity   var(--st-duration, 200ms) var(--st-easing, ease),
+                    transform var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-timepicker-popup.is-open {
+  opacity:        1;
+  transform:      translateY(0);
+  pointer-events: auto;
+}
+
+.st-timepicker-popup.st-pop-up {
+  transform: translateY(6px);
+}
+.st-timepicker-popup.st-pop-up.is-open {
+  transform: translateY(0);
+}
+
+/* Column layout */
+.st-tp-cols {
+  display: flex;
+  gap:     0.25rem;
+}
+
+.st-tp-col-wrap {
+  display:        flex;
+  flex-direction: column;
+  min-width:      3rem;
+}
+
+.st-tp-col-label {
+  font-size:      0.7rem;
+  font-weight:    600;
+  color:          var(--st-text-muted, #6c757d);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align:     center;
+  padding:        0 0 0.25rem;
+}
+
+.st-tp-col {
+  max-height:  180px;
+  overflow-y:  auto;
+  border:      1px solid var(--st-border, #dee2e6);
+  border-radius: var(--st-border-radius, 0.375rem);
+  scrollbar-width: thin;
+  scrollbar-color: var(--st-border, #dee2e6) transparent;
+}
+
+.st-tp-col::-webkit-scrollbar        { width: 4px; }
+.st-tp-col::-webkit-scrollbar-track  { background: transparent; }
+.st-tp-col::-webkit-scrollbar-thumb  { background: var(--st-border, #dee2e6); border-radius: 2px; }
+
+.st-tp-item {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         0.35rem 0.5rem;
+  font-size:       0.9375rem;
+  font-variant-numeric: tabular-nums;
+  color:           var(--st-text, #212529);
+  cursor:          pointer;
+  transition:      background-color var(--st-duration, 200ms) var(--st-easing, ease),
+                   color            var(--st-duration, 200ms) var(--st-easing, ease);
+  white-space:     nowrap;
+}
+
+.st-tp-item:hover:not(.is-selected) {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+.st-tp-item.is-selected {
+  background-color: var(--st-primary, #0d6efd);
+  color:            #fff;
+  font-weight:      600;
+}
+
+/* Footer */
+.st-tp-footer {
+  margin-top:  0.5rem;
+  padding-top: 0.5rem;
+  border-top:  1px solid var(--st-border, #dee2e6);
+  text-align:  right;
+}
+
+.st-tp-confirm {
+  padding:          0.3rem 0.75rem;
+  font-size:        0.875rem;
+  font-weight:      500;
+  color:            #fff;
+  background-color: var(--st-primary, #0d6efd);
+  border:           none;
+  border-radius:    var(--st-border-radius, 0.375rem);
+  cursor:           pointer;
+  transition:       background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-tp-confirm:hover {
+  background-color: var(--st-primary-hover, #0b5ed7);
+}
+
+.st-tp-confirm:focus-visible {
+  outline:    none;
+  box-shadow: var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+/* ─── Shared animation ───────────────────────────────────────────────────── */
+
+@keyframes st-forms-fadein {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .st-datepicker-popup,
+  .st-timepicker-popup,
+  .st-select-listbox {
+    transition: none;
+    animation:  none;
+  }
+}
