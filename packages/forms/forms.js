@@ -122,6 +122,8 @@
     var loadOptions   = options.loadOptions  || null
     var renderOption  = options.renderOption || null
     var renderValue   = options.renderValue  || null
+    var maxDisplay    = options.maxDisplay   != null ? parseInt(options.maxDisplay, 10)
+                      : nativeEl.getAttribute('data-st-max-display') ? parseInt(nativeEl.getAttribute('data-st-max-display'), 10) : null
     var isRequired    = nativeEl.hasAttribute('required')
     var disabled      = nativeEl.disabled
 
@@ -187,17 +189,7 @@
         'aria-disabled': disabled  ? 'true' : 'false',
         'aria-multiselectable': 'true',
       })
-      if (searchable) {
-        searchInput = makeEl('input', {
-          'class':       'st-select-search st-chips-search',
-          'type':        'text',
-          'placeholder': selectedSet.size === 0 ? placeholder : 'Add more…',
-          'autocomplete':'off',
-        })
-        searchInput.addEventListener('input', function () { searchQuery = this.value; renderListbox(); if (!isOpen) open() })
-        searchInput.addEventListener('keydown', onSearchKey)
-        chipsWrap.appendChild(searchInput)
-      }
+      // Search is always in the dropdown (not inline) — keeps trigger height stable
       trigger.appendChild(chipsWrap)
       trigger.appendChild(controls)
     } else {
@@ -246,8 +238,8 @@
     function renderListbox() {
       listbox.innerHTML = ''
 
-      // Search row — single mode only (multi has it inline in trigger)
-      if (searchable && !multiSelect) {
+      // Search row — always inside the dropdown for both single and multi
+      if (searchable) {
         var searchWrap = makeEl('li', { 'class': 'st-search-wrap' })
         var sInput = makeEl('input', {
           'class':        'st-select-search',
@@ -260,7 +252,6 @@
         sInput.addEventListener('keydown', onSearchKey)
         searchWrap.appendChild(sInput)
         listbox.appendChild(searchWrap)
-        // Auto-focus search on next tick
         setTimeout(function () { sInput.focus() }, 0)
       }
 
@@ -324,35 +315,42 @@
 
     function updateDisplay() {
       if (multiSelect) {
-        // Rebuild chips
-        var children = Array.from(chipsWrap.children)
-        children.forEach(function (c) { if (!c.classList.contains('st-chips-search')) chipsWrap.removeChild(c) })
+        // Rebuild chips — clear all first
+        chipsWrap.innerHTML = ''
 
-        selectedSet.forEach(function (idx) {
+        var selArr     = Array.from(selectedSet)
+        var displayArr = maxDisplay != null ? selArr.slice(0, maxDisplay) : selArr
+        var hiddenCount = selArr.length - displayArr.length
+
+        displayArr.forEach(function (idx) {
           var opt  = opts[idx]
           if (!opt) return
-          var chip = makeEl('span', { 'class': 'st-chip' })
+          var chip    = makeEl('span', { 'class': 'st-chip' })
           var content = getOptContent(opt, true)
           chip.appendChild(content)
           var rm = makeEl('button', { 'class': 'st-chip-remove', 'type': 'button', 'aria-label': 'Remove ' + opt.text }, ['×'])
           ;(function (i) { rm.addEventListener('click', function (e) { e.stopPropagation(); toggleMulti(i) }) })(idx)
           chip.appendChild(rm)
-          chipsWrap.insertBefore(chip, searchInput || null)
+          chipsWrap.appendChild(chip)
         })
 
-        // Placeholder
-        if (selectedSet.size === 0) {
-          if (!searchInput) chipsWrap.appendChild(makeEl('span', { 'class': 'st-select-placeholder' }, [placeholder]))
+        // +N more badge when maxDisplay is set and there are hidden selections
+        if (hiddenCount > 0) {
+          chipsWrap.appendChild(makeEl('span', { 'class': 'st-chip-more' }, ['+' + hiddenCount]))
         }
-        if (searchInput) searchInput.placeholder = selectedSet.size === 0 ? placeholder : ''
+
+        // Placeholder when nothing selected
+        if (selArr.length === 0) {
+          chipsWrap.appendChild(makeEl('span', { 'class': 'st-select-placeholder' }, [placeholder]))
+        }
 
         // Show/hide clear
-        wrapper.classList.toggle('has-value', selectedSet.size > 0)
+        wrapper.classList.toggle('has-value', selArr.length > 0)
 
-        // Max-items indicator
+        // Aria label for max-items feedback
         if (maxItems) {
-          var remaining = maxItems - selectedSet.size
-          trigger.setAttribute('aria-label', remaining > 0 ? remaining + ' more' : 'Maximum reached')
+          var remaining = maxItems - selArr.length
+          trigger.setAttribute('aria-label', remaining > 0 ? remaining + ' more allowed' : 'Maximum reached')
         }
       } else {
         // Single
@@ -540,7 +538,6 @@
         else if (vis.length === 0 && creatable && searchQuery) createOption(searchQuery)
       }
       if (e.key === 'Backspace' && !e.target.value && multiSelect && selectedSet.size > 0) {
-        // Remove last chip on backspace when search is empty
         var last = Array.from(selectedSet).pop()
         if (last != null) toggleMulti(last)
       }
