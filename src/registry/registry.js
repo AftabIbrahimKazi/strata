@@ -630,6 +630,38 @@ BADGE_COLORS.forEach(color => {
 reg('badge-pill', 'components', `.badge-pill { border-radius: 999px; }`)
 reg('rounded-pill', 'components', `.rounded-pill { border-radius: 999px; }`)
 
+// ─── Components — Label (Bootstrap 3 aliases) ────────────────────────
+// .label and .label-{color} are Bootstrap 3's label component.
+// Bootstrap 4+ renamed them to .badge / .badge-{color}.
+// These are aliases — identical output to their badge equivalents so
+// Bootstrap 3 markup works without changes.
+
+reg('label', 'components', `.label {
+  --st-badge-color: #fff;
+  display:          inline-block;
+  padding:          0.35em 0.65em;
+  font-size:        0.75em;
+  font-weight:      700;
+  line-height:      1;
+  color:            var(--st-badge-color);
+  text-align:       center;
+  white-space:      nowrap;
+  vertical-align:   baseline;
+  border-radius:    var(--st-border-radius);
+  background-color: var(--st-secondary);
+}`)
+
+const LABEL_COLORS = ['default','primary','secondary','success','info','warning','danger','light','dark']
+LABEL_COLORS.forEach(color => {
+  const mappedColor = color === 'default' ? 'secondary' : color
+  const defaultFg   = ['warning','info','light'].includes(mappedColor) ? 'var(--st-dark)' : '#fff'
+  reg(`label-${color}`, 'components', `.label-${color} {
+  --st-badge-color: ${defaultFg};
+  background-color: var(--st-${mappedColor});
+  color:            var(--st-badge-color);
+}`)
+})
+
 // ─── Components — Buttons ────────────────────────────────────────────
 
 const BTN_COLORS = ['primary','secondary','success','danger','warning','info','light','dark']

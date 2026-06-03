@@ -269,5 +269,41 @@
     </div>
   </section>
 
+  <!-- ─── BOOTSTRAP 3 LABEL CLASSES ────────────────────────────────── -->
+  <section>
+    <h2>.label + .label-{color} (Bootstrap 3 aliases)</h2>
+    <p class="desc">Identical to .badge / .badge-{color} — Bootstrap 3 markup works without changes.</p>
+    <div class="demo">
+      <div class="mb-3">
+        <small class="text-muted d-block mb-2">All variants:</small>
+        <span class="label label-default">Default</span>
+        <span class="label label-primary">Primary</span>
+        <span class="label label-success">Success</span>
+        <span class="label label-info">Info</span>
+        <span class="label label-warning">Warning</span>
+        <span class="label label-danger">Danger</span>
+      </div>
+      <div class="mb-3">
+        <small class="text-muted d-block mb-2">On a &lt;label&gt; tag — no conflict with base reset:</small>
+        <label class="label label-primary">label tag + .label.label-primary</label>
+        <label class="label label-success ms-2">label tag + .label.label-success</label>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-2">Practical — status indicators in a table:</small>
+        <table class="table table-bordered table-sm max-w-md">
+          <thead>
+            <tr><th>Booking</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Jane Smith — Hair</td><td><span class="label label-success">Confirmed</span></td></tr>
+            <tr><td>Tom Lee — Massage</td><td><span class="label label-warning">Pending</span></td></tr>
+            <tr><td>Amy Chen — Facial</td><td><span class="label label-danger">Cancelled</span></td></tr>
+            <tr><td>Sam Roy — Nails</td><td><span class="label label-info">In Progress</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
 </body>
 </html>
