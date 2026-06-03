@@ -253,6 +253,10 @@ const BASE_CSS = `
     font-family: inherit;
   }
 
+  label {
+    display: inline-block;
+  }
+
   input, button, select, textarea {
     font-family: inherit;
     font-size: inherit;

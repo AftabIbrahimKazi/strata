@@ -2866,18 +2866,21 @@ reg('tooltip-arrow', 'components', TOOLTIP_ARROW)
 })
 
 // ─── List utilities ───────────────────────────────────────────────────
+
+// Remove list styling entirely — resets padding, margin, and list-style
 reg('list-unstyled', 'utilities', `.list-unstyled {
-  padding-left: 0;
-  margin-top:   0;
+  padding-left:  0;
+  margin-top:    0;
   margin-bottom: 0;
-  list-style:   none;
+  list-style:    none;
 }`)
 
+// Inline list — items sit side by side
 reg('list-inline', 'utilities', `.list-inline {
-  padding-left: 0;
-  margin-top:   0;
+  padding-left:  0;
+  margin-top:    0;
   margin-bottom: 0;
-  list-style:   none;
+  list-style:    none;
 }`)
 
 reg('list-inline-item', 'utilities', `.list-inline-item {
@@ -2887,6 +2890,24 @@ reg('list-inline-item', 'utilities', `.list-inline-item {
 .list-inline-item:not(:last-child) {
   margin-right: 0.5rem;
 }`)
+
+// list-style-type variants
+reg('list-disc',    'utilities', `.list-disc    { list-style-type: disc; }`)
+reg('list-decimal', 'utilities', `.list-decimal { list-style-type: decimal; }`)
+reg('list-circle',  'utilities', `.list-circle  { list-style-type: circle; }`)
+reg('list-square',  'utilities', `.list-square  { list-style-type: square; }`)
+reg('list-none',    'utilities', `.list-none    { list-style-type: none; }`)
+reg('list-lower-alpha', 'utilities', `.list-lower-alpha { list-style-type: lower-alpha; }`)
+reg('list-upper-alpha', 'utilities', `.list-upper-alpha { list-style-type: upper-alpha; }`)
+reg('list-lower-roman', 'utilities', `.list-lower-roman { list-style-type: lower-roman; }`)
+reg('list-upper-roman', 'utilities', `.list-upper-roman { list-style-type: upper-roman; }`)
+
+// list-style-position variants
+reg('list-inside',  'utilities', `.list-inside  { list-style-position: inside; }`)
+reg('list-outside', 'utilities', `.list-outside { list-style-position: outside; }`)
+
+// Spaced list — adds breathing room between items
+reg('list-spaced', 'utilities', `.list-spaced > li + li { margin-top: 0.5rem; }`)
 
 // ─── Form group ───────────────────────────────────────────────────────
 reg('form-group', 'components', `.form-group {
