@@ -1161,10 +1161,23 @@
 
   // ─── Auto-init ──────────────────────────────────────────────────────────────
 
+  // All data-st-* attributes that should trigger select auto-init
+  var SELECT_INIT_SELECTOR = [
+    'select[data-st-select]',
+    'select[data-st-multi]',
+    'select[data-st-checkboxes]',
+    'select[data-st-searchable]',
+    'select[data-st-clearable]',
+    'select[data-st-creatable]',
+    'select[data-st-auto-width]',
+  ].join(',')
+
   function autoInit() {
     if (typeof doc.querySelectorAll !== 'function') return
-    doc.querySelectorAll('select[data-st-select]').forEach(function (el) {
-      createSelect(el)
+    // Deduplicate — a select may have multiple matching attributes
+    var seen = new Set()
+    doc.querySelectorAll(SELECT_INIT_SELECTOR).forEach(function (el) {
+      if (!seen.has(el)) { seen.add(el); createSelect(el) }
     })
     doc.querySelectorAll('[data-st-datepicker]').forEach(function (el) {
       createDatepicker(el)
