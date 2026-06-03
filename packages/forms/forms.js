@@ -119,13 +119,19 @@
     var autoWidth     = options.autoWidth    != null ? options.autoWidth    : nativeEl.hasAttribute('data-st-auto-width')
     var maxWidth      = options.maxWidth     != null ? parseInt(options.maxWidth, 10)
                       : nativeEl.getAttribute('data-st-max-width') ? parseInt(nativeEl.getAttribute('data-st-max-width'), 10) : null
-    var loadOptions   = options.loadOptions  || null
-    var renderOption  = options.renderOption || null
-    var renderValue   = options.renderValue  || null
-    var maxDisplay    = options.maxDisplay   != null ? parseInt(options.maxDisplay, 10)
-                      : nativeEl.getAttribute('data-st-max-display') ? parseInt(nativeEl.getAttribute('data-st-max-display'), 10) : null
-    var isRequired    = nativeEl.hasAttribute('required')
-    var disabled      = nativeEl.disabled
+    var loadOptions      = options.loadOptions       || null
+    var renderOption     = options.renderOption      || null
+    var renderValue      = options.renderValue       || null
+    var maxDisplay       = options.maxDisplay        != null ? parseInt(options.maxDisplay, 10)
+                         : nativeEl.getAttribute('data-st-max-display') ? parseInt(nativeEl.getAttribute('data-st-max-display'), 10) : null
+    var checkboxes       = options.checkboxes        != null ? options.checkboxes       : nativeEl.hasAttribute('data-st-checkboxes')
+    var checkboxDisplay  = options.checkboxDisplay   || nativeEl.getAttribute('data-st-checkbox-display') || 'chips'
+    var selectAll        = options.selectAll         != null ? options.selectAll        : (checkboxes && !nativeEl.hasAttribute('data-st-no-select-all'))
+    var isRequired       = nativeEl.hasAttribute('required')
+    var disabled         = nativeEl.disabled
+
+    // checkboxes implies multiSelect
+    if (checkboxes && !multiSelect) multiSelect = true
 
     // If multiSelect forced via option but native isn't multiple, upgrade it
     if (multiSelect && !nativeEl.multiple) nativeEl.multiple = true
@@ -261,23 +267,77 @@
         return
       }
 
-      var visible  = filteredOpts()
+      var visible   = filteredOpts()
       var lastGroup = undefined
+
+      // ── Select All header (checkboxes mode, no active search) ────
+      if (checkboxes && selectAll && !searchQuery) {
+        var selectableOpts  = opts.filter(function (o) { return o.value !== '' && !o.disabled })
+        var selectableIdxs  = selectableOpts.map(function (o) { return opts.indexOf(o) })
+        var allSelected     = selectableIdxs.length > 0 && selectableIdxs.every(function (i) { return selectedSet.has(i) })
+        var someSelected    = selectableIdxs.some(function (i) { return selectedSet.has(i) })
+
+        var saLi  = makeEl('li', { 'class': 'st-select-option st-select-all' + (allSelected ? ' is-selected' : '') })
+        var saCb  = makeEl('span', { 'class': 'st-checkbox' + (allSelected ? ' is-checked' : '') + (someSelected && !allSelected ? ' is-indeterminate' : '') })
+        var saLbl = makeEl('span', {}, [allSelected ? 'Deselect all' : 'Select all'])
+        saLi.appendChild(saCb)
+        saLi.appendChild(saLbl)
+        saLi.addEventListener('click', function (e) {
+          e.stopPropagation()
+          if (allSelected) {
+            selectableIdxs.forEach(function (i) { selectedSet.delete(i) })
+          } else {
+            selectableIdxs.forEach(function (i) {
+              if (!maxItems || selectedSet.size < maxItems) selectedSet.add(i)
+            })
+          }
+          syncNative(); clearError(); updateDisplay(); renderListbox()
+          emitChange()
+        })
+        listbox.appendChild(saLi)
+        listbox.appendChild(makeEl('li', { 'class': 'st-select-divider', 'aria-hidden': 'true' }))
+      }
 
       visible.forEach(function (item) {
         var opt = item.opt, idx = item.idx
 
-        // Group header
+        // Group header — with group-level checkbox in checkboxes mode
         if (opt.groupLabel !== lastGroup) {
           lastGroup = opt.groupLabel
           if (opt.groupLabel) {
-            listbox.appendChild(makeEl('li', { 'class': 'st-select-group-label', 'aria-disabled': 'true' }, [opt.groupLabel]))
+            var groupOpts = opts.reduce(function (acc, o, i) {
+              if (o.groupLabel === opt.groupLabel && o.value !== '' && !o.disabled) acc.push(i)
+              return acc
+            }, [])
+            var groupAll  = groupOpts.every(function (i) { return selectedSet.has(i) })
+            var groupSome = groupOpts.some(function (i) { return selectedSet.has(i) })
+
+            var glLi = makeEl('li', { 'class': 'st-select-group-label', 'aria-disabled': !checkboxes ? 'true' : 'false' })
+
+            if (checkboxes) {
+              var gCb = makeEl('span', { 'class': 'st-checkbox' + (groupAll ? ' is-checked' : '') + (groupSome && !groupAll ? ' is-indeterminate' : '') })
+              glLi.appendChild(gCb)
+              glLi.addEventListener('click', function (e) {
+                e.stopPropagation()
+                if (groupAll) {
+                  groupOpts.forEach(function (i) { selectedSet.delete(i) })
+                } else {
+                  groupOpts.forEach(function (i) {
+                    if (!maxItems || selectedSet.size < maxItems) selectedSet.add(i)
+                  })
+                }
+                syncNative(); clearError(); updateDisplay(); renderListbox()
+                emitChange()
+              })
+            }
+            glLi.appendChild(doc.createTextNode(opt.groupLabel))
+            listbox.appendChild(glLi)
           }
         }
 
-        var isSel    = selectedSet.has(idx)
-        var isMaxed  = multiSelect && maxItems && selectedSet.size >= maxItems && !isSel
-        var cls = 'st-select-option'
+        var isSel   = selectedSet.has(idx)
+        var isMaxed = multiSelect && maxItems && selectedSet.size >= maxItems && !isSel
+        var cls     = 'st-select-option'
           + (isSel ? ' is-selected' : '')
           + (opt.disabled || isMaxed ? ' is-disabled' : '')
 
@@ -288,12 +348,24 @@
           'aria-selected': isSel ? 'true' : 'false',
           'id':            (nativeEl.id || 'st-sel') + '-opt-' + idx,
         })
+
+        // Checkbox UI
+        if (checkboxes) {
+          li.appendChild(makeEl('span', { 'class': 'st-checkbox' + (isSel ? ' is-checked' : '') }))
+        }
+
         li.appendChild(getOptContent(opt, false))
 
         if (!(opt.disabled || isMaxed)) {
           li.addEventListener('click', function (e) {
             e.stopPropagation()
-            multiSelect ? toggleMulti(idx) : pick(idx)
+            if (multiSelect) {
+              toggleMulti(idx)
+              // Checkboxes mode: keep dropdown open — re-render only
+              if (checkboxes) return
+            } else {
+              pick(idx)
+            }
           })
         }
         listbox.appendChild(li)
@@ -318,30 +390,52 @@
         // Rebuild chips — clear all first
         chipsWrap.innerHTML = ''
 
-        var selArr     = Array.from(selectedSet)
-        var displayArr = maxDisplay != null ? selArr.slice(0, maxDisplay) : selArr
-        var hiddenCount = selArr.length - displayArr.length
+        var selArr      = Array.from(selectedSet)
+        var totalOpts   = opts.filter(function (o) { return o.value !== '' }).length
 
-        displayArr.forEach(function (idx) {
-          var opt  = opts[idx]
-          if (!opt) return
-          var chip    = makeEl('span', { 'class': 'st-chip' })
-          var content = getOptContent(opt, true)
-          chip.appendChild(content)
-          var rm = makeEl('button', { 'class': 'st-chip-remove', 'type': 'button', 'aria-label': 'Remove ' + opt.text }, ['×'])
-          ;(function (i) { rm.addEventListener('click', function (e) { e.stopPropagation(); toggleMulti(i) }) })(idx)
-          chip.appendChild(rm)
-          chipsWrap.appendChild(chip)
-        })
+        if (checkboxes && checkboxDisplay === 'count') {
+          // "3 of 6 selected" or placeholder
+          chipsWrap.innerHTML = ''
+          if (selArr.length === 0) {
+            chipsWrap.appendChild(makeEl('span', { 'class': 'st-select-placeholder' }, [placeholder]))
+          } else if (selArr.length === totalOpts) {
+            chipsWrap.appendChild(makeEl('span', { 'class': 'st-cb-summary' }, ['All selected']))
+          } else {
+            chipsWrap.appendChild(makeEl('span', { 'class': 'st-cb-summary' }, [selArr.length + ' of ' + totalOpts + ' selected']))
+          }
+        } else if (checkboxes && checkboxDisplay === 'list') {
+          // "Hair, Nails, Facial" or placeholder
+          chipsWrap.innerHTML = ''
+          if (selArr.length === 0) {
+            chipsWrap.appendChild(makeEl('span', { 'class': 'st-select-placeholder' }, [placeholder]))
+          } else {
+            var names = selArr.map(function (i) { return opts[i] ? opts[i].text : '' }).filter(Boolean)
+            chipsWrap.appendChild(makeEl('span', { 'class': 'st-cb-summary' }, [names.join(', ')]))
+          }
+        } else {
+          // Default: chips mode
+          var displayArr  = maxDisplay != null ? selArr.slice(0, maxDisplay) : selArr
+          var hiddenCount = selArr.length - displayArr.length
 
-        // +N more badge when maxDisplay is set and there are hidden selections
-        if (hiddenCount > 0) {
-          chipsWrap.appendChild(makeEl('span', { 'class': 'st-chip-more' }, ['+' + hiddenCount]))
-        }
+          displayArr.forEach(function (idx) {
+            var opt  = opts[idx]
+            if (!opt) return
+            var chip    = makeEl('span', { 'class': 'st-chip' })
+            var content = getOptContent(opt, true)
+            chip.appendChild(content)
+            var rm = makeEl('button', { 'class': 'st-chip-remove', 'type': 'button', 'aria-label': 'Remove ' + opt.text }, ['×'])
+            ;(function (i) { rm.addEventListener('click', function (e) { e.stopPropagation(); toggleMulti(i) }) })(idx)
+            chip.appendChild(rm)
+            chipsWrap.appendChild(chip)
+          })
 
-        // Placeholder when nothing selected
-        if (selArr.length === 0) {
-          chipsWrap.appendChild(makeEl('span', { 'class': 'st-select-placeholder' }, [placeholder]))
+          if (hiddenCount > 0) {
+            chipsWrap.appendChild(makeEl('span', { 'class': 'st-chip-more' }, ['+' + hiddenCount]))
+          }
+
+          if (selArr.length === 0) {
+            chipsWrap.appendChild(makeEl('span', { 'class': 'st-select-placeholder' }, [placeholder]))
+          }
         }
 
         // Show/hide clear
