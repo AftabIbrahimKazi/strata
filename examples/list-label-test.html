@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" data-strata>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — List &amp; Label Utilities Test</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    body  { padding: 2rem; max-width: 900px; margin: 0 auto; }
+    section { margin-bottom: 2.5rem; }
+    h2  { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    p.desc { color: var(--st-text-muted); font-size: 0.8rem; font-family: monospace; margin-bottom: 1rem; }
+    .demo { padding: 1rem; border: 1px solid var(--st-border); border-radius: var(--st-border-radius); }
+    .side-by-side { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .side-by-side > div { flex: 1; min-width: 200px; }
+  </style>
+</head>
+<body>
+
+  <h1 class="mb-1">List &amp; Label Utilities</h1>
+  <p class="text-muted mb-4">All list style variants + label base styling.</p>
+
+  <!-- ─── LABEL ───────────────────────────────────────────────────── -->
+  <section>
+    <h2>Label base styling</h2>
+    <p class="desc">label { display: inline-block } — added to the reset layer</p>
+    <div class="demo">
+      <div class="form-group">
+        <label>Plain label — now inline-block, stacks correctly above input</label>
+        <input type="text" class="form-control" placeholder="Input below label">
+      </div>
+      <div class="form-group mt-3">
+        <label class="form-label">label + .form-label — styled weight and spacing</label>
+        <input type="text" class="form-control" placeholder="Input below styled label">
+      </div>
+      <div class="mt-3">
+        <label class="fw-semibold text-primary">Custom label — fw-semibold text-primary</label>
+        <div><input type="email" class="form-control mt-1" placeholder="Email"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LIST-UNSTYLED ────────────────────────────────────────────── -->
+  <section>
+    <h2>list-unstyled</h2>
+    <p class="desc">Removes padding, margin, and list-style. The original Bootstrap utility.</p>
+    <div class="side-by-side">
+      <div>
+        <small class="text-muted d-block mb-1">Default &lt;ul&gt;</small>
+        <ul>
+          <li>Coffee</li>
+          <li>Tea</li>
+          <li>Milk</li>
+        </ul>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-unstyled</small>
+        <ul class="list-unstyled">
+          <li>Coffee</li>
+          <li>Tea</li>
+          <li>Milk</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LIST-INLINE ──────────────────────────────────────────────── -->
+  <section>
+    <h2>list-inline + list-inline-item</h2>
+    <p class="desc">Renders list items side by side with 0.5rem gap.</p>
+    <div class="demo">
+      <ul class="list-inline">
+        <li class="list-inline-item">Home</li>
+        <li class="list-inline-item">About</li>
+        <li class="list-inline-item">Services</li>
+        <li class="list-inline-item">Contact</li>
+      </ul>
+    </div>
+    <div class="demo mt-2">
+      <small class="text-muted d-block mb-2">Practical: nav links</small>
+      <ul class="list-inline mb-0">
+        <li class="list-inline-item"><a href="#" class="text-primary">Home</a></li>
+        <li class="list-inline-item text-muted">·</li>
+        <li class="list-inline-item"><a href="#" class="text-primary">Portfolio</a></li>
+        <li class="list-inline-item text-muted">·</li>
+        <li class="list-inline-item"><a href="#" class="text-primary">Contact</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─── LIST-STYLE-TYPE VARIANTS ─────────────────────────────────── -->
+  <section>
+    <h2>list-style-type variants</h2>
+    <p class="desc">list-disc · list-circle · list-square · list-decimal · list-lower-alpha · list-upper-alpha · list-lower-roman · list-upper-roman · list-none</p>
+    <div class="side-by-side">
+      <div>
+        <small class="text-muted d-block mb-1">.list-disc (default for ul)</small>
+        <ul class="list-disc ps-4">
+          <li>Item one</li>
+          <li>Item two</li>
+          <li>Item three</li>
+        </ul>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-circle</small>
+        <ul class="list-circle ps-4">
+          <li>Item one</li>
+          <li>Item two</li>
+          <li>Item three</li>
+        </ul>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-square</small>
+        <ul class="list-square ps-4">
+          <li>Item one</li>
+          <li>Item two</li>
+          <li>Item three</li>
+        </ul>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-decimal (default for ol)</small>
+        <ol class="list-decimal ps-4">
+          <li>Step one</li>
+          <li>Step two</li>
+          <li>Step three</li>
+        </ol>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-lower-alpha</small>
+        <ol class="list-lower-alpha ps-4">
+          <li>First</li>
+          <li>Second</li>
+          <li>Third</li>
+        </ol>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-upper-alpha</small>
+        <ol class="list-upper-alpha ps-4">
+          <li>First</li>
+          <li>Second</li>
+          <li>Third</li>
+        </ol>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-lower-roman</small>
+        <ol class="list-lower-roman ps-4">
+          <li>First</li>
+          <li>Second</li>
+          <li>Third</li>
+        </ol>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-upper-roman</small>
+        <ol class="list-upper-roman ps-4">
+          <li>First</li>
+          <li>Second</li>
+          <li>Third</li>
+        </ol>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-none</small>
+        <ul class="list-none ps-4">
+          <li>No marker</li>
+          <li>No marker</li>
+          <li>No marker</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LIST-INSIDE / LIST-OUTSIDE ───────────────────────────────── -->
+  <section>
+    <h2>list-inside / list-outside</h2>
+    <p class="desc">Controls whether the marker is inside or outside the content box.</p>
+    <div class="side-by-side">
+      <div>
+        <small class="text-muted d-block mb-1">.list-outside (default)</small>
+        <ul class="list-disc list-outside ps-4" style="max-width:220px; border:1px dashed var(--st-border); padding:0.75rem 0.75rem 0.75rem 2rem; border-radius:0.375rem;">
+          <li>Marker hangs outside the text box — long items wrap under the text, not the bullet</li>
+        </ul>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">.list-inside</small>
+        <ul class="list-disc list-inside" style="max-width:220px; border:1px dashed var(--st-border); padding:0.75rem; border-radius:0.375rem;">
+          <li>Marker is inside the content box — long items wrap under the bullet point itself</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── LIST-SPACED ───────────────────────────────────────────────── -->
+  <section>
+    <h2>list-spaced</h2>
+    <p class="desc">Adds margin-top: 0.5rem between items. Useful for readable feature lists.</p>
+    <div class="side-by-side">
+      <div>
+        <small class="text-muted d-block mb-1">Without .list-spaced</small>
+        <ul class="list-disc ps-4">
+          <li>Unlimited appointments</li>
+          <li>Email notifications</li>
+          <li>Custom booking page</li>
+          <li>Analytics dashboard</li>
+        </ul>
+      </div>
+      <div>
+        <small class="text-muted d-block mb-1">With .list-spaced</small>
+        <ul class="list-disc list-spaced ps-4">
+          <li>Unlimited appointments</li>
+          <li>Email notifications</li>
+          <li>Custom booking page</li>
+          <li>Analytics dashboard</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PRACTICAL: footer nav ─────────────────────────────────────── -->
+  <section>
+    <h2>Practical — footer navigation</h2>
+    <p class="desc">list-unstyled + list-spaced for footer link columns</p>
+    <div class="demo" style="background:var(--st-bg-secondary);">
+      <div class="row">
+        <div class="col-12 col-md-4 mb-3 mb-md-0">
+          <h6 class="fw-semibold mb-2">Company</h6>
+          <ul class="list-unstyled list-spaced mb-0">
+            <li><a href="#" class="text-muted text-decoration-none">About us</a></li>
+            <li><a href="#" class="text-muted text-decoration-none">Careers</a></li>
+            <li><a href="#" class="text-muted text-decoration-none">Press</a></li>
+          </ul>
+        </div>
+        <div class="col-12 col-md-4 mb-3 mb-md-0">
+          <h6 class="fw-semibold mb-2">Services</h6>
+          <ul class="list-unstyled list-spaced mb-0">
+            <li><a href="#" class="text-muted text-decoration-none">Hair</a></li>
+            <li><a href="#" class="text-muted text-decoration-none">Nails</a></li>
+            <li><a href="#" class="text-muted text-decoration-none">Skin</a></li>
+          </ul>
+        </div>
+        <div class="col-12 col-md-4">
+          <h6 class="fw-semibold mb-2">Legal</h6>
+          <ul class="list-unstyled list-spaced mb-0">
+            <li><a href="#" class="text-muted text-decoration-none">Privacy</a></li>
+            <li><a href="#" class="text-muted text-decoration-none">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PRACTICAL: pricing features ──────────────────────────────── -->
+  <section>
+    <h2>Practical — pricing feature list</h2>
+    <p class="desc">list-unstyled + custom marker via ::before</p>
+    <div class="demo max-w-sm">
+      <style>
+        .check-list li::before {
+          content: '✓ ';
+          color: var(--st-success);
+          font-weight: 700;
+        }
+      </style>
+      <ul class="list-unstyled list-spaced check-list mb-0">
+        <li>Unlimited staff accounts</li>
+        <li>Client management system</li>
+        <li>Online booking page</li>
+        <li>Automated reminders</li>
+        <li>Revenue analytics</li>
+      </ul>
+    </div>
+  </section>
+
+</body>
+</html>
