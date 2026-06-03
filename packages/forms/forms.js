@@ -80,24 +80,29 @@
     return el
   }
 
+  // positionBelow — for position:fixed popups appended to <body>.
+  // getBoundingClientRect() returns viewport coords, so NO scroll offset needed.
   function positionBelow(popup, anchor) {
-    var rect    = anchor.getBoundingClientRect()
-    var scrollY = win.pageYOffset || doc.documentElement.scrollTop || 0
-    var scrollX = win.pageXOffset || doc.documentElement.scrollLeft || 0
-    var spaceBelow = win.innerHeight - rect.bottom
-    var popH    = popup.offsetHeight || 280
+    var rect       = anchor.getBoundingClientRect()
+    var viewportH  = win.innerHeight || doc.documentElement.clientHeight
+    var viewportW  = win.innerWidth  || doc.documentElement.clientWidth
+    var popH       = popup.offsetHeight || 300
+    var popW       = popup.offsetWidth  || 280
+    var spaceBelow = viewportH - rect.bottom
+    var spaceAbove = rect.top
 
-    if (spaceBelow < popH && rect.top > spaceBelow) {
-      popup.style.top  = (rect.top  + scrollY - popH - 4) + 'px'
+    // Flip up if not enough room below
+    if (spaceBelow < popH + 8 && spaceAbove > spaceBelow) {
+      popup.style.top = Math.max(8, rect.top - popH - 4) + 'px'
       popup.classList.add('st-pop-up')
     } else {
-      popup.style.top  = (rect.bottom + scrollY + 4) + 'px'
+      popup.style.top = (rect.bottom + 4) + 'px'
       popup.classList.remove('st-pop-up')
     }
-    // Clamp left so popup never overflows viewport
-    var left = rect.left + scrollX
-    var maxLeft = win.innerWidth - (popup.offsetWidth || 280) - 8
-    popup.style.left = Math.max(8, Math.min(left, maxLeft)) + 'px'
+
+    // Clamp left so popup never overflows right edge
+    var left = rect.left
+    popup.style.left = Math.max(8, Math.min(left, viewportW - popW - 8)) + 'px'
   }
 
   // ─── Custom Select ──────────────────────────────────────────────────────────
