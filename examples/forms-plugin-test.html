@@ -22,19 +22,52 @@
       min-height: 2rem;
     }
     .output strong { color: var(--st-primary); }
+
+    .theme-bar {
+      position:      sticky;
+      top:           0;
+      z-index:       200;
+      display:       flex;
+      align-items:   center;
+      gap:           0.5rem;
+      padding:       0.6rem 1rem;
+      margin:        -2rem -2rem 2rem;
+      background:    var(--st-bg);
+      border-bottom: 1px solid var(--st-border);
+    }
+    .theme-bar span {
+      font-size:   0.8rem;
+      font-weight: 600;
+      color:       var(--st-text-muted);
+      margin-right: 0.25rem;
+    }
+    .theme-btn {
+      padding:       0.25rem 0.75rem;
+      font-size:     0.8rem;
+      font-weight:   500;
+      border-radius: var(--st-border-radius);
+      border:        1px solid var(--st-border);
+      background:    var(--st-bg);
+      color:         var(--st-text);
+      cursor:        pointer;
+      transition:    background-color 150ms, color 150ms, border-color 150ms;
+    }
+    .theme-btn:hover               { background: var(--st-bg-secondary); }
+    .theme-btn.is-active           { background: var(--st-primary); color: #fff; border-color: var(--st-primary); }
   </style>
 </head>
 <body>
 
+  <!-- Sticky theme bar — always visible while scrolling -->
+  <div class="theme-bar">
+    <span>Theme:</span>
+    <button class="theme-btn is-active" id="btn-light" onclick="setTheme('light')">Light</button>
+    <button class="theme-btn"           id="btn-dark"  onclick="setTheme('dark')">Dark</button>
+    <button class="theme-btn"           id="btn-dim"   onclick="setTheme('dim')">Dim</button>
+  </div>
+
   <h1 class="mb-1">@strata-css/forms — Plugin Test</h1>
   <p class="text-muted mb-4">Custom select, date picker, and time picker. All standalone-compatible and theme-aware.</p>
-
-  <!-- Theme switcher -->
-  <div class="d-flex gap-2 mb-4">
-    <button class="btn-outline-primary btn-sm" onclick="setTheme('light')">Light</button>
-    <button class="btn-outline-primary btn-sm" onclick="setTheme('dark')">Dark</button>
-    <button class="btn-outline-primary btn-sm" onclick="setTheme('dim')">Dim</button>
-  </div>
 
   <!-- ─── 1. Custom Select — basic ────────────────────────────────── -->
   <section>
@@ -238,6 +271,9 @@
   <script>
     function setTheme(t) {
       document.documentElement.setAttribute('data-st-theme', t)
+      document.querySelectorAll('.theme-btn').forEach(function(btn) {
+        btn.classList.toggle('is-active', btn.id === 'btn-' + t)
+      })
     }
 
     // Set min/max for dp2
