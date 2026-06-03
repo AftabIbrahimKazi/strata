@@ -2687,6 +2687,40 @@ reg('translate-middle-y', 'utilities', `.translate-middle-y { transform: transla
 // ─── Sizing extras ────────────────────────────────────────────────────
 reg('mw-100',    'utilities', `.mw-100    { max-width:  100%; }`)
 reg('mh-100',    'utilities', `.mh-100    { max-height: 100%; }`)
+
+// ─── max-w-* named scale (aligned to Bootstrap container breakpoints) ─
+// max-w-xs  → 320px   small phone portrait
+// max-w-sm  → 540px   Bootstrap sm container
+// max-w-md  → 720px   Bootstrap md container
+// max-w-lg  → 960px   Bootstrap lg container
+// max-w-xl  → 1140px  Bootstrap xl container
+// max-w-xxl → 1320px  Bootstrap xxl container
+const MAX_W_SCALE = {
+  'xs':   '320px',
+  'sm':   '540px',
+  'md':   '720px',
+  'lg':   '960px',
+  'xl':   '1140px',
+  'xxl':  '1320px',
+  'full': '100%',
+  'none': 'none',
+}
+Object.entries(MAX_W_SCALE).forEach(([k, v]) => {
+  reg(`max-w-${k}`, 'utilities', `.max-w-${k} { max-width: ${v}; }`)
+})
+
+// ─── min-w-* ──────────────────────────────────────────────────────────
+reg('min-w-0',      'utilities', `.min-w-0      { min-width: 0; }`)
+reg('min-w-full',   'utilities', `.min-w-full   { min-width: 100%; }`)
+reg('min-w-screen', 'utilities', `.min-w-screen { min-width: 100vw; }`)
+
+// max-h-* and min-h-* common values
+reg('max-h-full',   'utilities', `.max-h-full   { max-height: 100%; }`)
+reg('max-h-screen', 'utilities', `.max-h-screen { max-height: 100vh; }`)
+reg('max-h-none',   'utilities', `.max-h-none   { max-height: none; }`)
+reg('min-h-0',      'utilities', `.min-h-0      { min-height: 0; }`)
+reg('min-h-full',   'utilities', `.min-h-full   { min-height: 100%; }`)
+reg('min-h-screen', 'utilities', `.min-h-screen { min-height: 100vh; }`)
 reg('vw-100',    'utilities', `.vw-100    { width:      100vw; }`)
 reg('vh-100',    'utilities', `.vh-100    { height:     100vh; }`)
 reg('min-vw-100','utilities', `.min-vw-100{ min-width:  100vw; }`)
@@ -2926,6 +2960,26 @@ const ARBITRARY_PATTERNS = [
   { re: /^(!?)h-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { height: ${m[2]}${i}; }` }
+  }},
+  // Max-width arbitrary: max-w-[440px]
+  { re: /^(!?)max-w-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { max-width: ${m[2]}${i}; }` }
+  }},
+  // Min-width arbitrary: min-w-[200px]
+  { re: /^(!?)min-w-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { min-width: ${m[2]}${i}; }` }
+  }},
+  // Max-height arbitrary: max-h-[500px]
+  { re: /^(!?)max-h-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { max-height: ${m[2]}${i}; }` }
+  }},
+  // Min-height arbitrary: min-h-[300px]
+  { re: /^(!?)min-h-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { min-height: ${m[2]}${i}; }` }
   }},
   // Opacity arbitrary: opacity-[0.3]
   { re: /^(!?)opacity-\[(.+)\]$/, fn: (m) => {
