@@ -334,9 +334,88 @@
   box-shadow:   var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
 }
 
+/* ─── Checkbox UI ────────────────────────────────────────────────────────── */
+
+.st-checkbox {
+  flex-shrink:    0;
+  display:        inline-flex;
+  align-items:    center;
+  justify-content:center;
+  width:          1rem;
+  height:         1rem;
+  border:         1.5px solid var(--st-border, #dee2e6);
+  border-radius:  0.2rem;
+  background:     var(--st-bg, #fff);
+  transition:     background-color var(--st-duration, 200ms) var(--st-easing, ease),
+                  border-color     var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-checkbox.is-checked {
+  background:   var(--st-primary, #0d6efd);
+  border-color: var(--st-primary, #0d6efd);
+}
+
+.st-checkbox.is-checked::after {
+  content:      '';
+  display:      block;
+  width:        0.3rem;
+  height:       0.55rem;
+  border:       2px solid #fff;
+  border-top:   none;
+  border-left:  none;
+  transform:    rotate(45deg) translateY(-1px);
+}
+
+/* Indeterminate — shown on "Select All" when some (not all) are checked */
+.st-checkbox.is-indeterminate {
+  background:   var(--st-primary, #0d6efd);
+  border-color: var(--st-primary, #0d6efd);
+}
+
+.st-checkbox.is-indeterminate::after {
+  content:      '';
+  display:      block;
+  width:        0.5rem;
+  height:       2px;
+  background:   #fff;
+  border:       none;
+  transform:    none;
+}
+
+/* Select All row */
+.st-select-all {
+  font-weight: 600;
+  font-size:   0.875rem;
+  color:       var(--st-text-muted, #6c757d);
+}
+
+/* Divider between Select All and options */
+.st-select-divider {
+  height:        1px;
+  background:    var(--st-border, #dee2e6);
+  margin:        0.25rem 0;
+  padding:       0;
+  list-style:    none;
+  pointer-events:none;
+}
+
+/* Count / list summary text in trigger */
+.st-cb-summary {
+  font-size:     0.9375rem;
+  color:         var(--st-text, #212529);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  flex:          1 1 auto;
+  min-width:     0;
+}
+
 /* ─── Group labels ───────────────────────────────────────────────────────── */
 
 .st-select-group-label {
+  display:        flex;
+  align-items:    center;
+  gap:            0.5rem;
   padding:        0.35rem 0.75rem 0.2rem;
   font-size:      0.7rem;
   font-weight:    700;
@@ -345,6 +424,14 @@
   letter-spacing: 0.06em;
   list-style:     none;
   cursor:         default;
+}
+
+.st-select-group-label:has(.st-checkbox) {
+  cursor: pointer;
+}
+
+.st-select-group-label:has(.st-checkbox):hover {
+  background-color: var(--st-bg-secondary, #f8f9fa);
 }
 
 /* ─── Empty / loading / create states ───────────────────────────────────── */
