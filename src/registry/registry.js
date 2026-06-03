@@ -2918,6 +2918,166 @@ Object.entries(OUTLINE_COLOR_MAP).forEach(([k, v]) => {
   reg(`outline-${n}`, 'utilities', `.outline-${n} { outline-width: ${n}px; }`)
 })
 
+// ─── Responsive variants ─────────────────────────────────────────────
+// Breakpoint-prefixed versions of utilities that were previously static.
+// Pattern: {utility}-{bp}-{value}  e.g. flex-md-row, fw-lg-bold, rounded-md-3
+
+const BP_KEYS = Object.keys(BP_VALUES) // sm md lg xl xxl
+
+// Flex direction
+;['row','column','wrap','nowrap','row-reverse','column-reverse'].forEach(v => {
+  const prop = ['wrap','nowrap'].includes(v)
+    ? `flex-wrap: ${v === 'nowrap' ? 'nowrap' : 'wrap'};`
+    : `flex-direction: ${v};`
+  BP_KEYS.forEach(bp => {
+    reg(`flex-${bp}-${v}`, 'utilities',
+      mq(bp, `.flex-${bp}-${v} { ${prop} }`))
+  })
+})
+
+// Font weight
+const FW_MAP = {
+  light: '300', lighter: 'lighter', normal: '400',
+  medium: '500', semibold: '600', bold: '700', bolder: 'bolder',
+}
+Object.entries(FW_MAP).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`fw-${bp}-${k}`, 'utilities',
+      mq(bp, `.fw-${bp}-${k} { font-weight: ${v}; }`))
+  })
+})
+
+// Font style
+;['italic','normal'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`fst-${bp}-${v}`, 'utilities',
+      mq(bp, `.fst-${bp}-${v} { font-style: ${v}; }`))
+  })
+})
+
+// Text transform
+;['uppercase','lowercase','capitalize','none'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`text-${bp}-${v}`, 'utilities',
+      mq(bp, `.text-${bp}-${v} { text-transform: ${v}; }`))
+  })
+})
+
+// Text decoration
+;['none','underline','line-through'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`text-${bp}-decoration-${v}`, 'utilities',
+      mq(bp, `.text-${bp}-decoration-${v} { text-decoration: ${v}; }`))
+  })
+})
+
+// Text wrap
+;['wrap','nowrap'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`text-${bp}-${v}`, 'utilities',
+      mq(bp, `.text-${bp}-${v} { white-space: ${v === 'nowrap' ? 'nowrap' : 'normal'}; }`))
+  })
+})
+
+// Border radius
+const ROUNDED_SCALE = {
+  '0':'0', '1':'0.25rem', '2':'0.375rem', '3':'0.5rem',
+  '4':'0.75rem', '5':'1rem',
+  'pill':'999px', 'circle':'50%',
+}
+Object.entries(ROUNDED_SCALE).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`rounded-${bp}-${k}`, 'utilities',
+      mq(bp, `.rounded-${bp}-${k} { border-radius: ${v}; }`))
+  })
+})
+BP_KEYS.forEach(bp => {
+  reg(`rounded-${bp}`, 'utilities',
+    mq(bp, `.rounded-${bp} { border-radius: var(--st-border-radius); }`))
+})
+
+// Shadow
+const SHADOW_MAP = {
+  'sm': 'var(--st-shadow-sm)', '': 'var(--st-shadow)',
+  'lg': 'var(--st-shadow-lg)', 'none': 'none',
+}
+Object.entries(SHADOW_MAP).forEach(([k, v]) => {
+  const cls = k ? `shadow-${k}` : 'shadow'
+  BP_KEYS.forEach(bp => {
+    reg(`shadow-${bp}${k ? '-' + k : ''}`, 'utilities',
+      mq(bp, `.shadow-${bp}${k ? '-' + k : ''} { box-shadow: ${v}; }`))
+  })
+})
+
+// Width
+Object.entries(SIZE_SCALE).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`w-${bp}-${k}`, 'utilities',
+      mq(bp, `.w-${bp}-${k} { width: ${v}; }`))
+  })
+})
+
+// Height
+Object.entries(SIZE_SCALE).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`h-${bp}-${k}`, 'utilities',
+      mq(bp, `.h-${bp}-${k} { height: ${v}; }`))
+  })
+})
+
+// Opacity
+Object.entries(OPACITY_SCALE).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`opacity-${bp}-${k}`, 'utilities',
+      mq(bp, `.opacity-${bp}-${k} { opacity: ${v}; }`))
+  })
+})
+
+// Overflow
+;['auto','hidden','visible','scroll'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`overflow-${bp}-${v}`, 'utilities',
+      mq(bp, `.overflow-${bp}-${v} { overflow: ${v}; }`))
+    reg(`overflow-x-${bp}-${v}`, 'utilities',
+      mq(bp, `.overflow-x-${bp}-${v} { overflow-x: ${v}; }`))
+    reg(`overflow-y-${bp}-${v}`, 'utilities',
+      mq(bp, `.overflow-y-${bp}-${v} { overflow-y: ${v}; }`))
+  })
+})
+
+// Position
+;['static','relative','absolute','fixed','sticky'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`position-${bp}-${v}`, 'utilities',
+      mq(bp, `.position-${bp}-${v} { position: ${v}; }`))
+  })
+})
+
+// Cursor
+;['auto','default','pointer','wait','text','move','not-allowed','grab'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`cursor-${bp}-${v}`, 'utilities',
+      mq(bp, `.cursor-${bp}-${v} { cursor: ${v}; }`))
+  })
+})
+
+// Line height
+const LH_MAP = { '1':'1', 'sm':'1.25', 'base':'1.5', 'lg':'2' }
+Object.entries(LH_MAP).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`lh-${bp}-${k}`, 'utilities',
+      mq(bp, `.lh-${bp}-${k} { line-height: ${v}; }`))
+  })
+})
+
+// Visibility
+BP_KEYS.forEach(bp => {
+  reg(`visible-${bp}`, 'utilities',
+    mq(bp, `.visible-${bp} { visibility: visible; }`))
+  reg(`invisible-${bp}`, 'utilities',
+    mq(bp, `.invisible-${bp} { visibility: hidden; }`))
+})
+
 // ─── Arbitrary value patterns — regex fallback ────────────────────────
 // Only used when no exact match found in EXACT_MAP
 
