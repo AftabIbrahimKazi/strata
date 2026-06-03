@@ -111,6 +111,14 @@
     var placeholder  = options.placeholder
                     || nativeEl.getAttribute('data-st-placeholder')
                     || 'Select…'
+    var autoWidth    = options.autoWidth != null
+                    ? options.autoWidth
+                    : nativeEl.hasAttribute('data-st-auto-width')
+    var maxWidth     = options.maxWidth != null
+                    ? parseInt(options.maxWidth, 10)
+                    : nativeEl.getAttribute('data-st-max-width')
+                      ? parseInt(nativeEl.getAttribute('data-st-max-width'), 10)
+                      : null
     var opts         = Array.from(nativeEl.options)
     var selectedIdx  = nativeEl.selectedIndex >= 0 ? nativeEl.selectedIndex : 0
     var isOpen       = false
@@ -207,14 +215,59 @@
     }
 
     function positionListbox() {
-      // Listbox is inside wrapper — CSS handles positioning
-      // Just ensure it doesn't overflow viewport bottom
-      var wRect = wrapper.getBoundingClientRect()
-      var lbH   = listbox.offsetHeight || 200
-      if (win.innerHeight - wRect.bottom < lbH && wRect.top > lbH) {
+      var wRect      = wrapper.getBoundingClientRect()
+      var viewportW  = win.innerWidth  || doc.documentElement.clientWidth
+      var viewportH  = win.innerHeight || doc.documentElement.clientHeight
+
+      // ── Vertical: dropup if not enough space below ──────────────
+      var lbH = listbox.offsetHeight || 200
+      if (viewportH - wRect.bottom < lbH && wRect.top > lbH) {
         wrapper.classList.add('st-select-dropup')
       } else {
         wrapper.classList.remove('st-select-dropup')
+      }
+
+      if (!autoWidth) return   // default: CSS width:100% handles it
+
+      // ── Auto-width: measure natural content width ────────────────
+      // 1. Let listbox size to its content
+      listbox.style.width     = 'max-content'
+      listbox.style.minWidth  = wRect.width + 'px'   // never narrower than trigger
+      listbox.style.left      = '0'
+      listbox.style.right     = 'auto'
+
+      var naturalW  = listbox.scrollWidth
+      var triggerW  = wRect.width
+      var desiredW  = Math.max(triggerW, naturalW)
+
+      // 2. Apply maxWidth cap if set
+      if (maxWidth) desiredW = Math.min(desiredW, maxWidth)
+
+      // 3. Viewport edge detection
+      var spaceRight = viewportW - wRect.left - 8   // room to the right of trigger
+      var spaceLeft  = wRect.right - 8              // room to the left of trigger
+
+      if (desiredW <= spaceRight) {
+        // Fits left-aligned — normal case
+        listbox.style.width = desiredW + 'px'
+        listbox.style.left  = '0'
+        listbox.style.right = 'auto'
+      } else if (desiredW <= spaceLeft) {
+        // Doesn't fit right, but fits left-aligned to right edge of trigger
+        listbox.style.width = desiredW + 'px'
+        listbox.style.left  = 'auto'
+        listbox.style.right = '0'
+      } else {
+        // Doesn't fit either way — use largest available side
+        if (spaceRight >= spaceLeft) {
+          listbox.style.width = spaceRight + 'px'
+          listbox.style.left  = '0'
+          listbox.style.right = 'auto'
+        } else {
+          listbox.style.width = spaceLeft + 'px'
+          listbox.style.left  = 'auto'
+          listbox.style.right = '0'
+        }
       }
     }
 

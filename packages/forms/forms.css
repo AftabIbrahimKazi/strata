@@ -127,7 +127,8 @@
   top:              calc(100% + 4px);
   left:             0;
   z-index:          1000;
-  width:            100%;
+  width:            100%;     /* default: match trigger width */
+  min-width:        100%;     /* auto-width JS overrides both */
   max-height:       240px;
   overflow-y:       auto;
   margin:           0;
