@@ -124,8 +124,13 @@
     var isOpen       = false
     var disabled     = nativeEl.disabled
 
-    // Hide native select but keep it in the DOM for form submission
-    nativeEl.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;'
+    var isRequired = nativeEl.hasAttribute('required')
+
+    // Hide native select but keep it in the DOM for form submission.
+    // tabindex="-1" prevents the browser from scrolling to/focusing it
+    // during constraint validation — we handle that on the trigger instead.
+    nativeEl.style.cssText = 'position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;tabindex:-1;'
+    nativeEl.setAttribute('tabindex', '-1')
 
     // Build DOM
     var valueSpan = makeEl('span', { 'class': 'st-select-value' })
@@ -137,6 +142,7 @@
       'aria-haspopup':   'listbox',
       'aria-expanded':   'false',
       'aria-disabled':   disabled ? 'true' : 'false',
+      'aria-required':   isRequired ? 'true' : 'false',
     }, [valueSpan, arrowSpan])
 
     var listbox = makeEl('ul', {
@@ -178,9 +184,12 @@
     }
 
     function pick(idx) {
-      selectedIdx          = idx
+      selectedIdx            = idx
       nativeEl.selectedIndex = idx
       nativeEl.dispatchEvent(new Event('change', { bubbles: true }))
+      // Clear any validation error state
+      trigger.classList.remove('is-invalid')
+      trigger.removeAttribute('aria-invalid')
       updateDisplay()
       renderListbox()
       close()
@@ -273,6 +282,17 @@
 
     function outsideClick(e) {
       if (!wrapper.contains(e.target)) close()
+    }
+
+    // Required validation — intercept browser's default invalid behaviour
+    // so the tooltip and focus land on the visible trigger, not the hidden native.
+    if (isRequired) {
+      nativeEl.addEventListener('invalid', function (e) {
+        e.preventDefault()                          // stop browser tooltip on hidden element
+        trigger.classList.add('is-invalid')
+        trigger.setAttribute('aria-invalid', 'true')
+        trigger.focus()
+      })
     }
 
     // Keyboard
