@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" data-strata>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — text-[] Arbitrary Value Test</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    body { padding: 2rem; }
+    .result {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      border: 1px solid #dee2e6;
+      margin-bottom: 0.5rem;
+    }
+    .label {
+      font-family: monospace;
+      font-size: 0.875rem;
+      background: #f1f3f5;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      min-width: 220px;
+    }
+    .pass { color: #198754; font-weight: 600; }
+    .fail { color: #dc3545; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <h1 class="mb-1">text-[] Arbitrary Value Routing</h1>
+  <p class="text-muted mb-4">
+    Values with a CSS length unit route to <code>font-size</code>.
+    Everything else routes to <code>color</code>.
+  </p>
+
+  <!-- ─── font-size cases ───────────────────────────────────────────── -->
+  <h5 class="mb-3">Should set font-size</h5>
+
+  <div class="result">
+    <span class="label">text-[12px]</span>
+    <span class="text-[12px]">This text should be 12px — smaller than base</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[15px]</span>
+    <span class="text-[15px]">This text should be 15px</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[24px]</span>
+    <span class="text-[24px]">This text should be 24px — larger than base</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[1.25rem]</span>
+    <span class="text-[1.25rem]">This text should be 1.25rem</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[2rem]</span>
+    <span class="text-[2rem]">This text should be 2rem — clearly larger</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[0.75em]</span>
+    <span class="text-[0.75em]">This text should be 0.75em — smaller than parent</span>
+  </div>
+
+  <!-- ─── color cases ───────────────────────────────────────────────── -->
+  <h5 class="mt-4 mb-3">Should set color</h5>
+
+  <div class="result">
+    <span class="label">text-[#e63946]</span>
+    <span class="text-[#e63946]">This text should be red (#e63946)</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[#2a9d8f]</span>
+    <span class="text-[#2a9d8f]">This text should be teal (#2a9d8f)</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[#f4a261]</span>
+    <span class="text-[#f4a261]">This text should be orange (#f4a261)</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[rgb(99,102,241)]</span>
+    <span class="text-[rgb(99,102,241)]">This text should be indigo (rgb)</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[cornflowerblue]</span>
+    <span class="text-[cornflowerblue]">This text should be cornflowerblue (named)</span>
+  </div>
+
+  <!-- ─── combined cases ────────────────────────────────────────────── -->
+  <h5 class="mt-4 mb-3">Combined — size + color together</h5>
+
+  <div class="result">
+    <span class="label">text-[20px] + text-[#e63946]</span>
+    <span class="text-[20px] text-[#e63946]">20px and red — both should apply</span>
+  </div>
+
+  <div class="result">
+    <span class="label">text-[1.5rem] + text-[#2a9d8f]</span>
+    <span class="text-[1.5rem] text-[#2a9d8f]">1.5rem and teal — both should apply</span>
+  </div>
+
+</body>
+</html>
