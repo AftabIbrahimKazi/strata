@@ -102,6 +102,35 @@
     return doc.querySelector(sel)
   }
 
+  // Map from theme option keys to CSS variable names
+  var THEME_MAP = {
+    primary:    '--stp-primary',
+    primaryHover:'--stp-primary-h',
+    bg:         '--stp-bg',
+    bgAlt:      '--stp-bg2',
+    text:       '--stp-text',
+    muted:      '--stp-muted',
+    border:     '--stp-border',
+    radius:     '--stp-radius',
+    shadow:     '--stp-shadow',
+    focus:      '--stp-focus',
+    cellSize:   '--stp-cell',
+    fontSize:   '--stp-font-size',
+  }
+
+  // Apply theme object + className to a popup element
+  function applyTheme(popup, opts) {
+    if (opts.className) {
+      opts.className.split(/\s+/).forEach(function(c) { if (c) popup.classList.add(c) })
+    }
+    if (opts.theme) {
+      Object.keys(opts.theme).forEach(function(key) {
+        var varName = THEME_MAP[key]
+        if (varName) popup.style.setProperty(varName, opts.theme[key])
+      })
+    }
+  }
+
   function cp(d) { return new Date(d.getTime()) }
 
   function sod(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()) }
@@ -166,6 +195,7 @@
     var open = false, activePreset = null
 
     var popup = el('div', { 'class': 'stp-popup stp-date' })
+    applyTheme(popup, opts)
 
     // ── Format ──────────────────────────────────────────────────────────────────
 
@@ -433,6 +463,7 @@
 
     var selH=null, selM=0, selS2=0, selP='AM', open=false
     var popup = el('div',{'class':'stp-popup stp-time'})
+    applyTheme(popup, opts)
 
     function h24(){ if(selH===null)return null; if(use24h)return selH; return selP==='AM'?(selH===12?0:selH):(selH===12?12:selH+12) }
 
@@ -565,6 +596,7 @@
     var open=false
 
     var popup=el('div',{'class':'stp-popup stp-dt'})
+    applyTheme(popup, opts)
 
     // ── Formats ───────────────────────────────────────────────────────────────────
 

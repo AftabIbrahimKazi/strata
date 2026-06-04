@@ -91,18 +91,70 @@
   <div class="result" id="r-dtp1">—</div>
 
   <h2>DateTime picker — 24h, weekdays only (programmatic)</h2>
-  <p>StrataForms.datetimepicker('#dtp2', { hour24:true, disable:[fn] })</p>
+  <p>StrataPicker.datetime('#dtp2', { hour24:true, disable:[fn] })</p>
   <label>Business appointment</label>
   <input id="dtp2" type="text" placeholder="Weekdays, 24h" readonly>
   <div class="result" id="r-dtp2">—</div>
 
+  <hr>
+
+  <!-- CUSTOMISATION -->
+  <h2>Theme option — purple brand</h2>
+  <p>{ theme: { primary:'#7c3aed', primaryHover:'#6d28d9', radius:'0.75rem' } }</p>
+  <label>Pick a date (purple theme)</label>
+  <input id="custom1" type="text" placeholder="Purple picker" readonly>
+  <div class="result" id="r-custom1">—</div>
+
+  <h2>Theme option — dark popup</h2>
+  <p>{ theme: { bg:'#1e1e2e', bg2:'#2a2a3e', text:'#cdd6f4', border:'#45475a', primary:'#cba6f7', primaryHover:'#b4befe' } }</p>
+  <label>Pick a date (dark theme)</label>
+  <input id="custom2" type="text" placeholder="Dark picker" readonly>
+  <div class="result" id="r-custom2">—</div>
+
+  <h2>className option — target with your own CSS</h2>
+  <p>{ className: 'my-picker' } — then write .my-picker { --stp-primary: #f59e0b; } in your CSS</p>
+  <style>
+    .my-picker { --stp-primary: #f59e0b; --stp-primary-h: #d97706; --stp-radius: 0; --stp-cell: 2.25rem; }
+  </style>
+  <label>Pick a date (amber, square corners)</label>
+  <input id="custom3" type="text" placeholder="Amber picker" readonly>
+  <div class="result" id="r-custom3">—</div>
+
+  <h2>Larger cell size</h2>
+  <p>{ theme: { cellSize: '2.5rem', fontSize: '1rem' } }</p>
+  <label>Pick a date (large cells)</label>
+  <input id="custom4" type="text" placeholder="Large picker" readonly>
+  <div class="result" id="r-custom4">—</div>
+
   <script src="../packages/picker/picker.js"></script>
   <script>
-    // Programmatic init for dtp2
+    // Programmatic inits
     StrataPicker.datetime('#dtp2', {
       hour24:  true,
       step:    30,
       disable: [function(d) { return d.getDay() === 0 || d.getDay() === 6 }]
+    })
+
+    // Theme: purple
+    StrataPicker.date('#custom1', {
+      theme: { primary: '#7c3aed', primaryHover: '#6d28d9', radius: '0.75rem', focus: '0 0 0 0.25rem rgba(124,58,237,0.25)' }
+    })
+
+    // Theme: dark popup
+    StrataPicker.date('#custom2', {
+      theme: {
+        bg: '#1e1e2e', bgAlt: '#2a2a3e', text: '#cdd6f4', muted: '#a6adc8',
+        border: '#45475a', primary: '#cba6f7', primaryHover: '#b4befe',
+        shadow: '0 0.5rem 2rem rgba(0,0,0,0.5)',
+      }
+    })
+
+    // className — user CSS controls the variables
+    StrataPicker.date('#custom3', { className: 'my-picker' })
+
+    // Large cells
+    StrataPicker.date('#custom4', {
+      theme: { cellSize: '2.5rem', fontSize: '1rem' }
     })
 
     // Event listeners — update result boxes
@@ -112,7 +164,8 @@
     }
 
     document.addEventListener('st:datepicker:change', function(e) {
-      var map = { 'dp1':'r-dp1', 'dp2':'r-dp2', 'dp3':'r-dp3', 'dp5':'r-dp5', 'dp4-start':'r-dp4' }
+      var map = { 'dp1':'r-dp1', 'dp2':'r-dp2', 'dp3':'r-dp3', 'dp5':'r-dp5', 'dp4-start':'r-dp4',
+                  'custom1':'r-custom1', 'custom2':'r-custom2', 'custom3':'r-custom3', 'custom4':'r-custom4' }
       var out = map[e.detail.input.id]
       if (!out) return
       var val = e.detail.formatted || '—'
