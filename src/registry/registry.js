@@ -18,6 +18,10 @@ function escapeClass(cls) {
     .replace(/\//g, '\\/')
     .replace(/:/g,  '\\:')
     .replace(/\./g, '\\.')
+    .replace(/#/g,  '\\#')
+    .replace(/\(/g, '\\(')
+    .replace(/\)/g, '\\)')
+    .replace(/,/g,  '\\,')
 }
 
 function parseArbitrary(value) {
@@ -510,12 +514,13 @@ reg('card-img', 'components', `.card-img {
 }`)
 
 reg('card-img-overlay', 'components', `.card-img-overlay {
+  --st-card-overlay-color: #fff;
   position:      absolute;
   inset:         0;
   padding:       1rem;
   border-radius: calc(var(--st-border-radius) - 1px);
   background:    rgba(0, 0, 0, 0.45);
-  color:         #fff;
+  color:         var(--st-card-overlay-color);
 }`)
 
 reg('card-group', 'components', `.card-group {
@@ -598,12 +603,13 @@ reg('alert-link', 'components', `.alert-link {
 // ─── Components — Badge ──────────────────────────────────────────────
 
 reg('badge', 'components', `.badge {
+  --st-badge-color: #fff;
   display:          inline-block;
   padding:          0.35em 0.65em;
   font-size:        0.75em;
   font-weight:      700;
   line-height:      1;
-  color:            #fff;
+  color:            var(--st-badge-color);
   text-align:       center;
   white-space:      nowrap;
   vertical-align:   baseline;
@@ -613,23 +619,61 @@ reg('badge', 'components', `.badge {
 
 const BADGE_COLORS = ['primary','secondary','success','danger','warning','info','light','dark']
 BADGE_COLORS.forEach(color => {
-  const textColor = ['warning','info','light'].includes(color) ? 'var(--st-dark)' : '#fff'
+  const defaultFg = ['warning','info','light'].includes(color) ? 'var(--st-dark)' : '#fff'
   reg(`badge-${color}`, 'components', `.badge-${color} {
+  --st-badge-color: ${defaultFg};
   background-color: var(--st-${color});
-  color:            ${textColor};
+  color:            var(--st-badge-color);
 }`)
 })
 
 reg('badge-pill', 'components', `.badge-pill { border-radius: 999px; }`)
 reg('rounded-pill', 'components', `.rounded-pill { border-radius: 999px; }`)
 
+// ─── Components — Label (Bootstrap 3 aliases) ────────────────────────
+// .label and .label-{color} are Bootstrap 3's label component.
+// Bootstrap 4+ renamed them to .badge / .badge-{color}.
+// These are aliases — identical output to their badge equivalents so
+// Bootstrap 3 markup works without changes.
+
+reg('label', 'components', `.label {
+  --st-badge-color: #fff;
+  display:          inline-block;
+  padding:          0.35em 0.65em;
+  font-size:        0.75em;
+  font-weight:      700;
+  line-height:      1;
+  color:            var(--st-badge-color);
+  text-align:       center;
+  white-space:      nowrap;
+  vertical-align:   baseline;
+  border-radius:    var(--st-border-radius);
+  background-color: var(--st-secondary);
+}`)
+
+const LABEL_COLORS = ['default','primary','secondary','success','info','warning','danger','light','dark']
+LABEL_COLORS.forEach(color => {
+  const mappedColor = color === 'default' ? 'secondary' : color
+  const defaultFg   = ['warning','info','light'].includes(mappedColor) ? 'var(--st-dark)' : '#fff'
+  reg(`label-${color}`, 'components', `.label-${color} {
+  --st-badge-color: ${defaultFg};
+  background-color: var(--st-${mappedColor});
+  color:            var(--st-badge-color);
+}`)
+})
+
 // ─── Components — Buttons ────────────────────────────────────────────
 
 const BTN_COLORS = ['primary','secondary','success','danger','warning','info','light','dark']
 
 BTN_COLORS.forEach(color => {
-  const textColor = ['warning','info','light'].includes(color) ? 'var(--st-dark, #212529)' : '#fff'
+  const defaultFg = ['warning','info','light'].includes(color) ? 'var(--st-dark)' : '#fff'
   reg(`btn-${color}`, 'components', `.btn-${color} {
+  --st-btn-color:       ${defaultFg};
+  --st-btn-bg:          var(--st-${color});
+  --st-btn-border:      var(--st-${color});
+  --st-btn-hover-bg:    var(--st-${color}-hover, color-mix(in srgb, var(--st-${color}) 85%, black));
+  --st-btn-hover-border:var(--st-${color}-hover, color-mix(in srgb, var(--st-${color}) 85%, black));
   display:          inline-flex;
   align-items:      center;
   justify-content:  center;
@@ -637,9 +681,9 @@ BTN_COLORS.forEach(color => {
   font-size:        1rem;
   font-weight:      400;
   line-height:      1.5;
-  color:            ${textColor};
-  background-color: var(--st-${color});
-  border:           1px solid var(--st-${color});
+  color:            var(--st-btn-color);
+  background-color: var(--st-btn-bg);
+  border:           1px solid var(--st-btn-border);
   border-radius:    var(--st-border-radius);
   cursor:           pointer;
   text-decoration:  none;
@@ -653,9 +697,9 @@ BTN_COLORS.forEach(color => {
 }
 
 .btn-${color}:hover {
-  background-color: var(--st-${color}-hover, color-mix(in srgb, var(--st-${color}) 85%, black));
-  border-color:     var(--st-${color}-hover, color-mix(in srgb, var(--st-${color}) 85%, black));
-  color:            ${textColor};
+  background-color: var(--st-btn-hover-bg);
+  border-color:     var(--st-btn-hover-border);
+  color:            var(--st-btn-color);
 }
 
 .btn-${color}:focus-visible {
@@ -668,6 +712,9 @@ BTN_COLORS.forEach(color => {
 }`)
 
   reg(`btn-outline-${color}`, 'components', `.btn-outline-${color} {
+  --st-btn-outline-color:      var(--st-${color});
+  --st-btn-outline-hover-color:${defaultFg};
+  --st-btn-outline-hover-bg:   var(--st-${color});
   display:          inline-flex;
   align-items:      center;
   justify-content:  center;
@@ -675,7 +722,7 @@ BTN_COLORS.forEach(color => {
   font-size:        1rem;
   font-weight:      400;
   line-height:      1.5;
-  color:            var(--st-${color});
+  color:            var(--st-btn-outline-color);
   background-color: transparent;
   border:           1px solid var(--st-${color});
   border-radius:    var(--st-border-radius);
@@ -689,8 +736,8 @@ BTN_COLORS.forEach(color => {
 }
 
 .btn-outline-${color}:hover {
-  background-color: var(--st-${color});
-  color:            ${textColor};
+  background-color: var(--st-btn-outline-hover-bg);
+  color:            var(--st-btn-outline-hover-color);
 }
 
 .btn-outline-${color}:focus-visible {
@@ -949,8 +996,9 @@ reg('nav-pills', 'components', `.nav-pills .nav-link {
 }
 
 .nav-pills .nav-link.active {
+  --st-nav-pills-active-color: #fff;
   background-color: var(--st-primary);
-  color:            #fff;
+  color:            var(--st-nav-pills-active-color);
 }`)
 
 reg('nav-fill', 'components', `.nav-fill .nav-item { flex: 1 1 auto; text-align: center; }`)
@@ -1333,10 +1381,11 @@ reg('list-group-item', 'components', `.list-group-item {
 }
 
 .list-group-item.active {
+  --st-list-group-active-color: #fff;
   z-index:          2;
   background-color: var(--st-primary);
   border-color:     var(--st-primary);
-  color:            #fff;
+  color:            var(--st-list-group-active-color);
 }
 
 .list-group-item.disabled {
@@ -1410,11 +1459,12 @@ reg('progress', 'components', `.progress {
 }`)
 
 reg('progress-bar', 'components', `.progress-bar {
+  --st-progress-bar-color: #fff;
   display:          flex;
   flex-direction:   column;
   justify-content:  center;
   overflow:         hidden;
-  color:            #fff;
+  color:            var(--st-progress-bar-color);
   text-align:       center;
   white-space:      nowrap;
   background-color: var(--st-primary);
@@ -1531,9 +1581,10 @@ reg('page-item', 'components', `.page-item.disabled .page-link {
 }
 
 .page-item.active .page-link {
+  --st-pagination-active-color: #fff;
   background-color: var(--st-primary);
   border-color:     var(--st-primary);
-  color:            #fff;
+  color:            var(--st-pagination-active-color);
 }`)
 
 reg('page-link', 'components', `.page-link {
@@ -1926,8 +1977,9 @@ reg('dropdown-item', 'components', `.dropdown-item {
 
 .dropdown-item.active,
 .dropdown-item:active {
+  --st-dropdown-active-color: #fff;
   background-color: var(--st-primary);
-  color:            #fff;
+  color:            var(--st-dropdown-active-color);
 }
 
 .dropdown-item.disabled {
@@ -2103,12 +2155,17 @@ Object.entries(TABLE_COLORS).forEach(([color, bg]) => {
 .table-${color} > :not(caption) > * > * { background-color: var(--st-table-bg); }`)
 })
 reg('table-dark', 'components', `.table-dark {
-  --st-table-bg: #212529;
-  color: #dee2e6;
-  border-color: #373b3e;
+  --st-table-dark-bg:          #212529;
+  --st-table-dark-color:       #dee2e6;
+  --st-table-dark-border:      #373b3e;
+  --st-table-dark-head-bg:     #1a1d20;
+  --st-table-dark-head-color:  #adb5bd;
+  --st-table-bg: var(--st-table-dark-bg);
+  color:        var(--st-table-dark-color);
+  border-color: var(--st-table-dark-border);
 }
-.table-dark > :not(caption) > * > * { background-color: var(--st-table-bg); color: #dee2e6; }
-.table-dark > thead > tr > th { background-color: #1a1d20; color: #adb5bd; }`)
+.table-dark > :not(caption) > * > * { background-color: var(--st-table-bg); color: var(--st-table-dark-color); }
+.table-dark > thead > tr > th { background-color: var(--st-table-dark-head-bg); color: var(--st-table-dark-head-color); }`)
 reg('table-striped-columns', 'components', `.table-striped-columns > :not(caption) > tr > :nth-child(even) {
   background-color: var(--st-bg-secondary);
 }`)
@@ -2171,22 +2228,25 @@ reg('carousel-item', 'components', `.carousel-item {
 .carousel-item-next,
 .carousel-item-prev { display: block; }`)
 reg('carousel-control-prev', 'components', `.carousel-control-prev {
+  --st-carousel-control-color: #fff;
   position: absolute; top: 0; bottom: 0; left: 0;
   display: flex; align-items: center; justify-content: center;
-  width: 15%; padding: 0; color: #fff; text-align: center;
+  width: 15%; padding: 0; color: var(--st-carousel-control-color); text-align: center;
   background: rgba(0,0,0,0.2); border: 0; opacity: 0.5;
   cursor: pointer; transition: opacity var(--st-duration) var(--st-easing);
 }
 .carousel-control-prev:hover { opacity: 0.9; }`)
 reg('carousel-control-next', 'components', `.carousel-control-next {
+  --st-carousel-control-color: #fff;
   position: absolute; top: 0; right: 0; bottom: 0;
   display: flex; align-items: center; justify-content: center;
-  width: 15%; padding: 0; color: #fff; text-align: center;
+  width: 15%; padding: 0; color: var(--st-carousel-control-color); text-align: center;
   background: rgba(0,0,0,0.2); border: 0; opacity: 0.5;
   cursor: pointer; transition: opacity var(--st-duration) var(--st-easing);
 }
 .carousel-control-next:hover { opacity: 0.9; }`)
 reg('carousel-indicators', 'components', `.carousel-indicators {
+  --st-carousel-indicator-bg: #fff;
   position: absolute; right: 0; bottom: 0; left: 0;
   display: flex; justify-content: center;
   padding: 0; margin: 0 15%; list-style: none;
@@ -2194,13 +2254,14 @@ reg('carousel-indicators', 'components', `.carousel-indicators {
 .carousel-indicators [data-bs-target],
 .carousel-indicators button {
   width: 30px; height: 3px; margin: 0 3px;
-  background-color: #fff; border: none; cursor: pointer;
+  background-color: var(--st-carousel-indicator-bg); border: none; cursor: pointer;
   opacity: 0.5; transition: opacity var(--st-duration) var(--st-easing);
 }
 .carousel-indicators .active { opacity: 1; }`)
 reg('carousel-caption', 'components', `.carousel-caption {
+  --st-carousel-caption-color: #fff;
   position: absolute; right: 15%; bottom: 1.25rem; left: 15%;
-  padding: 1.25rem; color: #fff; text-align: center;
+  padding: 1.25rem; color: var(--st-carousel-caption-color); text-align: center;
 }`)
 reg('carousel-fade', 'components', `.carousel-fade .carousel-item { opacity: 0; transition: opacity var(--st-duration-slow) var(--st-easing); transform: none; }
 .carousel-fade .carousel-item.active { opacity: 1; }`)
@@ -2297,13 +2358,15 @@ reg('navbar-expand', 'components', `.navbar-expand {
 .navbar-expand .navbar-collapse { display: flex; flex-basis: auto; }
 .navbar-expand .navbar-toggler { display: none; }`)
 reg('navbar-dark', 'components', `.navbar-dark {
-  --st-navbar-color: rgba(255,255,255,0.75);
+  --st-navbar-dark-color:          rgba(255,255,255,0.75);
+  --st-navbar-dark-color-hover:    rgba(255,255,255,0.9);
+  --st-navbar-dark-toggler-border: rgba(255,255,255,0.1);
   background-color: var(--st-dark);
   border-color: transparent;
 }
 .navbar-dark .navbar-brand,
-.navbar-dark .nav-link { color: rgba(255,255,255,0.9); }
-.navbar-dark .navbar-toggler { border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); }`)
+.navbar-dark .nav-link { color: var(--st-navbar-dark-color-hover); }
+.navbar-dark .navbar-toggler { border-color: var(--st-navbar-dark-toggler-border); color: var(--st-navbar-dark-color); }`)
 reg('navbar-light', 'components', `.navbar-light {
   background-color: var(--st-bg);
   border-color: var(--st-border);
@@ -2428,14 +2491,16 @@ reg('tooltip', 'components', `.tooltip {
 }
 .tooltip.show { opacity: 0.9; }`)
 reg('tooltip-inner', 'components', `.tooltip-inner {
+  --st-tooltip-color: #fff;
+  --st-tooltip-bg:    #000;
   max-width: 200px; padding: 0.25rem 0.5rem;
-  color: #fff; text-align: center;
-  background-color: #000; border-radius: var(--st-border-radius);
+  color: var(--st-tooltip-color); text-align: center;
+  background-color: var(--st-tooltip-bg); border-radius: var(--st-border-radius);
 }`)
 reg('bs-tooltip-top', 'components', `.bs-tooltip-top { padding: 4px 0; }
 .bs-tooltip-top .tooltip-arrow::before {
   top: -1px; border-width: 4px 4px 0;
-  border-top-color: #000;
+  border-top-color: var(--st-tooltip-bg, #000);
 }`)
 reg('popover', 'components', `.popover {
   position: absolute; z-index: var(--st-z-popover, 1070);
@@ -2654,6 +2719,40 @@ reg('translate-middle-y', 'utilities', `.translate-middle-y { transform: transla
 // ─── Sizing extras ────────────────────────────────────────────────────
 reg('mw-100',    'utilities', `.mw-100    { max-width:  100%; }`)
 reg('mh-100',    'utilities', `.mh-100    { max-height: 100%; }`)
+
+// ─── max-w-* named scale (aligned to Bootstrap container breakpoints) ─
+// max-w-xs  → 320px   small phone portrait
+// max-w-sm  → 540px   Bootstrap sm container
+// max-w-md  → 720px   Bootstrap md container
+// max-w-lg  → 960px   Bootstrap lg container
+// max-w-xl  → 1140px  Bootstrap xl container
+// max-w-xxl → 1320px  Bootstrap xxl container
+const MAX_W_SCALE = {
+  'xs':   '320px',
+  'sm':   '540px',
+  'md':   '720px',
+  'lg':   '960px',
+  'xl':   '1140px',
+  'xxl':  '1320px',
+  'full': '100%',
+  'none': 'none',
+}
+Object.entries(MAX_W_SCALE).forEach(([k, v]) => {
+  reg(`max-w-${k}`, 'utilities', `.max-w-${k} { max-width: ${v}; }`)
+})
+
+// ─── min-w-* ──────────────────────────────────────────────────────────
+reg('min-w-0',      'utilities', `.min-w-0      { min-width: 0; }`)
+reg('min-w-full',   'utilities', `.min-w-full   { min-width: 100%; }`)
+reg('min-w-screen', 'utilities', `.min-w-screen { min-width: 100vw; }`)
+
+// max-h-* and min-h-* common values
+reg('max-h-full',   'utilities', `.max-h-full   { max-height: 100%; }`)
+reg('max-h-screen', 'utilities', `.max-h-screen { max-height: 100vh; }`)
+reg('max-h-none',   'utilities', `.max-h-none   { max-height: none; }`)
+reg('min-h-0',      'utilities', `.min-h-0      { min-height: 0; }`)
+reg('min-h-full',   'utilities', `.min-h-full   { min-height: 100%; }`)
+reg('min-h-screen', 'utilities', `.min-h-screen { min-height: 100vh; }`)
 reg('vw-100',    'utilities', `.vw-100    { width:      100vw; }`)
 reg('vh-100',    'utilities', `.vh-100    { height:     100vh; }`)
 reg('min-vw-100','utilities', `.min-vw-100{ min-width:  100vw; }`)
@@ -2799,18 +2898,21 @@ reg('tooltip-arrow', 'components', TOOLTIP_ARROW)
 })
 
 // ─── List utilities ───────────────────────────────────────────────────
+
+// Remove list styling entirely — resets padding, margin, and list-style
 reg('list-unstyled', 'utilities', `.list-unstyled {
-  padding-left: 0;
-  margin-top:   0;
+  padding-left:  0;
+  margin-top:    0;
   margin-bottom: 0;
-  list-style:   none;
+  list-style:    none;
 }`)
 
+// Inline list — items sit side by side
 reg('list-inline', 'utilities', `.list-inline {
-  padding-left: 0;
-  margin-top:   0;
+  padding-left:  0;
+  margin-top:    0;
   margin-bottom: 0;
-  list-style:   none;
+  list-style:    none;
 }`)
 
 reg('list-inline-item', 'utilities', `.list-inline-item {
@@ -2820,6 +2922,24 @@ reg('list-inline-item', 'utilities', `.list-inline-item {
 .list-inline-item:not(:last-child) {
   margin-right: 0.5rem;
 }`)
+
+// list-style-type variants
+reg('list-disc',    'utilities', `.list-disc    { list-style-type: disc; }`)
+reg('list-decimal', 'utilities', `.list-decimal { list-style-type: decimal; }`)
+reg('list-circle',  'utilities', `.list-circle  { list-style-type: circle; }`)
+reg('list-square',  'utilities', `.list-square  { list-style-type: square; }`)
+reg('list-none',    'utilities', `.list-none    { list-style-type: none; }`)
+reg('list-lower-alpha', 'utilities', `.list-lower-alpha { list-style-type: lower-alpha; }`)
+reg('list-upper-alpha', 'utilities', `.list-upper-alpha { list-style-type: upper-alpha; }`)
+reg('list-lower-roman', 'utilities', `.list-lower-roman { list-style-type: lower-roman; }`)
+reg('list-upper-roman', 'utilities', `.list-upper-roman { list-style-type: upper-roman; }`)
+
+// list-style-position variants
+reg('list-inside',  'utilities', `.list-inside  { list-style-position: inside; }`)
+reg('list-outside', 'utilities', `.list-outside { list-style-position: outside; }`)
+
+// Spaced list — adds breathing room between items
+reg('list-spaced', 'utilities', `.list-spaced > li + li { margin-top: 0.5rem; }`)
 
 // ─── Form group ───────────────────────────────────────────────────────
 reg('form-group', 'components', `.form-group {
@@ -2851,6 +2971,166 @@ Object.entries(OUTLINE_COLOR_MAP).forEach(([k, v]) => {
   reg(`outline-${n}`, 'utilities', `.outline-${n} { outline-width: ${n}px; }`)
 })
 
+// ─── Responsive variants ─────────────────────────────────────────────
+// Breakpoint-prefixed versions of utilities that were previously static.
+// Pattern: {utility}-{bp}-{value}  e.g. flex-md-row, fw-lg-bold, rounded-md-3
+
+const BP_KEYS = Object.keys(BP_VALUES) // sm md lg xl xxl
+
+// Flex direction
+;['row','column','wrap','nowrap','row-reverse','column-reverse'].forEach(v => {
+  const prop = ['wrap','nowrap'].includes(v)
+    ? `flex-wrap: ${v === 'nowrap' ? 'nowrap' : 'wrap'};`
+    : `flex-direction: ${v};`
+  BP_KEYS.forEach(bp => {
+    reg(`flex-${bp}-${v}`, 'utilities',
+      mq(bp, `.flex-${bp}-${v} { ${prop} }`))
+  })
+})
+
+// Font weight
+const FW_MAP = {
+  light: '300', lighter: 'lighter', normal: '400',
+  medium: '500', semibold: '600', bold: '700', bolder: 'bolder',
+}
+Object.entries(FW_MAP).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`fw-${bp}-${k}`, 'utilities',
+      mq(bp, `.fw-${bp}-${k} { font-weight: ${v}; }`))
+  })
+})
+
+// Font style
+;['italic','normal'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`fst-${bp}-${v}`, 'utilities',
+      mq(bp, `.fst-${bp}-${v} { font-style: ${v}; }`))
+  })
+})
+
+// Text transform
+;['uppercase','lowercase','capitalize','none'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`text-${bp}-${v}`, 'utilities',
+      mq(bp, `.text-${bp}-${v} { text-transform: ${v}; }`))
+  })
+})
+
+// Text decoration
+;['none','underline','line-through'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`text-${bp}-decoration-${v}`, 'utilities',
+      mq(bp, `.text-${bp}-decoration-${v} { text-decoration: ${v}; }`))
+  })
+})
+
+// Text wrap
+;['wrap','nowrap'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`text-${bp}-${v}`, 'utilities',
+      mq(bp, `.text-${bp}-${v} { white-space: ${v === 'nowrap' ? 'nowrap' : 'normal'}; }`))
+  })
+})
+
+// Border radius
+const ROUNDED_SCALE = {
+  '0':'0', '1':'0.25rem', '2':'0.375rem', '3':'0.5rem',
+  '4':'0.75rem', '5':'1rem',
+  'pill':'999px', 'circle':'50%',
+}
+Object.entries(ROUNDED_SCALE).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`rounded-${bp}-${k}`, 'utilities',
+      mq(bp, `.rounded-${bp}-${k} { border-radius: ${v}; }`))
+  })
+})
+BP_KEYS.forEach(bp => {
+  reg(`rounded-${bp}`, 'utilities',
+    mq(bp, `.rounded-${bp} { border-radius: var(--st-border-radius); }`))
+})
+
+// Shadow
+const SHADOW_MAP = {
+  'sm': 'var(--st-shadow-sm)', '': 'var(--st-shadow)',
+  'lg': 'var(--st-shadow-lg)', 'none': 'none',
+}
+Object.entries(SHADOW_MAP).forEach(([k, v]) => {
+  const cls = k ? `shadow-${k}` : 'shadow'
+  BP_KEYS.forEach(bp => {
+    reg(`shadow-${bp}${k ? '-' + k : ''}`, 'utilities',
+      mq(bp, `.shadow-${bp}${k ? '-' + k : ''} { box-shadow: ${v}; }`))
+  })
+})
+
+// Width
+Object.entries(SIZE_SCALE).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`w-${bp}-${k}`, 'utilities',
+      mq(bp, `.w-${bp}-${k} { width: ${v}; }`))
+  })
+})
+
+// Height
+Object.entries(SIZE_SCALE).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`h-${bp}-${k}`, 'utilities',
+      mq(bp, `.h-${bp}-${k} { height: ${v}; }`))
+  })
+})
+
+// Opacity
+Object.entries(OPACITY_SCALE).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`opacity-${bp}-${k}`, 'utilities',
+      mq(bp, `.opacity-${bp}-${k} { opacity: ${v}; }`))
+  })
+})
+
+// Overflow
+;['auto','hidden','visible','scroll'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`overflow-${bp}-${v}`, 'utilities',
+      mq(bp, `.overflow-${bp}-${v} { overflow: ${v}; }`))
+    reg(`overflow-x-${bp}-${v}`, 'utilities',
+      mq(bp, `.overflow-x-${bp}-${v} { overflow-x: ${v}; }`))
+    reg(`overflow-y-${bp}-${v}`, 'utilities',
+      mq(bp, `.overflow-y-${bp}-${v} { overflow-y: ${v}; }`))
+  })
+})
+
+// Position
+;['static','relative','absolute','fixed','sticky'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`position-${bp}-${v}`, 'utilities',
+      mq(bp, `.position-${bp}-${v} { position: ${v}; }`))
+  })
+})
+
+// Cursor
+;['auto','default','pointer','wait','text','move','not-allowed','grab'].forEach(v => {
+  BP_KEYS.forEach(bp => {
+    reg(`cursor-${bp}-${v}`, 'utilities',
+      mq(bp, `.cursor-${bp}-${v} { cursor: ${v}; }`))
+  })
+})
+
+// Line height
+const LH_MAP = { '1':'1', 'sm':'1.25', 'base':'1.5', 'lg':'2' }
+Object.entries(LH_MAP).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`lh-${bp}-${k}`, 'utilities',
+      mq(bp, `.lh-${bp}-${k} { line-height: ${v}; }`))
+  })
+})
+
+// Visibility
+BP_KEYS.forEach(bp => {
+  reg(`visible-${bp}`, 'utilities',
+    mq(bp, `.visible-${bp} { visibility: visible; }`))
+  reg(`invisible-${bp}`, 'utilities',
+    mq(bp, `.invisible-${bp} { visibility: hidden; }`))
+})
+
 // ─── Arbitrary value patterns — regex fallback ────────────────────────
 // Only used when no exact match found in EXACT_MAP
 
@@ -2864,10 +3144,15 @@ const ARBITRARY_PATTERNS = [
     const decl = props.map(p => `  ${p}: ${val}${i};`).join('\n')
     return { layer: 'utilities', css: `.${escapeClass(m[0])} {\n${decl}\n}` }
   }},
-  // Text color arbitrary: text-[#ff0000]
+  // Text arbitrary: text-[#ff0000] → color, text-[15px] → font-size
+  // Values ending in a CSS length unit are font-size; everything else is color.
   { re: /^(!?)text-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { color: ${m[2]}${i}; }` }
+    const i    = m[1] ? ' !important' : ''
+    const val  = m[2]
+    const prop = /^[\d.]+(px|rem|em|%|vw|vh|ch|ex|pt|cm|mm)$/.test(val)
+      ? 'font-size'
+      : 'color'
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${prop}: ${val}${i}; }` }
   }},
   // BG arbitrary: bg-[#ff0000]
   { re: /^(!?)bg-\[(.+)\]$/, fn: (m) => {
@@ -2888,6 +3173,26 @@ const ARBITRARY_PATTERNS = [
   { re: /^(!?)h-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { height: ${m[2]}${i}; }` }
+  }},
+  // Max-width arbitrary: max-w-[440px]
+  { re: /^(!?)max-w-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { max-width: ${m[2]}${i}; }` }
+  }},
+  // Min-width arbitrary: min-w-[200px]
+  { re: /^(!?)min-w-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { min-width: ${m[2]}${i}; }` }
+  }},
+  // Max-height arbitrary: max-h-[500px]
+  { re: /^(!?)max-h-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { max-height: ${m[2]}${i}; }` }
+  }},
+  // Min-height arbitrary: min-h-[300px]
+  { re: /^(!?)min-h-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { min-height: ${m[2]}${i}; }` }
   }},
   // Opacity arbitrary: opacity-[0.3]
   { re: /^(!?)opacity-\[(.+)\]$/, fn: (m) => {
