@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — Picker Test</title>
+  <link rel="stylesheet" href="../packages/forms/forms.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 2rem; max-width: 700px; margin: 0 auto; background: #f8f9fa; color: #212529; }
+    h1  { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    h2  { font-size: 1rem; margin: 2rem 0 0.25rem; color: #495057; }
+    p   { font-size: 0.8rem; color: #6c757d; font-family: monospace; margin: 0 0 0.75rem; }
+    label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; }
+    input { display: block; width: 100%; padding: 0.5rem 0.75rem; font-size: 1rem; border: 1px solid #dee2e6; border-radius: 0.375rem; background: #fff; cursor: pointer; }
+    input:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); }
+    .row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .col { flex: 1; min-width: 200px; }
+    .result { margin-top: 0.5rem; padding: 0.4rem 0.75rem; background: #fff; border: 1px solid #dee2e6; border-radius: 0.375rem; font-family: monospace; font-size: 0.8rem; color: #0d6efd; min-height: 2rem; }
+    hr { border: none; border-top: 1px solid #dee2e6; margin: 2.5rem 0; }
+  </style>
+</head>
+<body>
+
+  <h1>Date &amp; Time Picker</h1>
+  <p>@strata-css/forms — standalone (no Strata CSS required)</p>
+
+  <hr>
+
+  <!-- DATE PICKER -->
+  <h2>Date picker — basic</h2>
+  <p>data-st-datepicker</p>
+  <label>Appointment date</label>
+  <input id="dp1" data-st-datepicker type="text" placeholder="Select a date" readonly>
+  <div class="result" id="r-dp1">—</div>
+
+  <h2>Date picker — custom format + Monday week start</h2>
+  <p>data-st-format="DD/MM/YYYY" data-st-week-start="1"</p>
+  <label>Date of birth</label>
+  <input id="dp2" data-st-datepicker data-st-format="DD/MM/YYYY" data-st-week-start="1" type="text" placeholder="DD/MM/YYYY" readonly>
+  <div class="result" id="r-dp2">—</div>
+
+  <h2>Date picker — disabled weekends</h2>
+  <p>data-st-disabled-days="0,6" (no Sat/Sun)</p>
+  <label>Business day</label>
+  <input id="dp3" data-st-datepicker data-st-disabled-days="0,6" type="text" placeholder="Weekdays only" readonly>
+  <div class="result" id="r-dp3">—</div>
+
+  <h2>Date picker — range</h2>
+  <p>data-st-range + data-st-end-input</p>
+  <div class="row">
+    <div class="col">
+      <label>From</label>
+      <input id="dp4-start" data-st-datepicker data-st-range data-st-end-input="#dp4-end" type="text" placeholder="Start date" readonly>
+    </div>
+    <div class="col">
+      <label>To</label>
+      <input id="dp4-end" type="text" placeholder="End date" readonly>
+    </div>
+  </div>
+  <div class="result" id="r-dp4">—</div>
+
+  <h2>Date picker — with presets</h2>
+  <p>data-st-presets</p>
+  <label>Report period</label>
+  <input id="dp5" data-st-datepicker data-st-presets type="text" placeholder="Select or pick a preset" readonly>
+  <div class="result" id="r-dp5">—</div>
+
+  <hr>
+
+  <!-- TIME PICKER -->
+  <h2>Time picker — 12h, 15 min steps</h2>
+  <p>data-st-timepicker data-st-step="15"</p>
+  <label>Appointment time</label>
+  <input id="tp1" data-st-timepicker data-st-step="15" type="text" placeholder="Select time" readonly>
+  <div class="result" id="r-tp1">—</div>
+
+  <h2>Time picker — 24h with seconds</h2>
+  <p>data-st-timepicker data-st-hour24 data-st-show-seconds data-st-step="1"</p>
+  <label>Exact time</label>
+  <input id="tp2" data-st-timepicker data-st-hour24 data-st-show-seconds data-st-step="1" type="text" placeholder="HH:MM:SS" readonly>
+  <div class="result" id="r-tp2">—</div>
+
+  <hr>
+
+  <!-- DATETIME PICKER -->
+  <h2>DateTime picker — combined</h2>
+  <p>data-st-datetimepicker — calendar + time in one popup</p>
+  <label>Appointment</label>
+  <input id="dtp1" data-st-datetimepicker type="text" placeholder="Select date and time" readonly>
+  <div class="result" id="r-dtp1">—</div>
+
+  <h2>DateTime picker — 24h, weekdays only (programmatic)</h2>
+  <p>StrataForms.datetimepicker('#dtp2', { hour24:true, disable:[fn] })</p>
+  <label>Business appointment</label>
+  <input id="dtp2" type="text" placeholder="Weekdays, 24h" readonly>
+  <div class="result" id="r-dtp2">—</div>
+
+  <script src="../packages/forms/forms.js"></script>
+  <script>
+    // Programmatic init for dtp2
+    StrataForms.datetimepicker('#dtp2', {
+      hour24:  true,
+      step:    30,
+      disable: [function(d) { return d.getDay() === 0 || d.getDay() === 6 }]
+    })
+
+    // Event listeners — update result boxes
+    function show(id, val) {
+      var el = document.getElementById(id)
+      if (el) el.textContent = val || '—'
+    }
+
+    document.addEventListener('st:datepicker:change', function(e) {
+      var map = { 'dp1':'r-dp1', 'dp2':'r-dp2', 'dp3':'r-dp3', 'dp5':'r-dp5', 'dp4-start':'r-dp4' }
+      var out = map[e.detail.input.id]
+      if (!out) return
+      var val = e.detail.formatted || '—'
+      if (e.detail.formattedEnd) val += ' → ' + e.detail.formattedEnd
+      show(out, val)
+    })
+
+    document.addEventListener('st:timepicker:change', function(e) {
+      var map = { 'tp1':'r-tp1', 'tp2':'r-tp2' }
+      var out = map[e.detail.input.id]
+      if (out) show(out, e.detail.value)
+    })
+
+    document.addEventListener('st:datetimepicker:change', function(e) {
+      var map = { 'dtp1':'r-dtp1', 'dtp2':'r-dtp2' }
+      var out = map[e.detail.input.id]
+      if (out) show(out, e.detail.value)
+    })
+  </script>
+</body>
+</html>
