@@ -1236,8 +1236,6 @@
       render()
       doc.body.appendChild(popup)
       positionBelow(popup, input)
-      void popup.offsetHeight
-      popup.classList.add('is-open')
       input.setAttribute('aria-expanded', 'true')
       emit('st:' + mode + 'picker:open', { input: input })
       setTimeout(function() { doc.addEventListener('click', outsideClick, true) }, 0)
@@ -1247,12 +1245,10 @@
       if (!isOpen) return
       isOpen = false
       hoverDate = null
-      popup.classList.remove('is-open')
+      if (popup.parentNode) popup.parentNode.removeChild(popup)
       input.setAttribute('aria-expanded', 'false')
       doc.removeEventListener('click', outsideClick, true)
       emit('st:' + mode + 'picker:close', { input: input })
-      var p = popup
-      setTimeout(function() { if (p.parentNode) p.parentNode.removeChild(p) }, 200)
     }
 
     function outsideClick(e) {
