@@ -1,0 +1,812 @@
+/**
+ * Strata Forms — Standalone CSS
+ * Version: 1.0.0
+ *
+ * Usage:
+ *   Standalone : import this file once in your project.
+ *   With Strata: do NOT import this file — Strata generates these styles via JIT.
+ *
+ * Strata detection:
+ *   Tokens are scoped to :root:not([data-strata]) and are suppressed when
+ *   Strata is present. All component classes work identically in both contexts.
+ */
+
+/* ─── Tokens — light theme (standalone only) ─────────────────────────────── */
+
+:root:not([data-strata]) {
+  --st-bg:             #ffffff;
+  --st-bg-secondary:   #f8f9fa;
+  --st-text:           #212529;
+  --st-text-muted:     #6c757d;
+  --st-border:         #dee2e6;
+  --st-border-radius:  0.375rem;
+  --st-primary:        #0d6efd;
+  --st-primary-hover:  #0b5ed7;
+  --st-duration:       200ms;
+  --st-easing:         cubic-bezier(0.4, 0, 0.2, 1);
+  --st-focus-ring:     0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  --st-shadow:         0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --st-shadow-sm:      0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* ─── Dark mode — system preference (standalone only) ───────────────────── */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-strata]) {
+    --st-bg:           #212529;
+    --st-bg-secondary: #2b3035;
+    --st-text:         #dee2e6;
+    --st-text-muted:   #8c959e;
+    --st-border:       #495057;
+    --st-shadow:       0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    --st-shadow-sm:    0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --st-focus-ring:   0 0 0 0.25rem rgba(110, 168, 254, 0.25);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CUSTOM SELECT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.st-select {
+  position: relative;
+  display:  inline-block;
+  width:    100%;
+}
+
+.st-select-trigger {
+  --st-select-height: 2.5rem;
+  display:          flex;
+  align-items:      center;
+  justify-content:  space-between;
+  gap:              0.5rem;
+  width:            100%;
+  height:           var(--st-select-height);
+  padding:          0.375rem 0.75rem;
+  font-size:        1rem;
+  font-weight:      400;
+  line-height:      1.5;
+  color:            var(--st-text, #212529);
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    var(--st-border-radius, 0.375rem);
+  cursor:           pointer;
+  text-align:       left;
+  white-space:      nowrap;
+  transition:       border-color var(--st-duration, 200ms) var(--st-easing, ease),
+                    box-shadow   var(--st-duration, 200ms) var(--st-easing, ease);
+  appearance:       none;
+}
+
+.st-select-trigger:focus-visible {
+  outline:    none;
+  box-shadow: var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+.st-select.is-open .st-select-trigger {
+  border-color: var(--st-primary, #0d6efd);
+  box-shadow:   var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+.st-select.is-disabled .st-select-trigger {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+  opacity:          0.65;
+  cursor:           not-allowed;
+}
+
+.st-select-trigger.is-invalid {
+  border-color: var(--st-danger, #dc3545);
+  box-shadow:   0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+.st-select-trigger.is-invalid:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+.st-select-value {
+  flex:          1 1 auto;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+
+.st-select-placeholder {
+  color: var(--st-text-muted, #6c757d);
+}
+
+/* Chevron arrow — CSS only, no icon font needed */
+.st-select-arrow {
+  flex-shrink:  0;
+  width:        0.8em;
+  height:       0.8em;
+  border-right: 2px solid currentColor;
+  border-bottom:2px solid currentColor;
+  transform:    rotate(45deg) translateY(-2px);
+  opacity:      0.5;
+  transition:   transform var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-select.is-open .st-select-arrow {
+  transform: rotate(225deg) translateY(-2px);
+}
+
+/* Listbox dropdown */
+.st-select-listbox {
+  position:         absolute;
+  top:              calc(100% + 4px);
+  left:             0;
+  z-index:          1000;
+  width:            100%;     /* default: match trigger width */
+  min-width:        100%;     /* auto-width JS overrides both */
+  max-height:       240px;
+  overflow-y:       auto;
+  margin:           0;
+  padding:          0.25rem 0;
+  list-style:       none;
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    var(--st-border-radius, 0.375rem);
+  box-shadow:       var(--st-shadow, 0 0.5rem 1rem rgba(0,0,0,0.15));
+  animation:        st-forms-fadein var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+/* Dropup variant — opens above */
+.st-select.st-select-dropup .st-select-listbox {
+  top:    auto;
+  bottom: calc(100% + 4px);
+}
+
+.st-select-option {
+  display:  block;
+  padding:  0.5rem 0.75rem;
+  color:    var(--st-text, #212529);
+  cursor:   pointer;
+  font-size:0.9375rem;
+  transition: background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-select-option:hover,
+.st-select-option:focus {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+.st-select-option.is-selected {
+  background-color: color-mix(in srgb, var(--st-primary, #0d6efd) 12%, var(--st-bg, #fff));
+  color:            var(--st-primary, #0d6efd);
+  font-weight:      500;
+}
+
+/* ─── Multi-select trigger ───────────────────────────────────────────────── */
+
+.st-select-trigger.st-select-multi {
+  display:     flex;
+  align-items: center;
+  flex-wrap:   nowrap;
+  gap:         0;
+  height:      auto;
+  min-height:  2.5rem;
+  padding:     0.25rem 0.5rem;
+  cursor:      pointer;
+}
+
+.st-chips {
+  display:     flex;
+  flex-wrap:   wrap;       /* wraps by default — constrained by maxDisplay */
+  gap:         0.25rem;
+  flex:        1 1 auto;
+  align-items: center;
+  min-width:   0;
+  overflow:    hidden;     /* never pushes past trigger bounds */
+}
+
+.st-chip {
+  display:          inline-flex;
+  align-items:      center;
+  gap:              0.25rem;
+  padding:          0.15rem 0.25rem 0.15rem 0.5rem;
+  font-size:        0.8125rem;
+  background-color: color-mix(in srgb, var(--st-primary, #0d6efd) 12%, var(--st-bg, #fff));
+  color:            var(--st-primary, #0d6efd);
+  border-radius:    calc(var(--st-border-radius, 0.375rem) * 0.75);
+  white-space:      nowrap;
+  max-width:        200px;
+}
+
+.st-chip-remove {
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  width:            1rem;
+  height:           1rem;
+  padding:          0;
+  font-size:        0.75rem;
+  line-height:      1;
+  background:       none;
+  border:           none;
+  cursor:           pointer;
+  color:            inherit;
+  opacity:          0.6;
+  border-radius:    50%;
+  flex-shrink:      0;
+  transition:       opacity var(--st-duration, 200ms) var(--st-easing, ease),
+                    background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-chip-remove:hover {
+  opacity:          1;
+  background-color: color-mix(in srgb, var(--st-primary, #0d6efd) 25%, var(--st-bg, #fff));
+}
+
+/* +N overflow badge */
+.st-chip-more {
+  display:          inline-flex;
+  align-items:      center;
+  padding:          0.15rem 0.5rem;
+  font-size:        0.75rem;
+  font-weight:      600;
+  background-color: var(--st-bg-secondary, #f8f9fa);
+  color:            var(--st-text-muted, #6c757d);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    calc(var(--st-border-radius, 0.375rem) * 0.75);
+  white-space:      nowrap;
+  cursor:           pointer;
+}
+
+/* Avatar-only chip — when renderValue returns just an <img> */
+.st-chip:has(img:only-child) {
+  padding:       0.125rem;
+  background:    transparent;
+  border-radius: 50%;
+}
+
+/* Fallback for browsers without :has() — use .st-chip--avatar class */
+.st-chip--avatar {
+  padding:       0.125rem;
+  background:    transparent;
+  border-radius: 50%;
+}
+
+/* ─── Controls (clear + arrow) ───────────────────────────────────────────── */
+
+.st-select-controls {
+  display:      flex;
+  align-items:  center;
+  gap:          0.125rem;
+  flex-shrink:  0;
+  margin-left:  0.375rem;
+}
+
+.st-select-clear {
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  width:            1.25rem;
+  height:           1.25rem;
+  padding:          0;
+  font-size:        1rem;
+  line-height:      1;
+  background:       none;
+  border:           none;
+  cursor:           pointer;
+  color:            var(--st-text-muted, #6c757d);
+  border-radius:    50%;
+  opacity:          0;
+  pointer-events:   none;
+  transition:       opacity var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-select.has-value .st-select-clear {
+  opacity:        0.6;
+  pointer-events: auto;
+}
+
+.st-select.has-value .st-select-clear:hover {
+  opacity: 1;
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+/* ─── Search inside listbox (single searchable) ──────────────────────────── */
+
+.st-search-wrap {
+  position:         sticky;
+  top:              0;
+  background-color: var(--st-bg, #fff);
+  padding:          0.35rem 0.5rem;
+  border-bottom:    1px solid var(--st-border, #dee2e6);
+  list-style:       none;
+  z-index:          1;
+}
+
+.st-select-search {
+  display:          block;
+  width:            100%;
+  padding:          0.25rem 0.5rem;
+  font-size:        0.875rem;
+  color:            var(--st-text, #212529);
+  background:       var(--st-bg-secondary, #f8f9fa);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    calc(var(--st-border-radius, 0.375rem) * 0.75);
+  outline:          none;
+}
+
+.st-select-search:focus {
+  border-color: var(--st-primary, #0d6efd);
+  box-shadow:   var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+/* ─── Checkbox UI ────────────────────────────────────────────────────────── */
+
+.st-checkbox {
+  flex-shrink:    0;
+  display:        inline-flex;
+  align-items:    center;
+  justify-content:center;
+  width:          1rem;
+  height:         1rem;
+  border:         1.5px solid var(--st-border, #dee2e6);
+  border-radius:  0.2rem;
+  background:     var(--st-bg, #fff);
+  transition:     background-color var(--st-duration, 200ms) var(--st-easing, ease),
+                  border-color     var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-checkbox.is-checked {
+  background:   var(--st-primary, #0d6efd);
+  border-color: var(--st-primary, #0d6efd);
+}
+
+.st-checkbox.is-checked::after {
+  content:      '';
+  display:      block;
+  width:        0.3rem;
+  height:       0.55rem;
+  border:       2px solid #fff;
+  border-top:   none;
+  border-left:  none;
+  transform:    rotate(45deg) translateY(-1px);
+}
+
+/* Indeterminate — shown on "Select All" when some (not all) are checked */
+.st-checkbox.is-indeterminate {
+  background:   var(--st-primary, #0d6efd);
+  border-color: var(--st-primary, #0d6efd);
+}
+
+.st-checkbox.is-indeterminate::after {
+  content:      '';
+  display:      block;
+  width:        0.5rem;
+  height:       2px;
+  background:   #fff;
+  border:       none;
+  transform:    none;
+}
+
+/* Select All row */
+.st-select-all {
+  font-weight: 600;
+  font-size:   0.875rem;
+  color:       var(--st-text-muted, #6c757d);
+}
+
+/* Divider between Select All and options */
+.st-select-divider {
+  height:        1px;
+  background:    var(--st-border, #dee2e6);
+  margin:        0.25rem 0;
+  padding:       0;
+  list-style:    none;
+  pointer-events:none;
+}
+
+/* Count / list summary text in trigger */
+.st-cb-summary {
+  font-size:     0.9375rem;
+  color:         var(--st-text, #212529);
+  white-space:   nowrap;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  flex:          1 1 auto;
+  min-width:     0;
+}
+
+/* ─── Group labels ───────────────────────────────────────────────────────── */
+
+.st-select-group-label {
+  display:        flex;
+  align-items:    center;
+  gap:            0.5rem;
+  padding:        0.35rem 0.75rem 0.2rem;
+  font-size:      0.7rem;
+  font-weight:    700;
+  color:          var(--st-text-muted, #6c757d);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  list-style:     none;
+  cursor:         default;
+}
+
+.st-select-group-label:has(.st-checkbox) {
+  cursor: pointer;
+}
+
+.st-select-group-label:has(.st-checkbox):hover {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+/* ─── Empty / loading / create states ───────────────────────────────────── */
+
+.st-select-no-results,
+.st-select-loading {
+  padding:    0.6rem 0.75rem;
+  font-size:  0.875rem;
+  color:      var(--st-text-muted, #6c757d);
+  font-style: italic;
+  list-style: none;
+  cursor:     default;
+}
+
+.st-select-create {
+  padding:    0.5rem 0.75rem;
+  font-size:  0.875rem;
+  color:      var(--st-primary, #0d6efd);
+  cursor:     pointer;
+  list-style: none;
+  transition: background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-select-create:hover {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+.st-select-create::before {
+  content: '+ ';
+  font-weight: 700;
+}
+
+/* ─── Avatar / image select helpers ─────────────────────────────────────── */
+
+.st-sel-avatar {
+  width:         1.5rem;
+  height:        1.5rem;
+  border-radius: 50%;
+  object-fit:    cover;
+  flex-shrink:   0;
+  vertical-align: middle;
+  margin-right:  0.375rem;
+}
+
+.st-sel-option-meta {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.1rem;
+}
+
+.st-sel-option-meta small {
+  font-size: 0.75rem;
+  color:     var(--st-text-muted, #6c757d);
+}
+
+.st-select-option {
+  display:     flex;
+  align-items: center;
+  gap:         0.375rem;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UNIFIED PICKER (date / time / datetime)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.st-picker {
+  --dp-cell: 2.125rem;
+  position:         fixed;
+  z-index:          9999;
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  border-radius:    var(--st-border-radius, 0.375rem);
+  box-shadow:       var(--st-shadow, 0 0.5rem 1rem rgba(0,0,0,0.15));
+  user-select:      none;
+}
+
+.st-picker-body {
+  display:     flex;
+  align-items: stretch;
+}
+
+/* ─── Presets ──────────────────────────────────────────────────────────────── */
+
+.st-picker-presets {
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+  padding:        0.625rem 0.5rem;
+  border-right:   1px solid var(--st-border, #dee2e6);
+  min-width:      120px;
+}
+
+.st-picker-preset {
+  padding:       0.35rem 0.625rem;
+  text-align:    left;
+  font-size:     0.8125rem;
+  white-space:   nowrap;
+  background:    none;
+  border:        none;
+  border-radius: calc(var(--st-border-radius, 0.375rem) * 0.75);
+  cursor:        pointer;
+  color:         var(--st-text, #212529);
+  transition:    background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-picker-preset:hover     { background-color: var(--st-bg-secondary, #f8f9fa); }
+.st-picker-preset.is-active {
+  background-color: color-mix(in srgb, var(--st-primary, #0d6efd) 12%, var(--st-bg, #fff));
+  color:            var(--st-primary, #0d6efd);
+  font-weight:      500;
+}
+
+/* ─── Calendar ─────────────────────────────────────────────────────────────── */
+
+.st-picker-cal {
+  padding: 0.625rem;
+  flex:    0 0 auto;
+  width:   calc(var(--dp-cell) * 7 + 1.25rem);
+}
+
+.st-picker-hd {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   0.375rem;
+}
+
+.st-picker-nav {
+  width:           2rem;
+  height:          2rem;
+  padding:         0;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  background:      none;
+  border:          none;
+  border-radius:   var(--st-border-radius, 0.375rem);
+  cursor:          pointer;
+  font-size:       1.125rem;
+  color:           var(--st-text-muted, #6c757d);
+  line-height:     1;
+  transition:      background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-picker-nav:hover { background-color: var(--st-bg-secondary, #f8f9fa); color: var(--st-text, #212529); }
+
+.st-picker-title {
+  flex:          1;
+  text-align:    center;
+  font-weight:   600;
+  font-size:     0.9375rem;
+  color:         var(--st-text, #212529);
+  background:    none;
+  border:        none;
+  cursor:        pointer;
+  padding:       0.25rem;
+  border-radius: var(--st-border-radius, 0.375rem);
+  transition:    background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-picker-title:hover         { background-color: var(--st-bg-secondary, #f8f9fa); }
+.st-picker-title--static       { cursor: default; }
+.st-picker-title--static:hover { background: none; }
+
+.st-picker-weekdays {
+  display:               grid;
+  grid-template-columns: repeat(7, var(--dp-cell));
+  margin-bottom:         0.125rem;
+}
+
+.st-picker-wdname {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  height:          var(--dp-cell);
+  font-size:       0.7rem;
+  font-weight:     700;
+  color:           var(--st-text-muted, #6c757d);
+  text-transform:  uppercase;
+  letter-spacing:  0.04em;
+}
+
+.st-picker-days {
+  display:               grid;
+  grid-template-columns: repeat(7, var(--dp-cell));
+  gap:                   1px;
+}
+
+.st-picker-day {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           var(--dp-cell);
+  height:          var(--dp-cell);
+  font-size:       0.8125rem;
+  border-radius:   var(--st-border-radius, 0.375rem);
+  cursor:          pointer;
+  color:           var(--st-text, #212529);
+  transition:      background-color var(--st-duration, 200ms) var(--st-easing, ease),
+                   color            var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-picker-day--blank { pointer-events: none; }
+
+.st-picker-day:hover:not(.is-off):not(.is-sel) {
+  background-color: var(--st-bg-secondary, #f8f9fa);
+}
+
+.st-picker-day.is-today { font-weight: 700; color: var(--st-primary, #0d6efd); }
+
+.st-picker-day.is-sel {
+  background-color: var(--st-primary, #0d6efd);
+  color:            #fff;
+  font-weight:      600;
+}
+
+.st-picker-day.is-off { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+.st-picker-day.is-in-range {
+  background-color: color-mix(in srgb, var(--st-primary, #0d6efd) 12%, var(--st-bg, #fff));
+  border-radius:    0;
+}
+
+.st-picker-day.is-range-start { border-radius: var(--st-border-radius, 0.375rem) 0 0 var(--st-border-radius, 0.375rem); }
+.st-picker-day.is-range-end   { border-radius: 0 var(--st-border-radius, 0.375rem) var(--st-border-radius, 0.375rem) 0; }
+
+.st-picker-months,
+.st-picker-years {
+  display:               grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:                   0.25rem;
+  padding:               0.25rem 0;
+}
+
+.st-picker-month,
+.st-picker-year {
+  padding:       0.5rem;
+  text-align:    center;
+  font-size:     0.875rem;
+  background:    none;
+  border:        none;
+  border-radius: var(--st-border-radius, 0.375rem);
+  cursor:        pointer;
+  color:         var(--st-text, #212529);
+  transition:    background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-picker-month:hover,
+.st-picker-year:hover   { background-color: var(--st-bg-secondary, #f8f9fa); }
+
+.st-picker-month.is-today,
+.st-picker-year.is-today { color: var(--st-primary, #0d6efd); font-weight: 700; }
+
+/* ─── Time ─────────────────────────────────────────────────────────────────── */
+
+.st-picker-time {
+  display:        flex;
+  flex-direction: column;
+  padding:        0.625rem 0.5rem 0.5rem;
+  min-width:      fit-content;
+}
+
+.st-picker-time--beside { border-left: 1px solid var(--st-border, #dee2e6); }
+
+.st-picker-time-lbl {
+  font-size:      0.7rem;
+  font-weight:    700;
+  color:          var(--st-text-muted, #6c757d);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom:  0.375rem;
+  padding:        0 0.25rem;
+}
+
+.st-picker-tcols {
+  display: flex;
+  gap:     0.25rem;
+  flex:    1 1 auto;
+}
+
+.st-picker-tcol-wrap {
+  display:        flex;
+  flex-direction: column;
+  min-width:      3rem;
+}
+
+.st-picker-tcol-lbl {
+  font-size:   0.7rem;
+  font-weight: 600;
+  color:       var(--st-text-muted, #6c757d);
+  text-align:  center;
+  padding:     0 0 0.2rem;
+}
+
+.st-picker-tcol {
+  max-height:    180px;
+  overflow-y:    auto;
+  border:        1px solid var(--st-border, #dee2e6);
+  border-radius: var(--st-border-radius, 0.375rem);
+  scrollbar-width: thin;
+  scrollbar-color: var(--st-border, #dee2e6) transparent;
+}
+
+.st-picker-tcol::-webkit-scrollbar       { width: 4px; }
+.st-picker-tcol::-webkit-scrollbar-thumb { background: var(--st-border, #dee2e6); border-radius: 2px; }
+
+.st-picker-titem {
+  padding:              0.35rem 0.5rem;
+  font-size:            0.9rem;
+  font-variant-numeric: tabular-nums;
+  text-align:           center;
+  cursor:               pointer;
+  color:                var(--st-text, #212529);
+  transition:           background-color var(--st-duration, 200ms) var(--st-easing, ease);
+  white-space:          nowrap;
+}
+
+.st-picker-titem:hover:not(.is-sel) { background-color: var(--st-bg-secondary, #f8f9fa); }
+
+.st-picker-titem.is-sel {
+  background-color: var(--st-primary, #0d6efd);
+  color:            #fff;
+  font-weight:      600;
+}
+
+/* ─── Footer ───────────────────────────────────────────────────────────────── */
+
+.st-picker-footer {
+  display:         flex;
+  align-items:     center;
+  padding:         0.375rem 0.625rem;
+  border-top:      1px solid var(--st-border, #dee2e6);
+  gap:             0.5rem;
+}
+
+.st-picker-today,
+.st-picker-clear {
+  padding:       0.25rem 0.5rem;
+  font-size:     0.8rem;
+  background:    none;
+  border:        none;
+  border-radius: var(--st-border-radius, 0.375rem);
+  cursor:        pointer;
+  transition:    background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-picker-today { color: var(--st-primary, #0d6efd); }
+.st-picker-clear { color: var(--st-text-muted, #6c757d); margin-left: auto; }
+
+.st-picker-today:hover,
+.st-picker-clear:hover { background-color: var(--st-bg-secondary, #f8f9fa); }
+
+.st-picker-apply {
+  padding:          0.3rem 0.75rem;
+  font-size:        0.875rem;
+  font-weight:      500;
+  color:            #fff;
+  background-color: var(--st-primary, #0d6efd);
+  border:           none;
+  border-radius:    var(--st-border-radius, 0.375rem);
+  cursor:           pointer;
+  transition:       background-color var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+.st-picker-apply:hover         { background-color: var(--st-primary-hover, #0b5ed7); }
+.st-picker-apply:focus-visible {
+  outline:    none;
+  box-shadow: var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+}
+
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .st-select-listbox {
+    transition: none;
+    animation:  none;
+  }
+}
