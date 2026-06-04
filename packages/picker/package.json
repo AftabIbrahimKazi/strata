@@ -1,0 +1,41 @@
+{
+  "name": "@strata-css/picker",
+  "version": "1.0.0",
+  "description": "Date, time, and datetime picker for Strata CSS. Works standalone or with Strata.",
+  "main": "picker.js",
+  "style": "picker.css",
+  "exports": {
+    ".":     "./picker.js",
+    "./css": "./picker.css"
+  },
+  "files": [
+    "picker.js",
+    "picker.css",
+    "CLAUDE.md"
+  ],
+  "keywords": [
+    "datepicker",
+    "timepicker",
+    "datetime",
+    "date-picker",
+    "time-picker",
+    "strata",
+    "strata-css"
+  ],
+  "author": "Aftab Ibrahim Kazi",
+  "license": "MIT",
+  "homepage": "https://aftabibrahimkazi.github.io/strata",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
+  },
+  "peerDependencies": {
+    "strata-css": ">=1.1.0"
+  },
+  "peerDependenciesMeta": {
+    "strata-css": { "optional": true }
+  }
+}
