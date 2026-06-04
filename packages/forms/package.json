@@ -1,0 +1,44 @@
+{
+  "name": "@strata-css/forms",
+  "version": "1.0.0",
+  "description": "Interactive form controls for Strata CSS — custom select, date picker, time picker.",
+  "main": "forms.js",
+  "style": "forms.css",
+  "exports": {
+    ".":     "./forms.js",
+    "./css": "./forms.css"
+  },
+  "files": [
+    "forms.js",
+    "forms.css",
+    "CLAUDE.md"
+  ],
+  "keywords": [
+    "select",
+    "datepicker",
+    "timepicker",
+    "date-picker",
+    "time-picker",
+    "form",
+    "strata",
+    "strata-css"
+  ],
+  "author": "Aftab Ibrahim Kazi",
+  "license": "MIT",
+  "homepage": "https://aftabibrahimkazi.github.io/strata",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
+  },
+  "peerDependencies": {
+    "strata-css": ">=1.1.0"
+  },
+  "peerDependenciesMeta": {
+    "strata-css": {
+      "optional": true
+    }
+  }
+}

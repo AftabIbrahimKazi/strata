@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Picker Debug</title>
+  <link rel="stylesheet" href="../packages/forms/forms.css">
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    input { display: block; width: 300px; padding: 0.5rem; font-size: 1rem;
+            border: 1px solid #ccc; border-radius: 4px; margin-bottom: 1rem; }
+    button { padding: 0.4rem 1rem; margin-right: 0.5rem; cursor: pointer; }
+    #log { font-family: monospace; font-size: 0.8rem; margin-top: 1rem;
+           padding: 1rem; background: #f8f9fa; border: 1px solid #dee2e6; min-height: 60px; }
+  </style>
+</head>
+<body>
+  <h2>Picker Debug — Minimal Test</h2>
+
+  <label>Date picker:</label>
+  <input id="dp" type="text" placeholder="Click to open date picker" readonly>
+
+  <label>Time picker:</label>
+  <input id="tp" type="text" placeholder="Click to open time picker" readonly>
+
+  <label>DateTime picker:</label>
+  <input id="dtp" type="text" placeholder="Click to open datetime picker" readonly>
+
+  <div>
+    <button onclick="openDate()">Open date manually</button>
+    <button onclick="openTime()">Open time manually</button>
+    <button onclick="openDT()">Open datetime manually</button>
+    <button onclick="checkDOM()">Check popup in DOM</button>
+  </div>
+
+  <div id="log">Waiting...</div>
+
+  <script src="../packages/forms/forms.js"></script>
+  <script>
+    var log = document.getElementById('log')
+    function out(msg) { log.innerHTML += msg + '<br>'; console.log(msg) }
+
+    out('forms.js loaded: ' + (typeof StrataForms !== 'undefined' ? 'StrataForms' : typeof Strata !== 'undefined' ? 'Strata.Forms' : 'NOT FOUND'))
+
+    var Forms = typeof StrataForms !== 'undefined' ? StrataForms : Strata.Forms
+    out('Forms object: ' + JSON.stringify(Object.keys(Forms)))
+
+    var dp  = Forms.datepicker('#dp')
+    var tp  = Forms.timepicker('#tp')
+    var dtp = Forms.datetimepicker('#dtp')
+    out('dp:  ' + (dp  ? 'ok' : 'FAILED'))
+    out('tp:  ' + (tp  ? 'ok' : 'FAILED'))
+    out('dtp: ' + (dtp ? 'ok' : 'FAILED'))
+
+    function openDate() {
+      out('Calling dp.open()...')
+      try { dp.open(); out('dp.open() called') }
+      catch(e) { out('ERROR: ' + e.message) }
+    }
+    function openTime() {
+      out('Calling tp.open()...')
+      try { tp.open(); out('tp.open() called') }
+      catch(e) { out('ERROR: ' + e.message) }
+    }
+    function openDT() {
+      out('Calling dtp.open()...')
+      try { dtp.open(); out('dtp.open() called') }
+      catch(e) { out('ERROR: ' + e.message) }
+    }
+    function checkDOM() {
+      var pickers = document.querySelectorAll('.st-picker')
+      out('st-picker elements in DOM: ' + pickers.length)
+      pickers.forEach(function(p) {
+        out('  - classes: ' + p.className + ' | top: ' + p.style.top + ' | left: ' + p.style.left + ' | opacity: ' + getComputedStyle(p).opacity)
+      })
+    }
+
+    document.addEventListener('st:datepicker:change', function(e) { out('datepicker change: ' + e.detail.formatted) })
+    document.addEventListener('st:timepicker:change', function(e) { out('timepicker change: ' + e.detail.value) })
+    document.addEventListener('st:datetimepicker:change', function(e) { out('datetimepicker change: ' + e.detail.value) })
+  </script>
+</body>
+</html>
