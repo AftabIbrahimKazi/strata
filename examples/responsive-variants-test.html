@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-strata>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — Responsive Variants Test</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    body { padding: 2rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    p.desc { color: var(--st-text-muted); font-size: 0.8rem; font-family: monospace; margin-bottom: 1rem; }
+    .hint { font-size: 0.75rem; color: var(--st-text-muted); margin-top: 0.5rem; }
+    .box {
+      padding: 0.75rem 1rem;
+      background: color-mix(in srgb, var(--st-primary) 10%, var(--st-bg));
+      border: 1px solid var(--st-primary);
+      border-radius: var(--st-border-radius);
+      font-size: 0.9rem;
+    }
+    .bp-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-family: monospace;
+      background: var(--st-primary);
+      color: #fff;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="mb-1">Responsive Utility Variants</h1>
+  <p class="text-muted mb-1">Resize your browser to see each utility activate at its breakpoint.</p>
+  <p class="text-muted mb-4" style="font-size:0.8rem">
+    xs &lt;576px · sm ≥576px · md ≥768px · lg ≥992px · xl ≥1200px · xxl ≥1400px
+  </p>
+
+  <!-- ─── 1. Flex direction ─────────────────────────────────────── -->
+  <section>
+    <h2>1 — flex-md-row / flex-md-column</h2>
+    <p class="desc">d-flex flex-column flex-md-row — stacks on mobile, side-by-side at md+</p>
+    <div class="d-flex flex-column flex-md-row gap-2">
+      <div class="box" style="flex:1">Block A</div>
+      <div class="box" style="flex:1">Block B</div>
+      <div class="box" style="flex:1">Block C</div>
+    </div>
+    <p class="hint">↑ Column on mobile → Row at ≥768px</p>
+  </section>
+
+  <!-- ─── 2. Text alignment (already existed, shown for comparison) -->
+  <section>
+    <h2>2 — text-start text-md-center text-lg-end</h2>
+    <p class="desc">Left on mobile → centered at md → right-aligned at lg</p>
+    <div class="box text-start text-md-center text-lg-end">
+      This text changes alignment at each breakpoint
+    </div>
+  </section>
+
+  <!-- ─── 3. Font weight ────────────────────────────────────────── -->
+  <section>
+    <h2>3 — fw-normal fw-md-semibold fw-lg-bold</h2>
+    <p class="desc">Font weight increases with viewport width</p>
+    <p class="box fw-normal fw-md-semibold fw-lg-bold">
+      Normal → Semibold at md → Bold at lg
+    </p>
+  </section>
+
+  <!-- ─── 4. Text transform ────────────────────────────────────── -->
+  <section>
+    <h2>4 — text-lowercase text-md-capitalize text-lg-uppercase</h2>
+    <p class="desc">Transform changes at breakpoints</p>
+    <p class="box text-lowercase text-md-capitalize text-lg-uppercase">
+      hello world — watch the casing change
+    </p>
+  </section>
+
+  <!-- ─── 5. Border radius ──────────────────────────────────────── -->
+  <section>
+    <h2>5 — rounded-0 rounded-md-3 rounded-lg-pill</h2>
+    <p class="desc">Sharp corners on mobile → rounded at md → pill at lg</p>
+    <button class="btn-primary rounded-0 rounded-md-3 rounded-lg-pill">
+      Corners change at breakpoints
+    </button>
+  </section>
+
+  <!-- ─── 6. Shadow ────────────────────────────────────────────── -->
+  <section>
+    <h2>6 — shadow-none shadow-md-sm shadow-lg-lg</h2>
+    <p class="desc">No shadow on mobile → small at md → large at lg</p>
+    <div class="box shadow-none shadow-md-sm shadow-lg-lg">
+      Shadow grows with viewport
+    </div>
+  </section>
+
+  <!-- ─── 7. Width ─────────────────────────────────────────────── -->
+  <section>
+    <h2>7 — w-100 w-md-75 w-lg-50</h2>
+    <p class="desc">Full width on mobile → 75% at md → 50% at lg</p>
+    <div class="box w-100 w-md-75 w-lg-50">
+      Width shrinks as screen grows
+    </div>
+  </section>
+
+  <!-- ─── 8. Opacity ────────────────────────────────────────────── -->
+  <section>
+    <h2>8 — opacity-25 opacity-md-75 opacity-lg-100</h2>
+    <p class="desc">Faint on mobile → more visible at md → fully opaque at lg</p>
+    <div class="box opacity-25 opacity-md-75 opacity-lg-100">
+      Opacity increases with viewport width
+    </div>
+  </section>
+
+  <!-- ─── 9. Overflow ───────────────────────────────────────────── -->
+  <section>
+    <h2>9 — overflow-auto overflow-md-hidden</h2>
+    <p class="desc">Scrollable on mobile → clipped at md (long content truncated)</p>
+    <div
+      class="overflow-auto overflow-md-hidden"
+      style="max-height:60px; border:1px solid var(--st-border); padding:0.5rem; border-radius:0.375rem;"
+    >
+      <p style="white-space:nowrap; margin:0;">
+        Line 1 — This is very long content that may scroll on mobile but gets clipped at md breakpoint and beyond.
+      </p>
+      <p style="white-space:nowrap; margin:0;">Line 2 — More content here</p>
+      <p style="white-space:nowrap; margin:0;">Line 3 — Even more</p>
+    </div>
+  </section>
+
+  <!-- ─── 10. Position ──────────────────────────────────────────── -->
+  <section>
+    <h2>10 — position-static position-md-sticky</h2>
+    <p class="desc">Static on mobile → sticky header at md+</p>
+    <div style="height:150px; overflow-y:auto; border:1px solid var(--st-border); border-radius:0.375rem;">
+      <div
+        class="position-static position-md-sticky bg-body fw-semibold"
+        style="top:0; padding:0.5rem 1rem; border-bottom:1px solid var(--st-border); z-index:1;"
+      >
+        Sticky at ≥768px — scroll inside this box
+      </div>
+      <div style="padding:0.75rem 1rem; font-size:0.875rem;">
+        <p>Content row 1</p><p>Content row 2</p><p>Content row 3</p>
+        <p>Content row 4</p><p>Content row 5</p><p>Content row 6</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 11. Cursor ────────────────────────────────────────────── -->
+  <section>
+    <h2>11 — cursor-default cursor-md-pointer cursor-lg-not-allowed</h2>
+    <p class="desc">Hover over the element and resize to see cursor change</p>
+    <div class="box cursor-default cursor-md-pointer cursor-lg-not-allowed">
+      Hover me — cursor changes at md and lg
+    </div>
+  </section>
+
+  <!-- ─── 12. Line height ───────────────────────────────────────── -->
+  <section>
+    <h2>12 — lh-1 lh-md-base lh-lg-lg</h2>
+    <p class="desc">Tight line-height on mobile → normal at md → loose at lg</p>
+    <p class="box lh-1 lh-md-base lh-lg-lg" style="max-width:500px;">
+      Line height increases with viewport width.<br>
+      Notice how the spacing between this line<br>
+      and the previous one changes as you resize.
+    </p>
+  </section>
+
+  <!-- ─── 13. Visibility ────────────────────────────────────────── -->
+  <section>
+    <h2>13 — invisible invisible-md / visible-md</h2>
+    <p class="desc">Hide or show elements at specific breakpoints</p>
+    <div class="d-flex gap-3 align-items-center flex-wrap">
+      <div class="box invisible visible-md" style="min-width:180px;">
+        Hidden below md → visible at md+
+      </div>
+      <div class="box invisible-lg" style="min-width:180px;">
+        Visible below lg → hidden at lg+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 14. Practical: responsive card layout ────────────────── -->
+  <section>
+    <h2>14 — Practical: responsive service card</h2>
+    <p class="desc">Combines multiple responsive variants in a real layout pattern</p>
+    <div class="card">
+      <div class="card-body d-flex flex-column flex-md-row gap-3 align-items-center">
+        <div
+          class="rounded-circle shadow-sm shadow-md-lg flex-shrink-0"
+          style="width:64px;height:64px;background:color-mix(in srgb,var(--st-primary) 20%,var(--st-bg));"
+        ></div>
+        <div class="text-center text-md-start w-100 w-md-auto" style="flex:1;">
+          <h5 class="fw-semibold fw-lg-bold mb-1 text-md-start">Deep Tissue Massage</h5>
+          <p class="text-muted mb-0 lh-base lh-lg-lg">
+            60 or 90 minute sessions. Relieves chronic muscle tension.
+          </p>
+        </div>
+        <button class="btn-primary w-100 w-md-auto rounded-lg-pill">
+          Book now
+        </button>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
