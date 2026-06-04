@@ -310,9 +310,88 @@ reg('my-utility-md', 'utilities',
 
 Layers: `'utilities'` or `'components'`. Components sit in `st-components-*` layers; utilities in `st-utilities-*` layers. Utilities always win over components at the same breakpoint.
 
+## Versioning & Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full versioning rules, branch pipeline, commit format, and publishing checklist.
+
+**Short version:** `MAJOR.FEATURE.BUGFIX` — FEATURE and BUGFIX never reset mid-era, only on MAJOR. See CONTRIBUTING.md for details.
+
+## Packages
+
+| Package | Description | Docs |
+|---|---|---|
+| `strata-css` | JIT CSS framework (this package) | This file |
+| `@strata-css/forms` | Custom select — all variants | `packages/forms/CLAUDE.md` |
+| `@strata-css/picker` | Date / time / datetime picker | `packages/picker/CLAUDE.md` |
+| `@strata-css/modal` | Accessible modal component | `packages/modal/CLAUDE.md` |
+| `@strata-css/skeleton-loader` | Shimmer skeleton loader | `packages/skeleton-loader/CLAUDE.md` |
+| `@strata-css/chart` | Three.js data visualisation | `packages/chart/CLAUDE.md` |
+
+## New in v1.1.0
+
+### Transition variables
+All hardcoded `transition-duration` and `transition-timing-function` values replaced with CSS variables. New variables added to `:root`:
+
+```css
+--st-duration-theme:  150ms;
+--st-easing-theme:    cubic-bezier(0.22, 1, 0.36, 1);
+```
+
+### Sizing utilities
+`max-w-{xs/sm/md/lg/xl/xxl/full/none}`, `min-w-{0/full/screen}`, `max-h-{full/screen/none}`, `min-h-{0/full/screen}`
+
+Arbitrary: `max-w-[440px]`, `min-h-[300px]`, `max-h-[500px]`, `min-w-[200px]`
+
+### Responsive variants for 15 utility groups
+Every utility group now has full breakpoint variants (`sm md lg xl xxl`):
+
+```
+flex-{bp}-{row/column/wrap/nowrap}
+fw-{bp}-{light/normal/bold/...}
+fst-{bp}-{italic/normal}
+text-{bp}-{uppercase/lowercase/capitalize}
+text-{bp}-decoration-{none/underline}
+rounded-{bp}-{0-5/pill/circle}
+shadow-{bp}-{sm/lg/none}
+w-{bp}-{25/50/75/100/auto}
+h-{bp}-{25/50/75/100/auto}
+opacity-{bp}-{0/25/50/75/100}
+overflow-{bp}-{auto/hidden/visible/scroll}
+position-{bp}-{static/relative/absolute/fixed/sticky}
+cursor-{bp}-{pointer/default/not-allowed/...}
+lh-{bp}-{1/sm/base/lg}
+visible-{bp}, invisible-{bp}
+```
+
+### Component CSS variable tokens
+All hardcoded color values in component rules replaced with local CSS variables. Override per-theme, per-context, or per-instance without `!important`:
+
+```css
+/* Per theme */
+[data-st-theme="dark"] .btn-warning { --st-btn-color: #000; }
+
+/* Per instance */
+<button class="btn-primary" style="--st-btn-bg: gold; --st-btn-color: navy;">
+```
+
+See [Component CSS Variable Tokens](#component-css-variable-tokens) table.
+
+### List utilities
+`list-unstyled`, `list-inline`, `list-inline-item`, `list-disc`, `list-decimal`, `list-circle`, `list-square`, `list-none`, `list-lower-alpha`, `list-upper-alpha`, `list-lower-roman`, `list-upper-roman`, `list-inside`, `list-outside`, `list-spaced`
+
+### Outline utilities
+`outline-none`, `outline-{primary/secondary/success/danger/warning/info/light/dark}`, `outline-{1-5}`
+
+### Label component (Bootstrap 3 aliases)
+`.label` and `.label-{default/primary/secondary/success/info/warning/danger}` — aliases to `.badge` / `.badge-{color}` for Bootstrap 3 compatibility.
+
+### Arbitrary value fixes
+- `text-[15px]` → `font-size: 15px` (length unit detected)
+- `text-[#f00]` → `color: #f00` (color value detected)
+- `#`, `(`, `)`, `,` properly escaped in CSS class selectors
+
 ## Known Limitations
 
 - Scanner uses a regex on `class="..."` attributes. Dynamic class construction (`class={\`prefix-${value}\`}`) is not detected — use safelisting in `strata.config.js`.
 - CSS variables cannot be used in `@media` query values — breakpoints use hardcoded `px` values.
 - `text-[value]`: length units → `font-size`, everything else → `color`.
-- No built-in datepicker or timepicker — see `@strata-css/forms` (planned).
