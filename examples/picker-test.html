@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Strata — Picker Test</title>
-  <link rel="stylesheet" href="../packages/forms/forms.css">
+  <link rel="stylesheet" href="../packages/picker/picker.css">
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 2rem; max-width: 700px; margin: 0 auto; background: #f8f9fa; color: #212529; }
@@ -96,10 +96,10 @@
   <input id="dtp2" type="text" placeholder="Weekdays, 24h" readonly>
   <div class="result" id="r-dtp2">—</div>
 
-  <script src="../packages/forms/forms.js"></script>
+  <script src="../packages/picker/picker.js"></script>
   <script>
     // Programmatic init for dtp2
-    StrataForms.datetimepicker('#dtp2', {
+    StrataPicker.datetime('#dtp2', {
       hour24:  true,
       step:    30,
       disable: [function(d) { return d.getDay() === 0 || d.getDay() === 6 }]

@@ -1,0 +1,356 @@
+/**
+ * Strata Picker — Standalone CSS
+ * Version: 1.0.0
+ *
+ * Standalone : import this file once in your project.
+ * With Strata: do NOT import this file — Strata generates styles via JIT.
+ *
+ * Strata detection:
+ *   Tokens scoped to :root:not([data-strata]) — suppressed when Strata present.
+ */
+
+/* ─── Tokens (standalone only) ───────────────────────────────────────────── */
+
+:root:not([data-strata]) {
+  --stp-bg:        #ffffff;
+  --stp-bg2:       #f8f9fa;
+  --stp-text:      #212529;
+  --stp-muted:     #6c757d;
+  --stp-border:    #dee2e6;
+  --stp-radius:    0.375rem;
+  --stp-primary:   #0d6efd;
+  --stp-primary-h: #0b5ed7;
+  --stp-shadow:    0 0.5rem 1rem rgba(0,0,0,0.15);
+  --stp-focus:     0 0 0 0.25rem rgba(13,110,253,0.25);
+  --stp-dur:       150ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-strata]) {
+    --stp-bg:     #212529;
+    --stp-bg2:    #2b3035;
+    --stp-text:   #dee2e6;
+    --stp-muted:  #8c959e;
+    --stp-border: #495057;
+    --stp-shadow: 0 0.5rem 1rem rgba(0,0,0,0.5);
+  }
+}
+
+/* When Strata IS present, map stp-* to st-* tokens */
+[data-strata] {
+  --stp-bg:        var(--st-bg, #fff);
+  --stp-bg2:       var(--st-bg-secondary, #f8f9fa);
+  --stp-text:      var(--st-text, #212529);
+  --stp-muted:     var(--st-text-muted, #6c757d);
+  --stp-border:    var(--st-border, #dee2e6);
+  --stp-radius:    var(--st-border-radius, 0.375rem);
+  --stp-primary:   var(--st-primary, #0d6efd);
+  --stp-primary-h: var(--st-primary-hover, #0b5ed7);
+  --stp-shadow:    var(--st-shadow, 0 0.5rem 1rem rgba(0,0,0,0.15));
+  --stp-focus:     var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
+  --stp-dur:       var(--st-duration, 150ms);
+}
+
+/* ─── Popup shell ─────────────────────────────────────────────────────────── */
+
+.stp-popup {
+  position:         fixed;
+  z-index:          9999;
+  background-color: var(--stp-bg);
+  border:           1px solid var(--stp-border);
+  border-radius:    var(--stp-radius);
+  box-shadow:       var(--stp-shadow);
+  font-family:      -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size:        0.9rem;
+  color:            var(--stp-text);
+  user-select:      none;
+}
+
+/* ─── Inner layout (presets | calendar) ──────────────────────────────────── */
+
+.stp-inner {
+  display: flex;
+}
+
+/* ─── Presets ─────────────────────────────────────────────────────────────── */
+
+.stp-presets {
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+  padding:        0.5rem;
+  border-right:   1px solid var(--stp-border);
+  min-width:      110px;
+}
+
+.stp-preset {
+  padding:       0.3rem 0.6rem;
+  text-align:    left;
+  font-size:     0.8rem;
+  white-space:   nowrap;
+  background:    none;
+  border:        none;
+  border-radius: calc(var(--stp-radius) * 0.75);
+  cursor:        pointer;
+  color:         var(--stp-text);
+  transition:    background-color var(--stp-dur) ease;
+}
+
+.stp-preset:hover     { background-color: var(--stp-bg2); }
+.stp-preset.is-active {
+  background-color: color-mix(in srgb, var(--stp-primary) 12%, var(--stp-bg));
+  color:            var(--stp-primary);
+  font-weight:      500;
+}
+
+/* ─── Calendar ────────────────────────────────────────────────────────────── */
+
+.stp-cal {
+  padding: 0.625rem;
+  width:   calc(2rem * 7 + 1.25rem);
+  flex-shrink: 0;
+}
+
+.stp-hd {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   0.375rem;
+}
+
+.stp-nav {
+  width:         1.75rem;
+  height:        1.75rem;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  background:    none;
+  border:        none;
+  border-radius: var(--stp-radius);
+  cursor:        pointer;
+  font-size:     1rem;
+  color:         var(--stp-muted);
+  transition:    background-color var(--stp-dur) ease;
+}
+
+.stp-nav:hover { background-color: var(--stp-bg2); color: var(--stp-text); }
+
+.stp-title {
+  flex:          1;
+  text-align:    center;
+  font-weight:   600;
+  font-size:     0.9rem;
+  color:         var(--stp-text);
+  background:    none;
+  border:        none;
+  cursor:        pointer;
+  padding:       0.2rem;
+  border-radius: var(--stp-radius);
+  transition:    background-color var(--stp-dur) ease;
+}
+
+.stp-title:hover          { background-color: var(--stp-bg2); }
+.stp-title--static        { cursor: default; }
+.stp-title--static:hover  { background: none; }
+
+.stp-wds {
+  display:               grid;
+  grid-template-columns: repeat(7, 2rem);
+  margin-bottom:         0.125rem;
+}
+
+.stp-wd {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  height:          2rem;
+  font-size:       0.65rem;
+  font-weight:     700;
+  color:           var(--stp-muted);
+  text-transform:  uppercase;
+  letter-spacing:  0.03em;
+}
+
+.stp-days {
+  display:               grid;
+  grid-template-columns: repeat(7, 2rem);
+  gap:                   1px;
+}
+
+.stp-day {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:           2rem;
+  height:          2rem;
+  font-size:       0.8rem;
+  border-radius:   var(--stp-radius);
+  cursor:          pointer;
+  color:           var(--stp-text);
+  transition:      background-color var(--stp-dur) ease;
+}
+
+.stp-blank      { pointer-events: none; }
+.stp-day:hover:not(.is-off):not(.is-sel) { background-color: var(--stp-bg2); }
+.stp-day.is-today { font-weight: 700; color: var(--stp-primary); }
+.stp-day.is-sel   { background-color: var(--stp-primary); color: #fff; font-weight: 600; }
+.stp-day.is-off   { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+.stp-day.is-in-range {
+  background-color: color-mix(in srgb, var(--stp-primary) 12%, var(--stp-bg));
+  border-radius:    0;
+}
+
+.stp-day.is-range-start { border-radius: var(--stp-radius) 0 0 var(--stp-radius); }
+.stp-day.is-range-end   { border-radius: 0 var(--stp-radius) var(--stp-radius) 0; }
+
+.stp-months,
+.stp-years {
+  display:               grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:                   0.25rem;
+  padding:               0.25rem 0;
+}
+
+.stp-month,
+.stp-year {
+  padding:       0.5rem;
+  text-align:    center;
+  font-size:     0.85rem;
+  background:    none;
+  border:        none;
+  border-radius: var(--stp-radius);
+  cursor:        pointer;
+  color:         var(--stp-text);
+  transition:    background-color var(--stp-dur) ease;
+}
+
+.stp-month:hover,
+.stp-year:hover   { background-color: var(--stp-bg2); }
+.stp-month.is-today,
+.stp-year.is-today { color: var(--stp-primary); font-weight: 700; }
+
+/* ─── Time columns ────────────────────────────────────────────────────────── */
+
+.stp-tcols {
+  display: flex;
+  gap:     0.25rem;
+  padding: 0.5rem;
+}
+
+.stp-tcol-wrap {
+  display:        flex;
+  flex-direction: column;
+  min-width:      3rem;
+}
+
+.stp-tcol-lbl {
+  font-size:   0.65rem;
+  font-weight: 600;
+  color:       var(--stp-muted);
+  text-align:  center;
+  padding:     0 0 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stp-tcol {
+  max-height:    160px;
+  overflow-y:    auto;
+  border:        1px solid var(--stp-border);
+  border-radius: var(--stp-radius);
+  scrollbar-width: thin;
+  scrollbar-color: var(--stp-border) transparent;
+}
+
+.stp-tcol::-webkit-scrollbar       { width: 4px; }
+.stp-tcol::-webkit-scrollbar-thumb { background: var(--stp-border); border-radius: 2px; }
+
+.stp-titem {
+  padding:              0.35rem 0.5rem;
+  font-size:            0.875rem;
+  font-variant-numeric: tabular-nums;
+  text-align:           center;
+  cursor:               pointer;
+  color:                var(--stp-text);
+  transition:           background-color var(--stp-dur) ease;
+  white-space:          nowrap;
+}
+
+.stp-titem:hover:not(.is-sel) { background-color: var(--stp-bg2); }
+.stp-titem.is-sel { background-color: var(--stp-primary); color: #fff; font-weight: 600; }
+
+/* ─── DateTime layout ─────────────────────────────────────────────────────── */
+
+.stp-dt-body {
+  display:     flex;
+  align-items: stretch;
+}
+
+.stp-dt-cal { padding: 0.625rem; }
+
+.stp-dt-divider {
+  width:      1px;
+  background: var(--stp-border);
+  flex-shrink: 0;
+}
+
+.stp-dt-time {
+  display:        flex;
+  flex-direction: column;
+  padding:        0.5rem 0.5rem 0;
+}
+
+.stp-dt-time-lbl {
+  font-size:      0.65rem;
+  font-weight:    700;
+  color:          var(--stp-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding:        0 0.25rem 0.25rem;
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+
+.stp-footer {
+  display:         flex;
+  align-items:     center;
+  padding:         0.375rem 0.625rem;
+  border-top:      1px solid var(--stp-border);
+  gap:             0.5rem;
+}
+
+.stp-today,
+.stp-clear {
+  padding:       0.25rem 0.5rem;
+  font-size:     0.78rem;
+  background:    none;
+  border:        none;
+  border-radius: var(--stp-radius);
+  cursor:        pointer;
+  transition:    background-color var(--stp-dur) ease;
+}
+
+.stp-today { color: var(--stp-primary); }
+.stp-clear { color: var(--stp-muted); margin-left: auto; }
+.stp-today:hover,
+.stp-clear:hover { background-color: var(--stp-bg2); }
+
+.stp-apply {
+  padding:          0.3rem 0.75rem;
+  font-size:        0.85rem;
+  font-weight:      500;
+  color:            #fff;
+  background-color: var(--stp-primary);
+  border:           none;
+  border-radius:    var(--stp-radius);
+  cursor:           pointer;
+  transition:       background-color var(--stp-dur) ease;
+}
+
+.stp-apply:hover         { background-color: var(--stp-primary-h); }
+.stp-apply:focus-visible { outline: none; box-shadow: var(--stp-focus); }
+
+/* ─── Time-only popup layout ──────────────────────────────────────────────── */
+
+.stp-time > .stp-tcols { padding: 0.5rem; }
