@@ -23,6 +23,8 @@
   --stp-shadow:    0 0.5rem 1rem rgba(0,0,0,0.15);
   --stp-focus:     0 0 0 0.25rem rgba(13,110,253,0.25);
   --stp-dur:       150ms;
+  --stp-cell:      2rem;
+  --stp-font-size: 0.9rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -49,6 +51,8 @@
   --stp-shadow:    var(--st-shadow, 0 0.5rem 1rem rgba(0,0,0,0.15));
   --stp-focus:     var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
   --stp-dur:       var(--st-duration, 150ms);
+  --stp-cell:      2rem;
+  --stp-font-size: 0.9rem;
 }
 
 /* ─── Popup shell ─────────────────────────────────────────────────────────── */
@@ -61,7 +65,7 @@
   border-radius:    var(--stp-radius);
   box-shadow:       var(--stp-shadow);
   font-family:      -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size:        0.9rem;
+  font-size:        var(--stp-font-size, 0.9rem);
   color:            var(--stp-text);
   user-select:      none;
 }
@@ -107,7 +111,7 @@
 
 .stp-cal {
   padding: 0.625rem;
-  width:   calc(2rem * 7 + 1.25rem);
+  width:   calc(var(--stp-cell, 2rem) * 7 + 1.25rem);
   flex-shrink: 0;
 }
 
@@ -155,7 +159,7 @@
 
 .stp-wds {
   display:               grid;
-  grid-template-columns: repeat(7, 2rem);
+  grid-template-columns: repeat(7, var(--stp-cell, 2rem));
   margin-bottom:         0.125rem;
 }
 
@@ -163,7 +167,7 @@
   display:         flex;
   align-items:     center;
   justify-content: center;
-  height:          2rem;
+  height:          var(--stp-cell, 2rem);
   font-size:       0.65rem;
   font-weight:     700;
   color:           var(--stp-muted);
@@ -173,7 +177,7 @@
 
 .stp-days {
   display:               grid;
-  grid-template-columns: repeat(7, 2rem);
+  grid-template-columns: repeat(7, var(--stp-cell, 2rem));
   gap:                   1px;
 }
 
@@ -181,8 +185,8 @@
   display:         flex;
   align-items:     center;
   justify-content: center;
-  width:           2rem;
-  height:          2rem;
+  width:           var(--stp-cell, 2rem);
+  height:          var(--stp-cell, 2rem);
   font-size:       0.8rem;
   border-radius:   var(--stp-radius);
   cursor:          pointer;
