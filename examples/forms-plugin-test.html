@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en" data-strata>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — Forms Plugin Test</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <link rel="stylesheet" href="../packages/forms/forms.css">
+  <style>
+    body { padding: 2rem; max-width: 800px; margin: 0 auto; }
+    section { margin-bottom: 3rem; }
+    h2  { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    p.desc { color: var(--st-text-muted); font-size: 0.8rem; font-family: monospace; margin-bottom: 1rem; }
+    .output {
+      margin-top: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--st-bg-secondary);
+      border-radius: var(--st-border-radius);
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--st-text-muted);
+      min-height: 2rem;
+    }
+    .output strong { color: var(--st-primary); }
+    .hint { font-size: 0.78rem; color: var(--st-text-muted); font-style: italic; }
+
+    .theme-bar {
+      position:      sticky;
+      top:           0;
+      z-index:       200;
+      display:       flex;
+      align-items:   center;
+      gap:           0.5rem;
+      padding:       0.6rem 1rem;
+      margin:        -2rem -2rem 2rem;
+      background:    var(--st-bg);
+      border-bottom: 1px solid var(--st-border);
+    }
+    .theme-bar span {
+      font-size:   0.8rem;
+      font-weight: 600;
+      color:       var(--st-text-muted);
+      margin-right: 0.25rem;
+    }
+    .theme-btn {
+      padding:       0.25rem 0.75rem;
+      font-size:     0.8rem;
+      font-weight:   500;
+      border-radius: var(--st-border-radius);
+      border:        1px solid var(--st-border);
+      background:    var(--st-bg);
+      color:         var(--st-text);
+      cursor:        pointer;
+      transition:    background-color 150ms, color 150ms, border-color 150ms;
+    }
+    .theme-btn:hover               { background: var(--st-bg-secondary); }
+    .theme-btn.is-active           { background: var(--st-primary); color: #fff; border-color: var(--st-primary); }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky theme bar — always visible while scrolling -->
+  <div class="theme-bar">
+    <span>Theme:</span>
+    <button class="theme-btn is-active" id="btn-light" onclick="setTheme('light')">Light</button>
+    <button class="theme-btn"           id="btn-dark"  onclick="setTheme('dark')">Dark</button>
+    <button class="theme-btn"           id="btn-dim"   onclick="setTheme('dim')">Dim</button>
+  </div>
+
+  <h1 class="mb-1">@strata-css/forms — Plugin Test</h1>
+  <p class="text-muted mb-4">Custom select, date picker, and time picker. All standalone-compatible and theme-aware.</p>
+
+  <!-- ─── 1. Custom Select — basic ────────────────────────────────── -->
+  <section>
+    <h2>1 — Custom Select (declarative)</h2>
+    <p class="desc">&lt;select data-st-select&gt; — auto-inits on DOMContentLoaded</p>
+    <label class="form-label">Choose a service</label>
+    <select id="sel1" data-st-select name="service">
+      <option value="">Select a service…</option>
+      <option value="hair">Hair Styling</option>
+      <option value="nails">Nails</option>
+      <option value="facial">Facial</option>
+      <option value="massage">Massage</option>
+      <option value="waxing">Waxing</option>
+      <option value="brows">Eyebrow Threading</option>
+    </select>
+    <div class="output" id="sel1-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── 2. Custom Select — pre-selected ─────────────────────────── -->
+  <section>
+    <h2>2 — Custom Select (pre-selected value)</h2>
+    <p class="desc">Native select with selectedIndex set — custom select reflects it</p>
+    <label class="form-label">Staff member</label>
+    <select id="sel2" data-st-select name="staff">
+      <option value="alice">Alice Chen</option>
+      <option value="bob" selected>Bob Taylor</option>
+      <option value="cara">Cara Smith</option>
+      <option value="dan">Dan Miller</option>
+    </select>
+    <div class="output" id="sel2-out">Selected: <strong>Bob Taylor</strong></div>
+  </section>
+
+  <!-- ─── 3. Custom Select — disabled ─────────────────────────────── -->
+  <section>
+    <h2>3 — Custom Select (disabled)</h2>
+    <p class="desc">Disabled state — click has no effect</p>
+    <label class="form-label">Location</label>
+    <select id="sel3" data-st-select name="location" disabled>
+      <option value="main">Main Branch</option>
+      <option value="city">City Branch</option>
+    </select>
+  </section>
+
+  <!-- ─── AUTO-WIDTH TESTS ─────────────────────────────────────────── -->
+
+  <!-- 3a. Narrow input, long content — autoWidth expands dropdown -->
+  <section>
+    <h2>3a — autoWidth: narrow input, long option text</h2>
+    <p class="desc">data-st-auto-width — dropdown expands to fit content, never squashes text</p>
+    <label class="form-label">Service (narrow input)</label>
+    <div style="max-width: 180px;">
+      <select id="sel-aw1" data-st-select data-st-auto-width name="service-narrow">
+        <option value="">Choose…</option>
+        <option value="hair">Hair Styling — Full blowout and styling session</option>
+        <option value="nails">Nail Art — Gel, acrylic, and nail art designs available</option>
+        <option value="facial">Luxury Facial — Deep cleanse and hydration treatment</option>
+        <option value="massage">Hot Stone Massage — 60 minute full body experience</option>
+      </select>
+    </div>
+    <p class="hint mt-2">↑ Input is 180px wide. Dropdown expands to fit the longest option.</p>
+  </section>
+
+  <!-- 3b. autoWidth with maxWidth cap -->
+  <section>
+    <h2>3b — autoWidth + maxWidth cap</h2>
+    <p class="desc">data-st-auto-width data-st-max-width="280" — expands but caps at 280px</p>
+    <label class="form-label">Country (capped at 280px)</label>
+    <div style="max-width: 160px;">
+      <select id="sel-aw2" data-st-select data-st-auto-width data-st-max-width="280" name="country">
+        <option value="">Select a country…</option>
+        <option value="uk">United Kingdom of Great Britain and Northern Ireland</option>
+        <option value="us">United States of America</option>
+        <option value="au">Australia</option>
+        <option value="ca">Canada</option>
+        <option value="nz">New Zealand</option>
+        <option value="de">Germany</option>
+      </select>
+    </div>
+    <p class="hint mt-2">↑ Long text is capped at 280px, overflow handled by CSS ellipsis.</p>
+  </section>
+
+  <!-- 3c. Right-edge detection — flip alignment -->
+  <section>
+    <h2>3c — autoWidth: right-edge detection</h2>
+    <p class="desc">Select boxes near the right edge automatically flip to right-aligned</p>
+    <div style="display: flex; justify-content: flex-end;">
+      <div style="width: 140px;">
+        <label class="form-label">Near right edge</label>
+        <select id="sel-aw3" data-st-select data-st-auto-width name="edge-test">
+          <option value="">Choose…</option>
+          <option value="a">Short</option>
+          <option value="b">This is a much longer option that would overflow right</option>
+          <option value="c">Another long option label that needs space</option>
+          <option value="d">Medium length option</option>
+        </select>
+      </div>
+    </div>
+    <p class="hint mt-2">↑ Dropdown opens left-aligned to the right edge of the trigger instead of overflowing off-screen.</p>
+  </section>
+
+  <!-- 3d. Programmatic autoWidth -->
+  <section>
+    <h2>3d — Programmatic autoWidth</h2>
+    <p class="desc">StrataForms.select('#mySelect', { autoWidth: true, maxWidth: 320 })</p>
+    <label class="form-label">Staff (programmatic, maxWidth 320)</label>
+    <div style="max-width: 160px;">
+      <select id="sel-aw4" name="staff-prog">
+        <option value="">Select staff member…</option>
+        <option value="alice">Alice Chen — Senior Stylist</option>
+        <option value="bob">Bob Taylor — Nail Technician</option>
+        <option value="cara">Cara Smith — Beauty Therapist</option>
+        <option value="dan">Dan Miller — Massage Therapist</option>
+      </select>
+    </div>
+    <div class="output" id="sel-aw4-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ═══ DATE PICKER ════════════════════════════════════════════════ -->
+
+  <section>
+    <h2>4 — Date Picker (basic)</h2>
+    <p class="desc">data-st-datepicker — click title to drill into month/year grid</p>
+    <label class="form-label">Appointment date</label>
+    <input id="dp1" data-st-datepicker class="form-control" name="date" placeholder="Select a date">
+    <div class="output" id="dp1-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>5 — Date Picker (min/max + disabled weekdays)</h2>
+    <p class="desc">data-st-min/max + data-st-disabled-days="0,6" — no Sat or Sun</p>
+    <label class="form-label">Booking date (weekdays only, next 60 days)</label>
+    <input id="dp2" data-st-datepicker data-st-disabled-days="0,6" class="form-control" name="booking-date" placeholder="Select a weekday">
+    <div class="output" id="dp2-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>6 — Date Picker (custom format + Monday week start)</h2>
+    <p class="desc">data-st-format="DD/MM/YYYY" data-st-week-start="1"</p>
+    <label class="form-label">Date of birth</label>
+    <input id="dp3" data-st-datepicker data-st-format="DD/MM/YYYY" data-st-week-start="1" class="form-control" name="dob" placeholder="DD/MM/YYYY">
+    <div class="output" id="dp3-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>6b — Date Range picker</h2>
+    <p class="desc">data-st-range data-st-end-input="#dp-range-end" — two inputs, range highlighted between</p>
+    <div class="d-flex gap-2 flex-wrap">
+      <div style="flex:1; min-width:160px;">
+        <label class="form-label">From</label>
+        <input id="dp-range-start" data-st-datepicker data-st-range data-st-end-input="#dp-range-end" class="form-control" name="start" placeholder="Start date">
+      </div>
+      <div style="flex:1; min-width:160px;">
+        <label class="form-label">To</label>
+        <input id="dp-range-end" class="form-control" name="end" placeholder="End date" readonly>
+      </div>
+    </div>
+    <div class="output mt-2" id="dp-range-out">Range: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>6c — Date Picker with presets</h2>
+    <p class="desc">data-st-presets — sidebar with Today / Yesterday / Last 7 days / This month etc.</p>
+    <label class="form-label">Report period</label>
+    <input id="dp-presets" data-st-datepicker data-st-presets class="form-control" name="report-date" placeholder="Select or choose preset">
+    <div class="output" id="dp-presets-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>6d — Inline Date Picker</h2>
+    <p class="desc">data-st-inline — always visible, no popup, embedded in page</p>
+    <label class="form-label">Departure date</label>
+    <input id="dp-inline" data-st-datepicker data-st-inline class="form-control" name="departure" placeholder="Selecting...">
+    <div class="output mt-2" id="dp-inline-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ═══ TIME PICKER ══════════════════════════════════════════════════ -->
+
+  <section>
+    <h2>7 — Time Picker (12h, 15 min steps)</h2>
+    <p class="desc">data-st-timepicker data-st-step="15"</p>
+    <label class="form-label">Appointment time</label>
+    <input id="tp1" data-st-timepicker data-st-step="15" class="form-control" name="time" placeholder="Select time">
+    <div class="output" id="tp1-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>8 — Time Picker (24h + seconds)</h2>
+    <p class="desc">data-st-hour24="true" data-st-show-seconds data-st-step="1"</p>
+    <label class="form-label">Precise time</label>
+    <input id="tp2" data-st-timepicker data-st-hour24="true" data-st-show-seconds data-st-step="1" class="form-control" name="precise-time" placeholder="HH:MM:SS">
+    <div class="output" id="tp2-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ═══ DATETIME PICKER ══════════════════════════════════════════════ -->
+
+  <section>
+    <h2>8b — DateTime Picker (combined)</h2>
+    <p class="desc">data-st-datetimepicker — calendar + time columns in one popup</p>
+    <label class="form-label">Appointment date &amp; time</label>
+    <input id="dtp1" data-st-datetimepicker class="form-control" name="appointment" placeholder="Select date and time">
+    <div class="output" id="dtp1-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>8c — DateTime 24h (programmatic, disable weekends)</h2>
+    <p class="desc">Strata.Forms.datetimepicker('#dtp2', { hour24: true, disable: [fn] })</p>
+    <label class="form-label">Business appointment (weekdays only)</label>
+    <input id="dtp2" class="form-control" name="biz-appointment" placeholder="Weekdays only, 24h time">
+    <div class="output" id="dtp2-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── 9. Booking form — all three together ────────────────────── -->
+  <section>
+    <h2>9 — Practical: booking form</h2>
+    <p class="desc">All three controls in a real-world form layout</p>
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title mb-4">Book an appointment</h5>
+        <form id="bookingForm" onsubmit="handleSubmit(event)">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Service</label>
+              <select id="bookSvc" data-st-select name="service">
+                <option value="">Choose service…</option>
+                <option value="hair">Hair Styling — £45</option>
+                <option value="nails">Nails — £30</option>
+                <option value="facial">Facial — £55</option>
+                <option value="massage">Massage — £65</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Staff</label>
+              <select id="bookStaff" data-st-select name="staff">
+                <option value="">Any available…</option>
+                <option value="alice">Alice Chen</option>
+                <option value="bob">Bob Taylor</option>
+                <option value="cara">Cara Smith</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Date</label>
+              <input id="bookDate"
+                     data-st-datepicker
+                     class="form-control"
+                     name="date"
+                     placeholder="Select date">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Time</label>
+              <input id="bookTime"
+                     data-st-timepicker
+                     data-st-step="30"
+                     class="form-control"
+                     name="time"
+                     placeholder="Select time">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" name="name" placeholder="Your full name">
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn-primary w-100">Confirm booking</button>
+            </div>
+          </div>
+        </form>
+        <div class="output mt-3" id="booking-out" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── MULTI SELECT ────────────────────────────────────────────── -->
+  <section>
+    <h2>Multi-select</h2>
+    <p class="desc">data-st-multi — select multiple values as removable chips</p>
+    <label class="form-label">Services (choose any)</label>
+    <select id="sel-multi" data-st-select data-st-multi name="services[]" multiple>
+      <option value="hair">Hair Styling</option>
+      <option value="nails">Nails</option>
+      <option value="facial">Facial</option>
+      <option value="massage">Massage</option>
+      <option value="waxing">Waxing</option>
+      <option value="brows">Eyebrow Threading</option>
+    </select>
+    <div class="output" id="sel-multi-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>Multi-select with max items</h2>
+    <p class="desc">data-st-multi data-st-max-items="2" — caps selection at 2</p>
+    <label class="form-label">Choose up to 2 services</label>
+    <select id="sel-max" data-st-select data-st-multi data-st-max-items="2" name="services-max[]" multiple>
+      <option value="hair">Hair Styling</option>
+      <option value="nails">Nails</option>
+      <option value="facial">Facial</option>
+      <option value="massage">Massage</option>
+    </select>
+    <div class="output" id="sel-max-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── SEARCHABLE ───────────────────────────────────────────────── -->
+  <section>
+    <h2>Searchable (single)</h2>
+    <p class="desc">data-st-searchable — type to filter options</p>
+    <label class="form-label">Country</label>
+    <select id="sel-search" data-st-select data-st-searchable name="country">
+      <option value="">Choose a country…</option>
+      <option value="uk">United Kingdom</option>
+      <option value="us">United States</option>
+      <option value="au">Australia</option>
+      <option value="ca">Canada</option>
+      <option value="nz">New Zealand</option>
+      <option value="de">Germany</option>
+      <option value="fr">France</option>
+      <option value="jp">Japan</option>
+      <option value="br">Brazil</option>
+      <option value="za">South Africa</option>
+    </select>
+    <div class="output" id="sel-search-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>Searchable multi</h2>
+    <p class="desc">data-st-multi + data-st-searchable — type inside the chip area to filter</p>
+    <label class="form-label">Tags</label>
+    <select id="sel-smulti" data-st-select data-st-multi data-st-searchable name="tags[]" multiple>
+      <option value="vip">VIP Client</option>
+      <option value="new">New Client</option>
+      <option value="regular">Regular</option>
+      <option value="sensitive">Sensitive Skin</option>
+      <option value="allergy">Known Allergy</option>
+      <option value="loyalty">Loyalty Member</option>
+    </select>
+    <div class="output" id="sel-smulti-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── CLEARABLE ────────────────────────────────────────────────── -->
+  <section>
+    <h2>Clearable</h2>
+    <p class="desc">data-st-clearable — × button appears when a value is selected</p>
+    <label class="form-label">Staff member</label>
+    <select id="sel-clear" data-st-select data-st-clearable name="staff">
+      <option value="">No preference</option>
+      <option value="alice">Alice Chen</option>
+      <option value="bob">Bob Taylor</option>
+      <option value="cara">Cara Smith</option>
+    </select>
+    <div class="output" id="sel-clear-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── GROUPED ──────────────────────────────────────────────────── -->
+  <section>
+    <h2>Grouped options (optgroup)</h2>
+    <p class="desc">Native &lt;optgroup&gt; renders as category headers — zero extra config</p>
+    <label class="form-label">Service category</label>
+    <select id="sel-group" data-st-select name="service-group">
+      <option value="">Choose a service…</option>
+      <optgroup label="Hair">
+        <option value="cut">Hair Cut</option>
+        <option value="color">Hair Colour</option>
+        <option value="blowout">Blowout</option>
+      </optgroup>
+      <optgroup label="Nails">
+        <option value="mani">Manicure</option>
+        <option value="pedi">Pedicure</option>
+        <option value="gel">Gel Nails</option>
+      </optgroup>
+      <optgroup label="Skin">
+        <option value="facial">Facial</option>
+        <option value="peel">Chemical Peel</option>
+      </optgroup>
+    </select>
+    <div class="output" id="sel-group-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── CREATABLE ────────────────────────────────────────────────── -->
+  <section>
+    <h2>Creatable (multi)</h2>
+    <p class="desc">data-st-searchable data-st-creatable — type a new value and press Enter or click "Add"</p>
+    <label class="form-label">Custom tags</label>
+    <select id="sel-create" data-st-select data-st-multi data-st-searchable data-st-creatable name="custom-tags[]" multiple>
+      <option value="vip">VIP</option>
+      <option value="new">New Client</option>
+    </select>
+    <div class="output" id="sel-create-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── CHECKBOX SELECT ─────────────────────────────────────────── -->
+  <section>
+    <h2>Checkbox select — count display</h2>
+    <p class="desc">data-st-checkboxes data-st-checkbox-display="count" — dropdown stays open, trigger shows "N of X selected"</p>
+    <label class="form-label">Filter services</label>
+    <select id="sel-cb1" data-st-select data-st-checkboxes data-st-checkbox-display="count" data-st-clearable name="cb-services[]" multiple>
+      <option value="hair">Hair Styling</option>
+      <option value="nails">Nails</option>
+      <option value="facial">Facial</option>
+      <option value="massage">Massage</option>
+      <option value="waxing">Waxing</option>
+      <option value="brows">Eyebrow Threading</option>
+    </select>
+    <div class="output" id="sel-cb1-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>Checkbox select — list display</h2>
+    <p class="desc">data-st-checkbox-display="list" — trigger shows comma-separated names</p>
+    <label class="form-label">Select days</label>
+    <select id="sel-cb2" data-st-select data-st-checkboxes data-st-checkbox-display="list" data-st-clearable name="cb-days[]" multiple>
+      <option value="mon">Monday</option>
+      <option value="tue">Tuesday</option>
+      <option value="wed">Wednesday</option>
+      <option value="thu">Thursday</option>
+      <option value="fri">Friday</option>
+      <option value="sat">Saturday</option>
+      <option value="sun">Sunday</option>
+    </select>
+    <div class="output" id="sel-cb2-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>Checkbox select — grouped with group-level check all</h2>
+    <p class="desc">optgroup headers get their own checkbox — click to check/uncheck the whole group</p>
+    <label class="form-label">Filter by category</label>
+    <select id="sel-cb3" data-st-select data-st-checkboxes data-st-checkbox-display="count" data-st-clearable data-st-searchable name="cb-cat[]" multiple>
+      <optgroup label="Hair">
+        <option value="cut">Hair Cut</option>
+        <option value="color">Hair Colour</option>
+        <option value="blowout">Blowout</option>
+        <option value="treatment">Hair Treatment</option>
+      </optgroup>
+      <optgroup label="Nails">
+        <option value="mani">Manicure</option>
+        <option value="pedi">Pedicure</option>
+        <option value="gel">Gel Nails</option>
+        <option value="art">Nail Art</option>
+      </optgroup>
+      <optgroup label="Skin">
+        <option value="facial">Facial</option>
+        <option value="peel">Chemical Peel</option>
+        <option value="wax">Waxing</option>
+      </optgroup>
+    </select>
+    <div class="output" id="sel-cb3-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <section>
+    <h2>Checkbox select — chips display + max items</h2>
+    <p class="desc">checkboxes + checkboxDisplay:"chips" + maxItems:3 — chips in trigger, capped at 3</p>
+    <label class="form-label">Select permissions (max 3)</label>
+    <select id="sel-cb4" name="cb-perms[]" multiple>
+      <option value="read">Read</option>
+      <option value="write">Write</option>
+      <option value="delete">Delete</option>
+      <option value="admin">Admin</option>
+      <option value="export">Export</option>
+    </select>
+    <div class="output" id="sel-cb4-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── AVATAR SELECT — single ─────────────────────────────────── -->
+  <section>
+    <h2>Avatar select (single)</h2>
+    <p class="desc">renderOption + renderValue — shows avatar + name + role in dropdown, avatar + name in trigger</p>
+    <label class="form-label">Assign staff member</label>
+    <select id="sel-avatar" name="staff-avatar">
+      <option value="">Choose a stylist…</option>
+      <option value="alice" data-avatar="https://i.pravatar.cc/40?img=1" data-role="Senior Stylist">Alice Chen</option>
+      <option value="bob"   data-avatar="https://i.pravatar.cc/40?img=3" data-role="Nail Technician">Bob Taylor</option>
+      <option value="cara"  data-avatar="https://i.pravatar.cc/40?img=5" data-role="Beauty Therapist">Cara Smith</option>
+      <option value="dan"   data-avatar="https://i.pravatar.cc/40?img=8" data-role="Massage Therapist">Dan Miller</option>
+    </select>
+    <div class="output" id="sel-avatar-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── AVATAR MULTI — maxDisplay ────────────────────────────────── -->
+  <section>
+    <h2>Avatar multi-select with maxDisplay</h2>
+    <p class="desc">multiSelect + renderValue (avatar only) + maxDisplay:3 — trigger stays fixed height, excess shown as +N badge</p>
+    <label class="form-label">Assign staff (select multiple)</label>
+    <div style="max-width: 300px;">
+      <select id="sel-avatar-multi" name="staff-multi[]" multiple>
+        <option value="alice" data-avatar="https://i.pravatar.cc/40?img=1">Alice Chen</option>
+        <option value="bob"   data-avatar="https://i.pravatar.cc/40?img=3">Bob Taylor</option>
+        <option value="cara"  data-avatar="https://i.pravatar.cc/40?img=5">Cara Smith</option>
+        <option value="dan"   data-avatar="https://i.pravatar.cc/40?img=8">Dan Miller</option>
+        <option value="eve"   data-avatar="https://i.pravatar.cc/40?img=10">Eve Johnson</option>
+        <option value="frank" data-avatar="https://i.pravatar.cc/40?img=12">Frank Lee</option>
+      </select>
+    </div>
+    <p class="hint mt-2">↑ Select more than 3 — trigger stays single-row height, excess shown as +N badge</p>
+    <div class="output" id="sel-avatar-multi-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── ASYNC SELECT ─────────────────────────────────────────────── -->
+  <section>
+    <h2>Async (loadOptions)</h2>
+    <p class="desc">loadOptions(query, callback) — simulated API call with 400ms delay</p>
+    <label class="form-label">Search client (type to search)</label>
+    <select id="sel-async" name="client">
+      <option value="">Search for a client…</option>
+    </select>
+    <div class="output" id="sel-async-out">Selected: <strong>none</strong></div>
+  </section>
+
+  <!-- ─── Backend friendliness — required validation ─────────────── -->
+  <section>
+    <h2>Backend — required field validation</h2>
+    <p class="desc">required attribute on native &lt;select&gt; — custom trigger shows error state, tooltip stays on trigger not hidden element</p>
+    <form id="reqForm" onsubmit="handleReqSubmit(event)" novalidate>
+      <div class="row g-3">
+        <div class="col-12 col-md-5">
+          <label class="form-label">Service <span class="text-danger">*</span></label>
+          <select id="sel-req" data-st-select name="service" required>
+            <option value="">Choose a service…</option>
+            <option value="hair">Hair Styling</option>
+            <option value="nails">Nails</option>
+            <option value="facial">Facial</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-5">
+          <label class="form-label">Name <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="name" required placeholder="Your name">
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn-primary">Submit form</button>
+          <span class="text-muted ms-3" style="font-size:0.8rem">
+            Try submitting without selecting a service — error state appears on the custom trigger.
+          </span>
+        </div>
+      </div>
+    </form>
+    <div class="output mt-3" id="req-out" style="display:none"></div>
+  </section>
+
+  <!-- ─── 10. Programmatic API ─────────────────────────────────────── -->
+  <section>
+    <h2>10 — Programmatic API</h2>
+    <p class="desc">Control instances via JS — open/close/setValue/setDate/setTime</p>
+    <label class="form-label">Programmatic select</label>
+    <select id="progSel" data-st-select name="prog-service">
+      <option value="">Choose…</option>
+      <option value="hair">Hair</option>
+      <option value="nails">Nails</option>
+      <option value="facial">Facial</option>
+    </select>
+    <div class="d-flex flex-wrap gap-2 mt-2">
+      <button class="btn-outline-primary btn-sm" onclick="progSetValue('hair')">Set: Hair</button>
+      <button class="btn-outline-primary btn-sm" onclick="progSetValue('nails')">Set: Nails</button>
+      <button class="btn-outline-primary btn-sm" onclick="progOpen()">Open dropdown</button>
+    </div>
+
+    <div class="mt-3">
+      <label class="form-label">Programmatic datepicker</label>
+      <input id="progDp" data-st-datepicker class="form-control" placeholder="Controlled by buttons below">
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <button class="btn-outline-primary btn-sm" onclick="progSetToday()">Set today</button>
+        <button class="btn-outline-primary btn-sm" onclick="progSetDate('2026-12-25')">Set Dec 25</button>
+        <button class="btn-outline-primary btn-sm" onclick="progOpenDp()">Open picker</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="../packages/forms/forms.js"></script>
+  <script>
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-st-theme', t)
+      document.querySelectorAll('.theme-btn').forEach(function(btn) {
+        btn.classList.toggle('is-active', btn.id === 'btn-' + t)
+      })
+    }
+
+    // Set min/max for dp2
+    var today = new Date()
+    var in30  = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
+    document.getElementById('dp2').setAttribute('data-st-min', today.toISOString().slice(0,10))
+    document.getElementById('dp2').setAttribute('data-st-max', in30.toISOString().slice(0,10))
+
+    // Set min/max for dp2 (weekdays only, next 60 days)
+    var today2 = new Date(), in60 = new Date(today2.getTime() + 60*24*60*60*1000)
+    document.getElementById('dp2').setAttribute('data-st-min', today2.toISOString().slice(0,10))
+    document.getElementById('dp2').setAttribute('data-st-max', in60.toISOString().slice(0,10))
+
+    // Programmatic inits (elements without data-st-select — manual init required)
+    document.addEventListener('DOMContentLoaded', function() {
+      var Forms = typeof StrataForms !== 'undefined' ? StrataForms : Strata.Forms
+
+      // datetime 24h weekdays only
+      Forms.datetimepicker('#dtp2', {
+        format:  'YYYY-MM-DD HH:mm',
+        hour24:  true,
+        step:    30,
+        disable: [function(date) { return date.getDay() === 0 || date.getDay() === 6 }],
+      })
+
+      // autoWidth programmatic
+      Forms.select('#sel-aw4', { autoWidth: true, maxWidth: 320 })
+
+      // Avatar select — custom render functions
+      Forms.select('#sel-avatar', {
+        autoWidth: true,
+        renderOption: function(opt) {
+          if (!opt.value) return opt.text
+          return '<img src="' + opt.dataset.avatar + '" class="st-sel-avatar">'
+               + '<span class="st-sel-option-meta"><strong>' + opt.text + '</strong><small>' + (opt.dataset.role || '') + '</small></span>'
+        },
+        renderValue: function(opt) {
+          if (!opt.value) return opt.text
+          return '<img src="' + opt.dataset.avatar + '" class="st-sel-avatar">' + opt.text
+        }
+      })
+
+      // Checkbox chips + maxItems
+      Forms.select('#sel-cb4', {
+        checkboxes:      true,
+        checkboxDisplay: 'chips',
+        maxItems:        3,
+        clearable:       true,
+        placeholder:     'Select up to 3 permissions…',
+      })
+
+      // Avatar multi with maxDisplay
+      Forms.select('#sel-avatar-multi', {
+        multiSelect:  true,
+        searchable:   true,
+        clearable:    true,
+        maxDisplay:   3,
+        renderOption: function(opt) {
+          if (!opt.value) return opt.text
+          return '<img src="' + opt.dataset.avatar + '" class="st-sel-avatar">'
+               + '<span>' + opt.text + '</span>'
+        },
+        renderValue: function(opt) {
+          // Avatar only — no name text in chip
+          return '<img src="' + opt.dataset.avatar + '" class="st-sel-avatar" title="' + opt.text + '">'
+        }
+      })
+
+      // Async select
+      var MOCK_CLIENTS = [
+        { value: 'c1', text: 'Sarah Johnson' },
+        { value: 'c2', text: 'Michael Brown' },
+        { value: 'c3', text: 'Emma Williams' },
+        { value: 'c4', text: 'James Smith'   },
+        { value: 'c5', text: 'Olivia Davis'  },
+        { value: 'c6', text: 'William Wilson' },
+        { value: 'c7', text: 'Sophia Moore'  },
+        { value: 'c8', text: 'Liam Taylor'   },
+      ]
+
+      Forms.select('#sel-async', {
+        searchable:  true,
+        autoWidth:   true,
+        placeholder: 'Search for a client…',
+        loadOptions: function(query, callback) {
+          // Simulate API delay
+          setTimeout(function() {
+            var filtered = MOCK_CLIENTS.filter(function(c) {
+              return !query || c.text.toLowerCase().indexOf(query.toLowerCase()) >= 0
+            })
+            callback(filtered)
+          }, 400)
+        }
+      })
+    })
+
+    // Event listeners — show output
+    function fmt(val) { return val || '<em>none</em>' }
+
+    document.addEventListener('st:select:change', function(e) {
+      var map = { sel1: 'sel1-out', sel2: 'sel2-out', bookSvc: null, bookStaff: null, progSel: null }
+      var id  = e.detail.select.id
+      var outputMap = {
+        'sel1':       'sel1-out',
+        'sel2':       'sel2-out',
+        'sel-aw4':    'sel-aw4-out',
+        'sel-multi':  'sel-multi-out',
+        'sel-max':    'sel-max-out',
+        'sel-search': 'sel-search-out',
+        'sel-smulti': 'sel-smulti-out',
+        'sel-clear':  'sel-clear-out',
+        'sel-group':  'sel-group-out',
+        'sel-create': 'sel-create-out',
+        'sel-cb1':          'sel-cb1-out',
+        'sel-cb2':          'sel-cb2-out',
+        'sel-cb3':          'sel-cb3-out',
+        'sel-cb4':          'sel-cb4-out',
+        'sel-avatar':       'sel-avatar-out',
+        'sel-avatar-multi': 'sel-avatar-multi-out',
+        'sel-async':  'sel-async-out',
+      }
+      var outId = outputMap[id]
+      if (outId) {
+        var val = Array.isArray(e.detail.text)
+          ? (e.detail.text.join(', ') || 'none')
+          : (e.detail.text || 'none')
+        document.getElementById(outId).innerHTML = 'Selected: <strong>' + val + '</strong>'
+      }
+    })
+
+    document.addEventListener('st:datepicker:change', function(e) {
+      var id  = e.detail.input.id
+      var map = {
+        'dp1':         'dp1-out',
+        'dp2':         'dp2-out',
+        'dp3':         'dp3-out',
+        'dp-presets':  'dp-presets-out',
+        'dp-inline':   'dp-inline-out',
+      }
+      if (map[id]) document.getElementById(map[id]).innerHTML = 'Selected: <strong>' + (e.detail.formatted || 'none') + '</strong>'
+      if (id === 'dp-range-start') {
+        document.getElementById('dp-range-out').innerHTML =
+          'Range: <strong>' + (e.detail.formatted || '?') + '</strong> → <strong>' + (e.detail.formattedEnd || '?') + '</strong>'
+      }
+    })
+
+    document.addEventListener('st:timepicker:change', function(e) {
+      var id  = e.detail.input.id
+      var map = { 'tp1': 'tp1-out', 'tp2': 'tp2-out' }
+      if (map[id]) document.getElementById(map[id]).innerHTML = 'Selected: <strong>' + (e.detail.value || 'none') + '</strong>'
+    })
+
+    document.addEventListener('st:datetimepicker:change', function(e) {
+      var id  = e.detail.input.id
+      var map = { 'dtp1': 'dtp1-out', 'dtp2': 'dtp2-out' }
+      if (map[id]) document.getElementById(map[id]).innerHTML = 'Selected: <strong>' + (e.detail.value || 'none') + '</strong>'
+    })
+
+    // Required form
+    function handleReqSubmit(e) {
+      e.preventDefault()
+      var form = e.target
+      if (!form.checkValidity()) {
+        // Trigger native validation — this fires 'invalid' events on each invalid field
+        form.reportValidity()
+        return
+      }
+      var fd  = new FormData(form)
+      var out = document.getElementById('req-out')
+      out.style.display = 'block'
+      out.innerHTML = '✓ Submitted — service: <strong>' + fd.get('service') + '</strong>, name: <strong>' + fd.get('name') + '</strong>'
+    }
+
+    // Booking form
+    function handleSubmit(e) {
+      e.preventDefault()
+      var fd  = new FormData(e.target)
+      var out = document.getElementById('booking-out')
+      out.style.display = 'block'
+      out.innerHTML = '✓ Booking received — <strong>'
+        + (fd.get('service') || '?') + '</strong> with <strong>'
+        + (fd.get('staff')   || 'any') + '</strong> on <strong>'
+        + (fd.get('date')    || '?') + '</strong> at <strong>'
+        + (fd.get('time')    || '?') + '</strong>'
+        + (fd.get('name') ? ' for <strong>' + fd.get('name') + '</strong>' : '')
+    }
+
+    // Programmatic API
+    var progSelApi, progDpApi
+    document.addEventListener('DOMContentLoaded', function() {
+      progSelApi = StrataForms && StrataForms.select ? StrataForms.select('#progSel') : (Strata && Strata.Forms.select('#progSel'))
+      progDpApi  = StrataForms && StrataForms.datepicker ? StrataForms.datepicker('#progDp') : (Strata && Strata.Forms.datepicker('#progDp'))
+    })
+
+    // Actually since auto-init already ran on DOMContentLoaded we need to get the instance differently
+    // Re-init (calling again returns existing instance from registry)
+    setTimeout(function() {
+      progSelApi = (typeof StrataForms !== 'undefined' ? StrataForms : Strata.Forms).select('#progSel')
+      progDpApi  = (typeof StrataForms !== 'undefined' ? StrataForms : Strata.Forms).datepicker('#progDp')
+    }, 100)
+
+    function progSetValue(val) {
+      if (progSelApi) progSelApi.setValue(val)
+    }
+    function progOpen() {
+      if (progSelApi) progSelApi.open()
+    }
+    function progSetToday() {
+      if (progDpApi) progDpApi.setDate(new Date().toISOString().slice(0,10))
+    }
+    function progSetDate(val) {
+      if (progDpApi) progDpApi.setDate(val)
+    }
+    function progOpenDp() {
+      if (progDpApi) progDpApi.open()
+    }
+  </script>
+
+</body>
+</html>
