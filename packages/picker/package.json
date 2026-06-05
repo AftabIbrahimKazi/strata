@@ -11,7 +11,8 @@
   "files": [
     "picker.js",
     "picker.css",
-    "CLAUDE.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "datepicker",
