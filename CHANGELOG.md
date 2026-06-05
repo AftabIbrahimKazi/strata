@@ -2,6 +2,95 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.2.6] — 2026-06-05
+
+### Docs
+- Versioning rules clarified and expanded in `CONTRIBUTING.md`
+- All package `CLAUDE.md` files updated with complete API references
+- `README.md` files added to `@strata-css/picker` and `@strata-css/forms`
+- `CHANGELOG.md` files added to `@strata-css/picker` and `@strata-css/forms`
+- Root `README.md` updated: version badge, forms/picker added to standalone packages table
+
+---
+
+## [1.2.5] — 2026-06-04
+
+### Added — `@strata-css/picker`
+- `theme` option — per-instance inline CSS variable overrides (primary, bg, text, radius, shadow, cellSize, fontSize)
+- `className` option — extra class on popup for targeted CSS overrides
+
+---
+
+## [1.2.4] — 2026-06-03
+
+### Added
+- `@strata-css/picker` — new standalone package: date, time, and datetime picker
+  - Zero dependencies, works standalone or as `Strata.Picker` with Strata CSS
+  - Declarative init via `data-st-datepicker`, `data-st-timepicker`, `data-st-datetimepicker`
+  - Date range selection with two-input mode and range highlight
+  - Preset shortcuts (built-in and custom)
+  - Month/year grid navigation
+  - `--stp-*` CSS variable system; auto-inherits `--st-*` tokens when Strata CSS is present
+
+### Fixed
+- Picker popup now appends to `<body>` with no CSS opacity transition — appears immediately on open
+- `position: fixed` popup no longer adds scroll offset to viewport coordinates
+- Picker rewritten as unified `createPicker` — date / time / datetime all working correctly
+
+---
+
+## [1.2.3] — 2026-06-02
+
+### Fixed
+- `@strata-css/forms` auto-init now recognises all `data-st-*` select attributes at DOMContentLoaded
+
+---
+
+## [1.2.2] — 2026-06-01
+
+### Added — `@strata-css/forms`
+- Checkbox select mode: dropdown stays open while ticking, Select All row, group-level checkboxes, `checkboxDisplay`: `chips` / `count` / `list`
+- `maxDisplay` — fixed-height chip trigger with `+N` overflow badge
+- Search input always rendered inside the dropdown (not above it)
+
+---
+
+## [1.2.1] — 2026-05-30
+
+### Fixed
+- `@strata-css/forms` backend-friendly `required` validation — triggers visible error state on custom trigger
+
+---
+
+## [1.2.0] — 2026-05-28
+
+### Added — `@strata-css/forms`
+- New standalone package: fully accessible custom select replacement
+- Multi-select with chips, `maxItems`, searchable, clearable, grouped `<optgroup>`, creatable, avatar/custom render, async `loadOptions`, auto-width with viewport edge detection
+- Native `<select>` stays in DOM — form submission works with any backend
+- Declarative init via `data-st-select` and `data-st-*` option attributes
+
+---
+
+## [1.1.0] — 2026-05-20
+
+### Added
+- Transition CSS variables: `--st-duration-theme`, `--st-easing-theme` — all hardcoded transition values replaced
+- Sizing utilities: `max-w-{xs/sm/md/lg/xl/xxl/full/none}`, `min-w-{0/full/screen}`, `max-h-{full/screen/none}`, `min-h-{0/full/screen}`
+- Arbitrary sizing: `max-w-[440px]`, `min-h-[300px]`, `max-h-[500px]`, `min-w-[200px]`
+- Responsive variants added to 15 utility groups: `flex-{bp}`, `fw-{bp}`, `fst-{bp}`, `text-{bp}-{transform}`, `rounded-{bp}`, `shadow-{bp}`, `w-{bp}`, `h-{bp}`, `opacity-{bp}`, `overflow-{bp}`, `position-{bp}`, `cursor-{bp}`, `lh-{bp}`, `visible-{bp}`, `invisible-{bp}`
+- Component CSS variable tokens: all hardcoded color values replaced with local CSS variables on `.badge`, `.btn-*`, `.btn-outline-*`, `.nav-pills .active`, `.list-group-item.active`, `.page-item.active`, `.dropdown-item.active`, `.progress-bar`, `.tooltip-inner`, `.navbar-dark`, `.card-img-overlay`, `.carousel-*`, `.table-dark`
+- List utilities: `list-unstyled`, `list-inline`, `list-inline-item`, `list-disc`, `list-decimal`, `list-circle`, `list-square`, `list-none`, `list-lower-alpha`, `list-upper-alpha`, `list-lower-roman`, `list-upper-roman`, `list-inside`, `list-outside`, `list-spaced`
+- Outline utilities: `outline-none`, `outline-{color}`, `outline-{1-5}`
+- Label component: `.label` and `.label-{color}` aliases to `.badge` / `.badge-{color}` for Bootstrap 3 compatibility
+
+### Fixed
+- `text-[15px]` → `font-size: 15px` (length unit correctly detected)
+- `text-[#f00]` → `color: #f00` (color value correctly detected)
+- `#`, `(`, `)`, `,` in arbitrary values now correctly escaped in CSS class selectors
+
+---
+
 ## [1.0.0] — 2026-05-10
 
 ### Components
