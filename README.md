@@ -5,7 +5,7 @@
 **A modern CSS framework combining Bootstrap's component architecture with Tailwind's JIT processing.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.4-green.svg)]()
+[![Version](https://img.shields.io/badge/version-1.2.6-green.svg)]()
 [![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)]()
 [![npm](https://img.shields.io/badge/npm-strata--css-red.svg)](https://www.npmjs.com/package/strata-css)
 [![css-framework](https://img.shields.io/badge/css--framework-%E2%9C%93-blue.svg)]()
@@ -383,6 +383,8 @@ All Strata plugins are available as independent packages. Use them without Strat
 
 | Package | Standalone global | With Strata | Install |
 |---|---|---|---|
+| `@strata-css/forms` | `StrataForms` | `Strata.Forms` | `npm i @strata-css/forms` |
+| `@strata-css/picker` | `StrataPicker` | `Strata.Picker` | `npm i @strata-css/picker` |
 | `@strata-css/skeleton-loader` | `SkeletonLoader` | `Strata.skeleton` | `npm i @strata-css/skeleton-loader` |
 | `@strata-css/modal` | `StrataModal` | `Strata.Modal` | `npm i @strata-css/modal` |
 | `@strata-css/chart` | `StrataChart` | `Strata.Chart` | `npm i @strata-css/chart` |
