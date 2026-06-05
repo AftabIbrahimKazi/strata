@@ -1,0 +1,24 @@
+# Changelog — @strata-css/picker
+
+All notable changes to this package will be documented here.
+
+## [1.0.0] — 2026-06-05
+
+Initial release.
+
+### Added
+
+- **Date picker** — calendar popup with month/year navigation, format tokens (`YYYY MM DD`), `min`/`max` constraints, week start day, disable logic (specific dates or `(Date) => bool` functions), `data-st-disabled-days` attribute for weekday masking
+- **Time picker** — scrollable hour/minute/second columns, 12h/24h modes, configurable step increment, `showSeconds` option
+- **DateTime picker** — combined calendar + time columns in one popup, space-separated format string
+- **Date range selection** — two-input range mode, click to set start then end, range highlight between dates
+- **Preset shortcuts** — built-in presets (Today, Yesterday, Last 7 / 30 days, This month, Last month) plus fully custom preset arrays
+- **Declarative init** — `data-st-datepicker`, `data-st-timepicker`, `data-st-datetimepicker` attributes auto-init on `DOMContentLoaded`
+- **Programmatic API** — `StrataPicker.date()`, `.time()`, `.datetime()` factory functions; `open()`, `close()`, `setDate()`, `getDate()`, `getRange()`, `setTime()`, `getTime()`, `destroy()` methods
+- **Custom events** — `st:datepicker:change`, `st:datepicker:open`, `st:datepicker:close`, `st:timepicker:change`, `st:datetimepicker:change`
+- **`theme` option** — per-instance inline CSS variable overrides (primary, bg, text, radius, shadow, cellSize, fontSize, …)
+- **`className` option** — extra class on the popup for targeted CSS overrides
+- **CSS variable system** — full `--stp-*` token set; global `:root` override, per-class override, or per-instance via `theme` option
+- **Strata CSS integration** — when `data-strata` is present on `<html>`, `--stp-*` variables automatically inherit from `--st-*` tokens; picker follows active Strata theme (light / dark / dim) with zero config
+- **Backend compatible** — plain string value written to input `value`, `name` preserved for form submission
+- **Zero dependencies** — standalone JS + CSS, no external libraries required
