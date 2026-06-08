@@ -2,6 +2,11 @@
 
 All notable changes to `@strata-packages/skeleton-loader` are documented here.
 
+## [1.0.1] — 2026-06-09
+
+### Added
+- `CLAUDE.md` is now included in the published package — gives AI coding agents (Claude Code and similar) architecture, API, and CSS-token context directly from `node_modules` without needing the source repo.
+
 ## [1.0.0] — 2026-06-08
 
 ### Added
