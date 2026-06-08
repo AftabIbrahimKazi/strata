@@ -201,10 +201,7 @@
 
     function fmt(d) {
       if (!d) return ''
-      return dateFmt
-        .replace('YYYY', d.getFullYear())
-        .replace('MM', pad(d.getMonth()+1))
-        .replace('DD', pad(d.getDate()))
+      return applyDateFormat(dateFmt, d)
     }
 
     function disabled(d) {
@@ -602,7 +599,7 @@
 
     function fmtD(d){
       if(!d)return ''
-      return dateFmt.replace('YYYY',d.getFullYear()).replace('MM',pad(d.getMonth()+1)).replace('DD',pad(d.getDate()))
+      return applyDateFormat(dateFmt, d)
     }
     function h24(){ if(selH===null)return null; if(use24h)return selH; return selP==='AM'?(selH===12?0:selH):(selH===12?12:selH+12) }
     function fmtT(){
@@ -760,6 +757,21 @@
   // ── Shared helpers ────────────────────────────────────────────────────────────
 
   function pad(n) { return String(n).padStart(2,'0') }
+
+  var MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  var MONTH_LONG  = ['January','February','March','April','May','June','July','August','September','October','November','December']
+
+  function applyDateFormat(dateFmt, d) {
+    return dateFmt.replace(/YYYY|MMMM|MMM|MM|DD/g, function (token) {
+      switch (token) {
+        case 'YYYY': return d.getFullYear()
+        case 'MMMM': return MONTH_LONG[d.getMonth()]
+        case 'MMM':  return MONTH_SHORT[d.getMonth()]
+        case 'MM':   return pad(d.getMonth()+1)
+        case 'DD':   return pad(d.getDate())
+      }
+    })
+  }
 
   function buildDisableFns(opts, input) {
     var fns = []
