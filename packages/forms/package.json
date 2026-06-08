@@ -1,6 +1,6 @@
 {
   "name": "@strata-packages/forms",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Interactive form controls for Strata CSS — custom select with every variant developers need.",
   "main": "forms.js",
   "style": "forms.css",
@@ -12,7 +12,8 @@
     "forms.js",
     "forms.css",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "CLAUDE.md"
   ],
   "keywords": [
     "select",
