@@ -1,15 +1,15 @@
-# @strata-css/forms — Developer Reference
+# @strata-packages/forms — Developer Reference
 
 ## What it is
 
 Interactive form controls — a comprehensive custom select replacement with every select variant developers need. Works standalone or with Strata CSS.
 
-> **Note:** Date, time, and datetime pickers are in a separate package: [`@strata-css/picker`](../picker/CLAUDE.md).
+> **Note:** Date, time, and datetime pickers are in a separate package: [`@strata-packages/picker`](../picker/CLAUDE.md).
 
 ## Installation
 
 ```bash
-npm install @strata-css/forms
+npm install @strata-packages/forms
 ```
 
 ## Usage
@@ -17,8 +17,8 @@ npm install @strata-css/forms
 ### Standalone
 
 ```html
-<link rel="stylesheet" href="node_modules/@strata-css/forms/forms.css">
-<script src="node_modules/@strata-css/forms/forms.js"></script>
+<link rel="stylesheet" href="node_modules/@strata-packages/forms/forms.css">
+<script src="node_modules/@strata-packages/forms/forms.js"></script>
 ```
 
 Available as `StrataForms`.

@@ -321,11 +321,11 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full versioning rules, branch p
 | Package | Description | Docs |
 |---|---|---|
 | `strata-css` | JIT CSS framework (this package) | This file |
-| `@strata-css/forms` | Custom select — all variants | `packages/forms/CLAUDE.md` |
-| `@strata-css/picker` | Date / time / datetime picker | `packages/picker/CLAUDE.md` |
-| `@strata-css/modal` | Accessible modal component | `packages/modal/CLAUDE.md` |
-| `@strata-css/skeleton-loader` | Shimmer skeleton loader | `packages/skeleton-loader/CLAUDE.md` |
-| `@strata-css/chart` | Three.js data visualisation | `packages/chart/CLAUDE.md` |
+| `@strata-packages/forms` | Custom select — all variants | `packages/forms/CLAUDE.md` |
+| `@strata-packages/picker` | Date / time / datetime picker | `packages/picker/CLAUDE.md` |
+| `@strata-packages/modal` | Accessible modal component | `packages/modal/CLAUDE.md` |
+| `@strata-packages/skeleton-loader` | Shimmer skeleton loader | `packages/skeleton-loader/CLAUDE.md` |
+| `@strata-packages/chart` | Three.js data visualisation | `packages/chart/CLAUDE.md` |
 
 ## New in v1.1.0
 

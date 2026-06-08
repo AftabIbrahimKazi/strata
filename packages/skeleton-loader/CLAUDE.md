@@ -1,4 +1,4 @@
-# @strata-css/skeleton-loader — Developer Reference
+# @strata-packages/skeleton-loader — Developer Reference
 
 ## What it is
 
@@ -7,7 +7,7 @@ A shimmer skeleton loading plugin. Automatically detects content leaves inside a
 ## Installation
 
 ```bash
-npm install @strata-css/skeleton-loader
+npm install @strata-packages/skeleton-loader
 # or: included in strata-css (strata.components.js)
 ```
 
@@ -16,8 +16,8 @@ npm install @strata-css/skeleton-loader
 ### Standalone
 
 ```html
-<link  rel="stylesheet" href="node_modules/@strata-css/skeleton-loader/skeleton-loader.css">
-<script src="node_modules/@strata-css/skeleton-loader/skeleton-loader.js"></script>
+<link  rel="stylesheet" href="node_modules/@strata-packages/skeleton-loader/skeleton-loader.css">
+<script src="node_modules/@strata-packages/skeleton-loader/skeleton-loader.js"></script>
 ```
 
 Available as `SkeletonLoader`.

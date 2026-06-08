@@ -1,4 +1,4 @@
-# @strata-css/chart — Developer Reference
+# @strata-packages/chart — Developer Reference
 
 ## What it is
 
@@ -10,13 +10,13 @@ Three.js must be loaded **before** this script. `window.THREE` must exist.
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="node_modules/@strata-css/chart/chart.js"></script>
+<script src="node_modules/@strata-packages/chart/chart.js"></script>
 ```
 
 ## Installation
 
 ```bash
-npm install @strata-css/chart three
+npm install @strata-packages/chart three
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ npm install @strata-css/chart three
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="node_modules/@strata-css/chart/chart.js"></script>
+<script src="node_modules/@strata-packages/chart/chart.js"></script>
 ```
 
 Available as `StrataChart.create()`.
