@@ -1,6 +1,6 @@
 {
   "name": "@strata-packages/chart",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Three.js chart component. Works standalone or with Strata CSS.",
   "main": "chart.js",
   "exports": {
@@ -9,7 +9,8 @@
   "files": [
     "chart.js",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "CLAUDE.md"
   ],
   "keywords": [
     "chart",
