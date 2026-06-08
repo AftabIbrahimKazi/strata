@@ -2,6 +2,15 @@
 
 All notable changes to this package will be documented here.
 
+## [1.0.2] — 2026-06-09
+
+### Fixed
+- Date formatting (`fmt` in the date picker, `fmtD` in the datetime picker) used chained `String.prototype.replace(string, …)` calls, which replace only the first substring match. A format like `"DD MMM YYYY"` matched `MM` inside `MMM`, producing garbled output such as `"08 06M 2026"` instead of a valid date string.
+- Both formatters now run a single regex pass (`/YYYY|MMMM|MMM|MM|DD/g`) ordered longest-token-first, eliminating substring collisions.
+
+### Added
+- Month-name format tokens `MMM` (e.g. `Jun`) and `MMMM` (e.g. `June`) are now supported in `format` strings, matching the de-facto convention used by dayjs/moment/date-fns.
+
 ## [1.0.1] — 2026-06-09
 
 ### Added
