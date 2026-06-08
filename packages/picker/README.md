@@ -60,7 +60,7 @@ const dtp = StrataPicker.datetime('#myDT')
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `format` | string | `'YYYY-MM-DD'` | Output format. Tokens: `YYYY MM DD` |
+| `format` | string | `'YYYY-MM-DD'` | Output format. Tokens: `YYYY MMMM MMM MM DD` (MMMM = full month name, MMM = short month name) |
 | `weekStart` | `0\|1` | `0` | Week start: `0`=Sunday, `1`=Monday |
 | `min` | string | — | Minimum selectable date (ISO string) |
 | `max` | string | — | Maximum selectable date (ISO string) |
