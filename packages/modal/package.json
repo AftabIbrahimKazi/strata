@@ -10,7 +10,9 @@
   },
   "files": [
     "modal.js",
-    "modal.css"
+    "modal.css",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "modal",
