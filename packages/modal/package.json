@@ -1,5 +1,5 @@
 {
-  "name": "@strata-css/modal",
+  "name": "@strata-packages/modal",
   "version": "1.0.0",
   "description": "Lightweight modal component. Works standalone or with Strata CSS.",
   "main": "modal.js",

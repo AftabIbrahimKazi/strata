@@ -25,7 +25,7 @@ Bumped only when something changes that **requires every user to manually update
 - Scanner or build API breaking changes
 - Class naming convention changed
 
-When MAJOR bumps, all packages (`@strata-css/forms`, `@strata-css/picker` etc.) also release a new MAJOR build even if their own code is unchanged — the MAJOR bump is the compatibility contract.
+When MAJOR bumps, all packages (`@strata-packages/forms`, `@strata-packages/picker` etc.) also release a new MAJOR build even if their own code is unchanged — the MAJOR bump is the compatibility contract.
 
 A `MIGRATION.md` file is **required** before any MAJOR release ships. No migration doc = no MAJOR bump.
 
@@ -34,7 +34,7 @@ A `MIGRATION.md` file is **required** before any MAJOR release ships. No migrati
 Bumped once per release that ships new functionality:
 - New utility classes or component classes
 - New options on existing APIs
-- New packages (`@strata-css/picker` etc.)
+- New packages (`@strata-packages/picker` etc.)
 - New CSS variables or tokens
 
 Never resets between FEATURE releases in the same era. `1.5.x` means 5 feature releases have shipped in era 1.
@@ -83,12 +83,12 @@ npm install strata-css@dev      # dev
 
 ## Package Versioning Policy
 
-Each package (`@strata-css/forms`, `@strata-css/picker` etc.) versions **independently** between MAJOR releases:
+Each package (`@strata-packages/forms`, `@strata-packages/picker` etc.) versions **independently** between MAJOR releases:
 
 ```
 strata-css          1.1.0  →  1.2.0  →  1.3.6
-@strata-css/forms   1.0.0  →  1.1.3  →  (unchanged)
-@strata-css/picker  1.0.0  →           →  1.1.0
+@strata-packages/forms   1.0.0  →  1.1.3  →  (unchanged)
+@strata-packages/picker  1.0.0  →           →  1.1.0
 ```
 
 Packages only move when they have their own changes. They do **not** bump just because core bumped a FEATURE or BUGFIX version.

@@ -7,15 +7,15 @@ All notable changes to Strata CSS will be documented here.
 ### Docs
 - Versioning rules clarified and expanded in `CONTRIBUTING.md`
 - All package `CLAUDE.md` files updated with complete API references
-- `README.md` files added to `@strata-css/picker` and `@strata-css/forms`
-- `CHANGELOG.md` files added to `@strata-css/picker` and `@strata-css/forms`
+- `README.md` files added to `@strata-packages/picker` and `@strata-packages/forms`
+- `CHANGELOG.md` files added to `@strata-packages/picker` and `@strata-packages/forms`
 - Root `README.md` updated: version badge, forms/picker added to standalone packages table
 
 ---
 
 ## [1.2.5] — 2026-06-04
 
-### Added — `@strata-css/picker`
+### Added — `@strata-packages/picker`
 - `theme` option — per-instance inline CSS variable overrides (primary, bg, text, radius, shadow, cellSize, fontSize)
 - `className` option — extra class on popup for targeted CSS overrides
 
@@ -24,7 +24,7 @@ All notable changes to Strata CSS will be documented here.
 ## [1.2.4] — 2026-06-03
 
 ### Added
-- `@strata-css/picker` — new standalone package: date, time, and datetime picker
+- `@strata-packages/picker` — new standalone package: date, time, and datetime picker
   - Zero dependencies, works standalone or as `Strata.Picker` with Strata CSS
   - Declarative init via `data-st-datepicker`, `data-st-timepicker`, `data-st-datetimepicker`
   - Date range selection with two-input mode and range highlight
@@ -42,13 +42,13 @@ All notable changes to Strata CSS will be documented here.
 ## [1.2.3] — 2026-06-02
 
 ### Fixed
-- `@strata-css/forms` auto-init now recognises all `data-st-*` select attributes at DOMContentLoaded
+- `@strata-packages/forms` auto-init now recognises all `data-st-*` select attributes at DOMContentLoaded
 
 ---
 
 ## [1.2.2] — 2026-06-01
 
-### Added — `@strata-css/forms`
+### Added — `@strata-packages/forms`
 - Checkbox select mode: dropdown stays open while ticking, Select All row, group-level checkboxes, `checkboxDisplay`: `chips` / `count` / `list`
 - `maxDisplay` — fixed-height chip trigger with `+N` overflow badge
 - Search input always rendered inside the dropdown (not above it)
@@ -58,13 +58,13 @@ All notable changes to Strata CSS will be documented here.
 ## [1.2.1] — 2026-05-30
 
 ### Fixed
-- `@strata-css/forms` backend-friendly `required` validation — triggers visible error state on custom trigger
+- `@strata-packages/forms` backend-friendly `required` validation — triggers visible error state on custom trigger
 
 ---
 
 ## [1.2.0] — 2026-05-28
 
-### Added — `@strata-css/forms`
+### Added — `@strata-packages/forms`
 - New standalone package: fully accessible custom select replacement
 - Multi-select with chips, `maxItems`, searchable, clearable, grouped `<optgroup>`, creatable, avatar/custom render, async `loadOptions`, auto-width with viewport edge detection
 - Native `<select>` stays in DOM — form submission works with any backend

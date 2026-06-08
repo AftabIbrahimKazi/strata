@@ -178,9 +178,9 @@ function detectFramework(cwd) {
 // ─── Init helpers ─────────────────────────────────────────────────────
 
 const PACKAGES = [
-  { name: '@strata-css/modal',          label: 'modal          — attribute-driven modal dialogs' },
-  { name: '@strata-css/skeleton-loader',label: 'skeleton-loader — shimmer loading placeholders'  },
-  { name: '@strata-css/chart',          label: 'chart          — Three.js data visualisations'   },
+  { name: '@strata-packages/modal',          label: 'modal          — attribute-driven modal dialogs' },
+  { name: '@strata-packages/skeleton-loader',label: 'skeleton-loader — shimmer loading placeholders'  },
+  { name: '@strata-packages/chart',          label: 'chart          — Three.js data visualisations'   },
 ]
 
 const FRAMEWORK_DEV = {
@@ -254,10 +254,10 @@ async function askCheckbox(rl, items) {
 }
 
 function packageUsageSnippet(pkgName) {
-  if (pkgName === '@strata-css/modal') return `
+  if (pkgName === '@strata-packages/modal') return `
   <!-- Modal usage (standalone) -->
-  <link rel="stylesheet" href="node_modules/@strata-css/modal/modal.css">
-  <script src="node_modules/@strata-css/modal/modal.js"></script>
+  <link rel="stylesheet" href="node_modules/@strata-packages/modal/modal.css">
+  <script src="node_modules/@strata-packages/modal/modal.js"></script>
 
   <button data-st-toggle="modal" data-st-target="#myModal">Open</button>
   <div class="modal" id="myModal" aria-hidden="true">
@@ -270,10 +270,10 @@ function packageUsageSnippet(pkgName) {
     </div></div>
   </div>`
 
-  if (pkgName === '@strata-css/skeleton-loader') return `
+  if (pkgName === '@strata-packages/skeleton-loader') return `
   <!-- Skeleton loader usage (standalone) -->
-  <link rel="stylesheet" href="node_modules/@strata-css/skeleton-loader/skeleton-loader.css">
-  <script src="node_modules/@strata-css/skeleton-loader/skeleton-loader.js"></script>
+  <link rel="stylesheet" href="node_modules/@strata-packages/skeleton-loader/skeleton-loader.css">
+  <script src="node_modules/@strata-packages/skeleton-loader/skeleton-loader.js"></script>
 
   <div class="card" data-st-skeleton="true">
     <div class="card-body"><p>Content loading...</p></div>
@@ -283,10 +283,10 @@ function packageUsageSnippet(pkgName) {
     fetchData().then(() => SkeletonLoader.reveal())
   </script>`
 
-  if (pkgName === '@strata-css/chart') return `
+  if (pkgName === '@strata-packages/chart') return `
   <!-- Chart usage (standalone, requires Three.js) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="node_modules/@strata-css/chart/chart.js"></script>
+  <script src="node_modules/@strata-packages/chart/chart.js"></script>
 
   <canvas id="myChart"></canvas>
   <script>
