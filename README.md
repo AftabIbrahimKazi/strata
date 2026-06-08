@@ -383,11 +383,11 @@ All Strata plugins are available as independent packages. Use them without Strat
 
 | Package | Standalone global | With Strata | Install |
 |---|---|---|---|
-| `@strata-css/forms` | `StrataForms` | `Strata.Forms` | `npm i @strata-css/forms` |
-| `@strata-css/picker` | `StrataPicker` | `Strata.Picker` | `npm i @strata-css/picker` |
-| `@strata-css/skeleton-loader` | `SkeletonLoader` | `Strata.skeleton` | `npm i @strata-css/skeleton-loader` |
-| `@strata-css/modal` | `StrataModal` | `Strata.Modal` | `npm i @strata-css/modal` |
-| `@strata-css/chart` | `StrataChart` | `Strata.Chart` | `npm i @strata-css/chart` |
+| `@strata-packages/forms` | `StrataForms` | `Strata.Forms` | `npm i @strata-packages/forms` |
+| `@strata-packages/picker` | `StrataPicker` | `Strata.Picker` | `npm i @strata-packages/picker` |
+| `@strata-packages/skeleton-loader` | `SkeletonLoader` | `Strata.skeleton` | `npm i @strata-packages/skeleton-loader` |
+| `@strata-packages/modal` | `StrataModal` | `Strata.Modal` | `npm i @strata-packages/modal` |
+| `@strata-packages/chart` | `StrataChart` | `Strata.Chart` | `npm i @strata-packages/chart` |
 
 ### How detection works
 
@@ -397,18 +397,18 @@ When `strata.components.js` is loaded it sets `data-strata` on `<html>`. Each pl
 
 ```html
 <!-- Skeleton -->
-<link rel="stylesheet" href="node_modules/@strata-css/skeleton-loader/skeleton-loader.css">
-<script src="node_modules/@strata-css/skeleton-loader/skeleton-loader.js"></script>
+<link rel="stylesheet" href="node_modules/@strata-packages/skeleton-loader/skeleton-loader.css">
+<script src="node_modules/@strata-packages/skeleton-loader/skeleton-loader.js"></script>
 <script>SkeletonLoader.init('.card')</script>
 
 <!-- Modal -->
-<link rel="stylesheet" href="node_modules/@strata-css/modal/modal.css">
-<script src="node_modules/@strata-css/modal/modal.js"></script>
+<link rel="stylesheet" href="node_modules/@strata-packages/modal/modal.css">
+<script src="node_modules/@strata-packages/modal/modal.js"></script>
 <script>StrataModal.open('#myModal')</script>
 
 <!-- Chart (requires Three.js) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="node_modules/@strata-css/chart/chart.js"></script>
+<script src="node_modules/@strata-packages/chart/chart.js"></script>
 <script>StrataChart.create('#myChart', { type: 'bar', data: [...] })</script>
 ```
 

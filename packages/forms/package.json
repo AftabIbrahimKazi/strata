@@ -1,5 +1,5 @@
 {
-  "name": "@strata-css/forms",
+  "name": "@strata-packages/forms",
   "version": "1.0.0",
   "description": "Interactive form controls for Strata CSS — custom select with every variant developers need.",
   "main": "forms.js",
