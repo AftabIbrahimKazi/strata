@@ -1,16 +1,16 @@
-# @strata-css/picker
+# @strata-packages/picker
 
 > Date, time, and datetime picker for [Strata CSS](https://github.com/AftabIbrahimKazi/strata). Zero dependencies. Works standalone or as part of Strata.
 
-[![npm](https://img.shields.io/npm/v/@strata-css/picker)](https://www.npmjs.com/package/@strata-css/picker)
-[![license](https://img.shields.io/npm/l/@strata-css/picker)](LICENSE)
+[![npm](https://img.shields.io/npm/v/@strata-packages/picker)](https://www.npmjs.com/package/@strata-packages/picker)
+[![license](https://img.shields.io/npm/l/@strata-packages/picker)](LICENSE)
 
 ---
 
 ## Installation
 
 ```bash
-npm install @strata-css/picker
+npm install @strata-packages/picker
 ```
 
 ---
@@ -20,8 +20,8 @@ npm install @strata-css/picker
 ### Standalone
 
 ```html
-<link rel="stylesheet" href="node_modules/@strata-css/picker/picker.css">
-<script src="node_modules/@strata-css/picker/picker.js"></script>
+<link rel="stylesheet" href="node_modules/@strata-packages/picker/picker.css">
+<script src="node_modules/@strata-packages/picker/picker.js"></script>
 ```
 
 Available as `StrataPicker`.

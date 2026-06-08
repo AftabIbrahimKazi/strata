@@ -1,18 +1,18 @@
-# @strata-css/forms
+# @strata-packages/forms
 
 > Interactive form controls for [Strata CSS](https://github.com/AftabIbrahimKazi/strata) — a fully accessible custom select with every variant developers need. Zero dependencies. Works standalone or as part of Strata.
 
-[![npm](https://img.shields.io/npm/v/@strata-css/forms)](https://www.npmjs.com/package/@strata-css/forms)
-[![license](https://img.shields.io/npm/l/@strata-css/forms)](LICENSE)
+[![npm](https://img.shields.io/npm/v/@strata-packages/forms)](https://www.npmjs.com/package/@strata-packages/forms)
+[![license](https://img.shields.io/npm/l/@strata-packages/forms)](LICENSE)
 
-> Looking for date / time pickers? See [`@strata-css/picker`](https://www.npmjs.com/package/@strata-css/picker).
+> Looking for date / time pickers? See [`@strata-packages/picker`](https://www.npmjs.com/package/@strata-packages/picker).
 
 ---
 
 ## Installation
 
 ```bash
-npm install @strata-css/forms
+npm install @strata-packages/forms
 ```
 
 ---
@@ -22,8 +22,8 @@ npm install @strata-css/forms
 ### Standalone
 
 ```html
-<link rel="stylesheet" href="node_modules/@strata-css/forms/forms.css">
-<script src="node_modules/@strata-css/forms/forms.js"></script>
+<link rel="stylesheet" href="node_modules/@strata-packages/forms/forms.css">
+<script src="node_modules/@strata-packages/forms/forms.js"></script>
 ```
 
 Available as `StrataForms`.

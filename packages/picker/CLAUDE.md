@@ -1,4 +1,4 @@
-# @strata-css/picker — Developer Reference
+# @strata-packages/picker — Developer Reference
 
 ## What it is
 
@@ -7,7 +7,7 @@ A standalone date, time, and datetime picker. Zero dependencies. Works without S
 ## Installation
 
 ```bash
-npm install @strata-css/picker
+npm install @strata-packages/picker
 ```
 
 ## Usage
@@ -15,8 +15,8 @@ npm install @strata-css/picker
 ### Standalone
 
 ```html
-<link rel="stylesheet" href="node_modules/@strata-css/picker/picker.css">
-<script src="node_modules/@strata-css/picker/picker.js"></script>
+<link rel="stylesheet" href="node_modules/@strata-packages/picker/picker.css">
+<script src="node_modules/@strata-packages/picker/picker.js"></script>
 ```
 
 Available as `StrataPicker`.
