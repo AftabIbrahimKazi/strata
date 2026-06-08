@@ -10,7 +10,9 @@
   },
   "files": [
     "skeleton-loader.js",
-    "skeleton-loader.css"
+    "skeleton-loader.css",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "skeleton",
@@ -26,10 +28,10 @@
   "homepage": "https://aftabibrahimkazi.github.io/strata",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AftabIbrahimKazi/skeleton-loader.git"
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
   },
   "bugs": {
-    "url": "https://github.com/AftabIbrahimKazi/skeleton-loader/issues"
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
   },
   "peerDependencies": {
     "strata-css": ">=1.0.0"
