@@ -1,4 +1,4 @@
-# Changelog — @strata-css/forms
+# Changelog — @strata-packages/forms
 
 All notable changes to this package will be documented here.
 
