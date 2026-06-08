@@ -491,6 +491,7 @@
   display:     flex;
   align-items: center;
   gap:         0.375rem;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    UNIFIED PICKER (date / time / datetime)
