@@ -1,5 +1,5 @@
 {
-  "name": "@strata-css/picker",
+  "name": "@strata-packages/picker",
   "version": "1.0.0",
   "description": "Date, time, and datetime picker for Strata CSS. Works standalone or with Strata.",
   "main": "picker.js",

@@ -1,4 +1,4 @@
-# @strata-css/modal — Developer Reference
+# @strata-packages/modal — Developer Reference
 
 ## What it is
 
@@ -8,7 +8,7 @@ A lightweight, accessible modal component. Works standalone (no dependencies) or
 
 ```bash
 # Standalone
-npm install @strata-css/modal
+npm install @strata-packages/modal
 
 # With Strata (already included in strata.components.js — do not install separately)
 npm install strata-css
@@ -19,8 +19,8 @@ npm install strata-css
 ### Standalone (no Strata CSS)
 
 ```html
-<link  rel="stylesheet" href="node_modules/@strata-css/modal/modal.css">
-<script src="node_modules/@strata-css/modal/modal.js"></script>
+<link  rel="stylesheet" href="node_modules/@strata-packages/modal/modal.css">
+<script src="node_modules/@strata-packages/modal/modal.js"></script>
 ```
 
 CSS tokens are self-contained when Strata is not present. Detects Strata via `:root:not([data-strata])`.

@@ -1,4 +1,4 @@
-# Changelog — @strata-css/picker
+# Changelog — @strata-packages/picker
 
 All notable changes to this package will be documented here.
 
