@@ -7,7 +7,9 @@
     ".": "./chart.js"
   },
   "files": [
-    "chart.js"
+    "chart.js",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "keywords": [
     "chart",
