@@ -2,6 +2,11 @@
 
 All notable changes to this package will be documented here.
 
+## [1.0.1] — 2026-06-08
+
+### Fixed
+- `forms.css` had an unclosed `.st-select-option` rule (missing `}`) that swallowed the entire `.st-picker-*` rule set into its body, causing PostCSS to reject the stylesheet and fail the build for any consumer. The brace is now closed correctly and all picker rules parse as standalone rules again.
+
 ## [1.0.0] — 2026-06-05
 
 Initial release.
