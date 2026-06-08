@@ -1,5 +1,5 @@
 {
-  "name": "@strata-css/skeleton-loader",
+  "name": "@strata-packages/skeleton-loader",
   "version": "1.0.0",
   "description": "Lightweight skeleton loader plugin. Works standalone or with Strata CSS.",
   "main": "skeleton-loader.js",
