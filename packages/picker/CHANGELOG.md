@@ -2,6 +2,12 @@
 
 All notable changes to this package will be documented here.
 
+## [1.0.3] — 2026-06-09
+
+### Fixed
+- Reopening the date or datetime picker after navigating the calendar (without selecting a date) left `vY`/`vM` at whatever month the user had scrolled to. On a subsequent open with an empty input, the calendar rendered that stale month instead of today — producing the "October 2001" regression.
+- `openPopup()` in both the date picker and datetime picker now resets the view to today when the input is empty, and to the selected date when a value is present. `vLayer` is also reset to `'days'` on open so the calendar never reopens on a stale month-grid or year-grid view.
+
 ## [1.0.2] — 2026-06-09
 
 ### Fixed
