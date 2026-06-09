@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Picker — View State / Format Test</title>
+  <link rel="stylesheet" href="../packages/picker/picker.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 2rem; max-width: 760px; margin: 0 auto; background: #f8f9fa; color: #212529; }
+    h1  { font-size: 1.4rem; margin: 0 0 0.25rem; }
+    p.sub { font-size: 0.8rem; color: #6c757d; margin: 0 0 2rem; }
+    h2  { font-size: 1rem; font-weight: 700; margin: 2rem 0 0.25rem; }
+    p.desc { font-size: 0.825rem; color: #6c757d; margin: 0 0 0.75rem; }
+    label { display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; }
+    input[type=text] { display: block; width: 100%; padding: 0.5rem 0.75rem; font-size: 1rem; border: 1px solid #dee2e6; border-radius: 0.375rem; background: #fff; cursor: pointer; }
+    input[type=text]:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25); }
+    .row { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+    .col { flex: 1; min-width: 220px; }
+    .log { margin-top: 0.5rem; padding: 0.5rem 0.75rem; background: #fff; border: 1px solid #dee2e6; border-radius: 0.375rem; font-family: monospace; font-size: 0.78rem; min-height: 2.25rem; color: #0d6efd; }
+    .log.empty { color: #adb5bd; font-style: italic; }
+    hr { border: none; border-top: 1px solid #dee2e6; margin: 2.25rem 0; }
+    .badge { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; margin-left: 0.5rem; vertical-align: middle; }
+    .badge-pass { background: #d1fae5; color: #065f46; }
+    .badge-fail { background: #fee2e2; color: #991b1b; }
+    .badge-wait { background: #e5e7eb; color: #6b7280; }
+    .steps { background: #fff; border: 1px solid #dee2e6; border-radius: 0.5rem; padding: 1rem 1.25rem; font-size: 0.825rem; line-height: 1.7; }
+    .steps ol { margin: 0; padding-left: 1.25rem; }
+    .steps li { margin-bottom: 0.2rem; }
+    .steps strong { color: #0d6efd; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.825rem; background: #fff; border-radius: 0.5rem; overflow: hidden; border: 1px solid #dee2e6; }
+    th { background: #f1f3f5; text-align: left; padding: 0.4rem 0.75rem; font-weight: 600; }
+    td { padding: 0.4rem 0.75rem; border-top: 1px solid #dee2e6; font-family: monospace; }
+    td:first-child { color: #6c757d; font-family: inherit; }
+  </style>
+</head>
+<body>
+
+  <h1>Picker — View State &amp; Format Bug Tests</h1>
+  <p class="sub">Covers the two fixes in @strata-packages/picker@1.0.3: stale calendar view state on reopen, and date-format token substring collision (MMM/MMMM).</p>
+
+  <!-- ═══ TEST 1: Stale view state ═══════════════════════════════════════════ -->
+
+  <h2>Test 1 — Calendar opens at the right month <span id="t1-badge" class="badge badge-wait">not tested</span></h2>
+  <p class="desc">
+    <strong>Bug:</strong> navigating the calendar without selecting a date left <code>vY/vM</code> at that stale month. Every subsequent open (even after a hard refresh) jumped to that month.<br>
+    <strong>Expected:</strong> empty input → always opens at today. Filled input → opens at the selected date.
+  </p>
+
+  <div class="steps">
+    <ol>
+      <li>Click the <strong>empty</strong> input below — verify it opens on <strong id="t1-today-label">today</strong>.</li>
+      <li>Navigate a few months back or forward (do <em>not</em> pick a date), then close.</li>
+      <li>Click the input again — it must reopen on <strong>today</strong>, not the month you navigated to.</li>
+      <li>Now pick a date. Close. Reopen — calendar must show <strong>the selected date's month</strong>.</li>
+      <li>Clear the input. Reopen — back to <strong>today</strong>.</li>
+    </ol>
+  </div>
+
+  <br>
+  <div class="row">
+    <div class="col">
+      <label for="t1-empty">Empty input (no pre-selection)</label>
+      <input type="text" id="t1-empty" placeholder="Click to open…" readonly>
+      <div class="log empty" id="t1-empty-log">no value yet</div>
+    </div>
+    <div class="col">
+      <label for="t1-filled">Pre-filled input (Dec 25, 2025)</label>
+      <input type="text" id="t1-filled" value="2025-12-25" readonly>
+      <div class="log" id="t1-filled-log">2025-12-25</div>
+    </div>
+  </div>
+  <br>
+  <button onclick="checkT1()" style="padding:0.4rem 1rem;border:1px solid #0d6efd;background:#0d6efd;color:#fff;border-radius:0.375rem;cursor:pointer;font-size:0.875rem;">Mark Test 1 as PASS</button>
+  <button onclick="failT1()"  style="padding:0.4rem 1rem;border:1px solid #dc3545;background:#dc3545;color:#fff;border-radius:0.375rem;cursor:pointer;font-size:0.875rem;margin-left:0.5rem;">Mark FAIL</button>
+
+  <hr>
+
+  <!-- ═══ TEST 2: Format token collision ══════════════════════════════════════ -->
+
+  <h2>Test 2 — Date format tokens <span id="t2-badge" class="badge badge-wait">not tested</span></h2>
+  <p class="desc">
+    <strong>Bug:</strong> chained <code>.replace('MM', …)</code> matched the first two chars of <code>MMM</code>, producing <code>"08 06M 2026"</code> instead of <code>"08 Jun 2026"</code>.<br>
+    <strong>Expected:</strong> each format string below writes a clean, correct value into the input.
+  </p>
+
+  <div class="row">
+    <div class="col">
+      <label for="t2-a">DD/MM/YYYY (numeric)</label>
+      <input type="text" id="t2-a" data-st-datepicker data-st-format="DD/MM/YYYY" placeholder="Select date…" readonly>
+      <div class="log empty" id="t2-a-log">no value yet</div>
+    </div>
+    <div class="col">
+      <label for="t2-b">DD MMM YYYY (short month name)</label>
+      <input type="text" id="t2-b" data-st-datepicker data-st-format="DD MMM YYYY" placeholder="Select date…" readonly>
+      <div class="log empty" id="t2-b-log">no value yet — <strong>bug: would show "08 06M 2026"</strong></div>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="col">
+      <label for="t2-c">DD MMMM YYYY (full month name)</label>
+      <input type="text" id="t2-c" data-st-datepicker data-st-format="DD MMMM YYYY" placeholder="Select date…" readonly>
+      <div class="log empty" id="t2-c-log">no value yet</div>
+    </div>
+    <div class="col">
+      <label for="t2-d">YYYY-MM-DD (ISO default)</label>
+      <input type="text" id="t2-d" data-st-datepicker data-st-format="YYYY-MM-DD" placeholder="Select date…" readonly>
+      <div class="log empty" id="t2-d-log">no value yet</div>
+    </div>
+  </div>
+
+  <br>
+
+  <h2 style="margin-top:0.5rem;">Expected output for any given date</h2>
+  <table>
+    <tr><th>Format</th><th>Example (Jun 8, 2026)</th><th>Bug output (before fix)</th></tr>
+    <tr><td>DD/MM/YYYY</td><td>08/06/2026</td><td>08/06/2026 (was fine)</td></tr>
+    <tr><td>DD MMM YYYY</td><td>08 Jun 2026</td><td>08 06M 2026 ← mangled</td></tr>
+    <tr><td>DD MMMM YYYY</td><td>08 June 2026</td><td>08 June 2026M 2026 ← broken</td></tr>
+    <tr><td>YYYY-MM-DD</td><td>2026-06-08</td><td>2026-06-08 (was fine)</td></tr>
+  </table>
+
+  <br>
+  <button onclick="checkT2()" style="padding:0.4rem 1rem;border:1px solid #0d6efd;background:#0d6efd;color:#fff;border-radius:0.375rem;cursor:pointer;font-size:0.875rem;">Mark Test 2 as PASS</button>
+  <button onclick="failT2()"  style="padding:0.4rem 1rem;border:1px solid #dc3545;background:#dc3545;color:#fff;border-radius:0.375rem;cursor:pointer;font-size:0.875rem;margin-left:0.5rem;">Mark FAIL</button>
+
+  <hr>
+
+  <!-- ═══ TEST 3: Datetime picker — month/year navigation ═════════════════════ -->
+
+  <h2>Test 3 — Datetime picker: month/year navigation <span id="t3-badge" class="badge badge-wait">not tested</span></h2>
+  <p class="desc">
+    <strong>Bug:</strong> clicking the month/year title button in the combined datetime picker did nothing — <code>renderMonths</code> and <code>renderYears</code> were missing from the datetime picker scope, so <code>vLayer</code> was set but never acted on.<br>
+    <strong>Expected:</strong> clicking <strong>June 2026</strong> → opens month grid. Clicking the year in month grid → opens year grid. Clicking a year → back to month grid. Clicking a month → back to day+time view.
+  </p>
+
+  <div class="steps">
+    <ol>
+      <li>Open the picker below. You should see the day grid with <strong>June 2026</strong> (or current month) as the title.</li>
+      <li>Click the <strong>title button</strong> (e.g. "June 2026") — a 12-month grid must appear.</li>
+      <li>Click the year shown in the month grid header — a 12-year grid must appear.</li>
+      <li>Click any year → back to month grid. Click any month → back to day+time view.</li>
+      <li>Confirm the time columns and Apply/Clear buttons return correctly when back on day view.</li>
+    </ol>
+  </div>
+
+  <br>
+  <div class="row">
+    <div class="col">
+      <label for="t3-dt">Datetime — empty (test month/year nav)</label>
+      <input type="text" id="t3-dt" placeholder="Click to open…" readonly>
+      <div class="log empty" id="t3-dt-log">no value yet</div>
+    </div>
+    <div class="col">
+      <label for="t3-dt2">Datetime — format DD MMM YYYY HH:mm</label>
+      <input type="text" id="t3-dt2" placeholder="Click to open…" readonly>
+      <div class="log empty" id="t3-dt2-log">no value yet</div>
+    </div>
+  </div>
+
+  <br>
+  <button onclick="checkT3()" style="padding:0.4rem 1rem;border:1px solid #0d6efd;background:#0d6efd;color:#fff;border-radius:0.375rem;cursor:pointer;font-size:0.875rem;">Mark Test 3 as PASS</button>
+  <button onclick="failT3()"  style="padding:0.4rem 1rem;border:1px solid #dc3545;background:#dc3545;color:#fff;border-radius:0.375rem;cursor:pointer;font-size:0.875rem;margin-left:0.5rem;">Mark FAIL</button>
+
+  <hr>
+
+  <!-- ═══ TEST 4: Datetime picker view-state reset ══════════════════════════════ -->
+
+  <h2>Test 4 — Datetime picker: view-state reset on reopen <span id="t4-badge" class="badge badge-wait">not tested</span></h2>
+  <p class="desc">Navigate months without selecting, close, reopen — must return to today's month, not the stale one.</p>
+
+  <div class="row">
+    <div class="col">
+      <label for="t4-dt">Empty — reopen must show today</label>
+      <input type="text" id="t4-dt" placeholder="Click to open…" readonly>
+      <div class="log empty" id="t4-dt-log">no value yet</div>
+    </div>
+    <div class="col">
+      <label for="t4-filled">Pre-filled 2025-12-25 — reopen must show Dec 2025</label>
+      <input type="text" id="t4-filled" value="2025-12-25 09:00" readonly>
+      <div class="log" id="t4-filled-log">2025-12-25 09:00</div>
+    </div>
+  </div>
+
+  <br>
+  <button onclick="checkT4()" style="padding:0.4rem 1rem;border:1px solid #0d6efd;background:#0d6efd;color:#fff;border-radius:0.375rem;cursor:pointer;font-size:0.875rem;">Mark Test 4 as PASS</button>
+  <button onclick="failT4()"  style="padding:0.4rem 1rem;border:1px solid #dc3545;background:#dc3545;color:#fff;border-radius:0.375rem;cursor:pointer;font-size:0.875rem;margin-left:0.5rem;">Mark FAIL</button>
+
+  <script src="../packages/picker/picker.js"></script>
+  <script>
+    // ── today label ─────────────────────────────────────────────────────────────
+    var MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    var now = new Date()
+    document.getElementById('t1-today-label').textContent =
+      MONTH_SHORT[now.getMonth()] + ' ' + now.getFullYear()
+
+    // ── Test 1: view state — date picker ────────────────────────────────────────
+    var dp1 = StrataPicker.date('#t1-empty')
+    var dp2 = StrataPicker.date('#t1-filled')
+
+    document.addEventListener('st:datepicker:change', function (e) {
+      if (e.detail.input.id === 't1-empty') {
+        var log = document.getElementById('t1-empty-log')
+        log.textContent = 'Selected: ' + e.detail.formatted
+        log.classList.remove('empty')
+      }
+      if (e.detail.input.id === 't1-filled') {
+        var log = document.getElementById('t1-filled-log')
+        log.textContent = 'Selected: ' + e.detail.formatted
+        log.classList.remove('empty')
+      }
+    })
+
+    // ── Test 2: format tokens — declarative (auto-init handles these) ───────────
+    ;['t2-a','t2-b','t2-c','t2-d'].forEach(function (id) {
+      document.addEventListener('st:datepicker:change', function (e) {
+        if (e.detail.input.id !== id) return
+        var log = document.getElementById(id + '-log')
+        log.textContent = 'Value written to input: "' + e.detail.input.value + '"'
+        log.classList.remove('empty')
+        // auto-detect garbled output
+        var val = e.detail.input.value
+        var garbled = /\d{2}M/.test(val) || /MMMM/.test(val)
+        log.style.color = garbled ? '#dc3545' : '#198754'
+        log.textContent += garbled ? '  ← GARBLED' : '  ✓'
+      })
+    })
+
+    // ── Test 3: datetime month/year navigation ───────────────────────────────────
+    var dtp1 = StrataPicker.datetime('#t3-dt')
+    var dtp2 = StrataPicker.datetime('#t3-dt2', { format: 'DD MMM YYYY HH:mm' })
+
+    // ── Test 4: datetime view-state reset on reopen ──────────────────────────────
+    var dtp3 = StrataPicker.datetime('#t4-dt')
+    var dtp4 = StrataPicker.datetime('#t4-filled')
+
+    document.addEventListener('st:datetimepicker:change', function (e) {
+      var id = e.detail.input.id
+      var ids = ['t3-dt','t3-dt2','t4-dt','t4-filled']
+      if (ids.indexOf(id) === -1) return
+      var log = document.getElementById(id + '-log')
+      log.textContent = 'Selected: ' + e.detail.value
+      log.classList.remove('empty')
+    })
+
+    // ── Badge helpers ────────────────────────────────────────────────────────────
+    function setBadge(id, pass) {
+      var el = document.getElementById(id)
+      el.textContent = pass ? 'PASS' : 'FAIL'
+      el.className = 'badge ' + (pass ? 'badge-pass' : 'badge-fail')
+    }
+    function checkT1() { setBadge('t1-badge', true) }
+    function failT1()  { setBadge('t1-badge', false) }
+    function checkT2() { setBadge('t2-badge', true) }
+    function failT2()  { setBadge('t2-badge', false) }
+    function checkT3() { setBadge('t3-badge', true) }
+    function failT3()  { setBadge('t3-badge', false) }
+    function checkT4() { setBadge('t4-badge', true) }
+    function failT4()  { setBadge('t4-badge', false) }
+  </script>
+
+</body>
+</html>
