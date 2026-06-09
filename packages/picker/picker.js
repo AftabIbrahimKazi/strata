@@ -617,13 +617,49 @@
 
     // ── Render ────────────────────────────────────────────────────────────────────
 
+    function renderMonths(c){
+      var prev=nb('‹','Prev'); var next=nb('›','Next')
+      var title=el('button',{'class':'stp-title','type':'button'},[String(vY)])
+      prev.addEventListener('click',  function(){ vY--; render() })
+      next.addEventListener('click',  function(){ vY++; render() })
+      title.addEventListener('click', function(){ vLayer='years'; render() })
+      c.appendChild(el('div',{'class':'stp-hd'},[prev,title,next]))
+      var grid=el('div',{'class':'stp-months'})
+      MONTHS_SHORT.forEach(function(name,mi){
+        var cls='stp-month'+(mi===today.getMonth()&&vY===today.getFullYear()?' is-today':'')
+        var b=el('button',{'class':cls,'type':'button'},[name])
+        ;(function(m){ b.addEventListener('click',function(){ vM=m; vLayer='days'; render() }) })(mi)
+        grid.appendChild(b)
+      })
+      c.appendChild(grid)
+    }
+
+    function renderYears(c){
+      var prev=nb('‹','Prev'); var next=nb('›','Next')
+      var lbl=el('span',{'class':'stp-title stp-title--static'},[yBase+' – '+(yBase+11)])
+      prev.addEventListener('click', function(){ yBase-=12; render() })
+      next.addEventListener('click', function(){ yBase+=12; render() })
+      c.appendChild(el('div',{'class':'stp-hd'},[prev,lbl,next]))
+      var grid=el('div',{'class':'stp-years'})
+      for(var yi=0;yi<12;yi++){
+        var yr=yBase+yi
+        var cls='stp-year'+(yr===today.getFullYear()?' is-today':'')
+        var b=el('button',{'class':cls,'type':'button'},[String(yr)])
+        ;(function(y){ b.addEventListener('click',function(){ vY=y; vLayer='months'; render() }) })(yr)
+        grid.appendChild(b)
+      }
+      c.appendChild(grid)
+    }
+
     function render(){
       popup.innerHTML=''
       var body=el('div',{'class':'stp-dt-body'})
 
-      // Calendar side
+      // Calendar side — route to whichever layer is active
       var cal=el('div',{'class':'stp-dt-cal'})
-      renderDays(cal)
+      if(vLayer==='months') renderMonths(cal)
+      else if(vLayer==='years') renderYears(cal)
+      else renderDays(cal)
       body.appendChild(cal)
 
       // Divider

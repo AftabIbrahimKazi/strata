@@ -2,6 +2,13 @@
 
 All notable changes to this package will be documented here.
 
+## [1.0.4] — 2026-06-09
+
+### Fixed
+- Datetime picker: clicking the month/year title button did nothing — `renderMonths` and `renderYears` were missing from the datetime picker scope, so `vLayer` was set but never acted on. Both functions are now present and `render()` routes to them correctly.
+- Datetime picker: switching between days/months/years views caused the popup to shift width and height as the calendar panel resized to fit each grid. `.stp-dt-cal` now has a fixed `width` and `min-height` matching the standalone date picker panel, locking the popup size regardless of which layer is shown.
+- Standalone date picker: same width/height lock applied to `.stp-cal` — switching to month or year grid no longer collapses the popup height.
+
 ## [1.0.3] — 2026-06-09
 
 ### Fixed
