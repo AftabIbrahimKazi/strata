@@ -398,6 +398,8 @@
       open = true
       var ex = parseDate(input.value)
       if (ex) { selS=ex; vY=ex.getFullYear(); vM=ex.getMonth() }
+      else    { vY=today.getFullYear(); vM=today.getMonth() }
+      vLayer = 'days'
       render()
       doc.body.appendChild(popup)
       positionPopup(popup, input)
@@ -718,7 +720,10 @@
 
     function openPopup(){
       if(open)return; open=true
-      var ex=parseDate(input.value); if(ex){selDate=ex;vY=ex.getFullYear();vM=ex.getMonth()}
+      var ex=parseDate(input.value)
+      if(ex){selDate=ex;vY=ex.getFullYear();vM=ex.getMonth()}
+      else  {vY=today.getFullYear();vM=today.getMonth()}
+      vLayer='days'
       render()
       doc.body.appendChild(popup)
       positionPopup(popup,input)
