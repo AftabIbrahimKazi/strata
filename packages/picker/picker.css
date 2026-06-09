@@ -110,8 +110,9 @@
 /* ─── Calendar ────────────────────────────────────────────────────────────── */
 
 .stp-cal {
-  padding: 0.625rem;
-  width:   calc(var(--stp-cell, 2rem) * 7 + 1.25rem);
+  padding:    0.625rem;
+  width:      calc(var(--stp-cell, 2rem) * 7 + 1.25rem);
+  min-height: calc(var(--stp-cell, 2rem) * 7 + 2.5rem);
   flex-shrink: 0;
 }
 
@@ -291,7 +292,12 @@
   align-items: stretch;
 }
 
-.stp-dt-cal { padding: 0.625rem; }
+.stp-dt-cal {
+  padding:     0.625rem;
+  width:       calc(var(--stp-cell, 2rem) * 7 + 1.25rem);
+  min-height:  calc(var(--stp-cell, 2rem) * 7 + 2.5rem);
+  flex-shrink: 0;
+}
 
 .stp-dt-divider {
   width:      1px;
