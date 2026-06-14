@@ -2,6 +2,17 @@
 
 All notable changes to `@strata-packages/chart` are documented here.
 
+## [1.1.1] — 2026-06-15
+
+### Added
+- **Lazy-loaded Three.js** — Three.js no longer has to be loaded before the script. If `window.THREE` is absent when `create()` is called, it is fetched on demand from `threeUrl` (default: `three@0.160.0` on jsDelivr) and the chart builds once it arrives. When `window.THREE` is already present, `create()` stays **synchronous and unchanged**. New `threeUrl` option (set `''` to require a pre-loaded global) and a `Strata.Chart.load(url?)` helper for explicit preloading (e.g. before a chart scrolls into view).
+
+### Changed
+- `create()` returns the chart instance synchronously when Three.js is present, or a `Promise<instance | null>` when it must lazy-load Three.js first.
+
+### Fixed
+- **API always registers** — the bootstrap previously bailed out entirely (registering nothing) if `window.THREE` was missing at load, which silently disabled `Strata.Chart` / `StrataChart`. It now always registers, so lazy-loading works and a missing dependency no longer removes the whole API.
+
 ## [1.0.1] — 2026-06-09
 
 ### Added
