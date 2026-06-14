@@ -90,7 +90,11 @@ async function build(cssMinify = false, jsMinify = true) {
   const jsDest = path.join(path.dirname(outputFile), 'strata.components.js')
   if (fs.existsSync(componentsDir)) {
     const files  = fs.readdirSync(componentsDir).filter(f => f.endsWith('.js')).sort()
+    // Create the shared Strata namespace BEFORE the package UMD wrappers run, so
+    // each one attaches to Strata.* (their `if (root.Strata)` branch) instead of
+    // falling back to a separate StrataModal/StrataChart/etc. global.
     const banner = `/*! Strata Components — built ${new Date().toISOString().slice(0,10)} */\n`
+      + `;(function(g){g.Strata=g.Strata||{}})(typeof globalThis!=='undefined'?globalThis:this);\n`
     const parts  = files.map(f => fs.readFileSync(path.join(componentsDir, f), 'utf8'))
     packageFiles.forEach(p => { if (fs.existsSync(p)) parts.push(fs.readFileSync(p, 'utf8')) })
     const raw    = parts.join('\n')
