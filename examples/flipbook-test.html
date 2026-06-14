@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@strata-packages/flipbook — Test</title>
+
+  <link rel="stylesheet" href="../packages/flipbook/flipbook.css">
+
+  <!-- Peer deps (pdf.js, html2canvas, pdf-lib) are now LAZY-LOADED by the plugin
+       on first use (PDF source / export) — no up-front <script> tags needed. -->
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem 1rem 5rem;
+    }
+
+    /* ── Header ── */
+    .page-header { text-align: center; margin-bottom: 2.5rem; }
+    .page-header h1 { font-size: 1.4rem; font-weight: 600; color: #f1f5f9; margin-bottom: 0.25rem; }
+    .page-header p  { font-size: 0.85rem; color: #64748b; }
+
+    /* ── Tabs ── */
+    .tab-row {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 2rem;
+    }
+    .tab-btn {
+      background: #1e2330; border: 1px solid #2d3348; border-radius: 6px;
+      color: #94a3b8; cursor: pointer; font-size: 0.8125rem; padding: 0.45rem 1rem;
+      transition: background 140ms, color 140ms, border-color 140ms;
+    }
+    .tab-btn:hover { background: #262d42; color: #e2e8f0; }
+    .tab-btn[data-active="true"] { background: #3b5bdb; border-color: #3b5bdb; color: #fff; }
+
+    /* ── Demo panels ── */
+    .demo-panel { display: none; }
+    .demo-panel[data-active="true"] { display: block; }
+
+    /* ── Flipbook wrapper ── */
+    .book-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Override book shadow for dark bg */
+    .book-wrap .st-flipbook {
+      --st-flip-page-shadow: 0 1.5rem 5rem rgba(0,0,0,0.65);
+    }
+
+    /* ── API strip ── */
+    .api-strip {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin-top: 1.25rem;
+    }
+    .api-btn {
+      background: #1e2330; border: 1px solid #2d3348; border-radius: 6px;
+      color: #94a3b8; cursor: pointer; font-size: 0.78rem; padding: 0.35rem 0.85rem;
+      transition: background 140ms, color 140ms;
+    }
+    .api-btn:hover { background: #262d42; color: #e2e8f0; }
+
+    /* ── Event log ── */
+    .event-log {
+      margin: 1.5rem auto 0; max-width: 960px;
+      background: #0d1117; border: 1px solid #1e2330; border-radius: 8px;
+      padding: 0.9rem 1.1rem; font-size: 0.78rem; font-family: monospace;
+      color: #4ade80; min-height: 55px; max-height: 120px; overflow-y: auto;
+    }
+    .event-log p { line-height: 1.65; }
+    .event-log .ts { color: #475569; margin-right: 0.5rem; }
+
+    /* ── Preset selector ── */
+    .preset-row {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin-bottom: 1.5rem;
+    }
+    .preset-btn {
+      background: #1e2330; border: 1px solid #2d3348; border-radius: 6px;
+      color: #94a3b8; cursor: pointer; font-size: 0.78rem; padding: 0.35rem 0.9rem;
+      transition: background 140ms, color 140ms, border-color 140ms;
+    }
+    .preset-btn:hover { background: #262d42; color: #e2e8f0; }
+    .preset-btn[data-active="true"] { background: #0f4c75; border-color: #1976d2; color: #90cdf4; }
+
+    /* ── Hidden page content ── */
+    .flipbook-pages { display: none; }
+
+    /* ── Page designs ── */
+    .fp { width: 100%; height: 100%; padding: 2rem 1.75rem; display: flex; flex-direction: column; justify-content: center; }
+
+    .fp-cover {
+      background: linear-gradient(140deg, #1a1f35 0%, #0d1b4b 100%);
+      align-items: center; text-align: center; color: #fff;
+    }
+    .fp-cover .brand   { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+    .fp-cover .tagline { font-size: 0.875rem; color: #93c5fd; max-width: 240px; line-height: 1.5; }
+    .fp-cover .ver     { margin-top: 1.25rem; font-size: 0.7rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; padding: 0.25rem 0.8rem; color: #bfdbfe; }
+
+    .fp-light { background: #fffdf7; color: #1a1a2e; }
+    .fp-light h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.6rem; color: #1e3a5f; }
+    .fp-light p  { font-size: 0.85rem; line-height: 1.75; color: #334155; }
+    .fp-light .pills { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.9rem; }
+    .fp-light .pill  { background: #e0f2fe; border-radius: 999px; color: #0369a1; font-size: 0.7rem; padding: 0.2rem 0.65rem; }
+
+    .fp-dark { background: #0f172a; color: #e2e8f0; }
+    .fp-dark h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.6rem; color: #7dd3fc; }
+    .fp-dark p  { font-size: 0.85rem; line-height: 1.75; color: #94a3b8; }
+    .fp-dark .code { background: #1e293b; border: 1px solid #334155; border-radius: 6px; margin-top: 0.85rem; padding: 0.7rem 0.9rem; font-family: monospace; font-size: 0.73rem; color: #a5f3fc; line-height: 1.65; }
+
+    .fp-accent { background: linear-gradient(135deg, #3b0764 0%, #1e1b4b 100%); align-items: center; text-align: center; color: #f0abfc; }
+    .fp-accent .big { font-size: 3.5rem; font-weight: 800; color: #e879f9; line-height: 1; }
+    .fp-accent .sub { font-size: 0.8rem; color: #d8b4fe; margin-top: 0.5rem; }
+
+    .fp-green { background: #0f2b1a; color: #bbf7d0; }
+    .fp-green h2 { color: #4ade80; font-size: 1.1rem; margin-bottom: 0.6rem; }
+    .fp-green p  { font-size: 0.85rem; line-height: 1.75; color: #86efac; }
+    .fp-green ul { margin-top: 0.75rem; padding-left: 1.2rem; }
+    .fp-green li { font-size: 0.83rem; color: #86efac; line-height: 1.8; }
+
+    .fp-back {
+      background: linear-gradient(140deg, #0d1b4b 0%, #1a1f35 100%);
+      align-items: center; text-align: center; color: #fff;
+    }
+    .fp-back .icon { font-size: 2.25rem; margin-bottom: 0.6rem; }
+    .fp-back p { font-size: 0.85rem; color: #93c5fd; max-width: 200px; line-height: 1.6; }
+
+    /* ── PDF upload ── */
+    .pdf-upload-area {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.75rem;
+      background: #1e2330; border: 2px dashed #2d3348; border-radius: 8px;
+      padding: 2.5rem 2rem; text-align: center;
+      margin: 0 auto 1.5rem; max-width: 960px;
+      cursor: pointer; transition: border-color 160ms, background 160ms;
+    }
+    .pdf-upload-area:hover,
+    .pdf-upload-area[data-drag="true"] { border-color: #3b5bdb; background: #1a2040; }
+    .pdf-upload-area .upload-icon { font-size: 2rem; line-height: 1; }
+    .pdf-upload-area .upload-label { color: #94a3b8; font-size: 0.85rem; line-height: 1.7; }
+    .pdf-upload-area .upload-label strong { color: #cbd5e1; display: block; margin-bottom: 0.15rem; }
+    .pdf-upload-area input[type="file"] { display: none; }
+    .pdf-upload-btn {
+      background: #3b5bdb; border: none; border-radius: 6px; color: #fff;
+      cursor: pointer; font-size: 0.8rem; padding: 0.45rem 1.1rem;
+      transition: background 140ms;
+    }
+    .pdf-upload-btn:hover { background: #4c6ef5; }
+    .pdf-file-info {
+      color: #475569; font-size: 0.75rem; margin-top: 0.1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>@strata-packages/flipbook</h1>
+    <p>Drag the bottom corner • click arrows • use ← → keys • resize to see single-page mode</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-row">
+    <button class="tab-btn" data-tab="demos" data-active="true">Demos</button>
+    <button class="tab-btn" data-tab="presets">Presets</button>
+    <button class="tab-btn" data-tab="pagination">Pagination modes</button>
+    <button class="tab-btn" data-tab="pdf">PDF source</button>
+  </div>
+
+  <!-- ── DEMOS TAB ─────────────────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-demos" data-active="true">
+    <div class="book-wrap">
+      <div id="book-main"></div>
+    </div>
+    <div class="api-strip">
+      <button class="api-btn" id="btn-prev">← prev</button>
+      <button class="api-btn" id="btn-next">next →</button>
+      <button class="api-btn" id="btn-goto3">goTo(3)</button>
+      <button class="api-btn" id="btn-export">export PDF</button>
+      <button class="api-btn" id="btn-destroy">destroy</button>
+      <button class="api-btn" id="btn-reinit">re-init</button>
+    </div>
+  </div>
+
+  <!-- ── PRESETS TAB ───────────────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-presets">
+    <div class="preset-row" id="preset-row">
+      <button class="preset-btn" data-preset="notebook"  data-active="true">notebook</button>
+      <button class="preset-btn" data-preset="magazine">magazine</button>
+      <button class="preset-btn" data-preset="paperback">paperback</button>
+      <button class="preset-btn" data-preset="hardcover">hardcover</button>
+      <button class="preset-btn" data-preset="comic">comic</button>
+      <button class="preset-btn" data-preset="minimal">minimal</button>
+    </div>
+    <div class="book-wrap">
+      <div id="book-preset"></div>
+    </div>
+  </div>
+
+  <!-- ── PAGINATION TAB ───────────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-pagination">
+    <div class="preset-row" id="pag-row">
+      <button class="preset-btn" data-pag="controls"  data-active="true">controls</button>
+      <button class="preset-btn" data-pag="dots">dots</button>
+      <button class="preset-btn" data-pag="input">input</button>
+      <button class="preset-btn" data-pag="thumbnails">thumbnails</button>
+      <button class="preset-btn" data-pag='["controls","dots"]'>controls + dots</button>
+      <button class="preset-btn" data-pag="none">none</button>
+    </div>
+    <div class="book-wrap">
+      <div id="book-pag"></div>
+    </div>
+  </div>
+
+  <!-- ── PDF TAB ──────────────────────────────────────────────────────── -->
+  <div class="demo-panel" id="panel-pdf">
+    <div class="pdf-upload-area" id="pdf-drop-zone">
+      <div class="upload-icon">📄</div>
+      <div class="upload-label">
+        <strong>Upload a PDF to test</strong>
+        Drop a file here or click the button below
+      </div>
+      <button class="pdf-upload-btn" id="pdf-pick-btn">Choose PDF</button>
+      <div class="pdf-file-info" id="pdf-file-info"></div>
+      <input type="file" id="pdf-file-input" accept=".pdf,application/pdf">
+    </div>
+    <div class="book-wrap">
+      <div id="book-pdf"></div>
+    </div>
+    <div class="api-strip" id="pdf-api-strip" style="display:none">
+      <button class="api-btn" id="pdf-btn-prev">← prev</button>
+      <button class="api-btn" id="pdf-btn-next">next →</button>
+      <button class="api-btn" id="pdf-btn-export">download PDF</button>
+    </div>
+  </div>
+
+  <!-- ── Event log ────────────────────────────────────────────────────── -->
+  <div class="event-log" id="log"><p><span class="ts">—</span>Waiting for events…</p></div>
+
+  <!-- ── Hidden page content ──────────────────────────────────────────── -->
+  <div class="flipbook-pages">
+    <div class="fp fp-cover"  id="fp0"><div class="brand">Strata Flipbook</div><div class="tagline">CSS-driven • drag to flip • organic animation</div><div class="ver">v1.1.0 · MIT</div></div>
+    <div class="fp fp-light"  id="fp1"><h2>What it is</h2><p>A JIT-friendly flipbook that renders HTML or PDF content as a page-flip book. All animation runs via CSS custom properties and <code>data-st-*</code> attributes — zero inline styles.</p><div class="pills"><span class="pill">MIT</span><span class="pill">No inline styles</span><span class="pill">Strata-compatible</span><span class="pill">Standalone</span></div></div>
+    <div class="fp fp-dark"   id="fp2"><h2>Swiper-like API</h2><p>Wrap your pages and call one line.</p><div class="code">StrataFlipbook('#book')<br><br>// or with options<br>StrataFlipbook('#book', {<br>&nbsp;&nbsp;preset: 'magazine',<br>&nbsp;&nbsp;pagination: 'dots',<br>&nbsp;&nbsp;drag: true,<br>})</div></div>
+    <div class="fp fp-light"  id="fp3"><h2>Drag to flip</h2><p>Grab the bottom corner of any page and drag. On narrow screens (single-page mode) a horizontal swipe anywhere on the book triggers the flip.</p><div class="pills"><span class="pill">Pointer Events API</span><span class="pill">Mobile swipe</span><span class="pill">Snap-complete</span></div></div>
+    <div class="fp fp-accent" id="fp4"><div class="big">6</div><div class="sub">visual presets — notebook, magazine,<br>paperback, hardcover, comic, minimal</div></div>
+    <div class="fp fp-green"  id="fp5"><h2>Sound engine</h2><p>Built-in synthetic page-rustle — no audio file needed. Override with your own:</p><ul><li>sound.enabled: true</li><li>sound.src: '/my-turn.mp3'</li><li>sound.volume: 0.6</li><li>sound.mute: false</li></ul></div>
+    <div class="fp fp-dark"   id="fp6"><h2>Pagination modes</h2><p>Choose one or combine:</p><div class="code">pagination: 'controls'    // default<br>pagination: 'dots'<br>pagination: 'input'<br>pagination: 'thumbnails'<br>pagination: ['controls', 'dots']<br>pagination: 'none'</div></div>
+    <div class="fp fp-light"  id="fp7"><h2>PDF source</h2><p>Load any PDF via pdfjs-dist. Pages render to canvas and display as spreads. Export back to PDF with pdf-lib — all peer deps, all MIT / Apache-2.</p><div class="pills"><span class="pill">pdfjs-dist</span><span class="pill">pdf-lib</span><span class="pill">html2canvas</span></div></div>
+    <div class="fp fp-dark"   id="fp8"><h2>Real 3D page turn</h2><p>The page is a 3D leaf hinged at the spine — it lifts and twists from the grabbed corner, with shading and an edge sheen. Closed books show the cover alone with page thickness, and open and close with the same mirrored animation.</p><div class="pills"><span class="pill">rotateY leaf</span><span class="pill">grab-aware twist</span><span class="pill">closed-book covers</span></div></div>
+    <div class="fp fp-back"   id="fp9"><div class="icon">📖</div><p>Thanks for reading.<br>Build something beautiful.</p></div>
+  </div>
+
+  <script src="../packages/flipbook/flipbook.js"></script>
+  <script>
+    // PDF.js + its worker are lazy-loaded by the plugin on first PDF use; no
+    // manual workerSrc setup needed (override via the pdfjsWorkerUrl option).
+
+    // ── Event log ─────────────────────────────────────────────────────────────
+    var log = document.getElementById('log')
+    function logEvt(msg) {
+      var p = document.createElement('p')
+      var ts = new Date().toLocaleTimeString('en-GB', { hour12: false })
+      p.innerHTML = '<span class="ts">' + ts + '</span>' + msg
+      log.appendChild(p)
+      log.scrollTop = log.scrollHeight
+      if (log.children.length > 40) log.removeChild(log.firstElementChild)
+    }
+
+    // ── Shared page array ─────────────────────────────────────────────────────
+    function pageNodes() {
+      return ['fp0','fp1','fp2','fp3','fp4','fp5','fp6','fp7','fp8','fp9']
+        .map(function (id) { return document.getElementById(id) })
+    }
+
+    // ── Demos tab ─────────────────────────────────────────────────────────────
+    var mainBook = StrataFlipbook('#book-main', {
+      source:     'html',
+      content:    pageNodes(),
+      exportable: true,
+      pagination: 'controls',
+      drag:       true,
+      sound:      { enabled: true, volume: 0.5 },
+    })
+
+    mainBook
+      .on('ready',       function ()  { logEvt('ready — ' + mainBook.getSpreadCount() + ' spreads') })
+      .on('flip',        function (e) { logEvt('flip → spread ' + (e.detail.spread + 1) + ' (' + e.detail.direction + ')') })
+      .on('exportStart', function ()  { logEvt('export started…') })
+      .on('exportDone',  function ()  { logEvt('export done') })
+      .on('destroy',     function ()  { logEvt('instance destroyed') })
+
+    document.getElementById('btn-prev').addEventListener('click',    function () { mainBook.prev() })
+    document.getElementById('btn-next').addEventListener('click',    function () { mainBook.next() })
+    document.getElementById('btn-goto3').addEventListener('click',   function () { mainBook.goTo(3) })
+    document.getElementById('btn-export').addEventListener('click',  function () { mainBook.export() })
+    document.getElementById('btn-destroy').addEventListener('click', function () { mainBook.destroy(); mainBook = null; logEvt('destroyed') })
+    document.getElementById('btn-reinit').addEventListener('click',  function () {
+      if (mainBook) return
+      mainBook = StrataFlipbook('#book-main', { source: 'html', content: pageNodes(), exportable: true })
+      mainBook.on('flip', function (e) { logEvt('flip → spread ' + (e.detail.spread + 1)) })
+      logEvt('re-initialised')
+    })
+
+    // ── Presets tab ───────────────────────────────────────────────────────────
+    var presetBook = null
+    function initPreset(preset) {
+      if (presetBook) presetBook.destroy()
+      presetBook = StrataFlipbook('#book-preset', {
+        source:  'html',
+        content: pageNodes(),
+        preset:  preset,
+      })
+      logEvt('preset: ' + preset)
+    }
+    initPreset('notebook')
+
+    document.querySelectorAll('#preset-row .preset-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('#preset-row .preset-btn').forEach(function (b) { b.removeAttribute('data-active') })
+        btn.setAttribute('data-active', 'true')
+        initPreset(btn.getAttribute('data-preset'))
+      })
+    })
+
+    // ── Pagination tab ────────────────────────────────────────────────────────
+    var pagBook = null
+    function initPag(pag) {
+      if (pagBook) pagBook.destroy()
+      var pagOpt
+      try { pagOpt = JSON.parse(pag) } catch (e) { pagOpt = pag }
+      pagBook = StrataFlipbook('#book-pag', {
+        source:     'html',
+        content:    pageNodes(),
+        pagination: pagOpt,
+      })
+      logEvt('pagination: ' + pag)
+    }
+    initPag('controls')
+
+    document.querySelectorAll('#pag-row .preset-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('#pag-row .preset-btn').forEach(function (b) { b.removeAttribute('data-active') })
+        btn.setAttribute('data-active', 'true')
+        initPag(btn.getAttribute('data-pag'))
+      })
+    })
+
+    // ── PDF tab ───────────────────────────────────────────────────────────────
+    var pdfBook      = null
+    var pdfBlobUrl   = null
+    var pdfDropZone  = document.getElementById('pdf-drop-zone')
+    var pdfFileInput = document.getElementById('pdf-file-input')
+    var pdfFileInfo  = document.getElementById('pdf-file-info')
+    var pdfPickBtn   = document.getElementById('pdf-pick-btn')
+    var pdfApiStrip  = document.getElementById('pdf-api-strip')
+
+    function loadPdfFile(file) {
+      if (!file || file.type !== 'application/pdf') {
+        logEvt('PDF: not a valid PDF file')
+        return
+      }
+      if (pdfBook)    { pdfBook.destroy(); pdfBook = null }
+      if (pdfBlobUrl) { URL.revokeObjectURL(pdfBlobUrl) }
+      pdfBlobUrl = URL.createObjectURL(file)
+      pdfFileInfo.textContent = file.name + ' — ' + (file.size / 1024).toFixed(0) + ' KB'
+      logEvt('PDF: loading "' + file.name + '"…')
+      pdfApiStrip.style.display = 'none'
+      pdfBook = StrataFlipbook('#book-pdf', {
+        source:     'pdf',
+        content:    pdfBlobUrl,
+        exportable: true,
+        pagination: 'controls',
+        drag:       true,
+      })
+      pdfBook
+        .on('ready',       function ()  {
+          logEvt('PDF ready — ' + pdfBook.getSpreadCount() + ' spreads')
+          pdfApiStrip.style.display = 'flex'
+        })
+        .on('flip',        function (e) { logEvt('PDF flip → spread ' + (e.detail.spread + 1) + ' (' + e.detail.direction + ')') })
+        .on('exportStart', function ()  { logEvt('PDF export started…') })
+        .on('exportDone',  function ()  { logEvt('PDF export done — check downloads') })
+    }
+
+    pdfPickBtn.addEventListener('click', function () { pdfFileInput.click() })
+    pdfFileInput.addEventListener('change', function () {
+      if (pdfFileInput.files[0]) loadPdfFile(pdfFileInput.files[0])
+      pdfFileInput.value = ''
+    })
+
+    pdfDropZone.addEventListener('dragover',  function (e) { e.preventDefault(); pdfDropZone.setAttribute('data-drag', 'true') })
+    pdfDropZone.addEventListener('dragleave', function ()  { pdfDropZone.removeAttribute('data-drag') })
+    pdfDropZone.addEventListener('drop', function (e) {
+      e.preventDefault()
+      pdfDropZone.removeAttribute('data-drag')
+      var file = e.dataTransfer.files[0]
+      if (file) loadPdfFile(file)
+    })
+
+    document.getElementById('pdf-btn-prev').addEventListener('click',   function () { if (pdfBook) pdfBook.prev() })
+    document.getElementById('pdf-btn-next').addEventListener('click',   function () { if (pdfBook) pdfBook.next() })
+    document.getElementById('pdf-btn-export').addEventListener('click', function () { if (pdfBook) pdfBook.export() })
+
+    // ── Tab switcher ──────────────────────────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('.tab-btn').forEach(function (b) { b.removeAttribute('data-active') })
+        document.querySelectorAll('.demo-panel').forEach(function (p) { p.removeAttribute('data-active') })
+        btn.setAttribute('data-active', 'true')
+        document.getElementById('panel-' + btn.getAttribute('data-tab')).setAttribute('data-active', 'true')
+      })
+    })
+  </script>
+</body>
+</html>
