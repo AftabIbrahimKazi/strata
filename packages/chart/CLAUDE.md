@@ -6,12 +6,21 @@ A Three.js-powered interactive chart component with 2D/3D toggle. Supports bar, 
 
 ## Requirements
 
-Three.js must be loaded **before** this script. `window.THREE` must exist.
+Three.js is required, but **no longer has to be pre-loaded** — it is lazy-loaded on first `create()` if `window.THREE` is absent (from `threeUrl`, default `three@0.160.0` on jsDelivr).
 
 ```html
+<!-- Option A: pre-load Three.js — create() stays synchronous -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="node_modules/@strata-packages/chart/chart.js"></script>
+
+<!-- Option B: no pre-load — Three.js is fetched on demand; create() returns a Promise -->
+<script src="node_modules/@strata-packages/chart/chart.js"></script>
+<script>
+  Strata.Chart.create('#myChart', { type: 'bar', data: [...] }).then(chart => { /* … */ })
+</script>
 ```
+
+> When `window.THREE` is present, `create()` is synchronous and returns the instance (unchanged behaviour). When it must lazy-load, `create()` returns a `Promise<instance | null>`. Use `Strata.Chart.load(url?)` to preload Three.js explicitly (e.g. before a chart scrolls into view). Set `threeUrl: ''` to require a pre-loaded global.
 
 ## Installation
 
@@ -84,13 +93,20 @@ Strata.Chart.create(selector, {
   onReady:  (chart) => void,     // fires when Three.js scene is ready
   onChange: (view)  => void,     // fires on 2D/3D toggle
   onClick:  (point) => void,     // fires on data point click
+
+  // Lazy-load source for Three.js when window.THREE is absent.
+  threeUrl: 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js', // default; '' = require pre-load
 })
 ```
 
 ## Methods
 
 ```js
+// Sync when window.THREE is present; otherwise create() returns a Promise<instance|null>
 const chart = Strata.Chart.create('#myChart', options)
+
+Strata.Chart.load(url?)          // preload Three.js explicitly (defaults to threeUrl)
+Strata.Chart.destroyAll()        // destroy every mounted chart
 
 chart.toggleView()               // toggle between 2D and 3D
 chart.setView('3d')              // set specific view
@@ -181,7 +197,8 @@ The component uses two fixed camera presets:
 
 ## Known Limitations
 
-- Requires `window.THREE` — Three.js must be loaded before the chart script.
+- Requires Three.js. It is lazy-loaded on first `create()` if absent (so it need not be pre-loaded), but a chart cannot render until it arrives — when lazy-loading, `create()` resolves asynchronously.
+- Requires a WebGL context. `THREE.WebGLRenderer` is constructed without a fallback, so a device with WebGL unavailable/disabled will not render a chart.
 - Container element must have explicit `width` and `height` (or CSS dimensions). Zero-size containers produce a blank canvas.
 - Maximum 100,000 data points before performance degrades.
 - SSR/Node environments not supported — requires `window` and `document`.
