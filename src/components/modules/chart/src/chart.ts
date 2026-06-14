@@ -99,6 +99,10 @@ interface ChartOptions {
   onReady?:  (chart: StrataChart) => void
   onChange?: (view: ChartView) => void
   onClick?:  (point: { label: string; value: number; category: string; index: number }) => void
+
+  // Three.js is lazy-loaded from this URL if window.THREE is absent. Set to ''
+  // to require the host to pre-load it.
+  threeUrl?: string
 }
 
 interface OrbitControlsInstance {
@@ -115,7 +119,10 @@ interface OrbitControlsInstance {
 interface StrataNamespace { Chart: ChartPlugin }
 
 interface ChartPlugin {
-  create(selector: string | Element, options: ChartOptions): StrataChart | null
+  // Synchronous when window.THREE is present; otherwise lazy-loads Three.js and
+  // resolves to the instance (or null on failure).
+  create(selector: string | Element, options: ChartOptions): StrataChart | null | Promise<StrataChart | null>
+  load(url?: string): Promise<unknown>
   destroyAll(): void
 }
 
@@ -157,6 +164,8 @@ const CAMERA_2D      = { x: 0,   y: 2,   z: 22,  fov: 18 }
 const DEFAULT_COLORS = ['#4a90e2', '#e25f4a', '#50c878', '#f5a623', '#9b59b6', '#1abc9c']
 const VALID_TYPES    = ['bar', 'line', 'pie', 'scatter'] as ChartType[]
 const MAX_POINTS     = 100_000
+// Three.js is lazy-loaded on first chart creation if window.THREE is absent.
+const DEFAULT_THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js'
 const STRIP_HTML     = /<[^>]*>/g
 const SCALE_STEPS    = 5
 const GRID_COLOR_NORMAL    = 0xd4d4d4
@@ -1097,29 +1106,54 @@ class StrataChart {
 
 // ─── Bootstrap IIFE ───────────────────────────────────────────────────────────
 
-;(function (win: Window & typeof globalThis & { Strata?: Partial<StrataNamespace>; StrataChart?: Partial<StrataNamespace['Chart']> }) {
-  if (!(win as unknown as Record<string, unknown>)['THREE']) {
-    console.error('[Strata Chart] Three.js (window.THREE) is required. Load it before this script.')
-    return
+;(function (win: Window & typeof globalThis & { THREE?: unknown; Strata?: Partial<StrataNamespace>; StrataChart?: Partial<StrataNamespace['Chart']> }) {
+  // Lazy Three.js loader — fetched only on first chart creation if absent.
+  let threeCache: Promise<unknown> | null = null
+  function loadThree(url?: string): Promise<unknown> {
+    if (win.THREE) return Promise.resolve(win.THREE)
+    if (!url) return Promise.reject(new Error('[Strata Chart] Three.js not found and no threeUrl configured.'))
+    if (threeCache) return threeCache
+    threeCache = new Promise((resolve, reject) => {
+      const s = document.createElement('script')
+      s.src = url; s.async = true
+      s.onload  = () => { if (win.THREE) resolve(win.THREE); else { threeCache = null; reject(new Error('[Strata Chart] Three.js did not register after loading ' + url)) } }
+      s.onerror = () => { threeCache = null; reject(new Error('[Strata Chart] Failed to load ' + url)) }
+      document.head.appendChild(s)
+    })
+    return threeCache
   }
 
-  const api = {
-    create(selector: string | Element, options: ChartOptions): StrataChart | null {
-      const container = typeof selector === 'string' ? document.querySelector(selector) : selector as Element
-      if (!container) { console.error(`[Strata Chart] Element not found: ${String(selector)}`); return null }
-      if (registry.has(container)) {
-        console.warn('[Strata Chart] Chart already mounted here. Call .destroy() first.')
-        return registry.get(container)!
-      }
-      if (!Array.isArray(options?.data)) { console.error('[Strata Chart] options.data must be an array.'); return null }
-      if (options.type && !VALID_TYPES.includes(options.type)) {
-        console.error(`[Strata Chart] Invalid type "${options.type}". Use: ${VALID_TYPES.join(', ')}`)
-        return null
-      }
-      const instance = new StrataChart(container as HTMLElement, options)
-      registry.set(container, instance)
-      return instance
+  // Validate + construct. Assumes Three.js is present.
+  function build(selector: string | Element, options: ChartOptions): StrataChart | null {
+    const container = typeof selector === 'string' ? document.querySelector(selector) : selector as Element
+    if (!container) { console.error(`[Strata Chart] Element not found: ${String(selector)}`); return null }
+    if (registry.has(container)) {
+      console.warn('[Strata Chart] Chart already mounted here. Call .destroy() first.')
+      return registry.get(container)!
+    }
+    if (!Array.isArray(options?.data)) { console.error('[Strata Chart] options.data must be an array.'); return null }
+    if (options.type && !VALID_TYPES.includes(options.type)) {
+      console.error(`[Strata Chart] Invalid type "${options.type}". Use: ${VALID_TYPES.join(', ')}`)
+      return null
+    }
+    const instance = new StrataChart(container as HTMLElement, options)
+    registry.set(container, instance)
+    return instance
+  }
+
+  const api: ChartPlugin = {
+    // Synchronous + unchanged when Three.js is already present. If absent, it is
+    // lazy-loaded and create() returns a Promise<instance> (override the source
+    // with options.threeUrl, or '' to require pre-load).
+    create(selector: string | Element, options: ChartOptions): StrataChart | null | Promise<StrataChart | null> {
+      options = options || ({} as ChartOptions)
+      if (win.THREE) return build(selector, options)
+      const url = options.threeUrl === undefined ? DEFAULT_THREE_URL : options.threeUrl
+      return loadThree(url)
+        .then(() => build(selector, options))
+        .catch((err: Error) => { console.error(err.message || err); return null })
     },
+    load(url?: string): Promise<unknown> { return loadThree(url === undefined ? DEFAULT_THREE_URL : url) },
     destroyAll() { registry.forEach(inst => inst.destroy()) },
   }
 
