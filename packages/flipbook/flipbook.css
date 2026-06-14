@@ -1,0 +1,738 @@
+/**
+ * @strata-packages/flipbook — Standalone CSS
+ * Version: 1.5.0
+ *
+ * Usage:
+ *   Standalone : <link rel="stylesheet" href="flipbook.css">
+ *   With Strata: do NOT import this file — Strata provides the tokens.
+ *
+ * Strata detection:
+ *   Tokens scoped to :root:not([data-strata]) are suppressed when Strata is present.
+ */
+
+/* ─── Base tokens (standalone only) ──────────────────────────────────────── */
+
+:root:not([data-strata]) {
+  --st-bg:            #ffffff;
+  --st-bg-secondary:  #f8f9fa;
+  --st-text:          #212529;
+  --st-text-muted:    #6c757d;
+  --st-border:        #dee2e6;
+  --st-border-radius: 0.375rem;
+  --st-shadow-sm:     0 0.125rem 0.25rem rgba(0,0,0,0.075);
+  --st-shadow-lg:     0 1rem 3rem rgba(0,0,0,0.175);
+  --st-primary:       #0d6efd;
+  --st-duration:      200ms;
+  --st-easing:        cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-strata]) {
+    --st-bg:           #1e1e2e;
+    --st-bg-secondary: #2a2a3e;
+    --st-text:         #cdd6f4;
+    --st-text-muted:   #7f849c;
+    --st-border:       #45475a;
+  }
+}
+
+[data-st-theme="dark"]:not([data-strata])  { --st-bg: #1e1e2e; --st-bg-secondary: #2a2a3e; --st-text: #cdd6f4; --st-text-muted: #7f849c; --st-border: #45475a; }
+[data-st-theme="light"]:not([data-strata]) { --st-bg: #ffffff; --st-bg-secondary: #f8f9fa; --st-text: #212529; --st-text-muted: #6c757d; --st-border: #dee2e6; }
+
+/* ─── Flipbook tokens ─────────────────────────────────────────────────────── */
+
+:root {
+  --st-flip-max-width:    960px;
+  --st-flip-duration:     620ms;
+  --st-flip-easing:       cubic-bezier(0.645, 0.045, 0.355, 1);
+  --st-flip-perspective:  2400px;
+  --st-flip-page-bg:      var(--st-bg, #fff);
+  --st-flip-page-border:  var(--st-border, #dee2e6);
+  --st-flip-page-shadow:  var(--st-shadow-lg, 0 1rem 3rem rgba(0,0,0,0.175));
+  --st-flip-spine-shadow: rgba(0,0,0,0.18);
+  --st-flip-blank-bg:     var(--st-bg-secondary, #f8f9fa);
+  --st-flip-ctrl-bg:      var(--st-bg-secondary, #f8f9fa);
+  --st-flip-ctrl-border:  var(--st-border, #dee2e6);
+  --st-flip-ctrl-color:   var(--st-text, #212529);
+  --st-flip-ctrl-radius:  var(--st-border-radius, 0.375rem);
+}
+
+/* ─── Registered properties — enable smooth interpolation of the 3D turn ──── */
+/* --st-flip-angle : leaf rotation around the spine. 0deg = flat/unturned,    */
+/*                   −180deg = fully turned forward, +180deg = turned backward. */
+/* --st-flip-shade : 0–1 shading intensity, peaks edge-on at the mid-turn.     */
+
+@property --st-flip-angle {
+  syntax: '<angle>';
+  inherits: true;
+  initial-value: 0deg;
+}
+
+@property --st-flip-shade {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+/* ─── Keyframes ───────────────────────────────────────────────────────────── */
+
+@keyframes st-flip-fade-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes st-flip-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* ── Page-turn animations ───────────────────────────────────────────────────
+   The leaf rotates around the spine in 3D. Easing is applied via the animation
+   timing function; the registered --st-flip-angle property interpolates smoothly.
+   --st-flip-shade rises to a peak when the leaf is edge-on (mid-turn) so both
+   faces darken as they rotate away from the light, then settle flat.          */
+
+@keyframes st-flip-forward  { from { --st-flip-angle: 0deg; } to { --st-flip-angle: -180deg; } }
+@keyframes st-flip-backward { from { --st-flip-angle: 0deg; } to { --st-flip-angle:  180deg; } }
+
+/* Snap-complete: only specifies 'to' so CSS interpolates from current angle */
+@keyframes st-flip-complete-fwd { to { --st-flip-angle: -180deg; } }
+@keyframes st-flip-complete-bwd { to { --st-flip-angle:  180deg; } }
+
+/* Shading: dark at the edge-on midpoint, clear when flat */
+@keyframes st-flip-shade     { 0% { --st-flip-shade: 0; } 50% { --st-flip-shade: 0.55; } 100% { --st-flip-shade: 0; } }
+@keyframes st-flip-shade-out { to { --st-flip-shade: 0; } }
+
+/* ─── Root container ──────────────────────────────────────────────────────── */
+
+.st-flipbook {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            1.25rem;
+  width:          100%;
+  outline:        none;
+  user-select:    none;
+}
+
+.st-flipbook[data-st-flip-open="false"] .st-flipbook-scene { opacity: 0; pointer-events: none; }
+.st-flipbook[data-st-flip-open="true"]  .st-flipbook-scene {
+  animation: st-flip-fade-in 280ms var(--st-easing, ease) both;
+}
+
+/* ─── Scene & book ────────────────────────────────────────────────────────── */
+
+.st-flipbook-scene {
+  perspective: var(--st-flip-perspective);
+  width:       100%;
+  max-width:   var(--st-flip-max-width);
+  touch-action: pan-y;
+}
+
+.st-flipbook-book {
+  position:       relative;
+  width:          100%;
+  padding-bottom: 70.7%;   /* A4 × 2 landscape: aspect ≈ 1.414 wide */
+  box-shadow:     var(--st-flip-page-shadow);
+  border:         var(--st-flip-book-border, none);   /* preset frame; moved onto the cover when closed */
+  border-radius:  2px;
+  perspective:    var(--st-flip-perspective);   /* 3D depth for the leaf's rotation */
+}
+
+/* ─── Pages ───────────────────────────────────────────────────────────────── */
+
+.st-flipbook-page {
+  position:   absolute;
+  top:        0;
+  height:     100%;
+  width:      50%;
+  overflow:   hidden;
+  background: var(--st-flip-page-bg);
+}
+
+.st-flipbook-page-left  { left: 0;   border-radius: 2px 0 0 2px; border-right: 1px solid var(--st-flip-page-border); }
+.st-flipbook-page-right { left: 50%; border-radius: 0 2px 2px 0; border-left:  1px solid var(--st-flip-page-border); }
+
+/* Spine depth shadows */
+.st-flipbook-page-left::after {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 40px; height: 100%; pointer-events: none; z-index: 2;
+  background: linear-gradient(to left, var(--st-flip-spine-shadow) 0%, transparent 100%);
+}
+.st-flipbook-page-right::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 40px; height: 100%; pointer-events: none; z-index: 2;
+  background: linear-gradient(to right, var(--st-flip-spine-shadow) 0%, transparent 100%);
+}
+
+/* ─── Page texture system ──────────────────────────────────────────────────── */
+/* Texture pseudo-elements sit at z-index 1 — above page content (auto),       */
+/* below spine shadows and curl shading (z-index 2). Variables cascade from     */
+/* the preset class on the container element.                                   */
+.st-flipbook-page-left::before,
+.st-flipbook-page-right::after,
+.st-flipbook-flip-front::before,
+.st-flipbook-flip-back::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: var(--st-flip-page-texture, none);
+  background-size: var(--st-flip-texture-size, auto);
+  background-position: var(--st-flip-texture-pos, 0 0);
+  mix-blend-mode: var(--st-flip-texture-blend, normal);
+}
+
+/* Corner fold hints — four corners via drag zone ::before / ::after           */
+/* Gradient direction matches corner: triangle dark area is at the corner tip. */
+.st-flipbook-drag-zone::before,
+.st-flipbook-drag-zone::after {
+  content: ''; position: absolute; pointer-events: none;
+  width: 28px; height: 28px;
+  transition:
+    width  var(--st-duration, 200ms) ease,
+    height var(--st-duration, 200ms) ease,
+    filter var(--st-duration, 200ms) ease;
+}
+.st-flipbook-drag-zone:hover::before,
+.st-flipbook-drag-zone:hover::after {
+  width: 46px; height: 46px;
+}
+
+/* Bottom-right */
+.st-flipbook-drag-zone-right::after {
+  bottom: 0; right: 0;
+  background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.13) 50%);
+}
+.st-flipbook-drag-zone-right:hover::after {
+  background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.20) 50%);
+  filter: drop-shadow(-4px -4px 6px rgba(0,0,0,0.35));
+}
+
+/* Top-right */
+.st-flipbook-drag-zone-right::before {
+  top: 0; right: 0;
+  background: linear-gradient(45deg, transparent 50%, rgba(0,0,0,0.13) 50%);
+}
+.st-flipbook-drag-zone-right:hover::before {
+  background: linear-gradient(45deg, transparent 50%, rgba(0,0,0,0.20) 50%);
+  filter: drop-shadow(-4px 4px 6px rgba(0,0,0,0.35));
+}
+
+/* Bottom-left */
+.st-flipbook-drag-zone-left::after {
+  bottom: 0; left: 0;
+  background: linear-gradient(225deg, transparent 50%, rgba(0,0,0,0.13) 50%);
+}
+.st-flipbook-drag-zone-left:hover::after {
+  background: linear-gradient(225deg, transparent 50%, rgba(0,0,0,0.20) 50%);
+  filter: drop-shadow(4px -4px 6px rgba(0,0,0,0.35));
+}
+
+/* Top-left */
+.st-flipbook-drag-zone-left::before {
+  top: 0; left: 0;
+  background: linear-gradient(315deg, transparent 50%, rgba(0,0,0,0.13) 50%);
+}
+.st-flipbook-drag-zone-left:hover::before {
+  background: linear-gradient(315deg, transparent 50%, rgba(0,0,0,0.20) 50%);
+  filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.35));
+}
+
+.st-flipbook-page[data-st-flip-blank="true"],
+.st-flipbook-flip-front[data-st-flip-blank="true"],
+.st-flipbook-flip-back[data-st-flip-blank="true"] { background: var(--st-flip-blank-bg); }
+
+/* Page content fills container */
+.st-flipbook-page > *,
+.st-flipbook-flip-front > *,
+.st-flipbook-flip-back > * { width: 100%; height: 100%; }
+
+.st-flipbook-page canvas,   .st-flipbook-page img,
+.st-flipbook-flip-front canvas, .st-flipbook-flip-front img,
+.st-flipbook-flip-back canvas,  .st-flipbook-flip-back img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+}
+
+/* ─── Flip page (3D leaf) ─────────────────────────────────────────────────── */
+/* The leaf is a single rigid panel hinged at the spine. It carries two faces  */
+/* — front (the page leaving) and back (the page arriving) — and rotates in 3D */
+/* through the scene's perspective. backface-visibility hides whichever face is */
+/* turned away, so the front shows for the first 90° and the back for the rest. */
+
+.st-flipbook-flip-page {
+  position:        absolute;
+  top:             0;
+  height:          100%;
+  width:           50%;
+  visibility:      hidden;
+  pointer-events:  none;
+  z-index:         10;
+  transform-style: preserve-3d;
+  will-change:     transform;
+}
+
+[data-st-flip-direction] .st-flipbook-flip-page { visibility: visible; }
+
+/* Forward: leaf is the RIGHT half, hinged on its left edge (the spine).        */
+/* Backward: leaf is the LEFT half, hinged on its right edge (the spine).       */
+/* The skewY adds an organic twist: grabbing a corner shears the leaf so that   */
+/* corner leads and the opposite one lags (a real page never turns dead flat).  */
+/* The shear tracks --st-flip-shade (0 at rest → peak edge-on → 0), scaled by   */
+/* --st-flip-skew-k whose sign/size depends on the grabbed corner.              */
+.st-flipbook {
+  --st-flip-skew-k: 0deg;
+  --st-flip-bow-ct: 0%;    /* top free-corner pinch    */
+  --st-flip-bow-t:  8%;    /* bow depth near top  (26%) */
+  --st-flip-bow-m: 13%;    /* bow depth mid       (52%) */
+  --st-flip-bow-b:  7%;    /* bow depth near btm  (78%) */
+  --st-flip-bow-cb: 0%;    /* bottom free-corner pinch */
+}
+
+[data-st-flip-direction="forward"] .st-flipbook-flip-page {
+  left: 50%;
+  transform-origin: left center;
+  transform: rotateY(var(--st-flip-angle, 0deg)) skewY(calc(var(--st-flip-shade, 0) * var(--st-flip-skew-k, 0deg)));
+}
+[data-st-flip-direction="backward"] .st-flipbook-flip-page {
+  left: 0;
+  transform-origin: right center;
+  transform: rotateY(var(--st-flip-angle, 0deg)) skewY(calc(var(--st-flip-shade, 0) * var(--st-flip-skew-k, 0deg)));
+}
+
+/* Grab point sets the shear: bottom corner leads downward, top corner upward,  */
+/* a side grab turns straight (no shear). Backward mirrors the sign.            */
+[data-st-flip-grab="bottom"][data-st-flip-direction="forward"]  { --st-flip-skew-k:  16deg; }
+[data-st-flip-grab="top"][data-st-flip-direction="forward"]     { --st-flip-skew-k: -16deg; }
+[data-st-flip-grab="bottom"][data-st-flip-direction="backward"] { --st-flip-skew-k: -16deg; }
+[data-st-flip-grab="top"][data-st-flip-direction="backward"]    { --st-flip-skew-k:  16deg; }
+
+[data-st-flip-direction="forward"][data-st-flip-turning="true"] .st-flipbook-flip-page {
+  animation: st-flip-forward var(--st-flip-duration) var(--st-flip-easing) forwards,
+             st-flip-shade   var(--st-flip-duration) ease-in-out          forwards;
+}
+[data-st-flip-direction="forward"][data-st-flip-completing="true"] .st-flipbook-flip-page {
+  animation: st-flip-complete-fwd calc(var(--st-flip-duration) * 0.55) ease-out forwards,
+             st-flip-shade-out    calc(var(--st-flip-duration) * 0.55) ease-out forwards;
+}
+[data-st-flip-direction="backward"][data-st-flip-turning="true"] .st-flipbook-flip-page {
+  animation: st-flip-backward var(--st-flip-duration) var(--st-flip-easing) forwards,
+             st-flip-shade    var(--st-flip-duration) ease-in-out          forwards;
+}
+[data-st-flip-direction="backward"][data-st-flip-completing="true"] .st-flipbook-flip-page {
+  animation: st-flip-complete-bwd calc(var(--st-flip-duration) * 0.55) ease-out forwards,
+             st-flip-shade-out    calc(var(--st-flip-duration) * 0.55) ease-out forwards;
+}
+
+/* ── Front & back faces ───────────────────────────────────────────────────── */
+/* Both faces fill the leaf. The back is pre-rotated 180° so its content reads  */
+/* the right way round once the leaf has flipped over.                          */
+
+.st-flipbook-flip-front,
+.st-flipbook-flip-back {
+  position: absolute; inset: 0;
+  overflow: hidden;
+  background: var(--st-flip-page-bg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.st-flipbook-flip-front { z-index: 2; }
+.st-flipbook-flip-back  { z-index: 1; transform: rotateY(180deg); }
+
+.st-flipbook-flip-front > *,
+.st-flipbook-flip-back  > * { pointer-events: none; }
+
+/* ── Bowed silhouette ─────────────────────────────────────────────────────── */
+/* The free edge (away from the spine) curves inward as the leaf lifts, so the  */
+/* page reads as a bending sheet rather than a straight-edged flat panel. Depth  */
+/* tracks --st-flip-shade (flat at rest, max bow edge-on). The hinge edge stays  */
+/* straight. Front and back bow opposite edges because the back is rotateY(180). */
+[data-st-flip-direction="forward"]  .st-flipbook-flip-back,
+[data-st-flip-direction="backward"] .st-flipbook-flip-front {
+  clip-path: polygon(
+    100% 0%, 100% 100%,
+    calc(var(--st-flip-shade,0) * var(--st-flip-bow-cb)) 100%,
+    calc(var(--st-flip-shade,0) * var(--st-flip-bow-b))  78%,
+    calc(var(--st-flip-shade,0) * var(--st-flip-bow-m))  52%,
+    calc(var(--st-flip-shade,0) * var(--st-flip-bow-t))  26%,
+    calc(var(--st-flip-shade,0) * var(--st-flip-bow-ct)) 0%
+  );
+}
+
+/* Curl concentrates at the grabbed corner: deepen its bow + pinch its tip.   */
+/* Grab-only (no direction) — works for both forward and backward turns.      */
+[data-st-flip-grab="bottom"] {
+  --st-flip-bow-t:   3%;
+  --st-flip-bow-m:  10%;
+  --st-flip-bow-b:  18%;
+}
+/* A top grab keeps the neutral (symmetric) bow + lean only: the deep top bow     */
+/* exposed a cream edge sliver after the leaf flipped, and the upward skew lifted  */
+/* the corner past the page bounds — so the dog-ear curl is bottom-grab only.      */
+
+[data-st-flip-direction="forward"]  .st-flipbook-flip-front,
+[data-st-flip-direction="backward"] .st-flipbook-flip-back {
+  clip-path: polygon(
+    0% 0%,
+    calc(100% - var(--st-flip-shade,0) * var(--st-flip-bow-ct)) 0%,
+    calc(100% - var(--st-flip-shade,0) * var(--st-flip-bow-t))  26%,
+    calc(100% - var(--st-flip-shade,0) * var(--st-flip-bow-m))  52%,
+    calc(100% - var(--st-flip-shade,0) * var(--st-flip-bow-b))  78%,
+    calc(100% - var(--st-flip-shade,0) * var(--st-flip-bow-cb)) 100%,
+    0% 100%
+  );
+}
+
+/* ── Corner curl (dog-ear) ────────────────────────────────────────────────── */
+/* The grabbed free corner folds back over itself, revealing a shaded triangle  */
+/* of the page underside. It rides the LEAF's ::after (the only free pseudo —     */
+/* both faces' ::before/::after are taken by texture + shading), so it sits on    */
+/* the page plane, skews/rotates with the leaf, and is NOT clipped by the face    */
+/* bow. Size tracks --st-flip-shade (animated on the leaf during keyframe turns,  */
+/* set on the container during drag — both inherit to the leaf) so the fold grows */
+/* as the corner lifts and eases out edge-on. Only top/bottom grabs curl.         */
+.st-flipbook-flip-page::after {
+  content: '';
+  position: absolute;
+  width:  0;                        /* no curl until a top/bottom grab sizes it */
+  aspect-ratio: 1;
+  pointer-events: none;
+  z-index: 4;                       /* above the face shading (z 3) */
+  filter: drop-shadow(0 3px 5px rgba(0,0,0,0.32));
+  /* Faces the same way as the front face, so it hides once the leaf passes 90°  */
+  /* — the curl shows only during the peel (first half), never mirrored on the   */
+  /* arriving page in the second half.                                           */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+[data-st-flip-grab="bottom"] .st-flipbook-flip-page::after {
+  width: calc(var(--st-flip-shade, 0) * 26%);
+}
+
+/* Pin the flap to the grabbed free corner and fold it (clip = corner triangle,  */
+/* crease along the hypotenuse, light at the lifted tip). Free edge is the RIGHT  */
+/* on a forward turn, the LEFT on a backward turn.                                */
+[data-st-flip-grab="bottom"][data-st-flip-direction="forward"] .st-flipbook-flip-page::after {
+  right: 0; bottom: 0;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  background: linear-gradient(to bottom right,
+    rgba(0,0,0,0.36) 0%, var(--st-flip-page-bg) 55%, rgba(255,255,255,0.20) 100%);
+}
+[data-st-flip-grab="bottom"][data-st-flip-direction="backward"] .st-flipbook-flip-page::after {
+  left: 0; bottom: 0;
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+  background: linear-gradient(to bottom left,
+    rgba(0,0,0,0.36) 0%, var(--st-flip-page-bg) 55%, rgba(255,255,255,0.20) 100%);
+}
+
+/* ── Face shading ─────────────────────────────────────────────────────────── */
+/* A gradient overlay whose opacity tracks --st-flip-shade. It deepens toward   */
+/* the spine (the hinge stays in shadow as the leaf lifts) and peaks edge-on.   */
+
+.st-flipbook-flip-front::after,
+.st-flipbook-flip-back::before {
+  content: ''; position: absolute; inset: 0;
+  pointer-events: none; z-index: 3;
+  opacity: var(--st-flip-shade, 0);
+}
+/* A cylindrical light profile across the page width: deep shadow at the spine  */
+/* (the gutter), easing into a bright sheen band where the curved surface faces  */
+/* the light, then darkening again at the free edge as the sheet bends away.    */
+/* This dark→light→dark wrap is what reads as a curved page rather than a flat   */
+/* panel. Forward hinges left (sheen ~68%); backward mirrors; backs are mirrored.*/
+[data-st-flip-direction="forward"]  .st-flipbook-flip-front::after { background: linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.10) 24%, rgba(255,255,255,0.32) 64%, rgba(255,255,255,0.04) 84%, rgba(0,0,0,0.30) 100%); }
+[data-st-flip-direction="forward"]  .st-flipbook-flip-back::before { background: linear-gradient(to left,  rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.10) 24%, rgba(255,255,255,0.26) 64%, rgba(255,255,255,0.04) 84%, rgba(0,0,0,0.30) 100%); }
+[data-st-flip-direction="backward"] .st-flipbook-flip-front::after { background: linear-gradient(to left,  rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.10) 24%, rgba(255,255,255,0.32) 64%, rgba(255,255,255,0.04) 84%, rgba(0,0,0,0.30) 100%); }
+[data-st-flip-direction="backward"] .st-flipbook-flip-back::before { background: linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.10) 24%, rgba(255,255,255,0.26) 64%, rgba(255,255,255,0.04) 84%, rgba(0,0,0,0.30) 100%); }
+
+/* ── Cast shadow on the spread beneath the lifting leaf ───────────────────── */
+/* A soft shadow over the half the leaf is sweeping across, fading with shade.  */
+
+.st-flipbook-book::before {
+  content: ''; position: absolute; top: 0; height: 100%; width: 55%;
+  pointer-events: none; z-index: 5; opacity: 0;
+}
+[data-st-flip-direction="forward"] .st-flipbook-book::before {
+  left: 0; right: auto;
+  opacity: calc(var(--st-flip-shade, 0) * 0.8);
+  background: linear-gradient(to right, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.10) 35%, transparent 80%);
+}
+[data-st-flip-direction="backward"] .st-flipbook-book::before {
+  right: 0; left: auto;
+  opacity: calc(var(--st-flip-shade, 0) * 0.8);
+  background: linear-gradient(to left, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.10) 35%, transparent 80%);
+}
+
+/* ─── Drag zones ──────────────────────────────────────────────────────────── */
+
+.st-flipbook-drag-zone {
+  position: absolute; top: 0; bottom: 0;
+  width: 80px;
+  z-index: 11;
+  cursor: grab;
+  transition: background var(--st-duration, 200ms) ease;
+}
+.st-flipbook-drag-zone:active  { cursor: grabbing; }
+.st-flipbook-drag-zone-right   { right: 0; }
+.st-flipbook-drag-zone-left    { left: 0; }
+.st-flipbook-drag-zone-right:hover { background: linear-gradient(to left,  rgba(0,0,0,0.06) 0%, transparent 100%); }
+.st-flipbook-drag-zone-left:hover  { background: linear-gradient(to right, rgba(0,0,0,0.06) 0%, transparent 100%); }
+
+[data-st-flip-turning="true"]  .st-flipbook-drag-zone,
+[data-st-flip-dragging="true"] .st-flipbook-drag-zone { display: none; }
+[data-st-flip-layout="single"] .st-flipbook-drag-zone { display: none; }
+
+/* ─── Loading ─────────────────────────────────────────────────────────────── */
+
+.st-flipbook[data-st-flip-loading="true"] .st-flipbook-scene  { pointer-events: none; }
+.st-flipbook[data-st-flip-loading="true"] .st-flipbook-controls { opacity: 0.5; pointer-events: none; }
+.st-flipbook[data-st-flip-loading="true"] .st-flipbook-book::after {
+  content: ''; position: absolute; inset: 0; border-radius: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: st-flip-shimmer 1.4s ease-in-out infinite;
+}
+/* When the book is closed (solo), the shimmer must stay on the visible cover     */
+/* half — the full-width book overlay would otherwise light up the hidden facing  */
+/* page. Confine it to the cover's half (right for a front cover, left for back). */
+.st-flipbook[data-st-flip-loading="true"][data-st-flip-solo="right"] .st-flipbook-book::after { left: 50%; }
+.st-flipbook[data-st-flip-loading="true"][data-st-flip-solo="left"]  .st-flipbook-book::after { right: 50%; }
+
+/* ─── Controls bar ────────────────────────────────────────────────────────── */
+
+.st-flipbook-controls {
+  display: flex; align-items: center; gap: 0.5rem;
+  background: var(--st-flip-ctrl-bg);
+  border: 1px solid var(--st-flip-ctrl-border);
+  border-radius: var(--st-flip-ctrl-radius);
+  padding: 0.375rem 0.75rem;
+  box-shadow: var(--st-shadow-sm, 0 2px 4px rgba(0,0,0,0.075));
+}
+
+.st-flipbook-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: none;
+  border-radius: calc(var(--st-flip-ctrl-radius) - 2px);
+  color: var(--st-flip-ctrl-color); cursor: pointer; padding: 0.3rem 0.5rem;
+  transition: background var(--st-duration, 200ms) ease, opacity var(--st-duration, 200ms) ease;
+}
+.st-flipbook-btn:hover:not(:disabled) { background: var(--st-border, #dee2e6); }
+.st-flipbook-btn:focus-visible { outline: 2px solid var(--st-primary, #0d6efd); outline-offset: 2px; }
+.st-flipbook-btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+
+.st-flipbook-counter {
+  font-size: 0.8125rem; color: var(--st-text-muted, #6c757d);
+  min-width: 5ch; text-align: center; user-select: none;
+}
+
+.st-flipbook-page-input {
+  width: 3.5rem; padding: 0.2rem 0.4rem; text-align: center;
+  font-size: 0.8125rem; border: 1px solid var(--st-flip-ctrl-border);
+  border-radius: calc(var(--st-flip-ctrl-radius) - 2px);
+  background: var(--st-bg, #fff); color: var(--st-text, #212529);
+  -moz-appearance: textfield;
+}
+.st-flipbook-page-input::-webkit-outer-spin-button,
+.st-flipbook-page-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.st-flipbook-page-input:focus { outline: 2px solid var(--st-primary, #0d6efd); outline-offset: 1px; }
+
+.st-flipbook-btn-mute[data-st-flip-muted="true"] { opacity: 0.45; }
+
+/* ─── Dots pagination ─────────────────────────────────────────────────────── */
+
+.st-flipbook-dots {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.375rem;
+}
+
+.st-flipbook-dot {
+  width: 8px; height: 8px; border-radius: 50%; padding: 0;
+  background: var(--st-flip-ctrl-border, #dee2e6); border: none; cursor: pointer;
+  transition: background var(--st-duration, 200ms) ease, transform var(--st-duration, 200ms) ease;
+}
+.st-flipbook-dot:hover { background: var(--st-text-muted, #6c757d); }
+.st-flipbook-dot[data-st-flip-active="true"] {
+  background: var(--st-primary, #0d6efd); transform: scale(1.35);
+}
+
+/* ─── Thumbnails pagination ───────────────────────────────────────────────── */
+
+.st-flipbook-thumbs {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center;
+  padding: 0.6rem; max-width: var(--st-flip-max-width); width: 100%;
+  background: var(--st-flip-ctrl-bg);
+  border: 1px solid var(--st-flip-ctrl-border);
+  border-radius: var(--st-flip-ctrl-radius);
+  overflow-x: auto;
+}
+
+.st-flipbook-thumb {
+  display: flex; align-items: stretch;
+  width: 72px; height: 50px; flex-shrink: 0; padding: 0;
+  border: 2px solid var(--st-flip-ctrl-border); border-radius: 2px;
+  background: var(--st-flip-page-bg); overflow: hidden; cursor: pointer;
+  transition: border-color var(--st-duration, 200ms) ease, transform var(--st-duration, 200ms) ease, box-shadow var(--st-duration, 200ms) ease;
+}
+.st-flipbook-thumb:hover { border-color: var(--st-primary, #0d6efd); transform: translateY(-2px); }
+.st-flipbook-thumb[data-st-flip-active="true"] {
+  border-color: var(--st-primary, #0d6efd);
+  box-shadow: 0 0 0 2px var(--st-primary, #0d6efd);
+}
+
+.st-flipbook-thumb-l,
+.st-flipbook-thumb-r {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; color: var(--st-text-muted, #6c757d);
+  border-right: 1px solid var(--st-flip-ctrl-border);
+}
+.st-flipbook-thumb-r { border-right: none; border-left: 1px solid var(--st-flip-ctrl-border); }
+
+/* ─── Single-page layout (set by ResizeObserver on narrow containers) ─────── */
+
+[data-st-flip-layout="single"] .st-flipbook-book  { padding-bottom: 141.4%; }
+[data-st-flip-layout="single"] .st-flipbook-page-left { display: none; }
+[data-st-flip-layout="single"] .st-flipbook-page-right {
+  left: 0; width: 100%; border-left: none; border-radius: 2px;
+}
+/* Single layout: the leaf is the whole page, hinged on the edge it turns from. */
+[data-st-flip-layout="single"] .st-flipbook-flip-page { width: 100%; left: 0; }
+[data-st-flip-layout="single"][data-st-flip-direction="forward"]  .st-flipbook-flip-page { transform-origin: left center; }
+[data-st-flip-layout="single"][data-st-flip-direction="backward"] .st-flipbook-flip-page { transform-origin: right center; }
+[data-st-flip-layout="single"] .st-flipbook-scene { touch-action: none; }
+
+/* ─── Presets ─────────────────────────────────────────────────────────────── */
+
+/* notebook — ruled horizontal lines (default preset) */
+.st-flipbook--notebook {
+  --st-flip-page-texture: repeating-linear-gradient(
+    0deg,
+    transparent 0px, transparent 29px,
+    rgba(100,150,210,0.2) 29px, rgba(100,150,210,0.2) 30px
+  );
+}
+
+/* magazine — landscape, glossy, dramatic shadow */
+.st-flipbook--magazine .st-flipbook-book {
+  padding-bottom: 38%;
+  --st-flip-page-shadow: 0 2rem 6rem rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.2);
+}
+.st-flipbook--magazine .st-flipbook-scene { perspective: 2000px; }
+.st-flipbook--magazine {
+  --st-flip-page-texture: linear-gradient(
+    155deg,
+    transparent 0%, transparent 28%,
+    rgba(255,255,255,0.28) 36%, rgba(255,255,255,0.08) 44%,
+    transparent 52%
+  );
+  --st-flip-texture-blend: soft-light;
+}
+
+/* paperback — portrait, cream pages, warm feel */
+.st-flipbook--paperback .st-flipbook-book {
+  padding-bottom: 86%;
+  --st-flip-page-bg:      #fffef0;
+  --st-flip-blank-bg:     #f5f0e0;
+  --st-flip-spine-shadow: rgba(100,60,20,0.22);
+}
+.st-flipbook--paperback {
+  --st-flip-page-texture:
+    repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.022) 2px, rgba(0,0,0,0.022) 3px),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 2px, rgba(0,0,0,0.022) 2px, rgba(0,0,0,0.022) 3px);
+  --st-flip-texture-blend: multiply;
+}
+
+/* hardcover — portrait, heavier shadow, thicker visual weight */
+.st-flipbook--hardcover .st-flipbook-book {
+  padding-bottom: 78%;
+  --st-flip-page-bg:     #f8f4e8;
+  --st-flip-blank-bg:    #e8e0cc;
+  --st-flip-page-shadow: 0 2rem 8rem rgba(0,0,0,0.45), 0 0.5rem 2rem rgba(0,0,0,0.25);
+  --st-flip-book-border: 6px solid #2c2218;
+  border-radius: 4px;
+}
+.st-flipbook--hardcover .st-flipbook-scene { perspective: 1800px; }
+.st-flipbook--hardcover .st-flipbook-page-left  { border-radius: 0; }
+.st-flipbook--hardcover .st-flipbook-page-right { border-radius: 0; }
+.st-flipbook--hardcover {
+  --st-flip-page-texture:
+    repeating-linear-gradient(0deg, transparent 0px, transparent 4px, rgba(0,0,0,0.038) 4px, rgba(0,0,0,0.038) 5px),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 4px, rgba(0,0,0,0.038) 4px, rgba(0,0,0,0.038) 5px);
+  --st-flip-texture-blend: multiply;
+}
+
+/* comic — high contrast, slightly off-white, bold border */
+.st-flipbook--comic .st-flipbook-book {
+  padding-bottom: 92%;
+  --st-flip-page-bg:      #faf6f0;
+  --st-flip-blank-bg:     #ede8df;
+  --st-flip-page-border:  #444;
+  --st-flip-spine-shadow: rgba(0,0,0,0.35);
+  --st-flip-book-border: 3px solid #222;
+  border-radius: 3px;
+}
+.st-flipbook--comic {
+  --st-flip-page-texture:
+    radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px),
+    radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+  --st-flip-texture-size: 5px 5px, 5px 5px;
+  --st-flip-texture-pos:  0 0, 2.5px 2.5px;
+  --st-flip-texture-blend: multiply;
+}
+
+/* minimal — flat, no shadow, very subtle spine, no texture */
+.st-flipbook--minimal .st-flipbook-book {
+  --st-flip-page-shadow:  none;
+  --st-flip-spine-shadow: rgba(0,0,0,0.06);
+  box-shadow: none;
+  --st-flip-book-border: 1px solid var(--st-flip-page-border);
+}
+.st-flipbook--minimal .st-flipbook-page-left::after,
+.st-flipbook--minimal .st-flipbook-page-right::before { display: none; }
+.st-flipbook--minimal {
+  --st-flip-page-texture: none;
+}
+
+/* ─── Closed-book state ───────────────────────────────────────────────────── */
+/* The book stays full-width; the single cover is shown centred (the blank      */
+/* facing page is hidden) by shifting the book half a page. The cover keeps its */
+/* exact size, so opening — which drops the solo attribute (see JS) and lets    */
+/* the book glide back to centre while the cover turns — has no layout shift.   */
+
+[data-st-flip-mode="closed"] .st-flipbook-book {
+  transition: transform var(--st-flip-duration, 620ms) var(--st-flip-easing, ease);
+}
+
+/* Solo-right: front cover only — hide the blank left page, centre the cover.   */
+/* The stacked offset box-shadows on the fore-edge give the closed book real    */
+/* page thickness, so a cover (e.g. a brochure front) reads as a closed book.   */
+/* Drop the preset frame from the full-width book (it would outline the empty     */
+/* facing half) and wrap it around the visible cover instead, so a closed         */
+/* hardcover/comic/minimal reads as a single framed cover, not a bordered box.    */
+[data-st-flip-solo="right"] .st-flipbook-book,
+[data-st-flip-solo="left"]  .st-flipbook-book { border-color: transparent; }
+[data-st-flip-solo="right"] .st-flipbook-page-right,
+[data-st-flip-solo="left"]  .st-flipbook-page-left { box-sizing: border-box; border: var(--st-flip-book-border, none); }
+
+[data-st-flip-solo="right"] .st-flipbook-page-left   { display: none; }
+[data-st-flip-solo="right"] .st-flipbook-book        { transform: translateX(-25%); box-shadow: none; }
+[data-st-flip-solo="right"] .st-flipbook-page-right  {
+  border-left: none; border-radius: 2px;
+  box-shadow:
+    var(--st-flip-page-shadow),
+    4px 0 0 -1px var(--st-flip-page-bg), 5px 0 0 -1px rgba(0,0,0,0.10),
+    8px 0 0 -2px var(--st-flip-page-bg), 9px 0 0 -2px rgba(0,0,0,0.09),
+    12px 0 0 -3px var(--st-flip-page-bg), 13px 0 0 -3px rgba(0,0,0,0.08);
+}
+[data-st-flip-solo="right"] .st-flipbook-page-right::before { display: none; }
+
+/* Solo-left: back cover only — hide the blank right page, centre the cover.    */
+[data-st-flip-solo="left"] .st-flipbook-page-right { display: none; }
+[data-st-flip-solo="left"] .st-flipbook-book       { transform: translateX(25%); box-shadow: none; }
+[data-st-flip-solo="left"] .st-flipbook-page-left  {
+  border-right: none; border-radius: 2px;
+  box-shadow:
+    var(--st-flip-page-shadow),
+    -4px 0 0 -1px var(--st-flip-page-bg), -5px 0 0 -1px rgba(0,0,0,0.10),
+    -8px 0 0 -2px var(--st-flip-page-bg), -9px 0 0 -2px rgba(0,0,0,0.09),
+    -12px 0 0 -3px var(--st-flip-page-bg), -13px 0 0 -3px rgba(0,0,0,0.08);
+}
+[data-st-flip-solo="left"] .st-flipbook-page-left::after { display: none; }

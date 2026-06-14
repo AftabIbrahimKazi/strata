@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.2.7] — 2026-06-15
+
+### Fixed
+- **Components bundle (`dist/strata.components.js`) now creates the `Strata` namespace.** Each component's UMD wrapper attaches to `Strata.*` only `if (root.Strata)` exists, but the bundle never initialised it — so every component fell back to its own global (`StrataChart`, `StrataModal`, …) and `window.Strata` was never defined, breaking all `Strata.Chart.create(...)` / `Strata.Modal.open(...)` usage (e.g. blank charts in `examples/chart.html`). The bundle banner (`bin/strata.js`) now initialises `Strata` before the wrappers run.
+
+---
+
 ## [1.2.6] — 2026-06-05
 
 ### Docs

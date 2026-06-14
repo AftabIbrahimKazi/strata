@@ -57,6 +57,8 @@ const CAMERA_2D = { x: 0, y: 2, z: 22, fov: 18 };
 const DEFAULT_COLORS = ['#4a90e2', '#e25f4a', '#50c878', '#f5a623', '#9b59b6', '#1abc9c'];
 const VALID_TYPES = ['bar', 'line', 'pie', 'scatter'];
 const MAX_POINTS = 100000;
+// Three.js is lazy-loaded on first chart creation if window.THREE is absent.
+const DEFAULT_THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
 const STRIP_HTML = /<[^>]*>/g;
 const SCALE_STEPS = 5;
 const GRID_COLOR_NORMAL = 0xd4d4d4;
@@ -883,33 +885,67 @@ class StrataChart {
 // ─── Bootstrap IIFE ───────────────────────────────────────────────────────────
 ;
 (function (win) {
-    if (!win['THREE']) {
-        console.error('[Strata Chart] Three.js (window.THREE) is required. Load it before this script.');
-        return;
+    // Lazy Three.js loader — fetched only on first chart creation if absent.
+    let threeCache = null;
+    function loadThree(url) {
+        if (win.THREE)
+            return Promise.resolve(win.THREE);
+        if (!url)
+            return Promise.reject(new Error('[Strata Chart] Three.js not found and no threeUrl configured.'));
+        if (threeCache)
+            return threeCache;
+        threeCache = new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = url;
+            s.async = true;
+            s.onload = () => { if (win.THREE)
+                resolve(win.THREE);
+            else {
+                threeCache = null;
+                reject(new Error('[Strata Chart] Three.js did not register after loading ' + url));
+            } };
+            s.onerror = () => { threeCache = null; reject(new Error('[Strata Chart] Failed to load ' + url)); };
+            document.head.appendChild(s);
+        });
+        return threeCache;
+    }
+    // Validate + construct. Assumes Three.js is present.
+    function build(selector, options) {
+        const container = typeof selector === 'string' ? document.querySelector(selector) : selector;
+        if (!container) {
+            console.error(`[Strata Chart] Element not found: ${String(selector)}`);
+            return null;
+        }
+        if (registry.has(container)) {
+            console.warn('[Strata Chart] Chart already mounted here. Call .destroy() first.');
+            return registry.get(container);
+        }
+        if (!Array.isArray(options === null || options === void 0 ? void 0 : options.data)) {
+            console.error('[Strata Chart] options.data must be an array.');
+            return null;
+        }
+        if (options.type && !VALID_TYPES.includes(options.type)) {
+            console.error(`[Strata Chart] Invalid type "${options.type}". Use: ${VALID_TYPES.join(', ')}`);
+            return null;
+        }
+        const instance = new StrataChart(container, options);
+        registry.set(container, instance);
+        return instance;
     }
     const api = {
+        // Synchronous + unchanged when Three.js is already present. If absent, it is
+        // lazy-loaded and create() returns a Promise<instance> (override the source
+        // with options.threeUrl, or '' to require pre-load).
         create(selector, options) {
-            const container = typeof selector === 'string' ? document.querySelector(selector) : selector;
-            if (!container) {
-                console.error(`[Strata Chart] Element not found: ${String(selector)}`);
-                return null;
-            }
-            if (registry.has(container)) {
-                console.warn('[Strata Chart] Chart already mounted here. Call .destroy() first.');
-                return registry.get(container);
-            }
-            if (!Array.isArray(options === null || options === void 0 ? void 0 : options.data)) {
-                console.error('[Strata Chart] options.data must be an array.');
-                return null;
-            }
-            if (options.type && !VALID_TYPES.includes(options.type)) {
-                console.error(`[Strata Chart] Invalid type "${options.type}". Use: ${VALID_TYPES.join(', ')}`);
-                return null;
-            }
-            const instance = new StrataChart(container, options);
-            registry.set(container, instance);
-            return instance;
+            options = options || {};
+            if (win.THREE)
+                return build(selector, options);
+            const url = options.threeUrl === undefined ? DEFAULT_THREE_URL : options.threeUrl;
+            return loadThree(url)
+                .then(() => build(selector, options))
+                .catch((err) => { console.error(err.message || err); return null; });
         },
+        load(url) { return loadThree(url === undefined ? DEFAULT_THREE_URL : url); },
         destroyAll() { registry.forEach(inst => inst.destroy()); },
     };
     if (win.Strata) {
