@@ -183,61 +183,6 @@
   mix-blend-mode: var(--st-flip-texture-blend, normal);
 }
 
-/* Corner fold hints — four corners via drag zone ::before / ::after           */
-/* Gradient direction matches corner: triangle dark area is at the corner tip. */
-.st-flipbook-drag-zone::before,
-.st-flipbook-drag-zone::after {
-  content: ''; position: absolute; pointer-events: none;
-  width: 28px; height: 28px;
-  transition:
-    width  var(--st-duration, 200ms) ease,
-    height var(--st-duration, 200ms) ease,
-    filter var(--st-duration, 200ms) ease;
-}
-.st-flipbook-drag-zone:hover::before,
-.st-flipbook-drag-zone:hover::after {
-  width: 46px; height: 46px;
-}
-
-/* Bottom-right */
-.st-flipbook-drag-zone-right::after {
-  bottom: 0; right: 0;
-  background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.13) 50%);
-}
-.st-flipbook-drag-zone-right:hover::after {
-  background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.20) 50%);
-  filter: drop-shadow(-4px -4px 6px rgba(0,0,0,0.35));
-}
-
-/* Top-right */
-.st-flipbook-drag-zone-right::before {
-  top: 0; right: 0;
-  background: linear-gradient(45deg, transparent 50%, rgba(0,0,0,0.13) 50%);
-}
-.st-flipbook-drag-zone-right:hover::before {
-  background: linear-gradient(45deg, transparent 50%, rgba(0,0,0,0.20) 50%);
-  filter: drop-shadow(-4px 4px 6px rgba(0,0,0,0.35));
-}
-
-/* Bottom-left */
-.st-flipbook-drag-zone-left::after {
-  bottom: 0; left: 0;
-  background: linear-gradient(225deg, transparent 50%, rgba(0,0,0,0.13) 50%);
-}
-.st-flipbook-drag-zone-left:hover::after {
-  background: linear-gradient(225deg, transparent 50%, rgba(0,0,0,0.20) 50%);
-  filter: drop-shadow(4px -4px 6px rgba(0,0,0,0.35));
-}
-
-/* Top-left */
-.st-flipbook-drag-zone-left::before {
-  top: 0; left: 0;
-  background: linear-gradient(315deg, transparent 50%, rgba(0,0,0,0.13) 50%);
-}
-.st-flipbook-drag-zone-left:hover::before {
-  background: linear-gradient(315deg, transparent 50%, rgba(0,0,0,0.20) 50%);
-  filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.35));
-}
 
 .st-flipbook-page[data-st-flip-blank="true"],
 .st-flipbook-flip-front[data-st-flip-blank="true"],
