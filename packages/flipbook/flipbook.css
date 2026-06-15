@@ -589,6 +589,11 @@
 /* ─── Single-page layout (set by ResizeObserver on narrow containers) ─────── */
 
 [data-st-flip-layout="single"] .st-flipbook-book  { padding-bottom: 141.4%; }
+/* In single-page layout the book is already one full-width page, so the closed-  */
+/* book half-page centring shift (translateX on the solo state) must not apply —  */
+/* it would push the page off-centre / off-screen. Selector is more specific than */
+/* the [data-st-flip-solo] rule so it wins regardless of source order.            */
+[data-st-flip-layout="single"][data-st-flip-solo] .st-flipbook-book { transform: none; }
 [data-st-flip-layout="single"] .st-flipbook-page-left { display: none; }
 [data-st-flip-layout="single"] .st-flipbook-page-right {
   left: 0; width: 100%; border-left: none; border-radius: 2px;
