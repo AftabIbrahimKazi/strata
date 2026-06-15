@@ -1,5 +1,9 @@
 # @strata-packages/flipbook — Changelog
 
+## 1.5.1
+
+- **Fix — single-page (mobile) closed cover off-centre** — in single-page layout (narrow containers, ≤ 500 px) the closed-book "solo" centring shift (`translateX(±25%)`, meant for the two-page spread) was still applied, pushing the already-full-width single page off-centre and partly off-screen. The transform is now reset in single-page layout (`[data-st-flip-layout="single"][data-st-flip-solo] .st-flipbook-book { transform: none }`), so a closed cover fits the viewport correctly in portrait/mobile. CSS-only; no API change.
+
 ## 1.5.0
 
 - **Real 3D page turn** — the flip engine was rebuilt from a flat `clip-path` wipe into a genuine 3D rotation. The turning page is now a rigid leaf hinged at the spine that lifts and rotates through the book's `perspective`, carrying two faces (the page leaving on the front, the page arriving on the back) with `backface-visibility` swapping them at the halfway point. This is what makes it read as paper turning rather than a diagonal reveal.
