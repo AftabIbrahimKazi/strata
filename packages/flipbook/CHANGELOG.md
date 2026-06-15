@@ -1,5 +1,9 @@
 # @strata-packages/flipbook — Changelog
 
+## 1.5.2
+
+- **Fix — remove corner fold hint triangles** — the `::before`/`::after` gradient triangles on the drag zones (intended as visual "you can grab here" cues) cluttered the UI without adding value. Removed entirely. The drag zones themselves are unchanged — drag-to-flip still works from both sides.
+
 ## 1.5.1
 
 - **Fix — single-page (mobile) closed-book layout** — two issues with the closed book in single-page layout (narrow containers, ≤ 500 px), both CSS-only, no API change:
