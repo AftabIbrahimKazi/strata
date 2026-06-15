@@ -2,7 +2,9 @@
 
 ## 1.5.1
 
-- **Fix — single-page (mobile) closed cover off-centre** — in single-page layout (narrow containers, ≤ 500 px) the closed-book "solo" centring shift (`translateX(±25%)`, meant for the two-page spread) was still applied, pushing the already-full-width single page off-centre and partly off-screen. The transform is now reset in single-page layout (`[data-st-flip-layout="single"][data-st-flip-solo] .st-flipbook-book { transform: none }`), so a closed cover fits the viewport correctly in portrait/mobile. CSS-only; no API change.
+- **Fix — single-page (mobile) closed-book layout** — two issues with the closed book in single-page layout (narrow containers, ≤ 500 px), both CSS-only, no API change:
+  - **Front cover off-centre** — the closed-book "solo" centring shift (`translateX(±25%)`, meant for the two-page spread) was still applied, pushing the already-full-width single page off-centre and partly off-screen. The transform is now reset in single-page layout (`[data-st-flip-layout="single"][data-st-flip-solo] .st-flipbook-book { transform: none }`).
+  - **Back cover blank** — the back cover lives in `page-left`, but single-page layout hides `page-left` *and* the back-cover solo state (`solo="left"`) hides `page-right`, so closing onto the back cover showed nothing. Single-page layout now shows `page-left` full-width when `solo="left"`, so the back cover renders correctly.
 
 ## 1.5.0
 
