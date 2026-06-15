@@ -598,6 +598,14 @@
 [data-st-flip-layout="single"] .st-flipbook-page-right {
   left: 0; width: 100%; border-left: none; border-radius: 2px;
 }
+/* Back cover lives in page-left (solo="left"); single-layout otherwise hides it  */
+/* AND solo-left hides page-right — leaving the closing/back-cover view blank. So  */
+/* when closed on the back cover, show page-left full-width instead. (More         */
+/* specific than the rules above, so it wins.)                                     */
+[data-st-flip-layout="single"][data-st-flip-solo="left"] .st-flipbook-page-left {
+  display: block; left: 0; width: 100%; border-right: none; border-radius: 2px;
+}
+[data-st-flip-layout="single"][data-st-flip-solo="left"] .st-flipbook-page-right { display: none; }
 /* Single layout: the leaf is the whole page, hinged on the edge it turns from. */
 [data-st-flip-layout="single"] .st-flipbook-flip-page { width: 100%; left: 0; }
 [data-st-flip-layout="single"][data-st-flip-direction="forward"]  .st-flipbook-flip-page { transform-origin: left center; }
