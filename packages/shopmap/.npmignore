@@ -1,0 +1,7 @@
+src/
+tests/
+examples/
+rollup.config.js
+vitest.config.ts
+tsconfig.json
+*.map

@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopMap — Full Customization Test</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+  <script src="https://unpkg.com/pmtiles@3/dist/pmtiles.js"></script>
+  <script src="../dist/shopmap.umd.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg:      #f5f5f0;
+      --color-surface: #ffffff;
+      --color-border:  #e2e2dd;
+      --color-text:    #1a1a18;
+      --color-muted:   #6b6b66;
+      --color-accent:  #7c3aed;
+      --radius: 10px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --map-marker: var(--color-accent);
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      color: var(--color-text);
+    }
+
+    [data-st-theme="dark"] {
+      --color-bg:      #16161a;
+      --color-surface: #1e1e24;
+      --color-border:  #2e2e38;
+      --color-text:    #ededf0;
+      --color-muted:   #8888a0;
+    }
+
+    body {
+      background: var(--color-bg);
+      min-height: 100vh;
+      padding: 1.25rem;
+      transition: background 200ms ease, color 200ms ease;
+    }
+
+    /* ── Layout ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .page-title    { font-size: 1.1rem; font-weight: 700; }
+    .page-subtitle { font-size: 0.75rem; color: var(--color-muted); margin-top: 2px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 310px;
+      gap: 1rem;
+    }
+
+    @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+
+    /* ── Map ── */
+    #map {
+      height: 580px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow);
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      overflow-y: auto;
+      max-height: calc(580px + 0px);
+      padding-right: 2px;
+    }
+
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 0.75rem 0.875rem;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Buttons ── */
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+    .btn {
+      padding: 0.28rem 0.6rem;
+      font-size: 0.77rem;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1.5px solid var(--color-border);
+      background: transparent;
+      color: var(--color-text);
+      cursor: pointer;
+      transition: border-color 120ms, background 120ms, color 120ms;
+      white-space: nowrap;
+    }
+
+    .btn:hover { border-color: var(--color-accent); color: var(--color-accent); }
+    .btn[data-st-active="true"]  { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+    .btn[data-st-active="false"] { background: transparent; border-color: var(--color-border); color: var(--color-text); }
+
+    /* ── Inputs ── */
+    .field-group { margin-bottom: 0.45rem; }
+    .field-label {
+      display: block;
+      font-size: 0.67rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .text-input, .select-input {
+      width: 100%;
+      padding: 0.28rem 0.5rem;
+      font-size: 0.78rem;
+      border: 1.5px solid var(--color-border);
+      border-radius: 6px;
+      background: var(--color-bg);
+      color: var(--color-text);
+      outline: none;
+      transition: border-color 120ms;
+    }
+
+    .text-input:focus, .select-input:focus { border-color: var(--color-accent); }
+
+    /* ── Token editor ── */
+    .token-editor {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.25rem 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .token-editor-label {
+      font-size: 0.72rem;
+      font-family: monospace;
+      color: var(--color-muted);
+    }
+
+    .token-editor input[type="color"] {
+      width: 34px; height: 26px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 5px;
+      padding: 1px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .token-editor .text-input {
+      font-family: monospace;
+      font-size: 0.72rem;
+      padding: 0.22rem 0.4rem;
+    }
+
+    .token-editor-text-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.2rem;
+      margin-top: 0.3rem;
+    }
+
+    .token-text-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.25rem;
+      align-items: center;
+    }
+
+    /* ── Color picker row ── */
+    .color-row { display: flex; align-items: center; gap: 0.5rem; }
+    .color-row input[type="color"] {
+      width: 34px; height: 30px;
+      border: 1.5px solid var(--color-border);
+      border-radius: 6px;
+      padding: 2px;
+      background: transparent;
+      cursor: pointer;
+    }
+    .color-row label { font-size: 0.77rem; color: var(--color-muted); flex: 1; }
+
+    /* ── Token list (resolved) ── */
+    .token-list { display: flex; flex-direction: column; }
+
+    .token-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.7rem;
+    }
+
+    .token-row:last-child { border-bottom: none; }
+    .token-swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--color-border); flex-shrink: 0; }
+    .token-key { color: var(--color-muted); font-family: monospace; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .token-val { font-family: monospace; color: var(--color-text); font-size: 0.68rem; }
+
+    /* ── Log ── */
+    .log {
+      font-family: ui-monospace, monospace;
+      font-size: 0.7rem;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 0.4rem 0.5rem;
+      max-height: 120px;
+      overflow-y: auto;
+      line-height: 1.7;
+    }
+
+    .log-entry { display: flex; gap: 0.4rem; }
+    .log-ts    { color: var(--color-muted); flex-shrink: 0; }
+    .log-msg   { color: var(--color-text); }
+    .log-msg[data-type="ok"]  { color: #22c55e; }
+    .log-msg[data-type="err"] { color: #ef4444; }
+
+    /* ── Notice ── */
+    .notice {
+      font-size: 0.7rem;
+      color: var(--color-muted);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 0.45rem 0.55rem;
+      line-height: 1.55;
+      flex-shrink: 0;
+    }
+    .notice code { font-family: monospace; background: rgba(0,0,0,0.06); padding: 1px 3px; border-radius: 3px; }
+
+    /* ── Section divider label ── */
+    .section-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-muted);
+      margin: 0.15rem 0 0.2rem;
+    }
+
+    /* ── Range input ── */
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--color-accent);
+    }
+
+    .range-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .range-row input[type="range"] { flex: 1; }
+    .range-val { font-family: monospace; font-size: 0.75rem; min-width: 2rem; text-align: right; color: var(--color-muted); }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">@strata-packages/shopmap — Full customization test</div>
+      <div class="page-subtitle">Every configurable option exposed as a live control</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="sys-light" data-st-active="true">☀ Light page</button>
+      <button class="btn" id="sys-dark"  data-st-active="false">☾ Dark page</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <div id="map"></div>
+
+    <div class="sidebar">
+
+      <!-- ① Map theme presets -->
+      <div class="card">
+        <div class="card-title">Map theme</div>
+        <div class="btn-row">
+          <button class="btn" id="t-light"        data-st-active="true">Light</button>
+          <button class="btn" id="t-dark"          data-st-active="false">Dark</button>
+          <button class="btn" id="t-sepia"         data-st-active="false">Sepia</button>
+          <button class="btn" id="t-high-contrast" data-st-active="false">Hi-con</button>
+          <button class="btn" id="t-auto"          data-st-active="false">Auto</button>
+        </div>
+      </div>
+
+      <!-- ② Map style (tile source) -->
+      <div class="card">
+        <div class="card-title">Map style — free (dev only)</div>
+        <div class="btn-row">
+          <button class="btn" id="s-liberty"  data-st-active="true">Liberty</button>
+          <button class="btn" id="s-bright"   data-st-active="false">Bright</button>
+          <button class="btn" id="s-positron" data-st-active="false">Positron</button>
+        </div>
+      </div>
+
+      <!-- ② b Provider styles (commercial) -->
+      <div class="card">
+        <div class="card-title">Provider styles — commercial (MapTiler / Mapbox)</div>
+
+        <div class="field-group">
+          <label class="field-label">Provider</label>
+          <div class="btn-row" style="margin-bottom:0.4rem">
+            <button class="btn" id="prov-maptiler" data-st-active="true">MapTiler</button>
+            <button class="btn" id="prov-mapbox"   data-st-active="false">Mapbox</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="prov-key">API key</label>
+          <input class="text-input" id="prov-key" type="password" placeholder="Paste your key here…" />
+        </div>
+
+        <div class="section-label">Style</div>
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn prov-style-btn" id="ps-streets"   data-style="streets"   data-st-active="false">Streets</button>
+          <button class="btn prov-style-btn" id="ps-satellite" data-style="satellite" data-st-active="false">Satellite</button>
+          <button class="btn prov-style-btn" id="ps-hybrid"    data-style="hybrid"    data-st-active="false">Hybrid</button>
+          <button class="btn prov-style-btn" id="ps-terrain"   data-style="terrain"   data-st-active="false">Terrain</button>
+          <button class="btn prov-style-btn" id="ps-topo"      data-style="topo"      data-st-active="false">Topo</button>
+          <button class="btn prov-style-btn" id="ps-light"     data-style="light"     data-st-active="false">Light</button>
+          <button class="btn prov-style-btn" id="ps-dark"      data-style="dark"      data-st-active="false">Dark</button>
+        </div>
+
+        <div id="prov-status" style="font-size:0.68rem;color:var(--color-muted);line-height:1.5">
+          Enter a key and pick a style. Switching providers reinitialises the map with the new provider config.
+        </div>
+      </div>
+
+      <!-- ③ Custom token editor -->
+      <div class="card">
+        <div class="card-title">Custom tokens — setTheme(MapTokens)</div>
+
+        <div class="section-label">Colors</div>
+        <div class="token-editor">
+          <span class="token-editor-label">land</span>       <input type="color" id="ct-land"        value="#f4f1ec" />
+          <span class="token-editor-label">water</span>      <input type="color" id="ct-water"       value="#a8d5e2" />
+          <span class="token-editor-label">roads</span>      <input type="color" id="ct-roads"       value="#ffffff" />
+          <span class="token-editor-label">roadsMinor</span> <input type="color" id="ct-roads-minor" value="#e0dcd4" />
+          <span class="token-editor-label">buildings</span>  <input type="color" id="ct-buildings"   value="#e8e4df" />
+          <span class="token-editor-label">labels</span>     <input type="color" id="ct-labels"      value="#333333" />
+          <span class="token-editor-label">parks</span>      <input type="color" id="ct-parks"       value="#c8e6c9" />
+          <span class="token-editor-label">marker</span>     <input type="color" id="ct-marker"      value="#0d6efd" />
+        </div>
+
+        <div class="section-label">Other</div>
+        <div class="token-text-pair" style="margin-bottom:0.3rem">
+          <span class="token-editor-label">radius</span>
+          <input class="text-input" id="ct-radius" value="8px" />
+        </div>
+        <div class="token-text-pair" style="margin-bottom:0.3rem">
+          <span class="token-editor-label">duration</span>
+          <input class="text-input" id="ct-duration" value="200ms" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">font</label>
+          <input class="text-input" id="ct-font" value="system-ui, sans-serif" />
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="ct-apply" data-st-active="false">Apply</button>
+          <button class="btn" id="ct-reset">Reset to Light</button>
+        </div>
+      </div>
+
+      <!-- ④ Mode -->
+      <div class="card">
+        <div class="card-title">Mode</div>
+        <div class="btn-row">
+          <button class="btn" id="m-2d" data-st-active="true">2D flat</button>
+          <button class="btn" id="m-3d" data-st-active="false">3D tilt</button>
+        </div>
+      </div>
+
+      <!-- ⑤ Pin customization -->
+      <div class="card">
+        <div class="card-title">Pin — setPin(config)</div>
+
+        <div class="section-label">Size</div>
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn" id="pin-sm" data-st-active="false">sm (24px)</button>
+          <button class="btn" id="pin-md" data-st-active="true">md (32px)</button>
+          <button class="btn" id="pin-lg" data-st-active="false">lg (44px)</button>
+        </div>
+
+        <div class="section-label">Pulse</div>
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn" id="pin-pulse-on"  data-st-active="true">On</button>
+          <button class="btn" id="pin-pulse-off" data-st-active="false">Off</button>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="pin-icon">Icon</label>
+          <select class="select-input" id="pin-icon">
+            <option value="store" selected>store</option>
+            <option value="marker">marker</option>
+            <option value="bus">bus</option>
+            <option value="parking">parking</option>
+            <option value="hospital">hospital</option>
+            <option value="restaurant">restaurant</option>
+            <option value="cafe">cafe</option>
+            <option value="bank">bank</option>
+            <option value="atm">atm</option>
+            <option value="pharmacy">pharmacy</option>
+            <option value="school">school</option>
+            <option value="park">park</option>
+            <option value="hotel">hotel</option>
+            <option value="gas">gas</option>
+            <option value="train">train</option>
+            <option value="bike">bike</option>
+            <option value="phone">phone</option>
+            <option value="clock">clock</option>
+            <option value="directions">directions</option>
+            <option value="info">info</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="pin-label-input">Label text</label>
+          <input class="text-input" id="pin-label-input" value="Our Shop" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Pin color</label>
+          <div class="color-row">
+            <input type="color" id="pin-color" value="#7c3aed" />
+            <label>Overrides --map-marker for this pin only</label>
+          </div>
+        </div>
+
+        <button class="btn" id="pin-apply" style="width:100%;margin-top:0.25rem" data-st-active="false">Apply pin config</button>
+      </div>
+
+      <!-- ⑥ Popup content -->
+      <div class="card">
+        <div class="card-title">Popup — updatePopup(tokens)</div>
+
+        <div class="field-group">
+          <label class="field-label" for="pop-name">Name</label>
+          <input class="text-input" id="pop-name" value="Acme London" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pop-address">Address</label>
+          <input class="text-input" id="pop-address" value="1 Oxford Street, London W1D 1BS" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pop-hours">Hours</label>
+          <input class="text-input" id="pop-hours" value="Mon–Sat 9am–8pm, Sun 11am–6pm" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="pop-directions">Directions URL</label>
+          <input class="text-input" id="pop-directions" value="https://maps.google.com/?q=51.5074,-0.1278" />
+        </div>
+
+        <button class="btn" id="pop-apply" style="width:100%;margin-top:0.25rem" data-st-active="false">Apply popup content</button>
+      </div>
+
+      <!-- ⑦ Landmarks -->
+      <div class="card">
+        <div class="card-title">Landmarks — enableLandmarks / disableLandmarks</div>
+
+        <div class="btn-row" style="margin-bottom:0.5rem">
+          <button class="btn" id="lm-on"  data-st-active="false">Enable landmarks</button>
+          <button class="btn" id="lm-off" data-st-active="false">Remove</button>
+        </div>
+
+        <div id="lm-status" style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.4rem;line-height:1.5"></div>
+
+        <div class="section-label">Category colors (applied on next enable)</div>
+        <div class="token-editor">
+          <span class="token-editor-label">transit</span>    <input type="color" id="lm-transit"    value="#3b82f6" />
+          <span class="token-editor-label">parking</span>    <input type="color" id="lm-parking"    value="#10b981" />
+          <span class="token-editor-label">hospital</span>   <input type="color" id="lm-hospital"   value="#ef4444" />
+          <span class="token-editor-label">restaurant</span> <input type="color" id="lm-restaurant" value="#f59e0b" />
+          <span class="token-editor-label">cafe</span>       <input type="color" id="lm-cafe"       value="#92400e" />
+          <span class="token-editor-label">bank</span>       <input type="color" id="lm-bank"       value="#6366f1" />
+          <span class="token-editor-label">pharmacy</span>   <input type="color" id="lm-pharmacy"   value="#ec4899" />
+        </div>
+      </div>
+
+      <!-- ⑧ Fly to — cities -->
+      <div class="card">
+        <div class="card-title">Fly to — cities</div>
+        <div class="btn-row">
+          <button class="btn fly-city" data-lat="51.5074"  data-lng="-0.1278"  data-zoom="15">London</button>
+          <button class="btn fly-city" data-lat="48.8566"  data-lng="2.3522"   data-zoom="14">Paris</button>
+          <button class="btn fly-city" data-lat="40.7128"  data-lng="-74.0060" data-zoom="14">New York</button>
+          <button class="btn fly-city" data-lat="35.6762"  data-lng="139.6503" data-zoom="14">Tokyo</button>
+          <button class="btn fly-city" data-lat="19.0760"  data-lng="72.8777"  data-zoom="14">Mumbai</button>
+          <button class="btn fly-city" data-lat="-33.8688" data-lng="151.2093" data-zoom="14">Sydney</button>
+          <button class="btn fly-city" data-lat="1.3521"   data-lng="103.8198" data-zoom="14">Singapore</button>
+          <button class="btn fly-city" data-lat="25.2048"  data-lng="55.2708"  data-zoom="14">Dubai</button>
+        </div>
+      </div>
+
+      <!-- ⑨ Border audit -->
+      <div class="card">
+        <div class="card-title">Border audit — disputed regions</div>
+        <div style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.4rem;line-height:1.45">
+          Checks what the tile source renders at contested borders. Representation follows the tile provider.
+        </div>
+
+        <div class="section-label">Ladakh</div>
+        <div class="btn-row" style="margin-bottom:0.4rem">
+          <button class="btn audit-btn" data-lat="34.1526" data-lng="77.5771"  data-zoom="7">Leh</button>
+          <button class="btn audit-btn" data-lat="35.1700" data-lng="79.5000"  data-zoom="6">Aksai Chin</button>
+          <button class="btn audit-btn" data-lat="35.4200" data-lng="76.7800"  data-zoom="7">Siachen</button>
+          <button class="btn audit-btn" data-lat="33.7700" data-lng="78.9600"  data-zoom="8">Pangong</button>
+          <button class="btn audit-btn" data-lat="35.5200" data-lng="77.8000"  data-zoom="7">Depsang</button>
+        </div>
+
+        <div class="section-label">Arunachal Pradesh</div>
+        <div class="btn-row">
+          <button class="btn audit-btn" data-lat="27.0844" data-lng="93.6053"  data-zoom="7">Itanagar</button>
+          <button class="btn audit-btn" data-lat="27.5859" data-lng="91.8594"  data-zoom="7">Tawang</button>
+          <button class="btn audit-btn" data-lat="27.2645" data-lng="92.4098"  data-zoom="7">Bomdila</button>
+          <button class="btn audit-btn" data-lat="28.2000" data-lng="94.0000"  data-zoom="6">McMahon</button>
+          <button class="btn audit-btn" data-lat="28.6500" data-lng="95.7000"  data-zoom="7">Dibang</button>
+        </div>
+      </div>
+
+      <!-- ⑩ Layer overrides -->
+      <div class="card">
+        <div class="card-title">Layer overrides — India (IN)</div>
+        <div style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.45rem;line-height:1.5">
+          Overlays India's official boundary claims using curated GeoJSON from <code>layers/IN/</code>.
+        </div>
+
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn" id="layer-on"  data-st-active="false">Enable IN layers</button>
+          <button class="btn" id="layer-off" data-st-active="false">Remove layers</button>
+        </div>
+
+        <div id="layer-status" style="font-size:0.7rem;color:var(--color-muted);line-height:1.5"></div>
+      </div>
+
+      <!-- ⑪ 3D Terrain -->
+      <div class="card">
+        <div class="card-title">3D Terrain — free, no key needed</div>
+        <div style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.45rem;line-height:1.5">
+          Uses free AWS Mapzen Terrarium elevation tiles. Adds real elevation, hillshading, and an atmospheric sky.
+          Best visible on outdoor / terrain map styles.
+        </div>
+
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn" id="terrain-on"  data-st-active="false">Enable terrain</button>
+          <button class="btn" id="terrain-off" data-st-active="false">Disable terrain</button>
+        </div>
+
+        <div class="section-label">Exaggeration (0.5 – 3.0)</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.45rem">
+          <input type="range" id="terrain-exaggeration" min="0.5" max="3" step="0.1" value="1.5" style="flex:1">
+          <span id="terrain-exaggeration-val" style="font-size:0.75rem;min-width:2rem">1.5</span>
+        </div>
+
+        <div class="section-label">Options</div>
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn" id="terrain-hillshade-on"  data-st-active="true">Hillshade on</button>
+          <button class="btn" id="terrain-hillshade-off" data-st-active="false">Hillshade off</button>
+        </div>
+        <div style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.6rem">
+          Note: sky layer was removed in MapLibre GL JS 4.
+        </div>
+
+        <div class="section-label">Elevation colour ramp (hypsometric tinting)</div>
+        <div style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.45rem;line-height:1.5">
+          Negative elevations colour water depth, positive colour land. Add up to 12 stops.
+        </div>
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn" id="hyps-on"  data-st-active="false">Enable ramp</button>
+          <button class="btn" id="hyps-off" data-st-active="false">Disable ramp</button>
+          <button class="btn" id="hyps-preset-natural" data-st-active="false" style="margin-left:auto">Preset: natural</button>
+          <button class="btn" id="hyps-preset-ocean"   data-st-active="false">Preset: ocean</button>
+        </div>
+
+        <div class="section-label">Elevation range (metres)</div>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.45rem;align-items:center">
+          <label style="font-size:0.7rem;color:var(--color-muted)">Min</label>
+          <input type="number" id="hyps-range-min" value="-6000" step="100"
+            style="width:5rem;padding:0.2rem 0.4rem;font-size:0.75rem;background:var(--color-bg-alt);border:1px solid var(--color-border);border-radius:4px;color:inherit">
+          <label style="font-size:0.7rem;color:var(--color-muted)">Max</label>
+          <input type="number" id="hyps-range-max" value="5000" step="100"
+            style="width:5rem;padding:0.2rem 0.4rem;font-size:0.75rem;background:var(--color-bg-alt);border:1px solid var(--color-border);border-radius:4px;color:inherit">
+        </div>
+
+        <div class="section-label">Opacity</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.45rem">
+          <input type="range" id="hyps-opacity" min="0.05" max="1" step="0.05" value="0.45" style="flex:1">
+          <span id="hyps-opacity-val" style="font-size:0.75rem;min-width:2.5rem">0.45</span>
+        </div>
+
+        <div class="section-label">Colour stops</div>
+        <div id="hyps-stops" style="display:flex;flex-direction:column;gap:0.3rem;margin-bottom:0.45rem"></div>
+        <div class="btn-row">
+          <button class="btn" id="hyps-add-stop" style="font-size:0.72rem">+ Add stop</button>
+          <button class="btn" id="hyps-apply"    style="margin-left:auto">Apply ramp</button>
+        </div>
+
+        <div class="section-label" style="margin-top:0.6rem">Procedural hillshading</div>
+        <div style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.5rem;line-height:1.4">
+          Baked directly into the elevation tiles — no external texture source needed.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem 0.8rem;align-items:center;font-size:0.72rem">
+          <label for="hyps-hs-blend">Blend <span id="hyps-hs-blend-val">70%</span></label>
+          <input id="hyps-hs-blend" type="range" min="0" max="100" value="70" style="width:100%">
+
+          <label for="hyps-sun-az">Sun azimuth <span id="hyps-sun-az-val">315°</span></label>
+          <input id="hyps-sun-az" type="range" min="0" max="360" value="315" style="width:100%">
+
+          <label for="hyps-sun-alt">Sun altitude <span id="hyps-sun-alt-val">45°</span></label>
+          <input id="hyps-sun-alt" type="range" min="5" max="85" value="45" style="width:100%">
+
+          <label for="hyps-shade-ex">Exaggeration <span id="hyps-shade-ex-val">1.5×</span></label>
+          <input id="hyps-shade-ex" type="range" min="1" max="50" value="15" step="1" style="width:100%">
+        </div>
+      </div>
+
+      <!-- ⑫ Feature textures -->
+      <div class="card">
+        <div class="card-title">Feature textures</div>
+        <div style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.6rem;line-height:1.5">
+          Paste a direct-image URL (JPG/PNG, CORS-enabled) to use a real photo texture — or leave blank for the built-in procedural pattern.<br>
+          Find CC0 textures at <a href="https://polyhaven.com/textures" target="_blank" rel="noopener" style="color:inherit">polyhaven.com</a>:
+          search <strong>brick wall / concrete</strong> for buildings,
+          <strong>asphalt</strong> for roads, <strong>concrete floor</strong> for bridges.
+          Copy the <em>*_diff_1k.jpg</em> download link.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.6rem">
+          <input id="ftex-url-facade" type="url" placeholder="Building texture URL (optional)"
+            style="font-size:0.7rem;padding:0.25rem 0.4rem;border:1px solid #ccc;border-radius:4px;width:100%;box-sizing:border-box">
+          <input id="ftex-url-road"   type="url" placeholder="Road texture URL (optional)"
+            style="font-size:0.7rem;padding:0.25rem 0.4rem;border:1px solid #ccc;border-radius:4px;width:100%;box-sizing:border-box">
+          <input id="ftex-url-bridge" type="url" placeholder="Bridge texture URL (optional)"
+            style="font-size:0.7rem;padding:0.25rem 0.4rem;border:1px solid #ccc;border-radius:4px;width:100%;box-sizing:border-box">
+        </div>
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn" id="ftex-apply"   data-st-active="false">Apply</button>
+          <button class="btn" id="ftex-disable" data-st-active="false">Disable</button>
+        </div>
+        <div class="section-label">Layers</div>
+        <div class="btn-row" style="flex-wrap:wrap;gap:0.3rem">
+          <button class="btn" id="ftex-buildings" data-st-active="true"  style="font-size:0.72rem">Buildings</button>
+          <button class="btn" id="ftex-roads"     data-st-active="true"  style="font-size:0.72rem">Roads</button>
+          <button class="btn" id="ftex-bridges"   data-st-active="true"  style="font-size:0.72rem">Bridges</button>
+        </div>
+        <div style="font-size:0.65rem;color:var(--color-muted);margin-top:0.5rem;line-height:1.4">
+          Road/bridge textures need zoom ≥ 14 to be visible. Buildings need 3D mode + zoom ≥ 15.
+        </div>
+      </div>
+
+      <!-- ⑬ Terrain texture -->
+      <div class="card">
+        <div class="card-title">Terrain texture overlay</div>
+        <div style="font-size:0.7rem;color:var(--color-muted);margin-bottom:0.6rem;line-height:1.5">
+          Stacks above the colour ramp (if enabled) and below roads/labels. Use alone for a
+          natural look, or blend both for hypsometric + texture realism.
+        </div>
+        <div class="btn-row" style="margin-bottom:0.45rem">
+          <button class="btn" id="tex-on"  data-st-active="false">Enable texture</button>
+          <button class="btn" id="tex-off" data-st-active="false">Disable texture</button>
+        </div>
+
+        <div class="section-label">Source</div>
+        <div class="btn-row" style="margin-bottom:0.45rem;flex-wrap:wrap">
+          <button class="btn" id="tex-src-topo"   data-st-active="true"  style="font-size:0.72rem">OpenTopoMap</button>
+          <button class="btn" id="tex-src-usgs"   data-st-active="false" style="font-size:0.72rem">USGS Relief (US)</button>
+        </div>
+
+        <div class="section-label">Opacity</div>
+        <div style="display:flex;align-items:center;gap:0.5rem">
+          <input type="range" id="tex-opacity" min="0.05" max="1" step="0.05" value="0.6" style="flex:1">
+          <span id="tex-opacity-val" style="font-size:0.75rem;min-width:2.5rem">0.60</span>
+        </div>
+      </div>
+
+      <!-- ⑬ Token readout -->
+      <div class="card">
+        <div class="card-title">Resolved CSS tokens</div>
+        <div class="token-list" id="token-list"></div>
+      </div>
+
+      <!-- ⑫ Log -->
+      <div class="card">
+        <div class="card-title">Event log</div>
+        <div class="log" id="log"></div>
+      </div>
+
+      <!-- Notice -->
+      <div class="notice">
+        Serves <strong>OpenFreeMap hosted styles</strong> — no key needed.
+        Theme colors are applied via <code>setPaintProperty()</code> on the loaded style's layers.
+        Landmarks require HTTP (not <code>file://</code>) — serve with <code>npx serve packages/shopmap/examples</code>.
+        Layer overrides use <code>layers: { basePath: '..' }</code> → reads from <code>../layers/IN/</code>.
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── Logging ──
+    const logEl = document.getElementById('log')
+
+    function log(msg, type) {
+      const ts = new Date().toLocaleTimeString('en-GB', { hour12: false })
+      const entry = document.createElement('div')
+      entry.className = 'log-entry'
+      entry.innerHTML = `<span class="log-ts">${ts}</span><span class="log-msg" data-type="${type || ''}">${msg}</span>`
+      logEl.prepend(entry)
+    }
+
+    // ── State ──
+    let shopmap = null
+    let currentTheme = 'light'
+    let currentLat = 51.5074, currentLng = -0.1278
+    let currentPinSize = 'md'
+    let currentPinPulse = true
+
+    // ── Init ──
+    try {
+      shopmap = new ShopMap.ShopMap('#map', {
+        location: { lat: currentLat, lng: currentLng },
+        tiles: 'https://tiles.openfreemap.org/styles/liberty',
+        mode: '2d',
+        theme: 'light',
+        zoom: { default: 15, min: 1, max: 19 },
+        layers: { basePath: '..' },
+        pin: {
+          size: 'md',
+          icon: 'store',
+          pulse: true,
+          label: 'Our Shop',
+          color: '#7c3aed',
+        },
+        popup: {
+          tokens: {
+            name:       'Acme London',
+            address:    '1 Oxford Street, London W1D 1BS',
+            hours:      'Mon–Sat 9am–8pm, Sun 11am–6pm',
+            directions: 'https://maps.google.com/?q=51.5074,-0.1278',
+          },
+        },
+      })
+      log('ShopMap ready — click the pin to open popup', 'ok')
+    } catch (err) {
+      log('Init error: ' + err.message, 'err')
+      console.error(err)
+    }
+
+    // ── Helpers ──
+    function setActive(activeId, inactiveIds) {
+      document.getElementById(activeId).setAttribute('data-st-active', 'true')
+      inactiveIds.forEach(id => document.getElementById(id).setAttribute('data-st-active', 'false'))
+    }
+
+    function flashBtn(id) {
+      const el = document.getElementById(id)
+      el.setAttribute('data-st-active', 'true')
+      setTimeout(() => el.setAttribute('data-st-active', 'false'), 800)
+    }
+
+    // ── ① Page theme ──
+    document.getElementById('sys-light').addEventListener('click', () => {
+      document.documentElement.setAttribute('data-st-theme', 'light')
+      setActive('sys-light', ['sys-dark'])
+      log('Page theme → light')
+    })
+
+    document.getElementById('sys-dark').addEventListener('click', () => {
+      document.documentElement.setAttribute('data-st-theme', 'dark')
+      setActive('sys-dark', ['sys-light'])
+      log('Page theme → dark')
+    })
+
+    // ── ② Map theme presets ──
+    const themeIds = ['t-light', 't-dark', 't-sepia', 't-high-contrast', 't-auto']
+
+    themeIds.forEach(id => {
+      const name = id.replace('t-', '')
+      document.getElementById(id).addEventListener('click', () => {
+        if (!shopmap) return
+        currentTheme = name
+        shopmap.setTheme(name)
+        setActive(id, themeIds.filter(i => i !== id))
+        // Sync the custom token pickers to the resolved values
+        syncTokenPickers()
+        log('Map theme → ' + name)
+        refreshTokens()
+      })
+    })
+
+    // ── ② b Provider styles ──
+    let currentProvider = 'maptiler'
+    const provStyleBtns = document.querySelectorAll('.prov-style-btn')
+    const provStyleIds = Array.from(provStyleBtns).map(b => b.id)
+
+    document.getElementById('prov-maptiler').addEventListener('click', () => {
+      currentProvider = 'maptiler'
+      setActive('prov-maptiler', ['prov-mapbox'])
+    })
+    document.getElementById('prov-mapbox').addEventListener('click', () => {
+      currentProvider = 'mapbox'
+      setActive('prov-mapbox', ['prov-maptiler'])
+    })
+
+    provStyleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = document.getElementById('prov-key').value.trim()
+        const style = btn.dataset.style
+        const provStatus = document.getElementById('prov-status')
+
+        if (!key) {
+          provStatus.textContent = '⚠ Paste your ' + currentProvider + ' API key above first.'
+          provStatus.style.color = '#f59e0b'
+          return
+        }
+        if (!shopmap) return
+
+        // Deactivate free-style buttons — provider takes over
+        styleIds.forEach(id => document.getElementById(id).setAttribute('data-st-active', 'false'))
+
+        shopmap.switchTileStyle(ShopMap.providerStyleUrl({ name: currentProvider, key }, style))
+        setActive(btn.id, provStyleIds.filter(i => i !== btn.id))
+        provStatus.textContent = `✓ ${currentProvider} / ${style} — map reloading…`
+        provStatus.style.color = '#22c55e'
+        log(`Provider style → ${currentProvider}/${style}`)
+      })
+    })
+
+    // ── ③ Map style ──
+    const TILE_STYLES = {
+      's-liberty':  'https://tiles.openfreemap.org/styles/liberty',
+      's-bright':   'https://tiles.openfreemap.org/styles/bright',
+      's-positron': 'https://tiles.openfreemap.org/styles/positron',
+    }
+    const styleIds = Object.keys(TILE_STYLES)
+
+    styleIds.forEach(id => {
+      document.getElementById(id).addEventListener('click', () => {
+        if (!shopmap) return
+        shopmap.switchTileStyle(TILE_STYLES[id])
+        setActive(id, styleIds.filter(i => i !== id))
+        log('Map style → ' + id.replace('s-', ''))
+      })
+    })
+
+    // ── ④ Custom tokens ──
+    function getCustomTokens() {
+      return {
+        land:       document.getElementById('ct-land').value,
+        water:      document.getElementById('ct-water').value,
+        roads:      document.getElementById('ct-roads').value,
+        roadsMinor: document.getElementById('ct-roads-minor').value,
+        buildings:  document.getElementById('ct-buildings').value,
+        labels:     document.getElementById('ct-labels').value,
+        parks:      document.getElementById('ct-parks').value,
+        marker:     document.getElementById('ct-marker').value,
+        radius:     document.getElementById('ct-radius').value,
+        duration:   document.getElementById('ct-duration').value,
+        font:       document.getElementById('ct-font').value,
+      }
+    }
+
+    function syncTokenPickers() {
+      try {
+        const tokens = ShopMap.resolveTokens(ShopMap.resolveTheme(currentTheme))
+        const colorKeys = ['land', 'water', 'roads', 'roadsMinor', 'buildings', 'labels', 'parks', 'marker']
+        const idMap = { roadsMinor: 'roads-minor' }
+        colorKeys.forEach(k => {
+          const el = document.getElementById('ct-' + (idMap[k] || k))
+          if (el && tokens[k]) {
+            // Only sync if it's a parseable hex — color pickers only accept #rrggbb
+            if (/^#[0-9a-f]{6}$/i.test(tokens[k])) el.value = tokens[k]
+          }
+        })
+        document.getElementById('ct-radius').value   = tokens.radius   || '8px'
+        document.getElementById('ct-duration').value = tokens.duration || '200ms'
+        document.getElementById('ct-font').value     = tokens.font     || 'system-ui, sans-serif'
+      } catch(e) {}
+    }
+
+    document.getElementById('ct-apply').addEventListener('click', () => {
+      if (!shopmap) return
+      const tokens = getCustomTokens()
+      currentTheme = tokens
+      shopmap.setTheme(tokens)
+      // Deactivate preset buttons since we're now custom
+      themeIds.forEach(id => document.getElementById(id).setAttribute('data-st-active', 'false'))
+      flashBtn('ct-apply')
+      log('Custom tokens applied')
+      refreshTokens()
+    })
+
+    document.getElementById('ct-reset').addEventListener('click', () => {
+      if (!shopmap) return
+      currentTheme = 'light'
+      shopmap.setTheme('light')
+      setActive('t-light', themeIds.filter(i => i !== 't-light'))
+      syncTokenPickers()
+      log('Tokens reset → light preset')
+      refreshTokens()
+    })
+
+    // ── ⑤ Mode ──
+    document.getElementById('m-2d').addEventListener('click', () => {
+      if (!shopmap) return
+      shopmap.setMode('2d')
+      setActive('m-2d', ['m-3d'])
+      log('Mode → 2D')
+    })
+
+    document.getElementById('m-3d').addEventListener('click', () => {
+      if (!shopmap) return
+      shopmap.setMode('3d')
+      setActive('m-3d', ['m-2d'])
+      log('Mode → 3D (pitch 45°)')
+    })
+
+    // ── ⑥ Pin ──
+    ;['sm','md','lg'].forEach(size => {
+      document.getElementById('pin-' + size).addEventListener('click', () => {
+        currentPinSize = size
+        setActive('pin-' + size, ['pin-sm','pin-md','pin-lg'].filter(i => i !== 'pin-' + size))
+      })
+    })
+
+    document.getElementById('pin-pulse-on').addEventListener('click', () => {
+      currentPinPulse = true
+      setActive('pin-pulse-on', ['pin-pulse-off'])
+    })
+
+    document.getElementById('pin-pulse-off').addEventListener('click', () => {
+      currentPinPulse = false
+      setActive('pin-pulse-off', ['pin-pulse-on'])
+    })
+
+    document.getElementById('pin-apply').addEventListener('click', () => {
+      if (!shopmap) return
+      const config = {
+        size:  currentPinSize,
+        icon:  document.getElementById('pin-icon').value,
+        pulse: currentPinPulse,
+        label: document.getElementById('pin-label-input').value || undefined,
+        color: document.getElementById('pin-color').value,
+      }
+      shopmap.setPin(config)
+      flashBtn('pin-apply')
+      log(`Pin → size:${config.size} icon:${config.icon} pulse:${config.pulse} label:"${config.label || ''}"`)
+    })
+
+    // ── ⑦ Popup ──
+    document.getElementById('pop-apply').addEventListener('click', () => {
+      if (!shopmap) return
+      shopmap.updatePopup({
+        tokens: {
+          name:       document.getElementById('pop-name').value,
+          address:    document.getElementById('pop-address').value,
+          hours:      document.getElementById('pop-hours').value,
+          directions: document.getElementById('pop-directions').value,
+        }
+      })
+      flashBtn('pop-apply')
+      log('Popup content updated — click pin to see changes')
+    })
+
+    // ── ⑧ Landmarks ──
+    document.getElementById('lm-on').addEventListener('click', () => {
+      if (!shopmap) return
+      const categories = {
+        transit:    { color: document.getElementById('lm-transit').value },
+        parking:    { color: document.getElementById('lm-parking').value },
+        hospital:   { color: document.getElementById('lm-hospital').value },
+        restaurant: { color: document.getElementById('lm-restaurant').value },
+        cafe:       { color: document.getElementById('lm-cafe').value },
+        bank:       { color: document.getElementById('lm-bank').value },
+        pharmacy:   { color: document.getElementById('lm-pharmacy').value },
+      }
+      shopmap.enableLandmarks({ src: 'landmarks.json', categories })
+      setActive('lm-on', ['lm-off'])
+      document.getElementById('lm-status').textContent =
+        'Landmarks loaded from landmarks.json — 10 markers near Oxford St, London. Click any to see popup.'
+      log('Landmarks enabled (7 categories)', 'ok')
+    })
+
+    document.getElementById('lm-off').addEventListener('click', () => {
+      if (!shopmap) return
+      shopmap.disableLandmarks()
+      setActive('lm-off', ['lm-on'])
+      document.getElementById('lm-status').textContent = 'Landmarks removed.'
+      log('Landmarks disabled')
+    })
+
+    // ── ⑨ Fly to — cities ──
+    document.querySelectorAll('.fly-city').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!shopmap) return
+        const lat  = parseFloat(btn.dataset.lat)
+        const lng  = parseFloat(btn.dataset.lng)
+        const zoom = parseInt(btn.dataset.zoom) || 14
+        currentLat = lat; currentLng = lng
+        shopmap.setLocation(lat, lng, zoom)
+        log('Flying to ' + btn.textContent.trim())
+      })
+    })
+
+    // ── ⑩ Border audit ──
+    document.querySelectorAll('.audit-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!shopmap) return
+        const lat  = parseFloat(btn.dataset.lat)
+        const lng  = parseFloat(btn.dataset.lng)
+        const zoom = parseInt(btn.dataset.zoom) || 8
+        shopmap.setLocation(lat, lng, zoom)
+        log('→ ' + btn.textContent.trim())
+      })
+    })
+
+    // ── ⑪ Layer overrides (IN) ──
+    const layerStatus = document.getElementById('layer-status')
+
+    document.getElementById('layer-on').addEventListener('click', async () => {
+      if (!shopmap) return
+      layerStatus.textContent = 'Fetching layer files…'
+      log('Loading layer override: IN')
+      try {
+        await shopmap.setRegion('IN')
+        setActive('layer-on', ['layer-off'])
+        layerStatus.innerHTML =
+          '✓ IN layers applied — India-position borders from Natural Earth.<br>' +
+          '<span style="color:var(--color-muted)">Zoom to z5–z8. Disputed: Aksai Chin, Arunachal, LoC.</span>'
+        layerStatus.style.color = '#22c55e'
+        log('Layer override → IN', 'ok')
+        shopmap.setLocation(22.5937, 80.9629, 5)
+        currentLat = 22.5937; currentLng = 80.9629
+      } catch (err) {
+        setActive('layer-off', ['layer-on'])
+        layerStatus.textContent = '✗ Failed: ' + err.message + ' — serve via HTTP.'
+        layerStatus.style.color = '#ef4444'
+        log('Layer override error: ' + err.message, 'err')
+      }
+    })
+
+    document.getElementById('layer-off').addEventListener('click', async () => {
+      if (!shopmap) return
+      await shopmap.setRegion('')
+      setActive('layer-off', ['layer-on'])
+      layerStatus.textContent = 'Layers removed.'
+      layerStatus.style.color = 'var(--color-muted)'
+      log('Layer override removed')
+    })
+
+    // ── ⑪ 3D Terrain ──
+    let terrainHillshade = true
+    let terrainSky       = true
+    let hypsometricOn    = false
+    let textureOn        = false
+    // All sources here are free for commercial use (CC-BY-SA / public domain)
+    const TEXTURE_SOURCES = {
+      'tex-src-topo':  { url: 'https://tile.opentopomap.org/{z}/{x}/{y}.png',                                                                                        maxzoom: 17 },
+      'tex-src-usgs':  { url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}',                                 maxzoom: 13 },
+    }
+    let activeTextureId  = 'tex-src-topo'
+
+    const exSlider  = document.getElementById('terrain-exaggeration')
+    const exVal     = document.getElementById('terrain-exaggeration-val')
+    const opSlider  = document.getElementById('hyps-opacity')
+    const opVal     = document.getElementById('hyps-opacity-val')
+    const texSlider = document.getElementById('tex-opacity')
+    const texVal    = document.getElementById('tex-opacity-val')
+    const stopsEl   = document.getElementById('hyps-stops')
+    exSlider.addEventListener('input', () => { exVal.textContent = exSlider.value })
+    opSlider.addEventListener('input', () => { opVal.textContent = parseFloat(opSlider.value).toFixed(2) })
+    texSlider.addEventListener('input', () => {
+      texVal.textContent = parseFloat(texSlider.value).toFixed(2)
+      if (textureOn) applyTerrain()
+    })
+
+    // Default stops (matches package default)
+    const DEFAULT_STOPS = [
+      { elevation: -6000, color: '#08306b' },
+      { elevation: -2000, color: '#08519c' },
+      { elevation:  -200, color: '#2171b5' },
+      { elevation:   -10, color: '#6baed6' },
+      { elevation:     0, color: '#74c476' },
+      { elevation:   200, color: '#a1d99b' },
+      { elevation:   500, color: '#d4b483' },
+      { elevation:  1000, color: '#b8860b' },
+      { elevation:  2000, color: '#8b6914' },
+      { elevation:  3500, color: '#808080' },
+      { elevation:  5000, color: '#ffffff' },
+    ]
+
+    const PRESET_OCEAN = [
+      { elevation: -8000, color: '#03012d' },
+      { elevation: -4000, color: '#03045e' },
+      { elevation: -2000, color: '#023e8a' },
+      { elevation:  -500, color: '#0077b6' },
+      { elevation:   -50, color: '#00b4d8' },
+      { elevation:     0, color: '#90e0ef' },
+      { elevation:   100, color: '#caf0f8' },
+      { elevation:   500, color: '#c8b560' },
+      { elevation:  2000, color: '#8b6914' },
+      { elevation:  4000, color: '#ffffff' },
+    ]
+
+    function readStops() {
+      return Array.from(stopsEl.querySelectorAll('.hyps-stop-row')).map(row => ({
+        elevation: parseFloat(row.querySelector('.hyps-elev').value) || 0,
+        color: row.querySelector('.hyps-color').value,
+      })).sort((a, b) => a.elevation - b.elevation)
+    }
+
+    function renderStops(stops) {
+      stopsEl.innerHTML = ''
+      stops.forEach((s, i) => {
+        const row = document.createElement('div')
+        row.className = 'hyps-stop-row'
+        row.style.cssText = 'display:flex;align-items:center;gap:0.35rem'
+        row.innerHTML = `
+          <input type="color" class="hyps-color" value="${s.color}"
+            style="width:2rem;height:1.6rem;padding:0;border:none;cursor:pointer;background:none">
+          <input type="number" class="hyps-elev" value="${s.elevation}" step="50"
+            style="width:5.5rem;padding:0.2rem 0.4rem;font-size:0.72rem;background:var(--color-bg-alt);border:1px solid var(--color-border);border-radius:4px;color:inherit"
+            placeholder="metres">
+          <span style="font-size:0.65rem;color:var(--color-muted);flex:1">${s.elevation >= 0 ? '▲ land' : '▼ water'}</span>
+          <button class="btn hyps-remove" data-i="${i}" style="font-size:0.65rem;padding:0.1rem 0.4rem;line-height:1.4">✕</button>
+        `
+        stopsEl.appendChild(row)
+      })
+      stopsEl.querySelectorAll('.hyps-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const stops = readStops()
+          stops.splice(parseInt(btn.dataset.i), 1)
+          renderStops(stops)
+        })
+      })
+      // update water/land label on elev change
+      stopsEl.querySelectorAll('.hyps-elev').forEach((input, idx) => {
+        input.addEventListener('input', () => {
+          const label = stopsEl.querySelectorAll('.hyps-stop-row')[idx]?.querySelector('span')
+          if (label) label.textContent = parseFloat(input.value) >= 0 ? '▲ land' : '▼ water'
+        })
+      })
+    }
+
+    renderStops(DEFAULT_STOPS)
+
+    document.getElementById('hyps-add-stop').addEventListener('click', () => {
+      const stops = readStops()
+      stops.push({ elevation: 0, color: '#74c476' })
+      renderStops(stops)
+    })
+
+    document.getElementById('hyps-preset-natural').addEventListener('click', () => {
+      renderStops(DEFAULT_STOPS)
+      document.getElementById('hyps-range-min').value = '-6000'
+      document.getElementById('hyps-range-max').value = '5000'
+      setActive('hyps-preset-natural', ['hyps-preset-ocean'])
+    })
+
+    document.getElementById('hyps-preset-ocean').addEventListener('click', () => {
+      renderStops(PRESET_OCEAN)
+      document.getElementById('hyps-range-min').value = '-8000'
+      document.getElementById('hyps-range-max').value = '4000'
+      setActive('hyps-preset-ocean', ['hyps-preset-natural'])
+    })
+
+    document.getElementById('hyps-on').addEventListener('click', () => {
+      hypsometricOn = true
+      setActive('hyps-on', ['hyps-off'])
+      applyTerrain()
+    })
+    document.getElementById('hyps-off').addEventListener('click', () => {
+      hypsometricOn = false
+      setActive('hyps-off', ['hyps-on'])
+      applyTerrain()
+    })
+    document.getElementById('hyps-apply').addEventListener('click', () => {
+      applyTerrain()
+      log('Hypsometric ramp applied — ' + readStops().length + ' stops')
+    })
+
+    // ── Shading sliders live-update their labels ──
+    ;[
+      ['hyps-hs-blend',  'hyps-hs-blend-val',  v => Math.round(v) + '%'],
+      ['hyps-sun-az',    'hyps-sun-az-val',     v => Math.round(v) + '°'],
+      ['hyps-sun-alt',   'hyps-sun-alt-val',    v => Math.round(v) + '°'],
+      ['hyps-shade-ex',  'hyps-shade-ex-val',   v => (v / 10).toFixed(1) + '×'],
+    ].forEach(([sliderId, labelId, fmt]) => {
+      const sl = document.getElementById(sliderId)
+      const lb = document.getElementById(labelId)
+      sl.addEventListener('input', () => { lb.textContent = fmt(parseFloat(sl.value)) })
+    })
+
+    function applyTerrain() {
+      if (!shopmap) return
+      const rangeMin = parseFloat(document.getElementById('hyps-range-min').value) || -6000
+      const rangeMax = parseFloat(document.getElementById('hyps-range-max').value) || 5000
+      shopmap.enableTerrain({
+        exaggeration:        parseFloat(exSlider.value),
+        hillshade:           terrainHillshade,
+        sky:                 terrainSky,
+        hillshadeIntensity:  0.5,
+        hypsometric:         hypsometricOn,
+        hypsometricOpacity:  parseFloat(opSlider.value),
+        hypsometricRange:    [rangeMin, rangeMax],
+        hypsometricStops:    readStops(),
+        hillshadeBlend:      parseFloat(document.getElementById('hyps-hs-blend').value) / 100,
+        sunAzimuth:          parseFloat(document.getElementById('hyps-sun-az').value),
+        sunAltitude:         parseFloat(document.getElementById('hyps-sun-alt').value),
+        shadingExaggeration: parseFloat(document.getElementById('hyps-shade-ex').value) / 10,
+        texture:             textureOn,
+        textureOpacity:      parseFloat(texSlider.value),
+        textureUrl:          TEXTURE_SOURCES[activeTextureId].url,
+        textureMaxzoom:      TEXTURE_SOURCES[activeTextureId].maxzoom,
+      })
+      const parts = []
+      if (hypsometricOn) parts.push('ramp')
+      if (textureOn)     parts.push('texture')
+      log('Terrain updated — exaggeration ' + exSlider.value + (parts.length ? ', ' + parts.join(' + ') : ''))
+    }
+
+    document.getElementById('terrain-on').addEventListener('click', () => {
+      setActive('terrain-on', ['terrain-off'])
+      applyTerrain()
+    })
+    document.getElementById('terrain-off').addEventListener('click', () => {
+      if (!shopmap) return
+      shopmap.disableTerrain()
+      setActive('terrain-off', ['terrain-on'])
+      log('Terrain disabled')
+    })
+    document.getElementById('terrain-hillshade-on').addEventListener('click', () => {
+      terrainHillshade = true
+      setActive('terrain-hillshade-on', ['terrain-hillshade-off'])
+    })
+    document.getElementById('terrain-hillshade-off').addEventListener('click', () => {
+      terrainHillshade = false
+      setActive('terrain-hillshade-off', ['terrain-hillshade-on'])
+    })
+
+    document.getElementById('tex-on').addEventListener('click', () => {
+      textureOn = true
+      setActive('tex-on', ['tex-off'])
+      applyTerrain()
+    })
+    document.getElementById('tex-off').addEventListener('click', () => {
+      textureOn = false
+      setActive('tex-off', ['tex-on'])
+      applyTerrain()
+    })
+
+    const texSrcIds = Object.keys(TEXTURE_SOURCES)
+    texSrcIds.forEach(id => {
+      document.getElementById(id).addEventListener('click', () => {
+        activeTextureId = id
+        setActive(id, texSrcIds.filter(i => i !== id))
+        if (textureOn) applyTerrain()
+      })
+    })
+
+    // ── ⑫ Feature textures ──
+    const ftexToggles = { buildings: true, roads: true, bridges: true }
+    ;['ftex-buildings', 'ftex-roads', 'ftex-bridges'].forEach(id => {
+      document.getElementById(id).addEventListener('click', () => {
+        const key = id.replace('ftex-', '')
+        ftexToggles[key] = !ftexToggles[key]
+        document.getElementById(id).setAttribute('data-st-active', String(ftexToggles[key]))
+      })
+    })
+    document.getElementById('ftex-apply').addEventListener('click', async () => {
+      if (!shopmap) return
+      const facadeUrl = document.getElementById('ftex-url-facade').value.trim() || undefined
+      const roadUrl   = document.getElementById('ftex-url-road').value.trim()   || undefined
+      const bridgeUrl = document.getElementById('ftex-url-bridge').value.trim() || undefined
+      log('Feature textures loading…' + (facadeUrl ? ' [facade URL]' : '') +
+          (roadUrl ? ' [road URL]' : '') + (bridgeUrl ? ' [bridge URL]' : ''))
+      await shopmap.enableFeatureTextures({ ...ftexToggles, facadeUrl, roadUrl, bridgeUrl })
+      setActive('ftex-apply', ['ftex-disable'])
+      log('Feature textures applied — buildings:' + ftexToggles.buildings +
+          ' roads:' + ftexToggles.roads + ' bridges:' + ftexToggles.bridges)
+    })
+    document.getElementById('ftex-disable').addEventListener('click', () => {
+      if (!shopmap) return
+      shopmap.disableFeatureTextures()
+      setActive('ftex-disable', ['ftex-apply'])
+      log('Feature textures disabled')
+    })
+
+    // ── ⑬ Token readout ──
+    const COLOR_KEYS = ['land', 'water', 'roads', 'roadsMinor', 'buildings', 'labels', 'parks', 'marker']
+
+    function refreshTokens() {
+      const listEl = document.getElementById('token-list')
+      try {
+        const tokens = ShopMap.resolveTokens(ShopMap.resolveTheme(
+          typeof currentTheme === 'string' ? currentTheme : 'light'
+        ))
+        listEl.innerHTML = ''
+        for (const key of COLOR_KEYS) {
+          const val = tokens[key] || ''
+          const cssKey = '--map-' + key.replace(/([A-Z])/g, '-$1').toLowerCase()
+          const row = document.createElement('div')
+          row.className = 'token-row'
+          row.innerHTML = `
+            <div class="token-swatch" style="background:${val}"></div>
+            <span class="token-key">${cssKey}</span>
+            <span class="token-val">${val}</span>
+          `
+          listEl.appendChild(row)
+        }
+      } catch(e) {
+        listEl.textContent = 'Token resolve error'
+      }
+    }
+
+    // ── Boot ──
+    syncTokenPickers()
+    refreshTokens()
+  </script>
+
+</body>
+</html>
