@@ -1,0 +1,270 @@
+{
+  "type": "FeatureCollection",
+  "_source": "Curated place names reflecting India's official territorial claims and naming conventions.",
+  "_license": "MIT",
+  "_note": "Labels for disputed and sensitive regions. Names follow India's official position.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Aksai Chin",
+        "name:en": "Aksai Chin",
+        "name:hi": "अक्साई चिन",
+        "place": "region",
+        "admin_level": 4,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Administered by China; claimed by India as part of Ladakh UT"
+      },
+      "geometry": { "type": "Point", "coordinates": [79.6484, 35.1367] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Shaksgam Valley",
+        "name:en": "Shaksgam Valley",
+        "name:hi": "शक्सगाम घाटी",
+        "place": "region",
+        "admin_level": 4,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Ceded to China by Pakistan in 1963; claimed by India as part of Gilgit-Baltistan"
+      },
+      "geometry": { "type": "Point", "coordinates": [76.4648, 36.4648] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gilgit-Baltistan",
+        "name:en": "Gilgit-Baltistan",
+        "name:hi": "गिलगित-बाल्टिस्तान",
+        "place": "region",
+        "admin_level": 4,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Administered by Pakistan; claimed by India as part of Jammu and Kashmir"
+      },
+      "geometry": { "type": "Point", "coordinates": [74.5020, 35.9199] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Azad Kashmir (PoK)",
+        "name:en": "Azad Kashmir (Pakistan-Occupied Kashmir)",
+        "name:hi": "पाक अधिकृत कश्मीर",
+        "place": "region",
+        "admin_level": 4,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Administered by Pakistan; claimed by India as part of Jammu and Kashmir UT"
+      },
+      "geometry": { "type": "Point", "coordinates": [74.0020, 34.3652] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Depsang Plains",
+        "name:en": "Depsang Plains",
+        "name:hi": "देपसांग मैदान",
+        "place": "region",
+        "admin_level": 6,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Part of India's Ladakh UT; Chinese incursions recorded"
+      },
+      "geometry": { "type": "Point", "coordinates": [77.7832, 35.5273] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Siachen Glacier",
+        "name:en": "Siachen Glacier",
+        "name:hi": "सियाचिन हिमनद",
+        "place": "region",
+        "admin_level": 6,
+        "disputed": false,
+        "country_claim": "IN",
+        "note": "Controlled by India; Pakistan claims the area"
+      },
+      "geometry": { "type": "Point", "coordinates": [76.8359, 35.4199] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Arunachal Pradesh",
+        "name:en": "Arunachal Pradesh",
+        "name:hi": "अरुणाचल प्रदेश",
+        "place": "state",
+        "admin_level": 4,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Indian state; China refers to it as 'South Tibet' and claims most of the territory"
+      },
+      "geometry": { "type": "Point", "coordinates": [94.7266, 27.9980] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Tawang",
+        "name:en": "Tawang",
+        "name:hi": "तवांग",
+        "place": "town",
+        "admin_level": 6,
+        "disputed": false,
+        "country_claim": "IN"
+      },
+      "geometry": { "type": "Point", "coordinates": [91.8594, 27.5859] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Itanagar",
+        "name:en": "Itanagar",
+        "name:hi": "ईटानगर",
+        "place": "city",
+        "admin_level": 6,
+        "disputed": false,
+        "country_claim": "IN",
+        "note": "Capital of Arunachal Pradesh"
+      },
+      "geometry": { "type": "Point", "coordinates": [93.6053, 27.0844] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bomdila",
+        "name:en": "Bomdila",
+        "name:hi": "बोमडिला",
+        "place": "town",
+        "admin_level": 6,
+        "disputed": false,
+        "country_claim": "IN"
+      },
+      "geometry": { "type": "Point", "coordinates": [92.4098, 27.2645] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Dibang Valley",
+        "name:en": "Dibang Valley",
+        "name:hi": "दिबांग घाटी",
+        "place": "region",
+        "admin_level": 6,
+        "disputed": false,
+        "country_claim": "IN"
+      },
+      "geometry": { "type": "Point", "coordinates": [95.7000, 28.6500] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Pangong Lake",
+        "name:en": "Pangong Tso",
+        "name:hi": "पैंगोंग त्सो",
+        "place": "lake",
+        "admin_level": 6,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Eastern portion controlled by China; India claims full lake"
+      },
+      "geometry": { "type": "Point", "coordinates": [78.9600, 33.7700] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Leh",
+        "name:en": "Leh",
+        "name:hi": "लेह",
+        "place": "city",
+        "admin_level": 6,
+        "disputed": false,
+        "country_claim": "IN",
+        "note": "Capital of Ladakh UT"
+      },
+      "geometry": { "type": "Point", "coordinates": [77.5771, 34.1526] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Srinagar",
+        "name:en": "Srinagar",
+        "name:hi": "श्रीनगर",
+        "place": "city",
+        "admin_level": 6,
+        "disputed": false,
+        "country_claim": "IN",
+        "note": "Capital of Jammu and Kashmir UT"
+      },
+      "geometry": { "type": "Point", "coordinates": [74.7973, 34.0836] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gilgit",
+        "name:en": "Gilgit",
+        "name:hi": "गिलगित",
+        "place": "city",
+        "admin_level": 6,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "City in Pakistan-administered Gilgit-Baltistan; claimed by India"
+      },
+      "geometry": { "type": "Point", "coordinates": [74.3082, 35.9219] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Muzaffarabad",
+        "name:en": "Muzaffarabad",
+        "name:hi": "मुज़फ़्फ़राबाद",
+        "place": "city",
+        "admin_level": 6,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Capital of Azad Kashmir (PoK); claimed by India"
+      },
+      "geometry": { "type": "Point", "coordinates": [73.4715, 34.3696] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Karakoram Pass",
+        "name:en": "Karakoram Pass",
+        "name:hi": "काराकोरम दर्रा",
+        "place": "pass",
+        "admin_level": 8,
+        "disputed": false,
+        "country_claim": "IN"
+      },
+      "geometry": { "type": "Point", "coordinates": [77.8320, 35.5078] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "McMahon Line",
+        "name:en": "McMahon Line",
+        "name:hi": "मैकमोहन रेखा",
+        "place": "boundary",
+        "admin_level": 2,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "India's claimed boundary with China in the northeast; China does not recognise it"
+      },
+      "geometry": { "type": "Point", "coordinates": [94.0000, 28.2000] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Sir Creek",
+        "name:en": "Sir Creek",
+        "name:hi": "सर क्रीक",
+        "place": "region",
+        "admin_level": 6,
+        "disputed": true,
+        "country_claim": "IN",
+        "note": "Tidal estuary disputed between India and Pakistan; near Rann of Kutch"
+      },
+      "geometry": { "type": "Point", "coordinates": [68.2031, 23.6523] }
+    }
+  ]
+}
