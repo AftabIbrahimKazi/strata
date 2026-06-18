@@ -1,0 +1,19 @@
+{
+  "_note": "Country-specific layer override defaults for India. Loaded at runtime by LayerManager. All fields can be overridden by the developer via the layers.overrides config option.",
+  "bbox": [68, 8, 98, 38],
+  "hideLayers": [
+    "boundary_2",
+    "boundary_3",
+    "boundary_disputed"
+  ],
+  "osmFilter": {
+    "_note": "Hides India's own borders (adm0 IND) and Bhutan's (adm0 BTN — Bhutan is an Indian protectorate, drawn from our custom data), disputed lines, sub-national lines, and the PAK–CHN Karakoram pair (entirely claimed by India), inside the bbox. Neighbour-vs-neighbour international borders (Nepal–China, Afghanistan–Pakistan, China–Myanmar) stay visible.",
+    "adm0Fields": ["adm0_l", "adm0_r"],
+    "adm0Values": ["IND", "BTN"],
+    "hideDisputed": true,
+    "hideSubnational": true,
+    "hidePairs": [["PAK", "CHN"]]
+  },
+  "width": 1.5,
+  "attribution": "© Natural Earth (Public Domain — naturalearthdata.com)"
+}

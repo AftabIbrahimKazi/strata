@@ -1,0 +1,82 @@
+{
+  "name": "@strata-packages/shopmap",
+  "version": "0.2.0",
+  "description": "Lightweight, theme-aware map component with terrain, hypsometric tinting, and procedural hillshading. Zero API keys. Free for commercial use.",
+  "license": "MIT",
+  "main": "dist/shopmap.cjs.js",
+  "module": "dist/shopmap.esm.js",
+  "types": "dist/shopmap.d.ts",
+  "bin": {
+    "shopmap": "dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/shopmap.esm.js",
+      "require": "./dist/shopmap.cjs.js",
+      "types": "./dist/shopmap.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "layers",
+    "README.md",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c --watch",
+    "test": "vitest run",
+    "prepublishOnly": "npm test && npm run build"
+  },
+  "keywords": [
+    "map",
+    "shopmap",
+    "maplibre",
+    "pmtiles",
+    "location",
+    "theme",
+    "terrain",
+    "hillshade",
+    "hypsometric",
+    "strata",
+    "strata-css"
+  ],
+  "author": "Aftab Ibrahim Kazi",
+  "homepage": "https://aftabibrahimkazi.github.io/strata",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
+  },
+  "dependencies": {
+    "maplibre-gl": "^4.7.1",
+    "pmtiles": "^3.2.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@types/jsdom": "^28.0.3",
+    "@types/node": "^22.19.21",
+    "commander": "^12.1.0",
+    "inquirer": "^10.2.2",
+    "jsdom": "^29.1.1",
+    "rollup": "^4.27.4",
+    "rollup-plugin-dts": "^6.1.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "strata-css": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "strata-css": {
+      "optional": true
+    }
+  }
+}
