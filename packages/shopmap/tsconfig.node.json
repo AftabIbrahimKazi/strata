@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node10",
+    "ignoreDeprecations": "6.0",
+    "lib": ["ES2020"],
+    "types": ["node"],
+    "strict": true,
+    "declaration": false,
+    "outDir": "./dist/cli",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/cli/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
