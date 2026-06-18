@@ -1,0 +1,12 @@
+[
+  { "id": "t1", "name": "Oxford Circus Station", "category": "transit",    "lat": 51.5154, "lng": -0.1416 },
+  { "id": "t2", "name": "Bond Street Station",   "category": "transit",    "lat": 51.5143, "lng": -0.1494 },
+  { "id": "h1", "name": "St Mary's Hospital",    "category": "hospital",   "lat": 51.5148, "lng": -0.1741 },
+  { "id": "r1", "name": "The Ivy Restaurant",    "category": "restaurant", "lat": 51.5121, "lng": -0.1257 },
+  { "id": "r2", "name": "Sketch London",         "category": "restaurant", "lat": 51.5127, "lng": -0.1444 },
+  { "id": "c1", "name": "Caffe Nero",            "category": "cafe",       "lat": 51.5089, "lng": -0.1283 },
+  { "id": "c2", "name": "Costa Coffee",          "category": "cafe",       "lat": 51.5097, "lng": -0.1350 },
+  { "id": "b1", "name": "Barclays Bank",         "category": "bank",       "lat": 51.5094, "lng": -0.1318 },
+  { "id": "p1", "name": "Boots Pharmacy",        "category": "pharmacy",   "lat": 51.5080, "lng": -0.1245 },
+  { "id": "pk1","name": "NCP Car Park",          "category": "parking",    "lat": 51.5110, "lng": -0.1350 }
+]
