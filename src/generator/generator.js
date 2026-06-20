@@ -100,13 +100,13 @@ function indent(css) {
 }
 
 // Keep generateAST for compatibility
-function generateAST(classNames, config = {}) {
+function generateAST(classNames, config = {}, from = undefined) {
   const postcss = require('postcss')
   const { componentCSS, utilityCSS } = generate(classNames, config)
 
   return {
-    componentAST: componentCSS ? postcss.parse(componentCSS) : null,
-    utilityAST:   utilityCSS   ? postcss.parse(utilityCSS)   : null,
+    componentAST: componentCSS ? postcss.parse(componentCSS, { from }) : null,
+    utilityAST:   utilityCSS   ? postcss.parse(utilityCSS,   { from }) : null,
   }
 }
 
