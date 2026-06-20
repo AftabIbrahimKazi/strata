@@ -1,6 +1,6 @@
 {
   "name": "strata-css",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "_versioningNote": "Stable: 1.0.0 / 1.1.0 / 2.0.0  |  Beta: 1.1.0-beta.1 / 1.1.0-beta.2",
   "description": "A modern CSS framework combining Bootstrap components with Tailwind JIT processing",
   "main": "src/index.js",
@@ -30,8 +30,8 @@
     "publish:stable": "npm publish --tag latest",
     "publish:beta": "npm publish --tag beta",
     "publish:skeleton": "npm publish --workspace packages/skeleton-loader --tag latest",
-    "publish:modal":    "npm publish --workspace packages/modal --tag latest",
-    "publish:chart":    "npm publish --workspace packages/chart --tag latest"
+    "publish:modal": "npm publish --workspace packages/modal --tag latest",
+    "publish:chart": "npm publish --workspace packages/chart --tag latest"
   },
   "keywords": [
     "css",
@@ -73,6 +73,7 @@
     "postcss": "^8.5.14"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   }
 }
