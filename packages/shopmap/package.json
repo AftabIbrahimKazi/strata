@@ -64,12 +64,12 @@
     "@types/jsdom": "^28.0.3",
     "@types/node": "^22.19.21",
     "commander": "^12.1.0",
-    "inquirer": "^10.2.2",
+    "inquirer": "^14.0.2",
     "jsdom": "^29.1.1",
     "rollup": "^4.27.4",
     "rollup-plugin-dts": "^6.1.1",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^4.1.9"
   },
   "peerDependencies": {
     "strata-css": ">=1.0.0"
