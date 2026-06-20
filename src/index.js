@@ -40,9 +40,9 @@ function loadConfig(cwd) {
 const BASE_CSS = require('./layers/base').trim()
 let   BASE_AST = null
 
-function getBaseAST() {
+function getBaseAST(from) {
   if (!postcss) postcss = require('postcss')
-  if (!BASE_AST) BASE_AST = postcss.parse(BASE_CSS)
+  if (!BASE_AST) BASE_AST = postcss.parse(BASE_CSS, { from })
   return BASE_AST
 }
 
@@ -70,9 +70,10 @@ function readInputCSS(inputCSSPath) {
 const plugin = (opts = {}) => ({
   postcssPlugin: 'strata-css',
 
-  async Once(root) {
+  async Once(root, { result }) {
     if (!postcss) postcss = require('postcss')
 
+    const from   = result.opts.from
     const cwd    = opts.cwd || process.cwd()
     const config = loadConfig(cwd)
 
@@ -91,14 +92,12 @@ const plugin = (opts = {}) => ({
     root.walkAtRules('strata', rule => {
       const d = rule.params.trim()
       if (d === 'base' && !baseInserted) {
-        rule.replaceWith(getBaseAST().clone())
+        rule.replaceWith(getBaseAST(from).clone())
         baseInserted = true
       } else if (d === 'components') {
-        // componentCSS now contains multiple @layer sub-layer blocks
-        componentCSS ? rule.replaceWith(postcss.parse(componentCSS)) : rule.remove()
+        componentCSS ? rule.replaceWith(postcss.parse(componentCSS, { from })) : rule.remove()
       } else if (d === 'utilities') {
-        // utilityCSS now contains multiple @layer sub-layer blocks
-        utilityCSS ? rule.replaceWith(postcss.parse(utilityCSS)) : rule.remove()
+        utilityCSS ? rule.replaceWith(postcss.parse(utilityCSS, { from })) : rule.remove()
       } else {
         rule.remove()
       }
