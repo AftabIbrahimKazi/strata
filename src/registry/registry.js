@@ -2716,6 +2716,19 @@ reg('translate-middle',   'utilities', `.translate-middle   { transform: transla
 reg('translate-middle-x', 'utilities', `.translate-middle-x { transform: translateX(-50%);      }`)
 reg('translate-middle-y', 'utilities', `.translate-middle-y { transform: translateY(-50%);      }`)
 
+// ─── Positional offset scale: top/right/bottom/left/inset ────────────
+;[
+  ['top',    'top'],
+  ['bottom', 'bottom'],
+  ['start',  'left'],
+  ['end',    'right'],
+].forEach(([cls, prop]) => {
+  reg(`${cls}-0`,   'utilities', `.${cls}-0   { ${prop}: 0; }`)
+  reg(`${cls}-50`,  'utilities', `.${cls}-50  { ${prop}: 50%; }`)
+  reg(`${cls}-100`, 'utilities', `.${cls}-100 { ${prop}: 100%; }`)
+})
+reg('inset-0', 'utilities', `.inset-0 { inset: 0; }`)
+
 // ─── Sizing extras ────────────────────────────────────────────────────
 reg('mw-100',    'utilities', `.mw-100    { max-width:  100%; }`)
 reg('mh-100',    'utilities', `.mh-100    { max-height: 100%; }`)
@@ -3247,6 +3260,42 @@ const ARBITRARY_PATTERNS = [
   // Cursor arbitrary: cursor-[crosshair]
   { re: /^cursor-\[(.+)\]$/, fn: (m) => {
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { cursor: ${m[1]}; }` }
+  }},
+  // Positional offset arbitrary: top-[var(--h)], bottom-[2rem], left-[10px], right-[0], inset-[...]
+  { re: /^(!?)top-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { top: ${m[2]}${i}; }` }
+  }},
+  { re: /^(!?)bottom-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { bottom: ${m[2]}${i}; }` }
+  }},
+  { re: /^(!?)left-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { left: ${m[2]}${i}; }` }
+  }},
+  { re: /^(!?)right-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { right: ${m[2]}${i}; }` }
+  }},
+  { re: /^(!?)inset-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { inset: ${m[2].replace(/_/g,' ')}${i}; }` }
+  }},
+  // object-position arbitrary: object-position-[center_top], object-position-[var(--pos)]
+  { re: /^(!?)object-position-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { object-position: ${m[2].replace(/_/g,' ')}${i}; }` }
+  }},
+  // grid-template-columns arbitrary: gtc-[1fr_1fr], gtc-[260px_1fr]
+  { re: /^(!?)gtc-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { grid-template-columns: ${m[2].replace(/_/g,' ')}${i}; }` }
+  }},
+  // grid-template-rows arbitrary: gtr-[auto_1fr_auto]
+  { re: /^(!?)gtr-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { grid-template-rows: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
 ]
 
