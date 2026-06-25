@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — Bug Fixes Test</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    :root {
+      --my-font-size: 1.3rem;
+      --my-weight: 700;
+      --my-gap: 1.5rem;
+    }
+    body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 860px; margin: auto; }
+    h1   { margin-bottom: 0.25rem; }
+    .section { margin: 2.5rem 0; }
+    h2   { font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+           color: #666; border-bottom: 1px solid #eee; padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .label { font-size: 0.75rem; color: #888; margin-bottom: 0.25rem; }
+    .pass  { display: inline-block; background: #22c55e; color: #fff;
+             font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+    .row   { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+
+<h1>Strata CSS — Bug Fixes Test</h1>
+<p>Each section tests one fixed issue. All boxes should render as described.</p>
+
+<!-- ─── BUG 1: rounded-pill ─────────────────────────────────────────────── -->
+<div class="section">
+  <h2>Bug 1 — <code>rounded-pill</code> on buttons <span class="pass">FIXED</span></h2>
+  <p class="label">All four buttons below must have pill (fully rounded) corners — previously the btn border-radius silently won.</p>
+  <div class="row">
+    <a class="btn-primary rounded-pill" href="#">btn-primary rounded-pill</a>
+    <a class="btn-secondary rounded-pill" href="#">btn-secondary rounded-pill</a>
+    <a class="btn-outline-primary rounded-pill" href="#">btn-outline-primary rounded-pill</a>
+    <a class="btn-outline-danger rounded-pill" href="#">btn-outline-danger rounded-pill</a>
+  </div>
+  <div class="row">
+    <a class="badge-pill badge-primary" href="#">badge-pill (was always correct)</a>
+    <a class="btn-sm btn-success rounded-pill" href="#">btn-sm rounded-pill</a>
+    <a class="btn-lg btn-warning rounded-pill" href="#">btn-lg rounded-pill</a>
+  </div>
+</div>
+
+<!-- ─── BUG 2: spacing underscore → space ───────────────────────────────── -->
+<div class="section">
+  <h2>Bug 2 — Spacing arbitrary underscore → space <span class="pass">FIXED</span></h2>
+  <p class="label">Shorthand values like <code>p-[10px_20px]</code> must produce <code>padding: 10px 20px</code> (not literal underscores).</p>
+  <div class="row">
+    <div class="p-[10px_30px]" style="background:#e0f2fe; display:inline-block">
+      <code>p-[10px_30px]</code> — 10px top/bottom, 30px left/right
+    </div>
+  </div>
+  <div class="row">
+    <div class="m-[4px_12px_4px_24px]" style="background:#fef3c7; display:inline-block; padding:4px 8px">
+      <code>m-[4px_12px_4px_24px]</code> — 4-sided margin shorthand
+    </div>
+  </div>
+  <div class="row">
+    <div class="px-[2rem_1rem]" style="background:#f0fdf4; display:inline-block; padding-top:4px; padding-bottom:4px">
+      <code>px-[2rem]</code> works as before
+    </div>
+    <div class="pt-[24px]" style="background:#fdf4ff; display:inline-block; padding-left:8px; padding-right:8px; padding-bottom:4px">
+      <code>pt-[24px]</code>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BUG 3: fs-[...] font-size arbitrary ─────────────────────────────── -->
+<div class="section">
+  <h2>Bug 3 — <code>fs-[...]</code> for token-based font-size <span class="pass">FIXED</span></h2>
+  <p class="label"><code>text-[var(...)]</code> was broken for tokens (routed to color). New <code>fs-[...]</code> prefix always means font-size.</p>
+  <div class="row">
+    <span class="fs-[var(--my-font-size)]">fs-[var(--my-font-size)] → 1.3rem</span>
+  </div>
+  <div class="row">
+    <span class="fs-[2rem]">fs-[2rem]</span>
+    <span class="fs-[0.75rem]">fs-[0.75rem]</span>
+    <span class="fs-[clamp(1rem,2vw,1.5rem)]">fs-[clamp(1rem,2vw,1.5rem)]</span>
+  </div>
+  <div class="row">
+    <span class="label">text-[...] still works for bare literals and colors:</span>
+    <span class="text-[1.25rem]">text-[1.25rem] → font-size</span>
+    <span class="text-[#e63946]">text-[#e63946] → color</span>
+  </div>
+</div>
+
+<!-- ─── BUG 4: bg-[...] gradient support ────────────────────────────────── -->
+<div class="section">
+  <h2>Bug 4 — <code>bg-[...]</code> supports gradients <span class="pass">FIXED</span></h2>
+  <p class="label">Previously hardcoded to <code>background-color</code> which rejects gradients. Now uses <code>background</code> shorthand.</p>
+  <div style="height:3rem; margin-bottom:0.5rem" class="bg-[linear-gradient(to_right,#6366f1,#ec4899)] rounded-2">
+    <code style="color:#fff; padding:0.5rem">bg-[linear-gradient(to_right,#6366f1,#ec4899)]</code>
+  </div>
+  <div style="height:3rem; margin-bottom:0.5rem" class="bg-[radial-gradient(circle,#fbbf24,#ef4444)] rounded-2">
+    <code style="color:#fff; padding:0.5rem">bg-[radial-gradient(circle,#fbbf24,#ef4444)]</code>
+  </div>
+  <div style="height:2rem" class="bg-[#22c55e] rounded-2">
+    <code style="color:#fff; padding:0.5rem">bg-[#22c55e] — solid color still works</code>
+  </div>
+</div>
+
+<!-- ─── FEATURE: gap-[...] arbitrary ────────────────────────────────────── -->
+<div class="section">
+  <h2>New — <code>gap-[...]</code> arbitrary value <span class="pass">ADDED</span></h2>
+  <p class="label">Token-based gap values are now expressible — <code>gap-[var(--my-gap)]</code>, <code>gap-[1rem_2rem]</code>.</p>
+  <div class="d-flex gap-[var(--my-gap)]" style="background:#f8fafc; padding:0.5rem; border-radius:6px">
+    <div style="background:#6366f1;color:#fff;padding:0.5rem 1rem;border-radius:4px">Item A</div>
+    <div style="background:#6366f1;color:#fff;padding:0.5rem 1rem;border-radius:4px">Item B</div>
+    <div style="background:#6366f1;color:#fff;padding:0.5rem 1rem;border-radius:4px">Item C</div>
+  </div>
+  <p class="label" style="margin-top:0.5rem"><code>gap-[var(--my-gap)]</code> = 1.5rem between items above</p>
+  <div class="d-flex gap-[8px_32px] flex-wrap" style="background:#f8fafc; padding:0.5rem; border-radius:6px; margin-top:0.5rem">
+    <div style="background:#ec4899;color:#fff;padding:0.5rem 1rem;border-radius:4px">Row gap 8px</div>
+    <div style="background:#ec4899;color:#fff;padding:0.5rem 1rem;border-radius:4px">Col gap 32px</div>
+    <div style="background:#ec4899;color:#fff;padding:0.5rem 1rem;border-radius:4px">Item C</div>
+  </div>
+  <p class="label" style="margin-top:0.5rem"><code>gap-[8px_32px]</code> — row 8px, column 32px</p>
+</div>
+
+<!-- ─── FEATURE: fw-[...] arbitrary ─────────────────────────────────────── -->
+<div class="section">
+  <h2>New — <code>fw-[...]</code> arbitrary font-weight <span class="pass">ADDED</span></h2>
+  <p class="label">Token-based or custom font-weight values — <code>fw-[var(--my-weight)]</code>, <code>fw-[350]</code>.</p>
+  <div class="row">
+    <span class="fw-[var(--my-weight)]">fw-[var(--my-weight)] = 700</span>
+    <span class="fw-[350]">fw-[350] thin-ish</span>
+    <span class="fw-[900]">fw-[900] black</span>
+    <span class="fw-[100]">fw-[100] hairline</span>
+  </div>
+</div>
+
+<!-- ─── Unchanged: text-[...] still works as before ─────────────────────── -->
+<div class="section">
+  <h2>Regression check — existing arbitrary values unchanged</h2>
+  <div class="row">
+    <span class="text-[#e63946]">text-[#e63946] color</span>
+    <span class="text-[1.5rem]">text-[1.5rem] font-size</span>
+    <span class="w-[200px] bg-secondary text-white p-2 text-center">w-[200px]</span>
+    <span class="shadow-[0_4px_20px_rgba(0,0,0,0.15)] p-2 rounded">shadow arbitrary</span>
+    <span class="border-[2px_solid_#6366f1] p-2 rounded">border arbitrary</span>
+  </div>
+  <div class="row">
+    <span class="rounded">rounded</span>
+    <span class="rounded-0">rounded-0</span>
+    <span class="rounded-3">rounded-3</span>
+    <span class="rounded-circle p-2" style="background:#e0f2fe">rounded-circle</span>
+    <span class="rounded-top p-2" style="background:#fef3c7">rounded-top</span>
+  </div>
+</div>
+
+</body>
+</html>

@@ -2,6 +2,21 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.3.0] — 2026-06-26
+
+### Fixed
+- **`rounded-pill` layer corrected** — was registered as `'components'`, causing it to be silently overridden by any `btn-*` or `btn-outline-*` class. Moved to `'utilities'` layer, consistent with every other `rounded-*` class.
+- **Spacing arbitrary underscore replacement** — `p-[10px_20px]` now correctly emits `padding: 10px 20px`. Previously underscores were passed through literally, producing invalid CSS.
+- **`bg-[...]` uses `background` shorthand** — was hardcoded to `background-color`, which rejects gradient values. Shorthand works for both solid colors and gradients.
+
+### Added
+- **`fs-[...]` arbitrary** — dedicated font-size arbitrary prefix. Resolves the `text-[var(--token)]` ambiguity: `fs-[var(--my-size)]`, `fs-[clamp(1rem,2vw,2rem)]` always emit `font-size`.
+- **`gap-[...]` arbitrary** — token-based and custom gap values: `gap-[var(--space)]`, `gap-[1rem_2rem]`. Underscore-to-space replacement supported.
+- **`row-gap-[...]` and `col-gap-[...]` arbitrary** — per-axis gap control.
+- **`fw-[...]` arbitrary** — token-based and custom font-weight: `fw-[var(--heading-weight)]`, `fw-[350]`.
+
+---
+
 ## [1.2.7] — 2026-06-15
 
 ### Fixed
