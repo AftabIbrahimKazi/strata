@@ -3136,7 +3136,7 @@ BP_KEYS.forEach(bp => {
 
 const ARBITRARY_PATTERNS = [
   // Spacing arbitrary: mt-[12px], !px-[2rem]
-  { re: /^(!?)(m[trblxye]?|p[trblxye]?)-\[(.+)\]$/, fn: (m) => {
+  { re: /^(!?)(m[trblxyes]?|p[trblxyes]?)-\[(.+)\]$/, fn: (m) => {
     const [, imp, prop, val] = m
     const props = SPACING_PROPS[prop]
     if (!props) return null
