@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.3.1] — 2026-06-26
+
+### Fixed
+- **`ps-[...]` and `ms-[...]` arbitrary values now work** — spacing regex character class was missing `s`, so `ps` (padding-start/left) and `ms` (margin-start/left) arbitrary classes silently produced no CSS. `pe-[...]` and `me-[...]` were unaffected.
+
+---
+
 ## [1.3.0] — 2026-06-26
 
 ### Fixed
