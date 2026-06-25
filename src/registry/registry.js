@@ -628,7 +628,7 @@ BADGE_COLORS.forEach(color => {
 })
 
 reg('badge-pill', 'components', `.badge-pill { border-radius: 999px; }`)
-reg('rounded-pill', 'components', `.rounded-pill { border-radius: 999px; }`)
+reg('rounded-pill', 'utilities', `.rounded-pill { border-radius: 999px; }`)
 
 // ─── Components — Label (Bootstrap 3 aliases) ────────────────────────
 // .label and .label-{color} are Bootstrap 3's label component.
@@ -3141,7 +3141,7 @@ const ARBITRARY_PATTERNS = [
     const props = SPACING_PROPS[prop]
     if (!props) return null
     const i = imp ? ' !important' : ''
-    const decl = props.map(p => `  ${p}: ${val}${i};`).join('\n')
+    const decl = props.map(p => `  ${p}: ${val.replace(/_/g,' ')}${i};`).join('\n')
     return { layer: 'utilities', css: `.${escapeClass(m[0])} {\n${decl}\n}` }
   }},
   // Text arbitrary: text-[#ff0000] → color, text-[15px] → font-size
@@ -3154,10 +3154,17 @@ const ARBITRARY_PATTERNS = [
       : 'color'
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${prop}: ${val}${i}; }` }
   }},
-  // BG arbitrary: bg-[#ff0000]
-  { re: /^(!?)bg-\[(.+)\]$/, fn: (m) => {
+  // Font-size arbitrary: fs-[var(--token)], fs-[1.25rem] — unambiguous, always font-size
+  { re: /^(!?)fs-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { background-color: ${m[2]}${i}; }` }
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { font-size: ${m[2]}${i}; }` }
+  }},
+  // BG arbitrary: bg-[#ff0000], bg-[linear-gradient(...)]
+  { re: /^(!?)bg-\[(.+)\]$/, fn: (m) => {
+    const i   = m[1] ? ' !important' : ''
+    const val = m[2].replace(/_/g, ' ')
+    // Use background shorthand so gradients work; solid colors also work with shorthand
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { background: ${val}${i}; }` }
   }},
   // Border arbitrary: border-[2px_solid_red]
   { re: /^(!?)border-\[(.+)\]$/, fn: (m) => {
@@ -3212,6 +3219,26 @@ const ARBITRARY_PATTERNS = [
   // Transition arbitrary: transition-[background-color_0.3s_ease]
   { re: /^transition-\[(.+)\]$/, fn: (m) => {
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { transition: ${m[1].replace(/_/g,' ')}; }` }
+  }},
+  // Gap arbitrary: gap-[var(--space)], gap-[1rem_2rem]
+  { re: /^(!?)gap-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { gap: ${m[2].replace(/_/g,' ')}${i}; }` }
+  }},
+  // Row-gap arbitrary: row-gap-[1rem]
+  { re: /^(!?)row-gap-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { row-gap: ${m[2]}${i}; }` }
+  }},
+  // Col-gap arbitrary: col-gap-[1rem]
+  { re: /^(!?)col-gap-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { column-gap: ${m[2]}${i}; }` }
+  }},
+  // Font-weight arbitrary: fw-[var(--token)], fw-[600]
+  { re: /^(!?)fw-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { font-weight: ${m[2]}${i}; }` }
   }},
   // Duration arbitrary: duration-[400ms]
   { re: /^duration-\[(.+)\]$/, fn: (m) => {
