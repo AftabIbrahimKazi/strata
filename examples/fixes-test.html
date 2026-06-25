@@ -151,5 +151,81 @@
   </div>
 </div>
 
+<!-- ─── #9: Positional offset ────────────────────────────────────────────── -->
+<div class="section">
+  <h2>New — Positional offset utilities &amp; arbitrary <span class="pass">ADDED</span></h2>
+  <p class="label">Named scale: <code>top-0/50/100</code>, <code>bottom-0/50/100</code>, <code>start-0/50/100</code>, <code>end-0/50/100</code>, <code>inset-0</code>. Arbitrary: <code>top-[...]</code>, <code>bottom-[...]</code>, <code>left-[...]</code>, <code>right-[...]</code>, <code>inset-[...]</code>.</p>
+
+  <!-- Named scale: pins to corners -->
+  <div style="position:relative; height:120px; background:#f1f5f9; border-radius:6px; margin-bottom:0.5rem">
+    <span class="position-absolute top-0 start-0 bg-primary text-white p-1 rounded-2" style="font-size:0.7rem">top-0 start-0</span>
+    <span class="position-absolute top-0 end-0 bg-secondary text-white p-1 rounded-2" style="font-size:0.7rem">top-0 end-0</span>
+    <span class="position-absolute bottom-0 start-0 bg-success text-white p-1 rounded-2" style="font-size:0.7rem">bottom-0 start-0</span>
+    <span class="position-absolute bottom-0 end-0 bg-danger text-white p-1 rounded-2" style="font-size:0.7rem">bottom-0 end-0</span>
+    <span class="position-absolute top-50 start-50 translate-middle bg-warning text-dark p-1 rounded-2" style="font-size:0.7rem">top-50 start-50 translate-middle</span>
+  </div>
+
+  <!-- Arbitrary offset -->
+  <div style="position:relative; height:80px; background:#f8fafc; border-radius:6px">
+    <span class="position-absolute top-[12px] left-[20px] bg-primary text-white p-1 rounded-2" style="font-size:0.7rem">top-[12px] left-[20px]</span>
+    <span class="position-absolute bottom-[8px] right-[20px] bg-info text-white p-1 rounded-2" style="font-size:0.7rem">bottom-[8px] right-[20px]</span>
+  </div>
+
+  <!-- inset-0 overlay -->
+  <p class="label" style="margin-top:0.5rem"><code>inset-0</code> — fills parent completely:</p>
+  <div style="position:relative; height:60px; background:#e0f2fe; border-radius:6px; overflow:hidden">
+    <div class="position-absolute inset-0" style="background:rgba(99,102,241,0.25); display:flex; align-items:center; justify-content:center">
+      <code>position-absolute inset-0</code>
+    </div>
+  </div>
+</div>
+
+<!-- ─── #10: object-position ─────────────────────────────────────────────── -->
+<div class="section">
+  <h2>New — <code>object-position-[...]</code> arbitrary <span class="pass">ADDED</span></h2>
+  <p class="label"><code>object-position-[center_top]</code>, <code>object-position-[50%_20%]</code>, <code>object-position-[var(--pos)]</code></p>
+  <div class="row">
+    <div style="width:120px;height:80px;overflow:hidden;border-radius:6px;border:1px solid #e2e8f0">
+      <img src="https://picsum.photos/200/200" class="w-100 h-100 object-fit-cover object-position-[center_top]" alt="">
+      <p class="label" style="text-align:center;margin:0">center top</p>
+    </div>
+    <div style="width:120px;height:80px;overflow:hidden;border-radius:6px;border:1px solid #e2e8f0">
+      <img src="https://picsum.photos/200/200" class="w-100 h-100 object-fit-cover object-position-[left_bottom]" alt="">
+      <p class="label" style="text-align:center;margin:0">left bottom</p>
+    </div>
+    <div style="width:120px;height:80px;overflow:hidden;border-radius:6px;border:1px solid #e2e8f0">
+      <img src="https://picsum.photos/200/200" class="w-100 h-100 object-fit-cover object-position-[80%_20%]" alt="">
+      <p class="label" style="text-align:center;margin:0">80% 20%</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── #11: grid-template-columns ──────────────────────────────────────── -->
+<div class="section">
+  <h2>New — <code>gtc-[...]</code> grid-template-columns arbitrary <span class="pass">ADDED</span></h2>
+  <p class="label"><code>gtc-[260px_1fr]</code>, <code>gtc-[1fr_1fr_1fr]</code>, <code>gtc-[repeat(3,1fr)]</code>. Also <code>gtr-[...]</code> for rows.</p>
+
+  <p class="label">gtc-[260px_1fr] — sidebar + content:</p>
+  <div class="d-grid gtc-[260px_1fr]" style="gap:0.5rem; margin-bottom:1rem">
+    <div style="background:#6366f1;color:#fff;padding:0.75rem;border-radius:6px">Sidebar (260px)</div>
+    <div style="background:#e0e7ff;padding:0.75rem;border-radius:6px">Content (1fr)</div>
+  </div>
+
+  <p class="label">gtc-[1fr_1fr_1fr] — equal 3 columns:</p>
+  <div class="d-grid gtc-[1fr_1fr_1fr]" style="gap:0.5rem; margin-bottom:1rem">
+    <div style="background:#f0fdf4;padding:0.75rem;border-radius:6px;text-align:center">Col 1</div>
+    <div style="background:#f0fdf4;padding:0.75rem;border-radius:6px;text-align:center">Col 2</div>
+    <div style="background:#f0fdf4;padding:0.75rem;border-radius:6px;text-align:center">Col 3</div>
+  </div>
+
+  <p class="label">gtc-[repeat(4,1fr)] — 4 equal cols:</p>
+  <div class="d-grid gtc-[repeat(4,1fr)]" style="gap:0.5rem">
+    <div style="background:#fef3c7;padding:0.75rem;border-radius:6px;text-align:center">A</div>
+    <div style="background:#fef3c7;padding:0.75rem;border-radius:6px;text-align:center">B</div>
+    <div style="background:#fef3c7;padding:0.75rem;border-radius:6px;text-align:center">C</div>
+    <div style="background:#fef3c7;padding:0.75rem;border-radius:6px;text-align:center">D</div>
+  </div>
+</div>
+
 </body>
 </html>

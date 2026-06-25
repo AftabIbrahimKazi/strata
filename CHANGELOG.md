@@ -2,6 +2,17 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.0] — 2026-06-26
+
+### Added
+- **Positional offset named scale** — `top-0/50/100`, `bottom-0/50/100`, `start-0/50/100` (maps to `left`), `end-0/50/100` (maps to `right`), `inset-0`
+- **Positional offset arbitrary** — `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[...]` (inset supports underscore-to-space for multi-value shorthand)
+- **`object-position-[...]` arbitrary** — `object-position-[center_top]`, `object-position-[var(--pos)]`, etc. Completes `object-fit` coverage.
+- **`gtc-[...]` arbitrary** — `grid-template-columns`: `gtc-[260px_1fr]`, `gtc-[repeat(3,1fr)]`, `gtc-[var(--cols)]`
+- **`gtr-[...]` arbitrary** — `grid-template-rows`: `gtr-[auto_1fr_auto]`
+
+---
+
 ## [1.3.1] — 2026-06-26
 
 ### Fixed
