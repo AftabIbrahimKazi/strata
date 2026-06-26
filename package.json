@@ -1,6 +1,6 @@
 {
   "name": "strata-css",
-  "version": "1.4.1",
+  "version": "1.4.1-test.1",
   "_versioningNote": "Stable: 1.0.0 / 1.1.0 / 2.0.0  |  Beta: 1.1.0-beta.1 / 1.1.0-beta.2",
   "description": "A modern CSS framework combining Bootstrap components with Tailwind JIT processing",
   "main": "src/index.js",
