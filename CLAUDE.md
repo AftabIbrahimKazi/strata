@@ -390,8 +390,45 @@ See [Component CSS Variable Tokens](#component-css-variable-tokens) table.
 - `text-[#f00]` → `color: #f00` (color value detected)
 - `#`, `(`, `)`, `,` properly escaped in CSS class selectors
 
+## New in v1.3.0
+
+### Bug fixes
+- **`rounded-pill` moved to `'utilities'` layer** — was silently overridden by any `btn-*` class that also set `border-radius`. Now always wins.
+- **Spacing arbitrary underscore replacement** — `p-[10px_20px]` now correctly emits `padding: 10px 20px`.
+- **`bg-[...]` uses `background` shorthand** — enables gradient values: `bg-[linear-gradient(...)]`.
+- **`ps-[...]` / `ms-[...]` arbitrary now work** — regex character class was missing `s`.
+
+### New arbitrary values
+- **`fs-[...]`** — always `font-size`. Resolves `text-[var(--token)]` ambiguity.
+- **`gap-[...]`**, **`row-gap-[...]`**, **`col-gap-[...]`** — token-based gap: `gap-[var(--space)]`, `gap-[1rem_2rem]`
+- **`fw-[...]`** — token-based font-weight: `fw-[var(--heading-weight)]`, `fw-[350]`
+
+## New in v1.4.0
+
+### Positional offset utilities
+Named scale: `top-0/50/100`, `bottom-0/50/100`, `start-0/50/100`, `end-0/50/100`, `inset-0`
+
+Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1rem]`
+
+### object-position arbitrary
+`object-position-[center_top]`, `object-position-[var(--pos)]`, `object-position-[80%_20%]`
+
+### Grid template arbitrary
+`gtc-[260px_1fr]`, `gtc-[repeat(3,1fr)]`, `gtc-[var(--cols)]` → `grid-template-columns`
+`gtr-[auto_1fr_auto]` → `grid-template-rows`
+
+## New in v1.4.1
+
+### Bug fixes
+- **`fixed-top`, `fixed-bottom`, `sticky-top`, `sticky-bottom`, `sticky-{bp}-*` moved to `'components'` layer** — their bundled `z-index` can now be overridden by any `z-[n]` or `z-*` utility class.
+
+## New in v1.4.2
+
+### Bug fixes
+- **`%` now escaped in CSS selectors** — arbitrary classes like `top-[50%]`, `w-[33%]` previously produced invalid selectors the browser silently ignored. Fixed by adding `%` to `escapeClass()`.
+
 ## Known Limitations
 
 - Scanner uses a regex on `class="..."` attributes. Dynamic class construction (`class={\`prefix-${value}\`}`) is not detected — use safelisting in `strata.config.js`.
 - CSS variables cannot be used in `@media` query values — breakpoints use hardcoded `px` values.
-- `text-[value]`: length units → `font-size`, everything else → `color`.
+- `text-[value]`: length units → `font-size`, everything else → `color`. Use `fs-[...]` for token-based font-size.
