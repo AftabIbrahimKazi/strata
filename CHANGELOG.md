@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.1] — 2026-06-26
+
+### Fixed
+- **`fixed-top`, `fixed-bottom`, `sticky-top`, `sticky-bottom` and all `sticky-{bp}-*` variants moved from `'utilities'` to `'components'` layer** — their bundled `z-index` was impossible to override with a utility-layer `z-[n]` class because both landed in the same layer and source order always favoured the composite class. Moving to `'components'` means any `z-[n]` or `z-*` utility now wins unconditionally.
+
+---
+
 ## [1.4.0] — 2026-06-26
 
 ### Added
