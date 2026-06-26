@@ -431,15 +431,16 @@ BP_ORDER.forEach((bp, i) => {
 // ─── Components — Card ───────────────────────────────────────────────
 
 reg('card', 'components', `.card {
-  position:      relative;
-  display:       flex;
+  position:       relative;
+  display:        flex;
   flex-direction: column;
-  min-width:     0;
-  word-wrap:     break-word;
-  background:    var(--st-bg);
-  border:        1px solid var(--st-border);
-  border-radius: var(--st-border-radius);
-  box-shadow:    var(--st-shadow-sm);
+  height:         100%;
+  min-width:      0;
+  word-wrap:      break-word;
+  background:     var(--st-bg);
+  border:         1px solid var(--st-border);
+  border-radius:  var(--st-border-radius);
+  box-shadow:     var(--st-shadow-sm);
 }`)
 
 reg('card-body', 'components', `.card-body {

@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.3] — 2026-06-27
+
+### Fixed
+- **`card` now has `height: 100%`** — cards in a flex row or grid now stretch to equal height regardless of content length. Previously cards shrank to their content, producing mismatched heights across a row.
+
+---
+
 ## [1.4.2] — 2026-06-26
 
 ### Fixed
