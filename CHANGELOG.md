@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.2] — 2026-06-26
+
+### Fixed
+- **`escapeClass` now escapes `%`** — arbitrary classes with percentage values (e.g. `top-[50%]`, `w-[33%]`, `left-[10%]`) were producing invalid CSS selectors. The `%` was unescaped in the selector, causing the browser to silently ignore the rule entirely. Added `.replace(/%/g, '\\%')` to the escape chain.
+
+---
+
 ## [1.4.1] — 2026-06-26
 
 ### Fixed
