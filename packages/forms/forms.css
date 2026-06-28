@@ -83,7 +83,7 @@
   box-shadow: var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
 }
 
-.st-select.is-open .st-select-trigger {
+.st-select:has([aria-expanded="true"]) .st-select-trigger {
   border-color: var(--st-primary, #0d6efd);
   box-shadow:   var(--st-focus-ring, 0 0 0 0.25rem rgba(13,110,253,0.25));
 }
@@ -126,7 +126,7 @@
   transition:   transform var(--st-duration, 200ms) var(--st-easing, ease);
 }
 
-.st-select.is-open .st-select-arrow {
+.st-select:has([aria-expanded="true"]) .st-select-arrow {
   transform: rotate(225deg) translateY(-2px);
 }
 

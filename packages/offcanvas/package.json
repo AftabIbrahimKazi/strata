@@ -1,25 +1,26 @@
 {
-  "name": "@strata-packages/forms",
-  "version": "1.0.3",
-  "description": "Interactive form controls for Strata CSS — custom select with every variant developers need.",
-  "main": "forms.js",
-  "style": "forms.css",
+  "name": "@strata-packages/offcanvas",
+  "version": "1.0.0",
+  "description": "Lightweight offcanvas drawer component. Works standalone or with Strata CSS.",
+  "main": "offcanvas.js",
+  "style": "offcanvas.css",
   "exports": {
-    ".":     "./forms.js",
-    "./css": "./forms.css"
+    ".":     "./offcanvas.js",
+    "./css": "./offcanvas.css"
   },
   "files": [
-    "forms.js",
-    "forms.css",
+    "offcanvas.js",
+    "offcanvas.css",
     "README.md",
     "CHANGELOG.md",
     "CLAUDE.md"
   ],
   "keywords": [
-    "select",
-    "custom-select",
-    "multiselect",
-    "form",
+    "offcanvas",
+    "drawer",
+    "sidebar",
+    "panel",
+    "overlay",
     "strata",
     "strata-css"
   ],
@@ -34,7 +35,7 @@
     "url": "https://github.com/AftabIbrahimKazi/strata/issues"
   },
   "peerDependencies": {
-    "strata-css": ">=1.1.0"
+    "strata-css": ">=1.0.0"
   },
   "peerDependenciesMeta": {
     "strata-css": {

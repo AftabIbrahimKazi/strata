@@ -2,6 +2,11 @@
 
 All notable changes to `@strata-packages/skeleton-loader` are documented here.
 
+## [1.0.2] — 2026-06-28
+
+### Added
+- **`aria-busy` management** — `manage()` now sets `aria-busy="true"` on the container; `reveal()` sets `aria-busy="false"`. Screen readers now announce that content is loading without any developer markup required. CSS-only path: developer must manage `aria-busy` manually alongside their own toggle logic.
+
 ## [1.0.1] — 2026-06-09
 
 ### Added

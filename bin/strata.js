@@ -84,6 +84,7 @@ async function build(cssMinify = false, jsMinify = true) {
   const pkgDir        = path.join(__dirname, '..', 'packages')
   const packageFiles  = [
     path.join(pkgDir, 'modal',          'modal.js'),
+    path.join(pkgDir, 'offcanvas',      'offcanvas.js'),
     path.join(pkgDir, 'skeleton-loader','skeleton-loader.js'),
     path.join(pkgDir, 'chart',          'chart.js'),
   ]
@@ -183,6 +184,7 @@ function detectFramework(cwd) {
 
 const PACKAGES = [
   { name: '@strata-packages/modal',          label: 'modal          — attribute-driven modal dialogs' },
+  { name: '@strata-packages/offcanvas',      label: 'offcanvas      — slide-in drawer panels'         },
   { name: '@strata-packages/skeleton-loader',label: 'skeleton-loader — shimmer loading placeholders'  },
   { name: '@strata-packages/chart',          label: 'chart          — Three.js data visualisations'   },
 ]
@@ -272,6 +274,20 @@ function packageUsageSnippet(pkgName) {
         <button class="btn-secondary" data-st-dismiss="modal">Close</button>
       </div>
     </div></div>
+  </div>`
+
+  if (pkgName === '@strata-packages/offcanvas') return `
+  <!-- Offcanvas usage (standalone) -->
+  <link rel="stylesheet" href="node_modules/@strata-packages/offcanvas/offcanvas.css">
+  <script src="node_modules/@strata-packages/offcanvas/offcanvas.js"></script>
+
+  <button data-st-toggle="offcanvas" data-st-target="#myDrawer">Open Drawer</button>
+  <div class="offcanvas offcanvas-end" id="myDrawer" aria-hidden="true">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Drawer Title</h5>
+      <button data-st-dismiss="offcanvas">&times;</button>
+    </div>
+    <div class="offcanvas-body"><p>Content here.</p></div>
   </div>`
 
   if (pkgName === '@strata-packages/skeleton-loader') return `
@@ -406,7 +422,7 @@ async function init() {
   console.log('  install  What would you like to install?')
   console.log('')
   console.log('      1  Strata core only')
-  console.log('      2  Strata + all packages  (modal, skeleton-loader, chart)')
+  console.log('      2  Strata + all packages  (modal, offcanvas, skeleton-loader, chart)')
   console.log('      3  Strata + select packages')
   console.log('      4  Single package  (no Strata core)')
   console.log('      5  Multiple packages  (no Strata core)')

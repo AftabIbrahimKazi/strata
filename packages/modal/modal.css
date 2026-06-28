@@ -63,13 +63,13 @@
   opacity:    1;
 }
 
-.modal.modal-static .modal-dialog {
+.modal[data-st-shake="true"] .modal-dialog {
   animation: st-modal-shake 0.25s var(--st-easing, ease);
 }
 
-body.modal-open {
-  overflow:      hidden;
-  padding-right: var(--st-scrollbar-width, 0);
+body:has(.modal[aria-hidden="false"]) {
+  overflow:         hidden;
+  scrollbar-gutter: stable;
 }
 
 .modal-backdrop {

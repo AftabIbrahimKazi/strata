@@ -119,6 +119,7 @@
     const leaves = detectLeaves(parent)
     registry.set(parent, { leaves, options })
     parent.setAttribute('data-st-skeleton', 'null')
+    parent.setAttribute('aria-busy', 'true')
     leaves.forEach(leaf => leaf.setAttribute('data-st-skeleton', 'true'))
   }
 
@@ -147,6 +148,7 @@
 
       setTimeout(() => {
         parent.setAttribute('data-st-skeleton', 'false')
+        parent.setAttribute('aria-busy', 'false')
         entry.leaves.forEach(leaf => leaf.setAttribute('data-st-skeleton', 'false'))
 
         if (onReveal && index === targets.length - 1) {

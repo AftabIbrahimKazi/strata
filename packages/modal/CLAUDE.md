@@ -36,7 +36,7 @@ Available as `Strata.Modal.open()` / `Strata.Modal.close()`. Do **not** load `mo
 ## HTML Structure
 
 ```html
-<div id="myModal" class="modal" aria-hidden="true">
+<div id="myModal" class="modal" aria-hidden="true" aria-modal="false">
   <div class="modal-dialog">
     <div class="modal-content">
 

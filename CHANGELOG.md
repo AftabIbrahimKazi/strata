@@ -2,6 +2,14 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.4] — 2026-06-28
+
+### Fixed
+- **Modal scroll lock via CSS `:has()`** — `body.modal-open` rule replaced with `body:has(.modal[aria-hidden="false"]) { overflow: hidden; scrollbar-gutter: stable; }`. No JS body class manipulation required.
+- **Modal static shake uses `[data-st-shake="true"]`** — `.modal.modal-static .modal-dialog` selector replaced with `.modal[data-st-shake="true"] .modal-dialog`. Consistent with the attribute-value state pattern used across all components.
+
+---
+
 ## [1.4.3] — 2026-06-27
 
 ### Fixed

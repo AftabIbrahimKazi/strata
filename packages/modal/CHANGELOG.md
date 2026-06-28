@@ -2,6 +2,14 @@
 
 All notable changes to `@strata-packages/modal` are documented here.
 
+## [1.0.2] — 2026-06-28
+
+### Fixed
+- **Scroll lock via CSS `:has()`** — removed `body.classList.add/remove('modal-open')` and the `--st-scrollbar-width` inline style hack. Scroll lock is now `body:has(.modal[aria-hidden="false"]) { overflow: hidden; scrollbar-gutter: stable; }` — zero JS body manipulation.
+- **`aria-hidden` and `aria-modal` are value-toggled, never removed** — `removeAttribute('aria-hidden')` on open → `setAttribute('aria-hidden', 'false')`; `removeAttribute('aria-modal')` on close → `setAttribute('aria-modal', 'false')`. Attributes stay present and queryable at all times.
+- **Static shake uses `data-st-shake` attribute** — replaced `classList.add/remove('modal-static')` with `setAttribute('data-st-shake', 'true/false')`. CSS reads `[data-st-shake="true"]` selector.
+- **Safe defaults on `DOMContentLoaded`** — any `.modal` missing `aria-hidden` or `aria-modal` gets `aria-hidden="true"` and `aria-modal="false"` set automatically at init time.
+
 ## [1.0.1] — 2026-06-09
 
 ### Added

@@ -2,6 +2,12 @@
 
 All notable changes to this package will be documented here.
 
+## [1.0.3] — 2026-06-28
+
+### Fixed
+- **Open state driven by `aria-expanded` via CSS `:has()`** — removed `wrapper.classList.add/remove('is-open')`. The trigger already had `aria-expanded="true/false"` set; CSS now reads `.st-select:has([aria-expanded="true"])` directly. Internal structure can change without breaking the open-state styles.
+- **`clearError()` uses `setAttribute('aria-invalid', 'false')`** — previously called `removeAttribute('aria-invalid')`, which silently removed the attribute from the accessibility tree. Now always sets a value, keeping the attribute present and queryable.
+
 ## [1.0.2] — 2026-06-09
 
 ### Added

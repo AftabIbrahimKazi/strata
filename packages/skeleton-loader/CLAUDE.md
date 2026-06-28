@@ -160,6 +160,8 @@ Dark theme tokens are set automatically when `data-st-theme="dark"` is on an anc
 - `pointer-events: none` while shimming — skeleton is not interactive
 - `cursor: wait` on shimming parent
 - Reduced motion: animation disabled, static placeholder color shown instead
+- **JS path** — `aria-busy="true"` is set automatically on the container by `init()` and cleared to `"false"` by `reveal()`. Screen readers know to wait for content without any extra markup from the developer.
+- **CSS-only path** — no JS runs, so `aria-busy` is never set automatically. If you need screen reader support, add `aria-busy="true"` to your container manually and set it to `"false"` in whatever reveal logic you write yourself.
 
 ## Known Limitations
 

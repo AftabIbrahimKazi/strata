@@ -251,7 +251,8 @@ Show/hide via `data-st-visible="true/false"` attribute.
 `accordion`, `accordion-item`, `accordion-button`, `accordion-body`, `accordion-flush`
 `dropdown`, `dropdown-menu`, `dropdown-item`, `dropdown-toggle`, `dropdown-divider`
 `toast`, `toast-header`, `toast-body`, `toast-container`
-`offcanvas`, `offcanvas-{start/end/top/bottom}`
+`offcanvas` — direction via `data-st-side="left|right|top|bottom"`, open/close via `data-st-visible="true|false"`
+`offcanvas-header`, `offcanvas-title`, `offcanvas-body`, `offcanvas-backdrop`
 `breadcrumb`, `breadcrumb-item`
 `placeholder`, `placeholder-glow`, `placeholder-wave`
 `tooltip`, `tooltip-inner`
@@ -426,6 +427,12 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 
 ### Bug fixes
 - **`%` now escaped in CSS selectors** — arbitrary classes like `top-[50%]`, `w-[33%]` previously produced invalid selectors the browser silently ignored. Fixed by adding `%` to `escapeClass()`.
+
+## New in v1.4.4
+
+### Bug fixes
+- **Modal scroll lock via CSS `:has()`** — `body.modal-open` replaced with `body:has(.modal[aria-hidden="false"]) { overflow: hidden; scrollbar-gutter: stable; }`. No JS body class manipulation needed.
+- **Modal static shake uses `[data-st-shake="true"]`** — `.modal.modal-static` replaced with `.modal[data-st-shake="true"]`. Consistent with the attribute-value state pattern used across all components.
 
 ## Known Limitations
 
