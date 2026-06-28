@@ -31,12 +31,19 @@ Available as `Strata.Offcanvas.open()` / `Strata.Offcanvas.close()`.
 
 ## HTML Structure
 
+Two attributes drive everything — JS never touches classes:
+
+| Attribute | Purpose | Values |
+|---|---|---|
+| `data-st-side` | Slide direction — set once in HTML, CSS-driven | `left` / `right` / `top` / `bottom` |
+| `aria-hidden` | Open/close state — JS only updates the value | `"true"` / `"false"` |
+
 ```html
 <!-- Trigger -->
 <button data-st-toggle="offcanvas" data-st-target="#myDrawer">Open</button>
 
 <!-- Drawer (slides from the right) -->
-<div id="myDrawer" class="offcanvas offcanvas-end" aria-hidden="true">
+<div id="myDrawer" class="offcanvas" data-st-side="right" aria-hidden="true" aria-modal="false">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title">Title</h5>
     <button data-st-dismiss="offcanvas">&times;</button>
@@ -49,14 +56,14 @@ Available as `Strata.Offcanvas.open()` / `Strata.Offcanvas.close()`.
 
 ## Direction Variants
 
-Add one direction class to `.offcanvas`:
+Set `data-st-side` on the `.offcanvas` element — CSS handles the rest:
 
-| Class             | Slides in from |
-|-------------------|----------------|
-| `offcanvas-start` | Left           |
-| `offcanvas-end`   | Right          |
-| `offcanvas-top`   | Top            |
-| `offcanvas-bottom`| Bottom         |
+| `data-st-side` | Slides in from |
+|---|---|
+| `left` | Left |
+| `right` | Right |
+| `top` | Top |
+| `bottom` | Bottom |
 
 ## Programmatic API
 
@@ -78,27 +85,27 @@ Strata.Offcanvas.open(document.getElementById('myDrawer'))
 Prevents closing on backdrop click:
 
 ```html
-<div id="myDrawer" class="offcanvas offcanvas-end" data-st-backdrop="static">
+<div class="offcanvas" data-st-side="right" data-st-backdrop="static" aria-hidden="true" aria-modal="false">
 ```
 
 ## Events
 
 ```js
-document.addEventListener('st:offcanvas:open', (e) => {
+document.addEventListener('st:offcanvas:open', function (e) {
   console.log('opened:', e.detail.offcanvas)
 })
 
-document.addEventListener('st:offcanvas:close', (e) => {
+document.addEventListener('st:offcanvas:close', function (e) {
   console.log('closed:', e.detail.offcanvas)
 })
 ```
 
 ## Dynamic Direction
 
-Set `data-st-side` before calling `open()` to change direction at runtime:
+Set `data-st-side` before calling `open()` — JS never touches it, so it is always safe to change:
 
 ```js
 const drawer = document.getElementById('myDrawer')
-drawer.className = 'offcanvas offcanvas-start'  // swap direction class
+drawer.setAttribute('data-st-side', 'left')
 Strata.Offcanvas.open(drawer)
 ```

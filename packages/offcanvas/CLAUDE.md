@@ -37,17 +37,18 @@ Available as `Strata.Offcanvas.open()` / `Strata.Offcanvas.close()`. Do **not** 
 
 Two data attributes drive everything — JS never touches classes:
 
-| Attribute        | Purpose                              | Values                          |
-|------------------|--------------------------------------|---------------------------------|
-| `data-st-side`   | Direction — CSS-driven, set once     | `left` / `right` / `top` / `bottom` |
-| `data-st-visible`| Open / close state — JS-toggled only | `true` / `false`                |
+| Attribute      | Purpose                              | Values                              |
+|----------------|--------------------------------------|-------------------------------------|
+| `data-st-side` | Direction — CSS-driven, set once     | `left` / `right` / `top` / `bottom` |
+| `aria-hidden`  | Open / close state — JS only updates the value | `"true"` / `"false"`       |
+| `aria-modal`   | Semantics — JS only updates the value | `"true"` / `"false"`              |
 
 ```html
 <!-- Trigger -->
 <button data-st-toggle="offcanvas" data-st-target="#myDrawer">Open</button>
 
 <!-- Drawer -->
-<div id="myDrawer" class="offcanvas" data-st-side="right" aria-hidden="true">
+<div id="myDrawer" class="offcanvas" data-st-side="right" aria-hidden="true" aria-modal="false">
   <div class="offcanvas-header">
     <h5 class="offcanvas-title">Title</h5>
     <button data-st-dismiss="offcanvas">&times;</button>
