@@ -41,12 +41,12 @@
     <button class="btn btn-primary" data-st-toggle="modal" data-st-target="#defaultModal">
       Open via attribute
     </button>
-    <button class="btn btn-secondary" onclick="StrataModal.open('#defaultModal')">
+    <button class="btn btn-secondary" id="btn-open-js">
       Open via JS API
     </button>
   </div>
 
-  <div class="modal" id="defaultModal" aria-hidden="true">
+  <div class="modal" id="defaultModal" aria-hidden="true" aria-modal="false">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -71,7 +71,7 @@
     <button class="btn btn-primary" data-st-toggle="modal" data-st-target="#centeredModal">Open centered</button>
   </div>
 
-  <div class="modal" id="centeredModal" aria-hidden="true">
+  <div class="modal" id="centeredModal" aria-hidden="true" aria-modal="false">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -95,7 +95,7 @@
     <button class="btn btn-primary" data-st-toggle="modal" data-st-target="#staticModal">Open static</button>
   </div>
 
-  <div class="modal" id="staticModal" data-st-backdrop="static" aria-hidden="true">
+  <div class="modal" id="staticModal" data-st-backdrop="static" aria-hidden="true" aria-modal="false">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -119,7 +119,7 @@
     <button class="btn" data-st-toggle="modal" data-st-target="#xlModal">XL</button>
   </div>
 
-  <div class="modal modal-sm" id="smModal" aria-hidden="true">
+  <div class="modal modal-sm" id="smModal" aria-hidden="true" aria-modal="false">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -131,7 +131,7 @@
     </div>
   </div>
 
-  <div class="modal modal-lg" id="lgModal" aria-hidden="true">
+  <div class="modal modal-lg" id="lgModal" aria-hidden="true" aria-modal="false">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -143,7 +143,7 @@
     </div>
   </div>
 
-  <div class="modal modal-xl" id="xlModal" aria-hidden="true">
+  <div class="modal modal-xl" id="xlModal" aria-hidden="true" aria-modal="false">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -160,7 +160,7 @@
   <div class="controls">
     <button class="btn btn-primary" data-st-toggle="modal" data-st-target="#eventModal">Open (watch console)</button>
   </div>
-  <div class="modal" id="eventModal" aria-hidden="true">
+  <div class="modal" id="eventModal" aria-hidden="true" aria-modal="false">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -206,8 +206,12 @@ document.addEventListener('st:modal:close', e => { /* e.detail.modal */ })
   </pre>
 
   <script>
-    document.addEventListener('st:modal:open',  e => console.log('[modal] opened', e.detail.modal.id))
-    document.addEventListener('st:modal:close', e => console.log('[modal] closed', e.detail.modal.id))
+    document.getElementById('btn-open-js').addEventListener('click', function () {
+      StrataModal.open('#defaultModal')
+    })
+
+    document.addEventListener('st:modal:open',  function (e) { console.log('[modal] opened', e.detail.modal.id) })
+    document.addEventListener('st:modal:close', function (e) { console.log('[modal] closed', e.detail.modal.id) })
   </script>
 
 </body>

@@ -1,0 +1,45 @@
+{
+  "name": "@strata-packages/offcanvas",
+  "version": "1.0.0",
+  "description": "Lightweight offcanvas drawer component. Works standalone or with Strata CSS.",
+  "main": "offcanvas.js",
+  "style": "offcanvas.css",
+  "exports": {
+    ".":     "./offcanvas.js",
+    "./css": "./offcanvas.css"
+  },
+  "files": [
+    "offcanvas.js",
+    "offcanvas.css",
+    "README.md",
+    "CHANGELOG.md",
+    "CLAUDE.md"
+  ],
+  "keywords": [
+    "offcanvas",
+    "drawer",
+    "sidebar",
+    "panel",
+    "overlay",
+    "strata",
+    "strata-css"
+  ],
+  "author": "Aftab Ibrahim Kazi",
+  "license": "MIT",
+  "homepage": "https://aftabibrahimkazi.github.io/strata",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
+  },
+  "peerDependencies": {
+    "strata-css": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "strata-css": {
+      "optional": true
+    }
+  }
+}

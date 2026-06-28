@@ -522,7 +522,7 @@
 
     function clearError() {
       trigger.classList.remove('is-invalid')
-      trigger.removeAttribute('aria-invalid')
+      trigger.setAttribute('aria-invalid', 'false')
     }
 
     // ── Creatable ───────────────────────────────────────────────────
@@ -565,7 +565,6 @@
       if (loadOptions) loadAsync('')
       else renderListbox()
       wrapper.appendChild(listbox)
-      wrapper.classList.add('is-open')
       trigger.setAttribute('aria-expanded', 'true')
       positionListbox()
       emit('st:select:open', { select: nativeEl })
@@ -576,7 +575,6 @@
       if (!isOpen) return
       isOpen = false
       searchQuery = ''
-      wrapper.classList.remove('is-open')
       trigger.setAttribute('aria-expanded', 'false')
       if (listbox.parentNode) listbox.parentNode.removeChild(listbox)
       doc.removeEventListener('click', outsideClick, true)
