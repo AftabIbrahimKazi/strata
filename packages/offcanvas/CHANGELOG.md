@@ -1,5 +1,10 @@
 # Changelog — @strata-packages/offcanvas
 
+## [1.0.1] — 2026-06-28
+
+### Fixed
+- README and CLAUDE.md rewritten to match actual implementation — replaced Bootstrap-style direction class references (`offcanvas-start/end/top/bottom`) with `data-st-side` attribute system; fixed Dynamic Direction example to use `setAttribute` instead of `className` manipulation; added `aria-modal="false"` to HTML structure example; corrected attribute state table (`data-st-visible` → `aria-hidden`)
+
 ## [1.0.0] — 2026-06-28
 
 ### Added
