@@ -428,6 +428,11 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 ### Bug fixes
 - **`%` now escaped in CSS selectors** — arbitrary classes like `top-[50%]`, `w-[33%]` previously produced invalid selectors the browser silently ignored. Fixed by adding `%` to `escapeClass()`.
 
+## New in v1.4.5
+
+### New arbitrary values
+- **`gap-{bp}-[...]`**, **`row-gap-{bp}-[...]`**, **`col-gap-{bp}-[...]`** — responsive arbitrary gap: `gap-sm-[var(--space)]`, `gap-md-[1rem_2rem]`, `row-gap-lg-[var(--space)]`, `col-gap-xl-[2rem]`
+
 ## New in v1.4.4
 
 ### Bug fixes
