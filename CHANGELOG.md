@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.5] — 2026-06-30
+
+### Added
+- **Responsive arbitrary gap** — `gap-{bp}-[...]`, `row-gap-{bp}-[...]`, `col-gap-{bp}-[...]` now supported: `gap-sm-[var(--space)]`, `gap-md-[1rem_2rem]`, `row-gap-lg-[var(--space)]`, `col-gap-xl-[2rem]`
+
+---
+
 ## [1.4.4] — 2026-06-28
 
 ### Fixed

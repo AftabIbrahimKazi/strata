@@ -3240,15 +3240,30 @@ const ARBITRARY_PATTERNS = [
   { re: /^transition-\[(.+)\]$/, fn: (m) => {
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { transition: ${m[1].replace(/_/g,' ')}; }` }
   }},
+  // Gap arbitrary — responsive: gap-sm-[var(--space)], gap-md-[1rem_2rem]
+  { re: /^(!?)gap-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { gap: ${m[3].replace(/_/g,' ')}${i}; }`) }
+  }},
   // Gap arbitrary: gap-[var(--space)], gap-[1rem_2rem]
   { re: /^(!?)gap-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { gap: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
+  // Row-gap arbitrary — responsive: row-gap-sm-[1rem]
+  { re: /^(!?)row-gap-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { row-gap: ${m[3].replace(/_/g,' ')}${i}; }`) }
+  }},
   // Row-gap arbitrary: row-gap-[1rem]
   { re: /^(!?)row-gap-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { row-gap: ${m[2]}${i}; }` }
+  }},
+  // Col-gap arbitrary — responsive: col-gap-sm-[1rem]
+  { re: /^(!?)col-gap-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { column-gap: ${m[3].replace(/_/g,' ')}${i}; }`) }
   }},
   // Col-gap arbitrary: col-gap-[1rem]
   { re: /^(!?)col-gap-\[(.+)\]$/, fn: (m) => {
