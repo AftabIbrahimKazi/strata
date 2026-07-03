@@ -428,6 +428,11 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 ### Bug fixes
 - **`%` now escaped in CSS selectors** — arbitrary classes like `top-[50%]`, `w-[33%]` previously produced invalid selectors the browser silently ignored. Fixed by adding `%` to `escapeClass()`.
 
+## New in v1.4.6
+
+### Bug fixes
+- **`resultCache` cleared on `invalidate()`** — any class cached as `null` during a dev build is now flushed when a file changes, preventing stale null entries from silently suppressing CSS on subsequent builds.
+
 ## New in v1.4.5
 
 ### New arbitrary values
