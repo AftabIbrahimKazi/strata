@@ -53,31 +53,18 @@
     return backdrop
   }
 
-  function lockScroll() {
-    var sbw = win.innerWidth - doc.documentElement.clientWidth
-    doc.body.style.setProperty('--st-scrollbar-width', sbw + 'px')
-    doc.body.classList.add('modal-open')
-  }
-
-  function unlockScroll() {
-    doc.body.classList.remove('modal-open')
-    doc.body.style.removeProperty('--st-scrollbar-width')
-  }
-
   function openModal(modal) {
     if (currentModal === modal) return
     if (currentModal) closeModal()
 
     currentModal = modal
     modal.setAttribute('data-st-visible', 'true')
-    modal.removeAttribute('aria-hidden')
+    modal.setAttribute('aria-hidden', 'false')
     modal.setAttribute('aria-modal', 'true')
 
     var bd = ensureBackdrop()
     void bd.offsetHeight
     bd.setAttribute('data-st-visible', 'true')
-
-    lockScroll()
 
     var focusTarget = modal.querySelector('[autofocus]') ||
                       modal.querySelector('.modal-content')
@@ -94,11 +81,9 @@
 
     modal.setAttribute('data-st-visible', 'false')
     modal.setAttribute('aria-hidden', 'true')
-    modal.removeAttribute('aria-modal')
+    modal.setAttribute('aria-modal', 'false')
 
     if (backdrop) backdrop.setAttribute('data-st-visible', 'false')
-
-    unlockScroll()
 
     doc.dispatchEvent(new CustomEvent('st:modal:close', { detail: { modal: modal } }))
   }
@@ -122,14 +107,28 @@
     if (currentModal && e.target === currentModal) {
       var isStatic = currentModal.getAttribute('data-st-backdrop') === 'static'
       if (isStatic) {
-        currentModal.classList.add('modal-static')
+        currentModal.setAttribute('data-st-shake', 'true')
         var m = currentModal
-        setTimeout(function () { m.classList.remove('modal-static') }, 300)
+        setTimeout(function () { m.setAttribute('data-st-shake', 'false') }, 300)
       } else {
         closeModal()
       }
     }
   })
+
+  if (typeof doc.readyState === 'string') {
+    var initDefaults = function () {
+      doc.querySelectorAll('.modal').forEach(function (el) {
+        if (!el.hasAttribute('aria-hidden')) el.setAttribute('aria-hidden', 'true')
+        if (!el.hasAttribute('aria-modal'))  el.setAttribute('aria-modal', 'false')
+      })
+    }
+    if (doc.readyState === 'loading') {
+      doc.addEventListener('DOMContentLoaded', initDefaults)
+    } else {
+      initDefaults()
+    }
+  }
 
   doc.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && currentModal) {

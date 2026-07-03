@@ -1,0 +1,140 @@
+/**
+ * Strata Offcanvas — Standalone CSS
+ * Version: 1.0.0
+ *
+ * Usage:
+ *   Standalone : import this file once in your project.
+ *   With Strata: do NOT import this file — Strata generates these styles via JIT.
+ *
+ * Developer sets both attributes in HTML:
+ *   data-st-side : "left"|"right"|"top"|"bottom" — direction, never changed by JS
+ *   aria-hidden  : "true"|"false"                 — initial state, JS only updates the value
+ */
+
+/* ─── Tokens — light theme (standalone only) ─────────────────────────────── */
+
+:root:not([data-strata]) {
+  --st-bg:               #ffffff;
+  --st-text:             #212529;
+  --st-border:           #dee2e6;
+  --st-duration:         200ms;
+  --st-easing:           cubic-bezier(0.4, 0, 0.2, 1);
+  --st-z-offcanvas:      1045;
+  --st-offcanvas-width:  300px;
+  --st-offcanvas-height: 30vh;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-strata]) {
+    --st-bg:     #212529;
+    --st-text:   #dee2e6;
+    --st-border: #495057;
+  }
+}
+
+/* ─── Offcanvas base ─────────────────────────────────────────────────────── */
+
+.offcanvas {
+  position:         fixed;
+  z-index:          var(--st-z-offcanvas, 1045);
+  display:          flex;
+  flex-direction:   column;
+  max-width:        100%;
+  background-color: var(--st-bg, #fff);
+  border:           1px solid var(--st-border, #dee2e6);
+  outline:          0;
+  visibility:       hidden;
+  transition:       transform var(--st-duration, 200ms) var(--st-easing, ease),
+                    visibility var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+/* ─── Direction — data-st-side set by developer in HTML, JS never touches it ─ */
+
+.offcanvas[data-st-side="left"] {
+  top:       0;
+  bottom:    0;
+  left:      0;
+  width:     var(--st-offcanvas-width, 300px);
+  transform: translateX(-100%);
+}
+
+.offcanvas[data-st-side="right"] {
+  top:       0;
+  bottom:    0;
+  right:     0;
+  width:     var(--st-offcanvas-width, 300px);
+  transform: translateX(100%);
+}
+
+.offcanvas[data-st-side="top"] {
+  top:       0;
+  left:      0;
+  right:     0;
+  height:    var(--st-offcanvas-height, 30vh);
+  transform: translateY(-100%);
+}
+
+.offcanvas[data-st-side="bottom"] {
+  bottom:    0;
+  left:      0;
+  right:     0;
+  height:    var(--st-offcanvas-height, 30vh);
+  transform: translateY(100%);
+}
+
+/* ─── Open state — JS only ever updates aria-hidden value ────────────────── */
+
+.offcanvas[aria-hidden="false"] {
+  visibility: visible;
+  transform:  none;
+}
+
+/* ─── Backdrop — shown/hidden by CSS :has(), JS never touches it ─────────── */
+
+.offcanvas-backdrop {
+  position:   fixed;
+  inset:      0;
+  z-index:    calc(var(--st-z-offcanvas, 1045) - 1);
+  background: rgba(0, 0, 0, 0.5);
+  opacity:    0;
+  visibility: hidden;
+  transition: opacity var(--st-duration, 200ms) var(--st-easing, ease),
+              visibility var(--st-duration, 200ms) var(--st-easing, ease);
+}
+
+body:has(.offcanvas[aria-hidden="false"]) .offcanvas-backdrop {
+  opacity:    1;
+  visibility: visible;
+}
+
+/* ─── Body scroll lock — CSS :has(), no JS needed ───────────────────────── */
+
+body:has(.offcanvas[aria-hidden="false"]) {
+  overflow:         hidden;
+  scrollbar-gutter: stable;
+}
+
+/* ─── Inner structure ────────────────────────────────────────────────────── */
+
+.offcanvas-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         1rem 1.25rem;
+  border-bottom:   1px solid var(--st-border, #dee2e6);
+}
+
+.offcanvas-title {
+  margin:      0;
+  font-size:   1.125rem;
+  font-weight: 600;
+  color:       var(--st-text, #212529);
+  line-height: 1.5;
+}
+
+.offcanvas-body {
+  flex:       1 1 auto;
+  padding:    1.25rem;
+  overflow-y: auto;
+  color:      var(--st-text, #212529);
+}

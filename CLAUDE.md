@@ -251,7 +251,8 @@ Show/hide via `data-st-visible="true/false"` attribute.
 `accordion`, `accordion-item`, `accordion-button`, `accordion-body`, `accordion-flush`
 `dropdown`, `dropdown-menu`, `dropdown-item`, `dropdown-toggle`, `dropdown-divider`
 `toast`, `toast-header`, `toast-body`, `toast-container`
-`offcanvas`, `offcanvas-{start/end/top/bottom}`
+`offcanvas` — direction via `data-st-side="left|right|top|bottom"`, open/close via `data-st-visible="true|false"`
+`offcanvas-header`, `offcanvas-title`, `offcanvas-body`, `offcanvas-backdrop`
 `breadcrumb`, `breadcrumb-item`
 `placeholder`, `placeholder-glow`, `placeholder-wave`
 `tooltip`, `tooltip-inner`
@@ -426,6 +427,35 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 
 ### Bug fixes
 - **`%` now escaped in CSS selectors** — arbitrary classes like `top-[50%]`, `w-[33%]` previously produced invalid selectors the browser silently ignored. Fixed by adding `%` to `escapeClass()`.
+
+## New in v1.4.8
+
+### Security
+- **Chart tooltip XSS fixed** — label/value now rendered via `textContent` instead of `innerHTML` (chart 1.1.2).
+
+### Performance
+- **Bracket pre-filter in `lookup()`** — bracket-less class names skip the 40-pattern arbitrary regex loop entirely.
+
+## New in v1.4.7
+
+### Bug fixes
+- **`escapeClass` comprehensive escaping** — replaced 11 chained `.replace()` calls with `/[^\w-]/g` covering all non-identifier characters. Resolves CodeQL incomplete-sanitization finding.
+
+## New in v1.4.6
+
+### Bug fixes
+- **`resultCache` cleared on `invalidate()`** — any class cached as `null` during a dev build is now flushed when a file changes, preventing stale null entries from silently suppressing CSS on subsequent builds.
+
+## New in v1.4.5
+
+### New arbitrary values
+- **`gap-{bp}-[...]`**, **`row-gap-{bp}-[...]`**, **`col-gap-{bp}-[...]`** — responsive arbitrary gap: `gap-sm-[var(--space)]`, `gap-md-[1rem_2rem]`, `row-gap-lg-[var(--space)]`, `col-gap-xl-[2rem]`
+
+## New in v1.4.4
+
+### Bug fixes
+- **Modal scroll lock via CSS `:has()`** — `body.modal-open` replaced with `body:has(.modal[aria-hidden="false"]) { overflow: hidden; scrollbar-gutter: stable; }`. No JS body class manipulation needed.
+- **Modal static shake uses `[data-st-shake="true"]`** — `.modal.modal-static` replaced with `.modal[data-st-shake="true"]`. Consistent with the attribute-value state pattern used across all components.
 
 ## Known Limitations
 

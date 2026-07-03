@@ -11,18 +11,9 @@ const { wrapInMediaQuery } = require('./breakpoints')
 // ─── Escape helpers ───────────────────────────────────────────────────
 
 function escapeClass(cls) {
-  return cls
-    .replace(/!/g,  '\\!')
-    .replace(/\[/g, '\\[')
-    .replace(/\]/g, '\\]')
-    .replace(/\//g, '\\/')
-    .replace(/:/g,  '\\:')
-    .replace(/\./g, '\\.')
-    .replace(/#/g,  '\\#')
-    .replace(/\(/g, '\\(')
-    .replace(/\)/g, '\\)')
-    .replace(/,/g,  '\\,')
-    .replace(/%/g,  '\\%')
+  // Escape every character that is not a safe unescaped CSS identifier character.
+  // Valid unescaped: a-z A-Z 0-9 _ -
+  return cls.replace(/[^\w-]/g, (c) => '\\' + c)
 }
 
 function parseArbitrary(value) {
@@ -431,15 +422,16 @@ BP_ORDER.forEach((bp, i) => {
 // ─── Components — Card ───────────────────────────────────────────────
 
 reg('card', 'components', `.card {
-  position:      relative;
-  display:       flex;
+  position:       relative;
+  display:        flex;
   flex-direction: column;
-  min-width:     0;
-  word-wrap:     break-word;
-  background:    var(--st-bg);
-  border:        1px solid var(--st-border);
-  border-radius: var(--st-border-radius);
-  box-shadow:    var(--st-shadow-sm);
+  height:         100%;
+  min-width:      0;
+  word-wrap:      break-word;
+  background:     var(--st-bg);
+  border:         1px solid var(--st-border);
+  border-radius:  var(--st-border-radius);
+  box-shadow:     var(--st-shadow-sm);
 }`)
 
 reg('card-body', 'components', `.card-body {
@@ -1641,13 +1633,13 @@ reg('modal', 'components', `.modal {
   75%       { transform: translateX(5px); }
 }
 
-.modal.modal-static .modal-dialog {
+.modal[data-st-shake="true"] .modal-dialog {
   animation: st-modal-shake 0.25s var(--st-easing);
 }
 
-body.modal-open {
-  overflow:      hidden;
-  padding-right: var(--st-scrollbar-width, 0);
+body:has(.modal[aria-hidden="false"]) {
+  overflow:         hidden;
+  scrollbar-gutter: stable;
 }`)
 
 reg('modal-backdrop', 'components', `.modal-backdrop {
@@ -2036,7 +2028,6 @@ reg('close', 'components', `.close {
 
 reg('offcanvas', 'components', `.offcanvas {
   position:         fixed;
-  bottom:           0;
   z-index:          var(--st-z-offcanvas, 1045);
   display:          flex;
   flex-direction:   column;
@@ -2049,38 +2040,41 @@ reg('offcanvas', 'components', `.offcanvas {
                     visibility var(--st-duration) var(--st-easing);
 }
 
-.offcanvas[data-st-visible="true"] {
+.offcanvas[data-st-side="left"] {
+  top:       0;
+  bottom:    0;
+  left:      0;
+  width:     var(--st-offcanvas-width, 300px);
+  transform: translateX(-100%);
+}
+
+.offcanvas[data-st-side="right"] {
+  top:       0;
+  bottom:    0;
+  right:     0;
+  width:     var(--st-offcanvas-width, 300px);
+  transform: translateX(100%);
+}
+
+.offcanvas[data-st-side="top"] {
+  top:       0;
+  left:      0;
+  right:     0;
+  height:    var(--st-offcanvas-height, 30vh);
+  transform: translateY(-100%);
+}
+
+.offcanvas[data-st-side="bottom"] {
+  bottom:    0;
+  left:      0;
+  right:     0;
+  height:    var(--st-offcanvas-height, 30vh);
+  transform: translateY(100%);
+}
+
+.offcanvas[aria-hidden="false"] {
   visibility: visible;
   transform:  none;
-}`)
-
-reg('offcanvas-start', 'components', `.offcanvas-start {
-  top:       0;
-  left:      0;
-  width:     300px;
-  transform: translateX(-100%);
-}`)
-
-reg('offcanvas-end', 'components', `.offcanvas-end {
-  top:       0;
-  right:     0;
-  width:     300px;
-  transform: translateX(100%);
-}`)
-
-reg('offcanvas-top', 'components', `.offcanvas-top {
-  top:       0;
-  right:     0;
-  left:      0;
-  height:    30vh;
-  transform: translateY(-100%);
-}`)
-
-reg('offcanvas-bottom', 'components', `.offcanvas-bottom {
-  right:     0;
-  left:      0;
-  height:    30vh;
-  transform: translateY(100%);
 }`)
 
 reg('offcanvas-header', 'components', `.offcanvas-header {
@@ -2375,13 +2369,16 @@ reg('navbar-light', 'components', `.navbar-light {
 
 // ─── Offcanvas backdrop ───────────────────────────────────────────────
 reg('offcanvas-backdrop', 'components', `.offcanvas-backdrop {
-  position: fixed; inset: 0;
-  z-index: var(--st-z-offcanvas, 1045);
+  position:   fixed;
+  inset:      0;
+  z-index:    calc(var(--st-z-offcanvas, 1045) - 1);
   background: rgba(0,0,0,0.5);
-  opacity: 0; visibility: hidden;
+  opacity:    0;
+  visibility: hidden;
   transition: opacity var(--st-duration) var(--st-easing), visibility var(--st-duration) var(--st-easing);
 }
-.offcanvas-backdrop.show { opacity: 1; visibility: visible; }`)
+body:has(.offcanvas[aria-hidden="false"]) .offcanvas-backdrop { opacity: 1; visibility: visible; }
+body:has(.offcanvas[aria-hidden="false"]) { overflow: hidden; scrollbar-gutter: stable; }`)
 
 // ─── Pagination size variants ─────────────────────────────────────────
 reg('pagination-sm', 'components', `.pagination-sm .page-link {
@@ -3234,15 +3231,30 @@ const ARBITRARY_PATTERNS = [
   { re: /^transition-\[(.+)\]$/, fn: (m) => {
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { transition: ${m[1].replace(/_/g,' ')}; }` }
   }},
+  // Gap arbitrary — responsive: gap-sm-[var(--space)], gap-md-[1rem_2rem]
+  { re: /^(!?)gap-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { gap: ${m[3].replace(/_/g,' ')}${i}; }`) }
+  }},
   // Gap arbitrary: gap-[var(--space)], gap-[1rem_2rem]
   { re: /^(!?)gap-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { gap: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
+  // Row-gap arbitrary — responsive: row-gap-sm-[1rem]
+  { re: /^(!?)row-gap-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { row-gap: ${m[3].replace(/_/g,' ')}${i}; }`) }
+  }},
   // Row-gap arbitrary: row-gap-[1rem]
   { re: /^(!?)row-gap-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { row-gap: ${m[2]}${i}; }` }
+  }},
+  // Col-gap arbitrary — responsive: col-gap-sm-[1rem]
+  { re: /^(!?)col-gap-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { column-gap: ${m[3].replace(/_/g,' ')}${i}; }`) }
   }},
   // Col-gap arbitrary: col-gap-[1rem]
   { re: /^(!?)col-gap-\[(.+)\]$/, fn: (m) => {
@@ -3316,6 +3328,13 @@ function lookup(className) {
   }
 
   // L3 — arbitrary value patterns — O(patterns)
+  // Every arbitrary pattern requires a bracket — skip the whole loop for
+  // bracket-less classes (the majority of custom class names in real projects)
+  if (className.indexOf('[') === -1) {
+    resultCache.set(className, null)
+    return null
+  }
+
   for (let i = 0; i < ARBITRARY_PATTERNS.length; i++) {
     const m = className.match(ARBITRARY_PATTERNS[i].re)
     if (m) {
@@ -3331,4 +3350,8 @@ function lookup(className) {
   return null
 }
 
-module.exports = { lookup, EXACT_MAP, ARBITRARY_PATTERNS, escapeClass, parseArbitrary }
+function clearResultCache() {
+  resultCache.clear()
+}
+
+module.exports = { lookup, EXACT_MAP, ARBITRARY_PATTERNS, escapeClass, parseArbitrary, clearResultCache }

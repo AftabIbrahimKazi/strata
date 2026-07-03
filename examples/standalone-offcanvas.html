@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@strata-packages/offcanvas — Standalone Guide</title>
+
+  <!--
+    STANDALONE USAGE
+    ─────────────────────────────────────────────────────────────────────────
+    Load the CSS and JS from the package. No Strata required.
+    API: StrataOffcanvas.open(selector) / StrataOffcanvas.close()
+    ─────────────────────────────────────────────────────────────────────────
+  -->
+  <link rel="stylesheet" href="../packages/offcanvas/offcanvas.css">
+  <script src="../packages/offcanvas/offcanvas.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f8fafc; color: #212529; margin: 0; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+    .subtitle { color: #6c757d; font-size: 0.9rem; margin: 0 0 2rem; }
+    h2 { font-size: 1.1rem; margin: 2rem 0 1rem; border-bottom: 1px solid #dee2e6; padding-bottom: 0.5rem; }
+    .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    button.btn { padding: 0.4rem 1rem; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; cursor: pointer; font-size: 0.875rem; }
+    button.btn:hover { background: #f1f5f9; }
+    button.btn-primary   { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+    button.btn-secondary { background: #6c757d; color: #fff; border-color: #6c757d; }
+    button.btn-danger    { background: #dc3545; color: #fff; border-color: #dc3545; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.8rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+
+  <h1>@strata-packages/offcanvas</h1>
+  <p class="subtitle">Standalone usage — no Strata CSS required</p>
+
+  <!-- ─── Right drawer ──────────────────────────────────────────────────── -->
+  <h2>Right drawer</h2>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="offcanvas" data-st-target="#oc-right">Open via attribute</button>
+    <button class="btn btn-secondary" onclick="StrataOffcanvas.open('#oc-right')">Open via JS API</button>
+  </div>
+
+  <div id="oc-right" class="offcanvas" data-st-side="right" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Right Drawer</h5>
+      <button class="btn" data-st-dismiss="offcanvas" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Slides in from the right. Press <kbd>Esc</kbd> or click the backdrop to close.</p>
+    </div>
+  </div>
+
+  <!-- ─── Left drawer ───────────────────────────────────────────────────── -->
+  <h2>Left drawer</h2>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="offcanvas" data-st-target="#oc-left">Open left drawer</button>
+  </div>
+
+  <div id="oc-left" class="offcanvas" data-st-side="left" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Left Drawer</h5>
+      <button class="btn" data-st-dismiss="offcanvas" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Slides in from the left using <code>data-st-side="left"</code>.</p>
+      <div class="controls" style="margin-top:1rem">
+        <button class="btn btn-secondary" data-st-dismiss="offcanvas">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Top drawer ────────────────────────────────────────────────────── -->
+  <h2>Top drawer</h2>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="offcanvas" data-st-target="#oc-top">Open top drawer</button>
+  </div>
+
+  <div id="oc-top" class="offcanvas" data-st-side="top" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Top Drawer</h5>
+      <button class="btn" data-st-dismiss="offcanvas" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Slides in from the top using <code>data-st-side="top"</code>.</p>
+    </div>
+  </div>
+
+  <!-- ─── Bottom drawer ─────────────────────────────────────────────────── -->
+  <h2>Bottom drawer</h2>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="offcanvas" data-st-target="#oc-bottom">Open bottom drawer</button>
+  </div>
+
+  <div id="oc-bottom" class="offcanvas" data-st-side="bottom" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Bottom Drawer</h5>
+      <button class="btn" data-st-dismiss="offcanvas" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Slides in from the bottom using <code>data-st-side="bottom"</code>.</p>
+    </div>
+  </div>
+
+  <!-- ─── Starts open by default ────────────────────────────────────────── -->
+  <h2>Starts open by default</h2>
+  <p style="font-size:0.875rem;color:#6c757d;margin:0 0 1rem">Developer sets <code>aria-hidden="false"</code> — drawer is open on page load, no JS needed.</p>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="offcanvas" data-st-target="#oc-default-open">Toggle</button>
+  </div>
+
+  <div id="oc-default-open" class="offcanvas" data-st-side="left" aria-hidden="false" aria-modal="true">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Open by Default</h5>
+      <button class="btn" data-st-dismiss="offcanvas" style="font-size:1.25rem;line-height:1;padding:0.25rem 0.5rem">&times;</button>
+    </div>
+    <div class="offcanvas-body">
+      <p>This was open on page load — <code>aria-hidden="false"</code> set by the developer in HTML.</p>
+      <div class="controls" style="margin-top:1rem">
+        <button class="btn btn-secondary" data-st-dismiss="offcanvas">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Static backdrop ──────────────────────────────────────────────── -->
+  <h2>Static backdrop</h2>
+  <p style="font-size:0.875rem;color:#6c757d;margin:0 0 1rem">Clicking the backdrop does nothing — only Escape or the close button dismisses.</p>
+  <div class="controls">
+    <button class="btn btn-primary" data-st-toggle="offcanvas" data-st-target="#oc-static">Open static</button>
+  </div>
+
+  <div id="oc-static" class="offcanvas" data-st-side="right" data-st-backdrop="static" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Static Backdrop</h5>
+    </div>
+    <div class="offcanvas-body">
+      <p>Clicking outside does nothing. Use the Close button or press <kbd>Esc</kbd>.</p>
+      <div class="controls" style="margin-top:1rem">
+        <button class="btn btn-danger" data-st-dismiss="offcanvas">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── API reference ────────────────────────────────────────────────── -->
+  <h2>API reference</h2>
+  <pre>
+// Open by CSS selector
+StrataOffcanvas.open('#myDrawer')
+
+// Open by element reference
+StrataOffcanvas.open(document.querySelector('#myDrawer'))
+
+// Close the current open drawer
+StrataOffcanvas.close()
+
+// Events fired on document
+document.addEventListener('st:offcanvas:open',  e => { /* e.detail.offcanvas */ })
+document.addEventListener('st:offcanvas:close', e => { /* e.detail.offcanvas */ })
+  </pre>
+
+  <h2>HTML attributes</h2>
+  <pre>
+&lt;!-- data-st-side  : set by developer, JS never changes it --&gt;
+&lt;!-- aria-hidden   : set by developer for initial state, JS only updates the value --&gt;
+
+&lt;div class="offcanvas" data-st-side="right"  aria-hidden="true"&gt;   &lt;!-- starts closed --&gt;
+&lt;div class="offcanvas" data-st-side="left"   aria-hidden="true"&gt;   &lt;!-- starts closed --&gt;
+&lt;div class="offcanvas" data-st-side="top"    aria-hidden="true"&gt;   &lt;!-- starts closed --&gt;
+&lt;div class="offcanvas" data-st-side="bottom" aria-hidden="false"&gt;  &lt;!-- starts open   --&gt;
+
+&lt;!-- Trigger --&gt;
+&lt;button data-st-toggle="offcanvas" data-st-target="#myDrawer"&gt;Open&lt;/button&gt;
+
+&lt;!-- Dismiss --&gt;
+&lt;button data-st-dismiss="offcanvas"&gt;Close&lt;/button&gt;
+
+&lt;!-- Static backdrop --&gt;
+&lt;div class="offcanvas" data-st-side="right" data-st-backdrop="static" aria-hidden="true"&gt;
+  </pre>
+
+  <script>
+    document.addEventListener('st:offcanvas:open',  e => console.log('[offcanvas] opened', e.detail.offcanvas.id))
+    document.addEventListener('st:offcanvas:close', e => console.log('[offcanvas] closed', e.detail.offcanvas.id))
+  </script>
+
+</body>
+</html>

@@ -1,23 +1,26 @@
 {
-  "name": "@strata-packages/chart",
-  "version": "1.1.2",
-  "description": "Three.js chart component. Works standalone or with Strata CSS.",
-  "main": "chart.js",
+  "name": "@strata-packages/offcanvas",
+  "version": "1.0.1",
+  "description": "Lightweight offcanvas drawer component. Works standalone or with Strata CSS.",
+  "main": "offcanvas.js",
+  "style": "offcanvas.css",
   "exports": {
-    ".": "./chart.js"
+    ".":     "./offcanvas.js",
+    "./css": "./offcanvas.css"
   },
   "files": [
-    "chart.js",
+    "offcanvas.js",
+    "offcanvas.css",
     "README.md",
     "CHANGELOG.md",
     "CLAUDE.md"
   ],
   "keywords": [
-    "chart",
-    "graph",
-    "three.js",
-    "webgl",
-    "data-visualization",
+    "offcanvas",
+    "drawer",
+    "sidebar",
+    "panel",
+    "overlay",
     "strata",
     "strata-css"
   ],
@@ -32,7 +35,6 @@
     "url": "https://github.com/AftabIbrahimKazi/strata/issues"
   },
   "peerDependencies": {
-    "three": ">=0.150.0",
     "strata-css": ">=1.0.0"
   },
   "peerDependenciesMeta": {
