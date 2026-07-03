@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html data-st-theme="light">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata Test — Offcanvas</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+</head>
+<body>
+  <div class="container mt-4">
+
+    <h4 class="mb-1">Direction variants</h4>
+    <p class="text-muted mb-3">Each button opens a drawer from a different edge via <code>data-st-side</code>.</p>
+    <div class="d-flex flex-wrap gap-2 mb-5">
+      <button type="button" class="btn-primary"   data-st-toggle="offcanvas" data-st-target="#oc-right">Right</button>
+      <button type="button" class="btn-secondary" data-st-toggle="offcanvas" data-st-target="#oc-left">Left</button>
+      <button type="button" class="btn-info"      data-st-toggle="offcanvas" data-st-target="#oc-top">Top</button>
+      <button type="button" class="btn-warning"   data-st-toggle="offcanvas" data-st-target="#oc-bottom">Bottom</button>
+    </div>
+
+    <h4 class="mb-1">Starts open by default</h4>
+    <p class="text-muted mb-3">Developer sets <code>aria-hidden="false"</code> and <code>aria-modal="true"</code> in HTML.</p>
+    <div class="d-flex gap-2 mb-5">
+      <button type="button" class="btn-outline-secondary" data-st-toggle="offcanvas" data-st-target="#oc-default-open">Toggle</button>
+    </div>
+
+    <h4 class="mb-1">Static backdrop</h4>
+    <p class="text-muted mb-3">Clicking the backdrop keeps the drawer open.</p>
+    <div class="d-flex gap-2 mb-5">
+      <button type="button" class="btn-danger" data-st-toggle="offcanvas" data-st-target="#oc-static">Static backdrop</button>
+    </div>
+
+    <h4 class="mb-1">Programmatic API</h4>
+    <div class="d-flex gap-2 mb-5">
+      <button type="button" class="btn-outline-primary"   id="btn-open-prog">Open right drawer</button>
+      <button type="button" class="btn-outline-secondary" id="btn-close-prog">Close</button>
+    </div>
+
+  </div>
+
+  <div id="oc-right" class="offcanvas" data-st-side="right" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Right Drawer</h5>
+      <button type="button" class="btn-close" data-st-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Slides in from the right.</p>
+      <button type="button" class="btn-secondary" data-st-dismiss="offcanvas">Close</button>
+    </div>
+  </div>
+
+  <div id="oc-left" class="offcanvas" data-st-side="left" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Left Drawer</h5>
+      <button type="button" class="btn-close" data-st-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Slides in from the left.</p>
+      <button type="button" class="btn-secondary" data-st-dismiss="offcanvas">Close</button>
+    </div>
+  </div>
+
+  <div id="oc-top" class="offcanvas" data-st-side="top" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Top Drawer</h5>
+      <button type="button" class="btn-close" data-st-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Slides in from the top.</p>
+      <button type="button" class="btn-secondary" data-st-dismiss="offcanvas">Close</button>
+    </div>
+  </div>
+
+  <div id="oc-bottom" class="offcanvas" data-st-side="bottom" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Bottom Drawer</h5>
+      <button type="button" class="btn-close" data-st-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Slides in from the bottom.</p>
+      <button type="button" class="btn-secondary" data-st-dismiss="offcanvas">Close</button>
+    </div>
+  </div>
+
+  <div id="oc-default-open" class="offcanvas" data-st-side="left" aria-hidden="false" aria-modal="true">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Open by Default</h5>
+      <button type="button" class="btn-close" data-st-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Open on page load — developer set <code>aria-hidden="false"</code> and <code>aria-modal="true"</code> in HTML.</p>
+      <button type="button" class="btn-secondary" data-st-dismiss="offcanvas">Close</button>
+    </div>
+  </div>
+
+  <div id="oc-static" class="offcanvas" data-st-side="right" data-st-backdrop="static" aria-hidden="true" aria-modal="false">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Static Backdrop</h5>
+      <button type="button" class="btn-close" data-st-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <p>Clicking the backdrop does <strong>not</strong> close this drawer.</p>
+      <button type="button" class="btn-danger" data-st-dismiss="offcanvas">Close</button>
+    </div>
+  </div>
+
+  <script src="../dist/strata.components.js"></script>
+  <script>
+    document.getElementById('btn-open-prog').addEventListener('click', function () {
+      Strata.Offcanvas.open('#oc-right')
+    })
+    document.getElementById('btn-close-prog').addEventListener('click', function () {
+      Strata.Offcanvas.close()
+    })
+  </script>
+</body>
+</html>

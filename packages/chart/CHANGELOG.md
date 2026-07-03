@@ -2,6 +2,11 @@
 
 All notable changes to `@strata-packages/chart` are documented here.
 
+## [1.1.2] — 2026-07-04
+
+### Security
+- **Tooltip XSS fixed** — tooltip label and value were interpolated into `innerHTML`, allowing script execution if chart data contained user-supplied HTML (e.g. `label: '<img src=x onerror=...>'`). Now rendered via `textContent` on created span elements. Visual output unchanged for plain-text labels.
+
 ## [1.1.1] — 2026-06-15
 
 ### Added

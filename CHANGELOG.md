@@ -2,6 +2,52 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.8] — 2026-07-04
+
+### Security
+- **Chart tooltip XSS fixed** — tooltip label/value were interpolated into `innerHTML`; now rendered via `textContent`. Applies to the bundled chart component (`@strata-packages/chart` 1.1.2).
+
+### Performance
+- **Bracket pre-filter in `lookup()`** — class names without `[` skip the entire 40-pattern arbitrary regex loop. Custom project classes (the majority of scanned tokens) now resolve to null in one string scan instead of 40 regex matches.
+
+---
+
+## [1.4.7] — 2026-07-04
+
+### Fixed
+- **`escapeClass` now escapes all non-identifier characters** — replaced the whitelist of 11 chained `.replace()` calls with a single comprehensive regex `/[^\w-]/g`. Any character that is not `a-z A-Z 0-9 _ -` is now escaped, including previously unhandled characters such as `@`, `{`, `}`, `*`, `+`, `~`, `\`, and whitespace. Resolves CodeQL finding js/incomplete-sanitization.
+
+---
+
+## [1.4.6] — 2026-07-04
+
+### Fixed
+- **`resultCache` cleared on `invalidate()`** — the registry's result cache is now flushed whenever `invalidate()` is called. Previously, any class cached as `null` (e.g. after a registry update or a fixed typo) would remain null for the entire dev server lifetime, silently producing no CSS on subsequent builds.
+
+---
+
+## [1.4.5] — 2026-06-30
+
+### Added
+- **Responsive arbitrary gap** — `gap-{bp}-[...]`, `row-gap-{bp}-[...]`, `col-gap-{bp}-[...]` now supported: `gap-sm-[var(--space)]`, `gap-md-[1rem_2rem]`, `row-gap-lg-[var(--space)]`, `col-gap-xl-[2rem]`
+
+---
+
+## [1.4.4] — 2026-06-28
+
+### Fixed
+- **Modal scroll lock via CSS `:has()`** — `body.modal-open` rule replaced with `body:has(.modal[aria-hidden="false"]) { overflow: hidden; scrollbar-gutter: stable; }`. No JS body class manipulation required.
+- **Modal static shake uses `[data-st-shake="true"]`** — `.modal.modal-static .modal-dialog` selector replaced with `.modal[data-st-shake="true"] .modal-dialog`. Consistent with the attribute-value state pattern used across all components.
+
+---
+
+## [1.4.3] — 2026-06-27
+
+### Fixed
+- **`card` now has `height: 100%`** — cards in a flex row or grid now stretch to equal height regardless of content length. Previously cards shrank to their content, producing mismatched heights across a row.
+
+---
+
 ## [1.4.2] — 2026-06-26
 
 ### Fixed

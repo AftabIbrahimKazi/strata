@@ -161,8 +161,10 @@ module.exports.build = async (inputCSSPath, outputCSSPath, opts = {}) => {
 module.exports.invalidate = (changedFile) => {
   dirty     = true
   cachedCSS = null
-  const { clearFileCache } = require('./scanner/scanner')
+  const { clearFileCache }   = require('./scanner/scanner')
+  const { clearResultCache } = require('./registry/registry')
   clearFileCache(changedFile)
+  clearResultCache()
 }
 
 // ─── Direct PostCSS usage (for users using postcss.config.js) ────────
