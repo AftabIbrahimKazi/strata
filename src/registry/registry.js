@@ -3328,6 +3328,13 @@ function lookup(className) {
   }
 
   // L3 — arbitrary value patterns — O(patterns)
+  // Every arbitrary pattern requires a bracket — skip the whole loop for
+  // bracket-less classes (the majority of custom class names in real projects)
+  if (className.indexOf('[') === -1) {
+    resultCache.set(className, null)
+    return null
+  }
+
   for (let i = 0; i < ARBITRARY_PATTERNS.length; i++) {
     const m = className.match(ARBITRARY_PATTERNS[i].re)
     if (m) {

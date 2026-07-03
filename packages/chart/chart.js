@@ -651,7 +651,15 @@ class InteractionManager {
         const mat = mesh.material;
         mat.emissive.set(0x555555);
         const ud = mesh.userData;
-        this.tooltip.innerHTML = `<span class="strata-chart-tooltip-label">${(_a = ud.label) !== null && _a !== void 0 ? _a : ''}</span><span class="strata-chart-tooltip-value">${(_b = ud.value) !== null && _b !== void 0 ? _b : 0}</span>`;
+        this.tooltip.textContent = '';
+        const labelEl = document.createElement('span');
+        labelEl.className = 'strata-chart-tooltip-label';
+        labelEl.textContent = String((_a = ud.label) !== null && _a !== void 0 ? _a : '');
+        const valueEl = document.createElement('span');
+        valueEl.className = 'strata-chart-tooltip-value';
+        valueEl.textContent = String((_b = ud.value) !== null && _b !== void 0 ? _b : 0);
+        this.tooltip.appendChild(labelEl);
+        this.tooltip.appendChild(valueEl);
         this.tooltip.setAttribute('data-st-chart-tooltip', 'true');
         this.container.setAttribute('data-st-chart-hovered', 'true');
         (_c = this.onHoverChange) === null || _c === void 0 ? void 0 : _c.call(this, (_d = ud.index) !== null && _d !== void 0 ? _d : null, (_e = ud.value) !== null && _e !== void 0 ? _e : null);

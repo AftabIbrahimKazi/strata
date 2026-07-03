@@ -428,6 +428,14 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 ### Bug fixes
 - **`%` now escaped in CSS selectors** — arbitrary classes like `top-[50%]`, `w-[33%]` previously produced invalid selectors the browser silently ignored. Fixed by adding `%` to `escapeClass()`.
 
+## New in v1.4.8
+
+### Security
+- **Chart tooltip XSS fixed** — label/value now rendered via `textContent` instead of `innerHTML` (chart 1.1.2).
+
+### Performance
+- **Bracket pre-filter in `lookup()`** — bracket-less class names skip the 40-pattern arbitrary regex loop entirely.
+
 ## New in v1.4.7
 
 ### Bug fixes
