@@ -849,7 +849,15 @@ class InteractionManager {
     const mat = mesh.material as THREE.MeshLambertMaterial
     mat.emissive.set(0x555555)
     const ud = mesh.userData as MeshUserData
-    this.tooltip.innerHTML = `<span class="strata-chart-tooltip-label">${ud.label ?? ''}</span><span class="strata-chart-tooltip-value">${ud.value ?? 0}</span>`
+    this.tooltip.textContent = ''
+    const labelEl = document.createElement('span')
+    labelEl.className = 'strata-chart-tooltip-label'
+    labelEl.textContent = String(ud.label ?? '')
+    const valueEl = document.createElement('span')
+    valueEl.className = 'strata-chart-tooltip-value'
+    valueEl.textContent = String(ud.value ?? 0)
+    this.tooltip.appendChild(labelEl)
+    this.tooltip.appendChild(valueEl)
     this.tooltip.setAttribute('data-st-chart-tooltip', 'true')
     this.container.setAttribute('data-st-chart-hovered', 'true')
     this.onHoverChange?.(ud.index ?? null, ud.value ?? null)

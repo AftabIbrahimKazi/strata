@@ -2,6 +2,16 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.8] — 2026-07-04
+
+### Security
+- **Chart tooltip XSS fixed** — tooltip label/value were interpolated into `innerHTML`; now rendered via `textContent`. Applies to the bundled chart component (`@strata-packages/chart` 1.1.2).
+
+### Performance
+- **Bracket pre-filter in `lookup()`** — class names without `[` skip the entire 40-pattern arbitrary regex loop. Custom project classes (the majority of scanned tokens) now resolve to null in one string scan instead of 40 regex matches.
+
+---
+
 ## [1.4.7] — 2026-07-04
 
 ### Fixed
