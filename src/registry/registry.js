@@ -11,18 +11,9 @@ const { wrapInMediaQuery } = require('./breakpoints')
 // ─── Escape helpers ───────────────────────────────────────────────────
 
 function escapeClass(cls) {
-  return cls
-    .replace(/!/g,  '\\!')
-    .replace(/\[/g, '\\[')
-    .replace(/\]/g, '\\]')
-    .replace(/\//g, '\\/')
-    .replace(/:/g,  '\\:')
-    .replace(/\./g, '\\.')
-    .replace(/#/g,  '\\#')
-    .replace(/\(/g, '\\(')
-    .replace(/\)/g, '\\)')
-    .replace(/,/g,  '\\,')
-    .replace(/%/g,  '\\%')
+  // Escape every character that is not a safe unescaped CSS identifier character.
+  // Valid unescaped: a-z A-Z 0-9 _ -
+  return cls.replace(/[^\w-]/g, (c) => '\\' + c)
 }
 
 function parseArbitrary(value) {

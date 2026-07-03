@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.7] — 2026-07-04
+
+### Fixed
+- **`escapeClass` now escapes all non-identifier characters** — replaced the whitelist of 11 chained `.replace()` calls with a single comprehensive regex `/[^\w-]/g`. Any character that is not `a-z A-Z 0-9 _ -` is now escaped, including previously unhandled characters such as `@`, `{`, `}`, `*`, `+`, `~`, `\`, and whitespace. Resolves CodeQL finding js/incomplete-sanitization.
+
+---
+
 ## [1.4.6] — 2026-07-04
 
 ### Fixed
