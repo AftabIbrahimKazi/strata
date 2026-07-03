@@ -3352,4 +3352,8 @@ function lookup(className) {
   return null
 }
 
-module.exports = { lookup, EXACT_MAP, ARBITRARY_PATTERNS, escapeClass, parseArbitrary }
+function clearResultCache() {
+  resultCache.clear()
+}
+
+module.exports = { lookup, EXACT_MAP, ARBITRARY_PATTERNS, escapeClass, parseArbitrary, clearResultCache }

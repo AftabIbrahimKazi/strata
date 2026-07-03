@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.6] — 2026-07-04
+
+### Fixed
+- **`resultCache` cleared on `invalidate()`** — the registry's result cache is now flushed whenever `invalidate()` is called. Previously, any class cached as `null` (e.g. after a registry update or a fixed typo) would remain null for the entire dev server lifetime, silently producing no CSS on subsequent builds.
+
+---
+
 ## [1.4.5] — 2026-06-30
 
 ### Added
