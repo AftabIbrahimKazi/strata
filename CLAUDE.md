@@ -428,6 +428,11 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 ### Bug fixes
 - **`%` now escaped in CSS selectors** — arbitrary classes like `top-[50%]`, `w-[33%]` previously produced invalid selectors the browser silently ignored. Fixed by adding `%` to `escapeClass()`.
 
+## New in v1.4.7
+
+### Bug fixes
+- **`escapeClass` comprehensive escaping** — replaced 11 chained `.replace()` calls with `/[^\w-]/g` covering all non-identifier characters. Resolves CodeQL incomplete-sanitization finding.
+
 ## New in v1.4.6
 
 ### Bug fixes
