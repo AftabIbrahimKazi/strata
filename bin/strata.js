@@ -72,7 +72,14 @@ async function build(cssMinify = false, jsMinify = true) {
 
   // CSS minification
   if (cssMinify) {
-    const cssnano = require('cssnano')
+    let cssnano
+    try {
+      cssnano = require('cssnano')
+    } catch {
+      console.error('[Strata] ✖  --minify requires cssnano, which is an optional dependency.')
+      console.error('          Install it with: npm install -D cssnano')
+      process.exit(1)
+    }
     const postcss = require('postcss')
     const result  = await postcss([cssnano({ preset: 'default' })]).process(css, { from: outputFile })
     fs.writeFileSync(outputFile, result.css)
@@ -336,7 +343,14 @@ function scaffoldStrataCore(cwd, isESM, output, framework) {
     : `[\n    "${globs.join('",\n    "')}"\n  ]`
 
   const configContent    = `module.exports = {\n  content: ${globStr},\n  input:   "./strata.css",\n  output:  "${output}"\n}\n`
-  const postcssContent   = `module.exports = {\n  plugins: [\n    require('strata-css'),\n    require('autoprefixer')\n  ]\n}\n`
+
+  // Only wire autoprefixer into the generated PostCSS config if the host
+  // project has it installed — it is an optional peer, not a strata dependency.
+  let hasAutoprefixer = false
+  try { require.resolve('autoprefixer', { paths: [cwd] }); hasAutoprefixer = true } catch {}
+  const postcssContent = hasAutoprefixer
+    ? `module.exports = {\n  plugins: [\n    require('strata-css'),\n    require('autoprefixer')\n  ]\n}\n`
+    : `module.exports = {\n  plugins: [\n    require('strata-css')\n    // Tip: npm install -D autoprefixer, then add require('autoprefixer') here\n  ]\n}\n`
   const strataCssContent = `@strata base;\n@strata components;\n@strata utilities;\n`
 
   fs.writeFileSync(path.resolve(cwd, configFile),   configContent)
