@@ -72,7 +72,14 @@ async function build(cssMinify = false, jsMinify = true) {
 
   // CSS minification
   if (cssMinify) {
-    const cssnano = require('cssnano')
+    let cssnano
+    try {
+      cssnano = require('cssnano')
+    } catch {
+      console.error('[Strata] ✖  --minify requires cssnano, which is an optional dependency.')
+      console.error('          Install it with: npm install -D cssnano')
+      process.exit(1)
+    }
     const postcss = require('postcss')
     const result  = await postcss([cssnano({ preset: 'default' })]).process(css, { from: outputFile })
     fs.writeFileSync(outputFile, result.css)
@@ -336,7 +343,14 @@ function scaffoldStrataCore(cwd, isESM, output, framework) {
     : `[\n    "${globs.join('",\n    "')}"\n  ]`
 
   const configContent    = `module.exports = {\n  content: ${globStr},\n  input:   "./strata.css",\n  output:  "${output}"\n}\n`
-  const postcssContent   = `module.exports = {\n  plugins: [\n    require('strata-css'),\n    require('autoprefixer')\n  ]\n}\n`
+
+  // Only wire autoprefixer into the generated PostCSS config if the host
+  // project has it installed — it is an optional peer, not a strata dependency.
+  let hasAutoprefixer = false
+  try { require.resolve('autoprefixer', { paths: [cwd] }); hasAutoprefixer = true } catch {}
+  const postcssContent = hasAutoprefixer
+    ? `module.exports = {\n  plugins: [\n    require('strata-css'),\n    require('autoprefixer')\n  ]\n}\n`
+    : `module.exports = {\n  plugins: [\n    require('strata-css')\n    // Tip: npm install -D autoprefixer, then add require('autoprefixer') here\n  ]\n}\n`
   const strataCssContent = `@strata base;\n@strata components;\n@strata utilities;\n`
 
   fs.writeFileSync(path.resolve(cwd, configFile),   configContent)
@@ -408,7 +422,9 @@ async function init() {
   const isESM     = isESMProject(cwd)
   const framework = detectFramework(cwd)
   const output    = detectOutputPath(cwd)
-  const exec      = require('child_process').execSync
+  // Installs are printed for the user to run, never executed —
+  // the CLI deliberately avoids child_process (supply-chain surface).
+  const pendingInstalls = []
 
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 
@@ -483,9 +499,7 @@ async function init() {
     scaffoldStrataCore(cwd, isESM, output, framework)
 
     if (installConcurrently) {
-      console.log('      ◼  Installing concurrently...')
-      exec('npm install --save-dev concurrently', { stdio: 'inherit', cwd })
-      console.log('      ✔  concurrently installed')
+      pendingInstalls.push('npm install --save-dev concurrently')
     }
 
     if (updateScripts) updatePackageScripts(cwd, framework, installConcurrently)
@@ -494,9 +508,7 @@ async function init() {
   // ── Execute: install selected packages ───────────────────────────────
   if (selectedPackages.length > 0) {
     const pkgNames = selectedPackages.map(p => p.name).join(' ')
-    console.log(`      ◼  Installing ${pkgNames}...`)
-    exec(`npm install ${pkgNames}`, { stdio: 'inherit', cwd })
-    console.log(`      ✔  Packages installed`)
+    pendingInstalls.push(`npm install ${pkgNames}`)
   }
 
   // ── Execute: inject into layout ──────────────────────────────────────
@@ -515,6 +527,13 @@ async function init() {
   console.log('')
   console.log(' strata   Setup complete!')
   console.log('')
+
+  if (pendingInstalls.length > 0) {
+    console.log('  install  Run the following to finish setup:')
+    console.log('')
+    pendingInstalls.forEach(cmd => console.log(`      ${cmd}`))
+    console.log('')
+  }
 
   if (withCore) {
     console.log('  next     Run  npm run dev  to start.')
