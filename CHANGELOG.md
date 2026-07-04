@@ -2,6 +2,13 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.10] — 2026-07-04
+
+### Changed
+- **`strata init` no longer executes shell commands** — package installs (`concurrently`, selected component packages) are now printed as copy-paste commands at the end of setup instead of being run via `child_process.execSync`. The CLI contains no shell access at all, closing the last Socket.dev supply-chain flag in strata's own code.
+
+---
+
 ## [1.4.9] — 2026-07-04
 
 ### Changed
