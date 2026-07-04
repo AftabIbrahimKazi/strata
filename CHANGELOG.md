@@ -2,6 +2,20 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.4.10] — 2026-07-04
+
+### Changed
+- **`strata init` no longer executes shell commands** — package installs (`concurrently`, selected component packages) are now printed as copy-paste commands at the end of setup instead of being run via `child_process.execSync`. The CLI contains no shell access at all, closing the last Socket.dev supply-chain flag in strata's own code.
+
+---
+
+## [1.4.9] — 2026-07-04
+
+### Changed
+- **`autoprefixer` and `cssnano` are now optional peer dependencies** — previously hard dependencies, they installed for every consumer while being needed only for `--minify` (cssnano) or not at all by strata itself (autoprefixer was only referenced in the `init` scaffold template). Installs are lighter and supply-chain surface is roughly halved. `--minify` without cssnano now exits with a clear install hint; `strata init` only wires autoprefixer into the generated PostCSS config when the host project has it installed.
+
+---
+
 ## [1.4.8] — 2026-07-04
 
 ### Security

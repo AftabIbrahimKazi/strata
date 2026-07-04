@@ -428,6 +428,16 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 ### Bug fixes
 - **`%` now escaped in CSS selectors** — arbitrary classes like `top-[50%]`, `w-[33%]` previously produced invalid selectors the browser silently ignored. Fixed by adding `%` to `escapeClass()`.
 
+## New in v1.4.10
+
+### Supply chain
+- **`strata init` executes no shell commands** — installs are printed for the user to run. Zero `child_process` usage anywhere in the CLI.
+
+## New in v1.4.9
+
+### Dependency slimming
+- **`autoprefixer` + `cssnano` moved to optional peer dependencies** — installed only if the consumer wants them. `--minify` requires cssnano (clear error if missing); `strata init` wires autoprefixer into the generated PostCSS config only when present in the host project.
+
 ## New in v1.4.8
 
 ### Security
