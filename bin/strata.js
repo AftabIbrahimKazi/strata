@@ -422,7 +422,9 @@ async function init() {
   const isESM     = isESMProject(cwd)
   const framework = detectFramework(cwd)
   const output    = detectOutputPath(cwd)
-  const exec      = require('child_process').execSync
+  // Installs are printed for the user to run, never executed —
+  // the CLI deliberately avoids child_process (supply-chain surface).
+  const pendingInstalls = []
 
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 
@@ -497,9 +499,7 @@ async function init() {
     scaffoldStrataCore(cwd, isESM, output, framework)
 
     if (installConcurrently) {
-      console.log('      ◼  Installing concurrently...')
-      exec('npm install --save-dev concurrently', { stdio: 'inherit', cwd })
-      console.log('      ✔  concurrently installed')
+      pendingInstalls.push('npm install --save-dev concurrently')
     }
 
     if (updateScripts) updatePackageScripts(cwd, framework, installConcurrently)
@@ -508,9 +508,7 @@ async function init() {
   // ── Execute: install selected packages ───────────────────────────────
   if (selectedPackages.length > 0) {
     const pkgNames = selectedPackages.map(p => p.name).join(' ')
-    console.log(`      ◼  Installing ${pkgNames}...`)
-    exec(`npm install ${pkgNames}`, { stdio: 'inherit', cwd })
-    console.log(`      ✔  Packages installed`)
+    pendingInstalls.push(`npm install ${pkgNames}`)
   }
 
   // ── Execute: inject into layout ──────────────────────────────────────
@@ -529,6 +527,13 @@ async function init() {
   console.log('')
   console.log(' strata   Setup complete!')
   console.log('')
+
+  if (pendingInstalls.length > 0) {
+    console.log('  install  Run the following to finish setup:')
+    console.log('')
+    pendingInstalls.forEach(cmd => console.log(`      ${cmd}`))
+    console.log('')
+  }
 
   if (withCore) {
     console.log('  next     Run  npm run dev  to start.')
