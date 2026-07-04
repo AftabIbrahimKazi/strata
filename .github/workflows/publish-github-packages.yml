@@ -1,0 +1,46 @@
+# Mirrors the already-released package to GitHub Packages so the repo's
+# "Packages" sidebar reflects the npm release.
+#
+# npmjs.com stays the primary registry and is published manually — this
+# workflow never touches it. GitHub Packages requires owner-scoped names,
+# so the mirror is published as @aftabibrahimkazi/strata-css; the rename
+# happens only in the workflow's checkout, never in the repo.
+#
+# Run it manually (Actions → Mirror to GitHub Packages → Run workflow)
+# after publishing a new version to npm.
+
+name: Mirror to GitHub Packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+
+      - name: Scope package name for GitHub Packages
+        run: |
+          node -e "
+            const fs = require('fs')
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'))
+            pkg.name = '@aftabibrahimkazi/strata-css'
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2))
+          "
+
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
