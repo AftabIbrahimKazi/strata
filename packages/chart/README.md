@@ -9,11 +9,18 @@
 
 ## Requirements
 
-Three.js must be loaded **before** this script — `window.THREE` must exist.
+Three.js is required, but no longer has to be pre-loaded — it is lazy-loaded on first `create()` if `window.THREE` is absent.
 
 ```html
+<!-- Option A: pre-load Three.js — create() stays synchronous -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script src="node_modules/@strata-packages/chart/chart.js"></script>
+
+<!-- Option B: no pre-load — Three.js is fetched on demand; create() returns a Promise -->
+<script src="node_modules/@strata-packages/chart/chart.js"></script>
+<script>
+  Strata.Chart.create('#myChart', { type: 'bar', data: [...] }).then(chart => { /* … */ })
+</script>
 ```
 
 ---
@@ -208,7 +215,7 @@ The component uses two fixed camera presets:
 
 ## Known Limitations
 
-- Requires `window.THREE` — Three.js must be loaded before the chart script
+- Requires Three.js. It is lazy-loaded on first `create()` if absent (so it need not be pre-loaded), but a chart cannot render until it arrives — when lazy-loading, `create()` resolves asynchronously.
 - Container element must have explicit `width` and `height` (or CSS dimensions). Zero-size containers produce a blank canvas
 - Maximum 100,000 data points before performance degrades
 - SSR/Node environments not supported — requires `window` and `document`
