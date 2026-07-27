@@ -327,6 +327,9 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full versioning rules, branch p
 | `@strata-packages/modal` | Accessible modal component | `packages/modal/CLAUDE.md` |
 | `@strata-packages/skeleton-loader` | Shimmer skeleton loader | `packages/skeleton-loader/CLAUDE.md` |
 | `@strata-packages/chart` | Three.js data visualisation | `packages/chart/CLAUDE.md` |
+| `@strata-packages/offcanvas` | Slide-in drawer component | `packages/offcanvas/CLAUDE.md` |
+| `@strata-packages/flipbook` | CSS-driven 3D page-flip flipbook | `packages/flipbook/CLAUDE.md` |
+| `@strata-packages/shopmap` | JIT-themed MapLibre GL shop map | `packages/shopmap/CLAUDE.md` |
 
 ## New in v1.1.0
 
