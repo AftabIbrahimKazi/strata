@@ -388,6 +388,9 @@ All Strata plugins are available as independent packages. Use them without Strat
 | `@strata-packages/skeleton-loader` | `SkeletonLoader` | `Strata.skeleton` | `npm i @strata-packages/skeleton-loader` |
 | `@strata-packages/modal` | `StrataModal` | `Strata.Modal` | `npm i @strata-packages/modal` |
 | `@strata-packages/chart` | `StrataChart` | `Strata.Chart` | `npm i @strata-packages/chart` |
+| `@strata-packages/offcanvas` | `StrataOffcanvas` | `Strata.Offcanvas` | `npm i @strata-packages/offcanvas` |
+| `@strata-packages/flipbook` | `StrataFlipbook` | `StrataFlipbook` | `npm i @strata-packages/flipbook` |
+| `@strata-packages/shopmap` | `ShopMap` | `ShopMap` | `npm i @strata-packages/shopmap` |
 
 ### How detection works
 
@@ -787,7 +790,7 @@ module.exports = {
 
 ## Roadmap
 
-### v1.0 — Current
+### v1.4 — Current
 Full component library, utility system, JIT processing, three-theme system, transition system.
 
 ### v2.0 — Planned
@@ -813,11 +816,13 @@ Strata's component architecture, cascade layer system, `data-st-*` state model, 
 
 ## Creating a GitHub Release
 
-The v1.0.0 tag already exists. To publish the GitHub Release from it:
+Tag and publish a GitHub Release for the current version:
 
 ```bash
-gh release create v1.0.0 \
-  --title "Strata CSS v1.0.0" \
+git tag vX.Y.Z
+git push origin vX.Y.Z
+gh release create vX.Y.Z \
+  --title "Strata CSS vX.Y.Z" \
   --notes-file CHANGELOG.md \
   --verify-tag
 ```
