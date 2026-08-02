@@ -21,6 +21,22 @@ function parseArbitrary(value) {
   return match ? match[1] : null
 }
 
+// Builds a multi-property declaration block for arbitrary side patterns
+// (border-top/x/y-[...], rounded-top/end/bottom/start-[...]) — same value
+// applied to every property in `props`, e.g. border-x sets both left+right.
+function sideArbitraryDecl(props, val, important) {
+  const i = important ? ' !important' : ''
+  return props.map(p => `  ${p}: ${val.replace(/_/g,' ')}${i};`).join('\n')
+}
+
+// Builds the gutter custom-property declaration for g-[...]/gx-[...]/gy-[...]
+function gutterArbitraryDecl(prop, val, important) {
+  const i = important ? ' !important' : ''
+  const v = val.replace(/_/g,' ')
+  if (prop === 'g') return `--st-gutter-x: ${v}${i}; --st-gutter-y: ${v}${i};`
+  return prop === 'gx' ? `--st-gutter-x: ${v}${i};` : `--st-gutter-y: ${v}${i};`
+}
+
 // ─── Spacing scale ────────────────────────────────────────────────────
 
 const SPACING_SCALE = {
@@ -39,6 +55,25 @@ const SPACING_PROPS = {
   'ps': ['padding-left'],  'pe': ['padding-right'],
   'px': ['padding-left',  'padding-right'],
   'py': ['padding-top',   'padding-bottom'],
+}
+
+// ─── Border side / border-radius side property maps ──────────────────
+// Shared by named-scale registration and arbitrary-value patterns below.
+
+const BORDER_SIDE_PROPS = {
+  'top':    ['border-top'],
+  'end':    ['border-right'],
+  'bottom': ['border-bottom'],
+  'start':  ['border-left'],
+  'x':      ['border-left',  'border-right'],
+  'y':      ['border-top',   'border-bottom'],
+}
+
+const ROUNDED_SIDE_PROPS = {
+  'top':    ['border-top-left-radius',    'border-top-right-radius'],
+  'end':    ['border-top-right-radius',   'border-bottom-right-radius'],
+  'bottom': ['border-bottom-left-radius', 'border-bottom-right-radius'],
+  'start':  ['border-top-left-radius',    'border-bottom-left-radius'],
 }
 
 // ─── Color maps ───────────────────────────────────────────────────────
@@ -2596,6 +2631,10 @@ reg('border-top-0',    'utilities', `.border-top-0    { border-top:    0; }`)
 reg('border-end-0',    'utilities', `.border-end-0    { border-right:  0; }`)
 reg('border-bottom-0', 'utilities', `.border-bottom-0 { border-bottom: 0; }`)
 reg('border-start-0',  'utilities', `.border-start-0  { border-left:   0; }`)
+reg('border-x',        'utilities', `.border-x   { border-left: 1px solid var(--st-border); border-right:  1px solid var(--st-border); }`)
+reg('border-y',        'utilities', `.border-y   { border-top:  1px solid var(--st-border); border-bottom: 1px solid var(--st-border); }`)
+reg('border-x-0',      'utilities', `.border-x-0 { border-left: 0; border-right: 0; }`)
+reg('border-y-0',      'utilities', `.border-y-0 { border-top: 0; border-bottom: 0; }`)
 reg('border-black',    'utilities', `.border-black { border-color: #000; }`)
 reg('border-white',    'utilities', `.border-white { border-color: #fff; }`)
 ;[1,2,3,4,5].forEach(n => {
@@ -2988,6 +3027,24 @@ Object.entries(OUTLINE_COLOR_MAP).forEach(([k, v]) => {
 
 const BP_KEYS = Object.keys(BP_VALUES) // sm md lg xl xxl
 
+// Outline — responsive named variants
+BP_KEYS.forEach(bp => {
+  reg(`outline-${bp}-none`, 'utilities', mq(bp, `.outline-${bp}-none { outline: none; }`))
+})
+Object.entries(OUTLINE_COLOR_MAP).forEach(([k, v]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`outline-${bp}-${k}`, 'utilities', mq(bp, `.outline-${bp}-${k} {
+  outline: 2px solid ${v};
+  outline-offset: 2px;
+}`))
+  })
+})
+;[1, 2, 3, 4, 5].forEach(n => {
+  BP_KEYS.forEach(bp => {
+    reg(`outline-${bp}-${n}`, 'utilities', mq(bp, `.outline-${bp}-${n} { outline-width: ${n}px; }`))
+  })
+})
+
 // Flex direction
 ;['row','column','wrap','nowrap','row-reverse','column-reverse'].forEach(v => {
   const prop = ['wrap','nowrap'].includes(v)
@@ -3058,6 +3115,24 @@ Object.entries(ROUNDED_SCALE).forEach(([k, v]) => {
 BP_KEYS.forEach(bp => {
   reg(`rounded-${bp}`, 'utilities',
     mq(bp, `.rounded-${bp} { border-radius: var(--st-border-radius); }`))
+})
+
+// Border-radius corner-pairs — responsive: rounded-top-md, rounded-end-lg
+Object.entries(ROUNDED_SIDE_PROPS).forEach(([side, props]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`rounded-${side}-${bp}`, 'utilities',
+      mq(bp, `.rounded-${side}-${bp} {\n${sideArbitraryDecl(props, 'var(--st-border-radius)', false)}\n}`))
+  })
+})
+
+// Border sides — responsive named + removal: border-top-md, border-x-lg, border-top-md-0
+Object.entries(BORDER_SIDE_PROPS).forEach(([side, props]) => {
+  BP_KEYS.forEach(bp => {
+    reg(`border-${side}-${bp}`, 'utilities',
+      mq(bp, `.border-${side}-${bp} {\n${sideArbitraryDecl(props, '1px solid var(--st-border)', false)}\n}`))
+    reg(`border-${side}-${bp}-0`, 'utilities',
+      mq(bp, `.border-${side}-${bp}-0 {\n${sideArbitraryDecl(props, '0', false)}\n}`))
+  })
 })
 
 // Shadow
@@ -3146,6 +3221,15 @@ BP_KEYS.forEach(bp => {
 // Only used when no exact match found in EXACT_MAP
 
 const ARBITRARY_PATTERNS = [
+  // Spacing arbitrary — responsive: px-sm-[var(--space-40)], py-md-[1rem_2rem]
+  { re: /^(!?)(m[trblxyes]?|p[trblxyes]?)-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const [, imp, prop, bp, val] = m
+    const props = SPACING_PROPS[prop]
+    if (!props) return null
+    const i = imp ? ' !important' : ''
+    const decl = props.map(p => `  ${p}: ${val.replace(/_/g,' ')}${i};`).join('\n')
+    return { layer: 'utilities', css: mq(bp, `.${escapeClass(m[0])} {\n${decl}\n}`) }
+  }},
   // Spacing arbitrary: mt-[12px], !px-[2rem]
   { re: /^(!?)(m[trblxyes]?|p[trblxyes]?)-\[(.+)\]$/, fn: (m) => {
     const [, imp, prop, val] = m
@@ -3177,10 +3261,53 @@ const ARBITRARY_PATTERNS = [
     // Use background shorthand so gradients work; solid colors also work with shorthand
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { background: ${val}${i}; }` }
   }},
+  // Border side arbitrary — responsive: border-top-sm-[2px_dashed_red], border-x-md-[...]
+  { re: /^(!?)border-(top|end|bottom|start|x|y)-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const [, imp, side, bp, val] = m
+    const props = BORDER_SIDE_PROPS[side]
+    if (!props) return null
+    return { layer: 'utilities', css: mq(bp, `.${escapeClass(m[0])} {\n${sideArbitraryDecl(props, val, imp)}\n}`) }
+  }},
+  // Border side arbitrary: border-top-[2px_dashed_red], border-x-[...]
+  { re: /^(!?)border-(top|end|bottom|start|x|y)-\[(.+)\]$/, fn: (m) => {
+    const [, imp, side, val] = m
+    const props = BORDER_SIDE_PROPS[side]
+    if (!props) return null
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} {\n${sideArbitraryDecl(props, val, imp)}\n}` }
+  }},
+  // Border arbitrary — responsive: border-sm-[2px_solid_red]
+  { re: /^(!?)border-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { border: ${m[3].replace(/_/g,' ')}${i}; }`) }
+  }},
   // Border arbitrary: border-[2px_solid_red]
   { re: /^(!?)border-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { border: ${m[2].replace(/_/g,' ')}${i}; }` }
+  }},
+  // Rounded (border-radius) side arbitrary — responsive: rounded-top-sm-[8px_8px_0_0]
+  { re: /^(!?)rounded-(top|end|bottom|start)-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const [, imp, side, bp, val] = m
+    const props = ROUNDED_SIDE_PROPS[side]
+    if (!props) return null
+    return { layer: 'utilities', css: mq(bp, `.${escapeClass(m[0])} {\n${sideArbitraryDecl(props, val, imp)}\n}`) }
+  }},
+  // Rounded side arbitrary: rounded-top-[8px_8px_0_0]
+  { re: /^(!?)rounded-(top|end|bottom|start)-\[(.+)\]$/, fn: (m) => {
+    const [, imp, side, val] = m
+    const props = ROUNDED_SIDE_PROPS[side]
+    if (!props) return null
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} {\n${sideArbitraryDecl(props, val, imp)}\n}` }
+  }},
+  // Rounded arbitrary — responsive: rounded-sm-[var(--r)]
+  { re: /^(!?)rounded-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { border-radius: ${m[3].replace(/_/g,' ')}${i}; }`) }
+  }},
+  // Rounded arbitrary: rounded-[var(--r)], rounded-[8px_8px_0_0]
+  { re: /^(!?)rounded-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { border-radius: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
   // Width arbitrary: w-[200px]
   { re: /^(!?)w-\[(.+)\]$/, fn: (m) => {
@@ -3216,6 +3343,11 @@ const ARBITRARY_PATTERNS = [
   { re: /^(!?)opacity-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { opacity: ${m[2]}${i}; }` }
+  }},
+  // Shadow arbitrary — responsive: shadow-sm-[0_4px_6px_rgba(0,0,0,0.1)]
+  { re: /^(!?)shadow-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { box-shadow: ${m[3].replace(/_/g,' ')}${i}; }`) }
   }},
   // Shadow arbitrary: shadow-[0_4px_6px_rgba(0,0,0,0.1)]
   { re: /^(!?)shadow-\[(.+)\]$/, fn: (m) => {
@@ -3261,6 +3393,26 @@ const ARBITRARY_PATTERNS = [
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { column-gap: ${m[2]}${i}; }` }
   }},
+  // Gutter arbitrary — responsive: g-sm-[var(--gutter)], gx-md-[2rem], gy-lg-[1rem]
+  { re: /^(!?)(g|gx|gy)-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const [, imp, prop, bp, val] = m
+    return { layer: 'utilities', css: mq(bp, `.${escapeClass(m[0])} { ${gutterArbitraryDecl(prop, val, imp)} }`) }
+  }},
+  // Gutter arbitrary: g-[var(--gutter)], gx-[2rem], gy-[1rem]
+  { re: /^(!?)(g|gx|gy)-\[(.+)\]$/, fn: (m) => {
+    const [, imp, prop, val] = m
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${gutterArbitraryDecl(prop, val, imp)} }` }
+  }},
+  // Outline arbitrary — responsive: outline-sm-[2px_dashed_red]
+  { re: /^(!?)outline-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { outline: ${m[3].replace(/_/g,' ')}${i}; }`) }
+  }},
+  // Outline arbitrary: outline-[2px_dashed_red]
+  { re: /^(!?)outline-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { outline: ${m[2].replace(/_/g,' ')}${i}; }` }
+  }},
   // Font-weight arbitrary: fw-[var(--token)], fw-[600]
   { re: /^(!?)fw-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
@@ -3300,10 +3452,20 @@ const ARBITRARY_PATTERNS = [
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { object-position: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
+  // grid-template-columns arbitrary — responsive: gtc-sm-[1fr_1fr]
+  { re: /^(!?)gtc-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { grid-template-columns: ${m[3].replace(/_/g,' ')}${i}; }`) }
+  }},
   // grid-template-columns arbitrary: gtc-[1fr_1fr], gtc-[260px_1fr]
   { re: /^(!?)gtc-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { grid-template-columns: ${m[2].replace(/_/g,' ')}${i}; }` }
+  }},
+  // grid-template-rows arbitrary — responsive: gtr-sm-[auto_1fr_auto]
+  { re: /^(!?)gtr-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { grid-template-rows: ${m[3].replace(/_/g,' ')}${i}; }`) }
   }},
   // grid-template-rows arbitrary: gtr-[auto_1fr_auto]
   { re: /^(!?)gtr-\[(.+)\]$/, fn: (m) => {
