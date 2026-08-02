@@ -475,3 +475,4 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 - Scanner uses a regex on `class="..."` attributes. Dynamic class construction (`class={\`prefix-${value}\`}`) is not detected — use safelisting in `strata.config.js`.
 - CSS variables cannot be used in `@media` query values — breakpoints use hardcoded `px` values.
 - `text-[value]`: length units → `font-size`, everything else → `color`. Use `fs-[...]` for token-based font-size.
+- Arbitrary-value classes (`w-[...]`, `border-[...]`, `p-[...]`, etc.) interpolate the bracket contents directly into the generated CSS with no value-level escaping — only the class selector is escaped. Safe under Strata's JIT model (class names are scanned from your own source files at build time), but never run the scanner over unsanitized user-submitted HTML/content.
