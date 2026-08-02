@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-strata>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — New Features Showcase</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    :root {
+      --space-40: 2.5rem;
+      --card-radius: 1.25rem;
+      --st-shadow-custom: 0 10px 30px rgba(124, 58, 237, 0.25);
+    }
+    body { padding: 2rem; max-width: 1100px; margin: 0 auto; }
+    .panel {
+      background: color-mix(in srgb, var(--st-primary) 6%, var(--st-bg));
+    }
+    .stat-value { font-size: 1.6rem; font-weight: 700; }
+    .stat-label { font-size: 0.8rem; color: var(--st-text-muted); }
+  </style>
+</head>
+<body>
+
+  <h1 class="mb-1">Team Dashboard</h1>
+  <p class="text-muted mb-4">
+    A realistic layout combining every breakpoint-scoped feature added this pass. Resize the browser —
+    xs &lt;576 · sm ≥576 · md ≥768 · lg ≥992 · xl ≥1200.
+  </p>
+
+  <!-- ─── Stat grid — gutters + grid-template, both responsive-arbitrary ─── -->
+  <section class="mb-5">
+    <h2 class="mb-2">Stats</h2>
+    <!--
+      d-grid + gtc-[...] lays out one column on mobile.
+      gtc-md-[...] switches to a 4-column custom track once there's room.
+      g-[...] / g-md-[...] control gutter spacing with a token that isn't on the fixed 0-5 scale.
+    -->
+    <div class="d-grid gtc-[1fr] gtc-md-[repeat(4,1fr)] g-[1rem] g-md-[var(--space-40)]">
+      <div class="panel p-3 rounded shadow-sm">
+        <div class="stat-value">128</div>
+        <div class="stat-label">Active Projects</div>
+      </div>
+      <div class="panel p-3 rounded shadow-sm">
+        <div class="stat-value">42</div>
+        <div class="stat-label">Team Members</div>
+      </div>
+      <div class="panel p-3 rounded shadow-sm">
+        <div class="stat-value">97%</div>
+        <div class="stat-label">Uptime</div>
+      </div>
+      <div class="panel p-3 rounded shadow-sm">
+        <div class="stat-value">$12.4k</div>
+        <div class="stat-label">MRR</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Featured card — spacing, shadow, border-radius, outline arbitrary ─── -->
+  <section class="mb-5">
+    <h2 class="mb-2">Featured Plan</h2>
+    <!--
+      px-sm-[...] / py-md-[...]: token-driven padding that grows in two steps as room appears.
+      rounded-[...]: a project-specific corner radius, not on Strata's 0-5/pill/circle scale.
+      shadow-md-[...]: a custom brand-colored shadow that only appears once the card has breathing room.
+      outline-lg-[...]: a forced highlight ring at lg+, using the outline arbitrary form.
+    -->
+    <div class="p-2 px-sm-[var(--space-40)] py-md-[2rem] border rounded-[var(--card-radius)]
+                shadow-md-[var(--st-shadow-custom)] !outline-lg-[3px_solid_var(--st-primary)]">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+          <h3 class="mb-1">Pro Plan</h3>
+          <p class="text-muted mb-0">Everything on Team, plus priority support and SSO.</p>
+        </div>
+        <div class="text-md-end">
+          <div class="stat-value">$49<span class="fs-[1rem] text-muted">/mo</span></div>
+          <button class="btn-primary mt-2">Upgrade</button>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted mt-2" style="font-size:0.8rem">
+      ↑ Compact card on mobile → generous padding, custom shadow, and a highlight ring at their respective breakpoints
+    </p>
+  </section>
+
+  <!-- ─── Settings panel — border sides, border-x/y, corner-pair radius ─── -->
+  <section class="mb-5">
+    <h2 class="mb-2">Account Settings</h2>
+    <div class="border-x border-top-md rounded-top-lg overflow-hidden">
+      <!--
+        border-x: left/right border always on (new combined-side utility).
+        border-top-md: top border only appears once the panel has room to breathe at md+.
+        rounded-top-lg: only the top corners round off, and only at lg+ — no bp variant existed for this before.
+      -->
+      <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <span>Email notifications</span>
+        <span class="badge badge-success">On</span>
+      </div>
+      <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <span>Two-factor authentication</span>
+        <span class="badge badge-warning">Off</span>
+      </div>
+      <!--
+        border-bottom-md-[...]: custom-styled bottom divider on the last row, gated to md+ so it
+        doesn't compete visually with the panel's own border-x on mobile.
+      -->
+      <div class="p-3 border-bottom-md-[2px_dashed_var(--st-border)] d-flex justify-content-between align-items-center">
+        <span>API access</span>
+        <span class="badge badge-secondary">Restricted</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Danger zone — margin/border !important arbitrary, removal variants ─── -->
+  <section>
+    <h2 class="mb-2">Danger Zone</h2>
+    <!--
+      !m-lg-[3rem]: forced extra breathing room from the section above, once there's room for it.
+      border-[2px_solid_var(--st-danger)]: full-shorthand arbitrary border in the danger color.
+      border-y-0 on the inner row demonstrates the removal-variant pairing with border-y.
+    -->
+    <div class="p-3 !m-lg-[3rem] border-[2px_solid_var(--st-danger)] rounded">
+      <div class="border-y py-2 mb-2">
+        <strong class="text-danger">Delete this workspace</strong>
+        <p class="text-muted mb-0" style="font-size:0.85rem">This action cannot be undone.</p>
+      </div>
+      <div class="border-y-0 d-flex justify-content-end">
+        <button class="btn-danger">Delete Workspace</button>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

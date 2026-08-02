@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" data-strata>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — Breakpoint-Scoped Arbitrary Values Test</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    :root { --space-40: 2.5rem; --st-shadow-custom: 0 10px 30px rgba(124, 58, 237, 0.35); }
+    body { padding: 2rem; }
+    section { margin-bottom: 3rem; }
+    h2 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+    p.desc { color: var(--st-text-muted); font-size: 0.8rem; font-family: monospace; margin-bottom: 1rem; }
+    .hint { font-size: 0.75rem; color: var(--st-text-muted); margin-top: 0.5rem; }
+    .box {
+      background: color-mix(in srgb, var(--st-primary) 10%, var(--st-bg));
+      border-radius: var(--st-border-radius);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="mb-1">Breakpoint-Scoped Arbitrary Values</h1>
+  <p class="text-muted mb-1">Resize your browser to see each utility change at its breakpoint.</p>
+  <p class="text-muted mb-4" style="font-size:0.8rem">
+    xs &lt;576px · sm ≥576px · md ≥768px · lg ≥992px · xl ≥1200px · xxl ≥1400px
+  </p>
+
+  <!-- ─── 1. Spacing — single value ─────────────────────────────── -->
+  <section>
+    <h2>1 — px-sm-[var(--space-40)]</h2>
+    <p class="desc">padding-left/right jump to a custom token (2.5rem) at sm+ — no fixed-scale step matches this value</p>
+    <div class="box px-1 px-sm-[var(--space-40)]">
+      Box with token-driven horizontal padding
+    </div>
+    <p class="hint">↑ Small padding on mobile → 2.5rem left/right padding at ≥576px</p>
+  </section>
+
+  <!-- ─── 2. Spacing — multi-token value + underscore unescaping ── -->
+  <section>
+    <h2>2 — p-md-[1rem_2rem]</h2>
+    <p class="desc">padding shorthand (1rem 2rem) at md+ — underscore-to-space unescaping</p>
+    <div class="box p-1 p-md-[1rem_2rem]">
+      Box with shorthand padding at md+
+    </div>
+    <p class="hint">↑ Uniform padding on mobile → asymmetric 1rem/2rem padding at ≥768px</p>
+  </section>
+
+  <!-- ─── 3. Spacing — !important ──────────────────────────────── -->
+  <section>
+    <h2>3 — !m-lg-[3rem]</h2>
+    <p class="desc">margin forced with !important at lg+</p>
+    <div class="box m-1 !m-lg-[3rem]">
+      Box with forced margin at lg+
+    </div>
+    <p class="hint">↑ Small margin on mobile → 3rem margin (!important) at ≥992px</p>
+  </section>
+
+  <!-- ─── 4. Border — arbitrary at breakpoint ──────────────────── -->
+  <section>
+    <h2>4 — border-sm-[3px_dashed_var(--st-primary)]</h2>
+    <p class="desc">border shorthand with a custom width/style/color combo at sm+</p>
+    <div class="box p-3 border-md-[4px_dashed_var(--st-danger)]">
+      Box with dashed border at md+
+    </div>
+    <p class="hint">↑ No border on mobile → 4px dashed danger-colored border at ≥768px</p>
+  </section>
+
+  <!-- ─── 5. Border — !important ────────────────────────────────── -->
+  <section>
+    <h2>5 — !border-xl-[2px_solid_var(--st-success)]</h2>
+    <p class="desc">forced border at xl+</p>
+    <div class="box p-3 border !border-xl-[2px_solid_var(--st-success)]">
+      Box with forced success border at xl+
+    </div>
+    <p class="hint">↑ Default 1px border on mobile → forced 2px solid success border at ≥1200px</p>
+  </section>
+
+  <!-- ─── 6. Shadow — arbitrary at breakpoint ──────────────────── -->
+  <section>
+    <h2>6 — shadow-lg-[var(--st-shadow-custom)]</h2>
+    <p class="desc">box-shadow using a project-specific token that isn't on Strata's 3-step scale, gated to lg+</p>
+    <div class="box p-3 shadow-lg-[var(--st-shadow-custom)]">
+      Box with custom shadow token at lg+
+    </div>
+    <p class="hint">↑ No shadow on mobile → custom purple shadow at ≥992px</p>
+  </section>
+
+  <!-- ─── 7. Shadow — multi-token value + !important ───────────── -->
+  <section>
+    <h2>7 — !shadow-xxl-[0_20px_40px_rgba(0,0,0,0.25)]</h2>
+    <p class="desc">forced box-shadow with a raw multi-token value at xxl+</p>
+    <div class="box p-3 shadow-sm !shadow-xxl-[0_20px_40px_rgba(0,0,0,0.25)]">
+      Box with forced deep shadow at xxl+
+    </div>
+    <p class="hint">↑ Small shadow by default → forced deep shadow (!important) at ≥1400px</p>
+  </section>
+
+  <!-- ─── 8. Combined — all three families stacked on one element ── -->
+  <section>
+    <h2>8 — combined px / border / shadow at md+</h2>
+    <p class="desc">Realistic case: a card that gets breathing room, a border, and a shadow together once there's room</p>
+    <div class="box p-2 px-md-[var(--space-40)] border-md-[1px_solid_var(--st-border)] shadow-md-[0_8px_16px_rgba(0,0,0,0.12)]">
+      Card that gains padding, border, and shadow at md+
+    </div>
+    <p class="hint">↑ Bare box on mobile → padded, bordered, shadowed card at ≥768px</p>
+  </section>
+
+  <!-- ─── 9. border-x / border-y — new combined-side utilities ──── -->
+  <section>
+    <h2>9 — border-x / border-y (new)</h2>
+    <p class="desc">border-x sets left+right in one class; border-y sets top+bottom — didn't exist before this pass</p>
+    <div class="box p-3 border-x" style="margin-bottom:0.5rem">border-x — left/right border only</div>
+    <div class="box p-3 border-y">border-y — top/bottom border only</div>
+    <p class="hint">↑ No breakpoint needed to see these — always-on combined-side borders</p>
+  </section>
+
+  <!-- ─── 10. Border side — named responsive + removal ─────────── -->
+  <section>
+    <h2>10 — border-top-md / border-top-md-0</h2>
+    <p class="desc">Fixed 1px side border that only appears at md+, and its removal counterpart</p>
+    <div class="box p-3 border-top-md" style="margin-bottom:0.5rem">
+      border-top-md — top border appears at ≥768px
+    </div>
+    <div class="box p-3 border-x-lg">
+      border-x-lg — left/right borders appear at ≥992px
+    </div>
+    <p class="hint">↑ Resize to see side borders switch on at their breakpoint</p>
+  </section>
+
+  <!-- ─── 11. Border side — arbitrary + responsive-arbitrary ────── -->
+  <section>
+    <h2>11 — border-top-[...] / border-x-md-[...]</h2>
+    <p class="desc">Custom per-side border value, optionally gated to a breakpoint</p>
+    <div class="box p-3 border-top-[3px_dashed_var(--st-danger)]" style="margin-bottom:0.5rem">
+      border-top-[3px_dashed_var(--st-danger)] — always on
+    </div>
+    <div class="box p-3 !border-x-md-[2px_solid_var(--st-success)]">
+      !border-x-md-[2px_solid_var(--st-success)] — forced at ≥768px
+    </div>
+    <p class="hint">↑ Dashed top border always visible → forced green side borders appear at ≥768px</p>
+  </section>
+
+  <!-- ─── 12. Border-radius corner-pairs — named responsive ────── -->
+  <section>
+    <h2>12 — rounded-top-lg (new)</h2>
+    <p class="desc">Only the top corners round off, and only at lg+ — corner-pair classes had no bp variant before</p>
+    <div class="box p-3 border rounded-top-lg">
+      rounded-top-lg — top corners round at ≥992px
+    </div>
+    <p class="hint">↑ Square corners on mobile → rounded top corners at ≥992px</p>
+  </section>
+
+  <!-- ─── 13. Border-radius corner-pairs — arbitrary ────────────── -->
+  <section>
+    <h2>13 — rounded-top-[...] / rounded-top-md-[...]</h2>
+    <p class="desc">Custom radius value applied to both top corners, optionally gated to a breakpoint</p>
+    <div class="box p-3 border rounded-top-[12px_4px]" style="margin-bottom:0.5rem">
+      rounded-top-[12px_4px] — always on
+    </div>
+    <div class="box p-3 border rounded-top-md-[20px]">
+      rounded-top-md-[20px] — forced at ≥768px
+    </div>
+    <p class="hint">↑ Custom elliptical top-corner radius → larger radius appears at ≥768px</p>
+  </section>
+
+  <!-- ─── 14. Border-radius (full corner) — arbitrary, was missing entirely ── -->
+  <section>
+    <h2>14 — rounded-[...] / rounded-md-[...] (new — full corner arbitrary didn't exist)</h2>
+    <p class="desc">A project-specific radius token that isn't on Strata's 0-5/pill/circle scale</p>
+    <div class="box p-3 border rounded-[var(--space-40)]" style="margin-bottom:0.5rem">
+      rounded-[var(--space-40)] — always on
+    </div>
+    <div class="box p-3 border !rounded-xl-[50%]">
+      !rounded-xl-[50%] — forced circular at ≥1200px
+    </div>
+    <p class="hint">↑ Token-driven radius always on → forced fully-round shape at ≥1200px</p>
+  </section>
+
+  <!-- ─── 15. Outline — responsive named + arbitrary ────────────── -->
+  <section>
+    <h2>15 — outline-md-primary / outline-[...] / outline-md-[...] (new)</h2>
+    <p class="desc">Outline family had zero breakpoint variants and no arbitrary form at all before this pass</p>
+    <div class="box p-3 outline-md-primary" style="margin-bottom:0.5rem">
+      outline-md-primary — named outline appears at ≥768px
+    </div>
+    <div class="box p-3 outline-[2px_dashed_var(--st-danger)]" style="margin-bottom:0.5rem">
+      outline-[2px_dashed_var(--st-danger)] — custom outline, always on
+    </div>
+    <div class="box p-3 !outline-lg-[3px_solid_var(--st-success)]">
+      !outline-lg-[3px_solid_var(--st-success)] — forced custom outline at ≥992px
+    </div>
+    <p class="hint">↑ Dashed outline always visible → named outline at ≥768px, forced solid outline at ≥992px</p>
+  </section>
+
+  <!-- ─── 16. Gutters — arbitrary + responsive-arbitrary ────────── -->
+  <section>
+    <h2>16 — g-[...] / gx-md-[...] / gy-lg-[...] (new)</h2>
+    <p class="desc">Gutters already had a responsive named scale (0-5) but no arbitrary form for custom values</p>
+    <div class="row g-[var(--space-40)]" style="margin-bottom:0.5rem">
+      <div class="col-6"><div class="box p-2">g-[var(--space-40)] col A</div></div>
+      <div class="col-6"><div class="box p-2">g-[var(--space-40)] col B</div></div>
+    </div>
+    <div class="row gx-md-[3rem]">
+      <div class="col-6"><div class="box p-2">gx-md-[3rem] col A</div></div>
+      <div class="col-6"><div class="box p-2">gx-md-[3rem] col B</div></div>
+    </div>
+    <p class="hint">↑ Token-driven gutter always on → wide 3rem horizontal gutter appears at ≥768px</p>
+  </section>
+
+  <!-- ─── 17. Grid-template — responsive-arbitrary ──────────────── -->
+  <section>
+    <h2>17 — gtc-md-[...] / gtr-lg-[...] (new — only unconditional existed before)</h2>
+    <p class="desc">grid-template-columns/rows arbitrary values, now gated to a breakpoint</p>
+    <div class="box p-3 d-grid gap-2 gtc-md-[repeat(3,1fr)]">
+      <div class="box p-2">1</div><div class="box p-2">2</div><div class="box p-2">3</div>
+    </div>
+    <p class="hint">↑ Single column on mobile → 3-column grid at ≥768px</p>
+  </section>
+
+</body>
+</html>
