@@ -2,6 +2,28 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.5.11] — 2026-07-27
+
+### Added
+- **Responsive-arbitrary spacing** — `{m|mt|mb|ms|me|mx|my|p|pt|pb|ps|pe|px|py}-{bp}-[value]` (e.g. `px-sm-[var(--space-40)]`), mirroring the existing `gap-{bp}-[...]` pattern.
+- **`border-x` / `border-y`** — new combined-side border utilities (previously only `border-top/end/bottom/start` existed), plus their `-0` removal variants.
+- **Responsive border sides** — `border-{top|end|bottom|start|x|y}-{bp}` (named) and `-{bp}-0` (removal), plus `border-{side}-[value]` and `border-{side}-{bp}-[value]` arbitrary forms.
+- **Responsive border shorthand + shadow arbitrary** — `border-{bp}-[value]` and `shadow-{bp}-[value]`.
+- **Border-radius corner-pairs, responsive** — `rounded-{top|end|bottom|start}-{bp}` (named) and their arbitrary + responsive-arbitrary forms.
+- **`rounded-[value]` / `rounded-{bp}-[value]`** — full-corner border-radius arbitrary value, previously missing entirely (the named `0-5`/`pill`/`circle` scale already had breakpoint support).
+- **Outline, responsive + arbitrary** — `outline-{bp}-none`, `outline-{bp}-{color}`, `outline-{bp}-{1-5}`, and new `outline-[value]` / `outline-{bp}-[value]` arbitrary forms (the outline family previously had no breakpoint variants and no arbitrary form at all).
+- **Gutter arbitrary values** — `g-[value]` / `gx-[value]` / `gy-[value]` and their responsive forms, for gutter values outside the fixed `0-5` scale.
+- **Responsive-arbitrary grid-template** — `gtc-{bp}-[value]` / `gtr-{bp}-[value]` (unconditional arbitrary already existed).
+
+---
+
+## [1.4.11] — 2026-07-04
+
+### Changed
+- Republished to sync the npm package's `README.md` (shipped in the tarball) with fixes landed in the repo: missing packages (`offcanvas`, `flipbook`, `shopmap`) added to the package tables, stale `v1.0.0` roadmap/release references corrected, and `packages/chart/README.md` updated to match its lazy-loaded Three.js behavior. No functional/code changes.
+
+---
+
 ## [1.4.10] — 2026-07-04
 
 ### Changed
