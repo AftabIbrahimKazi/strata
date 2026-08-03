@@ -2,6 +2,16 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.5.12] — 2026-08-03
+
+### Fixed
+- **`ml-` / `mr-` / `pl-` / `pr-` silently produced no CSS.** The spacing arbitrary-value regex accepts the suffix set `[trblxyes]` — the union of physical naming (`t r b l`, as used by Tailwind and Bootstrap 4) and logical-style naming (`x y e s`, as used by Bootstrap 5) — but `SPACING_PROPS` defined only the latter plus `t`/`b`. A matched-but-undefined suffix made the pattern function return `null`, so `pl-[10px]`, `ml-3`, `pr-sm-[1rem]` and friends compiled cleanly and emitted nothing: no CSS, no warning, no way for a consumer to notice. This affected 24 arbitrary shapes (4 prefixes × unconditional + 5 breakpoints) plus every named and breakpoint-named variant of the same four prefixes. `ml`/`mr`/`pl`/`pr` are now plain aliases of `ms`/`me`/`ps`/`pe` — which are themselves physical (`left`/`right`), so the spellings are exactly equivalent and no RTL behaviour differs. Purely additive; existing spellings unchanged.
+
+### Tests
+- Regression coverage for the above in `test/verify.js`, including a guard asserting that **every** suffix the arbitrary regex accepts resolves — so adding a suffix to the char class without a matching `SPACING_PROPS` entry now fails the suite instead of shipping another silent no-op.
+
+---
+
 ## [1.5.11] — 2026-07-27
 
 ### Added
