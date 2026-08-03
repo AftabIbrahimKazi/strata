@@ -134,6 +134,25 @@ ok('m-3 resolves',                 !!lookup('m-3'))
 ok('px-4 resolves',                !!lookup('px-4'))
 ok('mt-md-2 resolves',             !!lookup('mt-md-2'))
 
+// Physical-naming aliases (ml/mr/pl/pr). The arbitrary regex accepts the
+// suffix set [trblxyes]; every accepted suffix must be defined in
+// SPACING_PROPS, or the class matches, emits nothing, and warns nothing.
+// These guard that silent-no-op regression in named, arbitrary and
+// breakpoint forms alike.
+ok('ml-3 resolves',                !!lookup('ml-3'))
+ok('mr-3 resolves',                !!lookup('mr-3'))
+ok('pl-3 resolves',                !!lookup('pl-3'))
+ok('pr-3 resolves',                !!lookup('pr-3'))
+ok('ml-[10px] resolves',           !!lookup('ml-[10px]'))
+ok('pr-[10px] resolves',           !!lookup('pr-[10px]'))
+ok('pl-sm-[1rem] resolves',        !!lookup('pl-sm-[1rem]'))
+ok('ml aliases ms (margin-left)',  /margin-left:\s*1rem/.test((lookup('ml-3') || {}).css || ''))
+ok('pr aliases pe (padding-right)',/padding-right:\s*1rem/.test((lookup('pr-3') || {}).css || ''))
+// Every suffix the arbitrary regex accepts must resolve — catches a future
+// suffix being added to the char class without a SPACING_PROPS entry.
+ok('no unmapped spacing suffixes',
+  'trblxyes'.split('').every(s => !!lookup(`m${s}-[1px]`) && !!lookup(`p${s}-[1px]`)))
+
 // Utilities — display
 ok('d-none resolves',              !!lookup('d-none'))
 ok('d-flex resolves',              !!lookup('d-flex'))
