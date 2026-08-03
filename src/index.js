@@ -13,8 +13,9 @@ const fs   = require('fs')
 let postcss
 
 // ─── State ────────────────────────────────────────────────────────────
-let dirty      = true
-let cachedCSS  = null   // final output CSS string from last cold build
+let dirty            = true
+let cachedCSS         = null   // final output CSS string from last cold build
+let cachedBuildInput  = null   // resolved inputCSSPath the cache above was built from
 
 // ─── Config cache ─────────────────────────────────────────────────────
 let cachedConfig      = null
@@ -77,7 +78,7 @@ const plugin = (opts = {}) => ({
     const cwd    = opts.cwd || process.cwd()
     const config = loadConfig(cwd)
 
-    const { scanFiles } = require('./scanner/scanner')
+    const { scanFiles, getWatchFiles } = require('./scanner/scanner')
     const { generate }  = require('./generator/generator')
 
     const contentGlobs = config.content || [
@@ -86,6 +87,34 @@ const plugin = (opts = {}) => ({
 
     const classNames = scanFiles(contentGlobs)
     const { componentCSS, utilityCSS } = generate(classNames, config)
+
+    // Tell the caller's bundler (webpack/Turbopack/esbuild/etc.) that this
+    // output depends on every scanned content file, not just the CSS file
+    // being processed — otherwise an unchanged CSS file + unchanged config
+    // reads as "nothing changed" and a stale cached build gets served even
+    // when a .tsx file added/changed a utility class.
+    const watchFiles = getWatchFiles(contentGlobs)
+    for (let i = 0; i < watchFiles.length; i++) {
+      result.messages.push({
+        type: 'dependency',
+        plugin: 'strata-css',
+        file: path.resolve(cwd, watchFiles[i]),
+        parent: from,
+      })
+    }
+    const configPath    = path.resolve(cwd, 'strata.config.js')
+    const configPathCjs = path.resolve(cwd, 'strata.config.cjs')
+    const resolvedConfigPath = fs.existsSync(configPathCjs) ? configPathCjs
+      : fs.existsSync(configPath) ? configPath
+      : null
+    if (resolvedConfigPath) {
+      result.messages.push({
+        type: 'dependency',
+        plugin: 'strata-css',
+        file: resolvedConfigPath,
+        parent: from,
+      })
+    }
 
     // Replace @strata directives
     let baseInserted = false
@@ -112,8 +141,13 @@ module.exports = plugin
 // Warm builds bypass PostCSS entirely — zero allocation, zero GC pressure
 
 module.exports.build = async (inputCSSPath, outputCSSPath, opts = {}) => {
+  const resolvedInput = path.resolve(inputCSSPath)
+
   // ── Warm path: return cached CSS, no work at all ──────────────────
-  if (!dirty && cachedCSS) {
+  // Only valid if the cache was built from this same input file — the
+  // module-level cache is shared across calls, so a different inputCSSPath
+  // must never be served the previous input's stale compiled output.
+  if (!dirty && cachedCSS && cachedBuildInput === resolvedInput) {
     if (outputCSSPath) fs.writeFileSync(outputCSSPath, cachedCSS)
     return cachedCSS
   }
@@ -146,8 +180,9 @@ module.exports.build = async (inputCSSPath, outputCSSPath, opts = {}) => {
     .replace(/^\s*@strata\s+components\s*;/m, () => componentCSS || '')
     .replace(/^\s*@strata\s+utilities\s*;/m,  () => utilityCSS   || '')
 
-  cachedCSS = css
-  dirty     = false
+  cachedCSS        = css
+  cachedBuildInput = resolvedInput
+  dirty            = false
 
   if (outputCSSPath) {
     fs.mkdirSync(path.dirname(outputCSSPath), { recursive: true })
