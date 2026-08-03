@@ -2,6 +2,17 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.5.13] — 2026-08-03
+
+### Fixed
+- **PostCSS plugin never registered scanned content files as build dependencies.** The `Once(root, { result })` hook scans the consuming app's source tree via `scanFiles(contentGlobs)` to discover utility classes, but never told the caller (via `result.messages.push({ type: 'dependency', ... })`) that its output depends on those files. Bundlers (webpack, Turbopack, esbuild) use that message to know when to invalidate a cached build; without it, a bundler could validly decide "the CSS file's own bytes are unchanged, config is unchanged → reuse cached output" even after a `.tsx` file added a new utility class — causing classes to intermittently go missing on incremental/cached builds (e.g. Vercel's "Restored build cache from previous deployment") despite a clean rebuild producing correct output. Every scanned content file, plus `strata.config.js`/`.cjs` itself, is now pushed as a `dependency` message with an absolute path.
+- **`strata.build()`'s warm-build cache ignored `inputCSSPath`.** The module-level `cachedCSS`/`dirty` cache returned the previous build's output unconditionally on any warm call, regardless of which `inputCSSPath` was requested — so building two different input files in the same process (or the same file at two different paths) could serve one input's stale compiled CSS for the other. The cache is now keyed by the resolved input path.
+
+### Tests
+- `test/dependency-tracking.js` — new fixture-based regression test: asserts scanned files and the config file are registered as PostCSS dependencies, that an incremental change to a source file (not the CSS entry) is picked up on rebuild, and that `build()` with a different `inputCSSPath` never returns another input's cached output. Verified to fail without the fix and pass with it.
+
+---
+
 ## [1.5.12] — 2026-08-03
 
 ### Fixed
