@@ -44,15 +44,27 @@ const SPACING_SCALE = {
   '3': '1rem', '4': '1.5rem', '5': '3rem', 'auto': 'auto',
 }
 
+// NOTE: the arbitrary-value regex below accepts the suffix set [trblxyes] —
+// the union of physical naming (t/r/b/l, as in Tailwind and Bootstrap 4) and
+// logical-style naming (x/y/e/s, as in Bootstrap 5). Every suffix the regex
+// accepts MUST have an entry here: a key that is matched but undefined makes
+// the pattern fn return null, so the class compiles silently to nothing —
+// no CSS, no warning, no way for a consumer to notice. `ml`/`mr`/`pl`/`pr`
+// were exactly that trap, and they're the spellings anyone arriving from
+// Tailwind reaches for first. They are plain aliases of ms/me/ps/pe, which
+// are themselves physical (left/right), not logical — so no RTL behaviour
+// differs between the two spellings.
 const SPACING_PROPS = {
   'm':  ['margin'],
   'mt': ['margin-top'],    'mb': ['margin-bottom'],
   'ms': ['margin-left'],   'me': ['margin-right'],
+  'ml': ['margin-left'],   'mr': ['margin-right'],
   'mx': ['margin-left',  'margin-right'],
   'my': ['margin-top',   'margin-bottom'],
   'p':  ['padding'],
   'pt': ['padding-top'],   'pb': ['padding-bottom'],
   'ps': ['padding-left'],  'pe': ['padding-right'],
+  'pl': ['padding-left'],  'pr': ['padding-right'],
   'px': ['padding-left',  'padding-right'],
   'py': ['padding-top',   'padding-bottom'],
 }
