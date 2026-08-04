@@ -20,21 +20,48 @@ let cachedBuildInput  = null   // resolved inputCSSPath the cache above was buil
 // ─── Config cache ─────────────────────────────────────────────────────
 let cachedConfig      = null
 let cachedConfigPath  = null
-let cachedConfigMtime = 0
+let cachedConfigMtime = null
+
+function resolveConfigPath(cwd) {
+  const configPathCjs = path.resolve(cwd, 'strata.config.cjs')
+  if (fs.existsSync(configPathCjs)) return configPathCjs
+  const configPath = path.resolve(cwd, 'strata.config.js')
+  if (fs.existsSync(configPath)) return configPath
+  return null
+}
 
 function loadConfig(cwd) {
-  const configPath    = path.resolve(cwd, 'strata.config.js')
-  const configPathCjs = path.resolve(cwd, 'strata.config.cjs')
+  const resolved = resolveConfigPath(cwd)
+  if (!resolved) return {}
 
-  if (fs.existsSync(configPathCjs)) {
-    try { return require(configPathCjs) } catch {}
+  // mtime resolution is coarse, so pair it with size — two edits in the same
+  // millisecond that change the file's length are still detected. invalidate()
+  // clears this cache outright, which is the authoritative signal.
+  let stamp = '0'
+  try {
+    const st = fs.statSync(resolved)
+    stamp = `${st.mtimeMs}:${st.size}`
+  } catch {}
+
+  if (cachedConfig && cachedConfigPath === resolved && cachedConfigMtime === stamp) {
+    return cachedConfig
   }
 
-  if (fs.existsSync(configPath)) {
-    try { return require(configPath) } catch {}
+  try {
+    // Bust Node's module cache before re-reading. require() memoises for the
+    // lifetime of the process, so without this an edited strata.config.js
+    // (new content globs, new safelist entries) silently never takes effect
+    // in a dev server or watch session — the very staleness class of bug the
+    // dependency-tracking fix in 1.5.13 set out to eliminate.
+    delete require.cache[require.resolve(resolved)]
+    const config = require(resolved)
+    cachedConfig      = config
+    cachedConfigPath  = resolved
+    cachedConfigMtime = stamp
+    return config
+  } catch {
+    return {}
   }
-
-  return {}
 }
 
 // ─── Base CSS ─────────────────────────────────────────────────────────
@@ -102,11 +129,7 @@ const plugin = (opts = {}) => ({
         parent: from,
       })
     }
-    const configPath    = path.resolve(cwd, 'strata.config.js')
-    const configPathCjs = path.resolve(cwd, 'strata.config.cjs')
-    const resolvedConfigPath = fs.existsSync(configPathCjs) ? configPathCjs
-      : fs.existsSync(configPath) ? configPath
-      : null
+    const resolvedConfigPath = resolveConfigPath(cwd)
     if (resolvedConfigPath) {
       result.messages.push({
         type: 'dependency',
@@ -196,6 +219,13 @@ module.exports.build = async (inputCSSPath, outputCSSPath, opts = {}) => {
 module.exports.invalidate = (changedFile) => {
   dirty     = true
   cachedCSS = null
+  // Drop the memoised config too. mtime alone is not a sound invalidation
+  // signal — its resolution is coarse enough that a config edited twice in
+  // quick succession can report an unchanged timestamp — and invalidate()
+  // explicitly means "something on disk changed, trust nothing".
+  cachedConfig      = null
+  cachedConfigPath  = null
+  cachedConfigMtime = null
   const { clearFileCache }   = require('./scanner/scanner')
   const { clearResultCache } = require('./registry/registry')
   clearFileCache(changedFile)
