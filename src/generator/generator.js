@@ -62,7 +62,26 @@ function generate(classNames, config = {}) {
     utilities:  { xs:[], sm:[], md:[], lg:[], xl:[], xxl:[] },
   }
 
-  for (const cls of classNames) {
+  // Safelist — classes no scanner can ever discover because they are built at
+  // runtime from variables (`btn-${variant}`), injected by a CMS, or arrive in
+  // markup Strata never sees. Applied here, at the single choke point both the
+  // PostCSS plugin and the CLI build path funnel through, so it cannot be
+  // wired up in one and silently missed in the other.
+  // Entries may contain multiple space-separated class names.
+  const safelist = Array.isArray(config.safelist) ? config.safelist : []
+  let effective = classNames
+  if (safelist.length) {
+    effective = new Set(classNames)
+    for (const entry of safelist) {
+      if (typeof entry !== 'string') continue
+      for (const part of entry.split(/\s+/)) {
+        const t = part.trim()
+        if (t) effective.add(t)
+      }
+    }
+  }
+
+  for (const cls of effective) {
     const result = lookup(cls)
     if (!result) continue
 
