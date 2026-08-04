@@ -89,13 +89,35 @@ async function build(cssMinify = false, jsMinify = true) {
   // Bundle + optionally minify JS components
   // Load order: init.js (sets data-strata) → packages (detect Strata, register accordingly)
   const componentsDir = path.join(__dirname, '..', 'src', 'components', 'modules')
-  const pkgDir        = path.join(__dirname, '..', 'packages')
-  const packageFiles  = [
-    path.join(pkgDir, 'modal',          'modal.js'),
-    path.join(pkgDir, 'offcanvas',      'offcanvas.js'),
-    path.join(pkgDir, 'skeleton-loader','skeleton-loader.js'),
-    path.join(pkgDir, 'chart',          'chart.js'),
-  ]
+
+  // Component sources live in their own published packages (@strata-packages/*).
+  // Resolve each from the consuming project first, then fall back to this
+  // monorepo's packages/ directory.
+  //
+  // Only the fallback existed before, and packages/ is not in this package's
+  // `files` allowlist — so it never ships. Every npm consumer silently received
+  // a strata.components.js containing nothing but the init stub: no Modal, no
+  // Offcanvas, no Skeleton, no Chart. The monorepo build looked perfect
+  // throughout, because packages/ is present here.
+  //
+  // Consumer-first is also the correct precedence: a package the user
+  // explicitly installed should win. In this monorepo the two paths agree
+  // anyway — npm workspaces symlink node_modules/@strata-packages/* to
+  // packages/*, so local development resolves to the same files.
+  const COMPONENTS  = ['modal', 'offcanvas', 'skeleton-loader', 'chart']
+  const monorepoDir = path.join(__dirname, '..', 'packages')
+
+  function resolveComponent(name) {
+    const installed = path.join(cwd, 'node_modules', '@strata-packages', name, `${name}.js`)
+    if (fs.existsSync(installed)) return installed
+    const local = path.join(monorepoDir, name, `${name}.js`)
+    if (fs.existsSync(local)) return local
+    return null
+  }
+
+  const resolved = COMPONENTS.map(n => ({ name: n, file: resolveComponent(n) }))
+  const packageFiles = resolved.filter(r => r.file).map(r => r.file)
+  const missing      = resolved.filter(r => !r.file).map(r => r.name)
   const jsDest = path.join(path.dirname(outputFile), 'strata.components.js')
   if (fs.existsSync(componentsDir)) {
     const files  = fs.readdirSync(componentsDir).filter(f => f.endsWith('.js')).sort()
@@ -105,7 +127,7 @@ async function build(cssMinify = false, jsMinify = true) {
     const banner = `/*! Strata Components — built ${new Date().toISOString().slice(0,10)} */\n`
       + `;(function(g){g.Strata=g.Strata||{}})(typeof globalThis!=='undefined'?globalThis:this);\n`
     const parts  = files.map(f => fs.readFileSync(path.join(componentsDir, f), 'utf8'))
-    packageFiles.forEach(p => { if (fs.existsSync(p)) parts.push(fs.readFileSync(p, 'utf8')) })
+    packageFiles.forEach(p => parts.push(fs.readFileSync(p, 'utf8')))
     const raw    = parts.join('\n')
     const output = jsMinify ? banner + minifyJS(raw) : banner + raw
     fs.mkdirSync(path.dirname(jsDest), { recursive: true })
@@ -122,6 +144,17 @@ async function build(cssMinify = false, jsMinify = true) {
   // Report what the scan actually did. A build that silently produces no CSS
   // used to look identical to a healthy one; these lines make the difference
   // obvious without anyone needing to opt in.
+  // Report which JS components made it into the bundle. A component that
+  // cannot be resolved used to vanish without a word.
+  if (verbose && packageFiles.length) {
+    console.log(`[Strata]   components bundled: ${resolved.filter(r => r.file).map(r => r.name).join(', ')}`)
+  }
+  if (missing.length) {
+    console.warn(`[Strata] ⚠  ${missing.length} JS component(s) not bundled: ${missing.join(', ')}`)
+    console.warn(`[Strata]    install them to include their JS: npm i ${missing.map(n => '@strata-packages/' + n).join(' ')}`)
+    console.warn(`[Strata]    (CSS for these components is always emitted — only their JS is affected)`)
+  }
+
   const { getScanStats, getScanWarnings } = require('../src/scanner/scanner')
   const stats = getScanStats()
   if (verbose) {
