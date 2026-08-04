@@ -112,7 +112,7 @@ const plugin = (opts = {}) => ({
       './src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}'
     ]
 
-    const classNames = scanFiles(contentGlobs)
+    const classNames = scanFiles(contentGlobs, cwd)
     const { componentCSS, utilityCSS } = generate(classNames, config)
 
     // Tell the caller's bundler (webpack/Turbopack/esbuild/etc.) that this
@@ -120,7 +120,7 @@ const plugin = (opts = {}) => ({
     // being processed — otherwise an unchanged CSS file + unchanged config
     // reads as "nothing changed" and a stale cached build gets served even
     // when a .tsx file added/changed a utility class.
-    const watchFiles = getWatchFiles(contentGlobs)
+    const watchFiles = getWatchFiles(contentGlobs, cwd)
     for (let i = 0; i < watchFiles.length; i++) {
       result.messages.push({
         type: 'dependency',
@@ -189,7 +189,7 @@ module.exports.build = async (inputCSSPath, outputCSSPath, opts = {}) => {
     './src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}'
   ]
 
-  const classNames = scanFiles(contentGlobs)
+  const classNames = scanFiles(contentGlobs, cwd)
   const { componentCSS, utilityCSS } = generate(classNames, config)
 
   // Read input CSS (cached by mtime — strata.css rarely changes)
