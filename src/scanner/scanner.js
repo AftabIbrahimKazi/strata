@@ -9,8 +9,23 @@ const fs   = require('fs')
 const path = require('path')
 const glob = require('glob')
 
-const ALLOWED_EXTENSIONS = new Set([
-  '.html','.jsx','.tsx','.vue','.astro','.svelte','.js','.ts'
+// Previously an allowlist of 8 extensions, which silently discarded any other
+// file a content glob matched — .php, .blade.php, .mdx, .erb, .hbs, .twig,
+// .mjs and .cjs all produced no classes and no warning. The content glob is
+// the user's filter; if they asked for a file, scan it. Only binary/media
+// formats that cannot carry class attributes are skipped. .svg is deliberately
+// absent from this list — SVG markup can carry class attributes.
+const SKIP_EXTENSIONS = new Set([
+  // images
+  '.png','.jpg','.jpeg','.gif','.bmp','.ico','.webp','.avif','.tiff','.tif','.psd',
+  // fonts
+  '.woff','.woff2','.ttf','.eot','.otf',
+  // audio / video
+  '.mp3','.wav','.ogg','.flac','.mp4','.webm','.avi','.mov','.mkv',
+  // archives
+  '.zip','.gz','.tgz','.bz2','.7z','.rar','.tar',
+  // binaries / build artefacts
+  '.exe','.dll','.so','.dylib','.bin','.wasm','.pdf','.map','.lock',
 ])
 
 // Finds where a class attribute's value begins. Deliberately NOT anchored with
@@ -131,11 +146,17 @@ const fileCache = new Map()
 // Glob result cache — keyed by pattern, stores { mtime, files }
 const globCache = new Map()
 
-function getFiles(contentGlobs) {
+function getFiles(contentGlobs, cwd) {
+  // Relative content globs must resolve against the Strata project root, not
+  // whatever directory the build happens to run from. Without this, a bundler
+  // invoked from a parent directory (monorepos, some Next/webpack setups)
+  // matched zero files and emitted a completely empty stylesheet, silently.
+  const base = cwd || process.cwd()
   const allFiles = []
   for (let g = 0; g < contentGlobs.length; g++) {
-    const pattern = contentGlobs[g]
-    const cached  = globCache.get(pattern)
+    const pattern  = contentGlobs[g]
+    const cacheKey = `${base}::${pattern}`
+    const cached   = globCache.get(cacheKey)
 
     // Glob results rarely change — cache for 500ms
     if (cached && (Date.now() - cached.time) < 500) {
@@ -143,10 +164,12 @@ function getFiles(contentGlobs) {
       continue
     }
 
-    const files = glob.sync(pattern, { nodir: true })
+    // absolute:true keeps cache keys, PostCSS dependency messages and watcher
+    // paths consistent regardless of the caller's working directory.
+    const files = glob.sync(pattern, { nodir: true, cwd: base, absolute: true })
       .filter(f => path.extname(f).toLowerCase() !== '.css')
 
-    globCache.set(pattern, { files, time: Date.now() })
+    globCache.set(cacheKey, { files, time: Date.now() })
     files.forEach(f => allFiles.push(f))
   }
   return allFiles
@@ -154,7 +177,7 @@ function getFiles(contentGlobs) {
 
 function extractClassesFromFile(filePath) {
   const ext = path.extname(filePath).toLowerCase()
-  if (!ALLOWED_EXTENSIONS.has(ext)) return null
+  if (SKIP_EXTENSIONS.has(ext)) return null
 
   let mtime
   try { mtime = fs.statSync(filePath).mtimeMs }
@@ -208,9 +231,9 @@ function extractClassesFromFile(filePath) {
   return classes
 }
 
-function scanFiles(contentGlobs) {
+function scanFiles(contentGlobs, cwd) {
   const allClasses = new Set()
-  const files = getFiles(contentGlobs)
+  const files = getFiles(contentGlobs, cwd)
 
   for (let i = 0; i < files.length; i++) {
     const classes = extractClassesFromFile(files[i])
@@ -220,13 +243,15 @@ function scanFiles(contentGlobs) {
   return allClasses
 }
 
-function getWatchFiles(contentGlobs) {
-  return getFiles(contentGlobs)
+function getWatchFiles(contentGlobs, cwd) {
+  return getFiles(contentGlobs, cwd)
 }
 
 function clearFileCache(filePath) {
   if (filePath) {
+    // Cache keys are absolute; accept either form from callers and watchers.
     fileCache.delete(filePath)
+    fileCache.delete(path.resolve(filePath))
     globCache.clear()   // a specific file change may mean add/delete — re-glob
   } else {
     fileCache.clear()
