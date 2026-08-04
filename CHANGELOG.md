@@ -2,6 +2,24 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.7.14] — 2026-08-05
+
+### Added
+- **Scan diagnostics.** Every scanner bug in this project's history has failed *open*: files matched but were skipped, globs resolved against the wrong directory, class shapes went unrecognised. In each case the build succeeded, the config looked correct, and the CSS was quietly wrong — which is why several survived for years. The scanner now reports what it actually did:
+  - `strata --build --verbose` (or `-v`) prints `scanned N/M matched file(s), K skipped, C class name(s) found` along with the globs and the directory they resolved against.
+  - **A scan that produces nothing now warns by default, with no opt-in.** Zero files matched, or files matched but no classes found, is reported on the CLI and as a real PostCSS warning — so consumers building through webpack, Turbopack, Vite or esbuild see it too, not just CLI users. The message names both the globs and the directory they were resolved against, which is precisely the information that made the 1.6.14 `cwd` bug invisible.
+  - New exports `getScanStats()` and `getScanWarnings()` from `src/scanner/scanner.js` for tooling.
+
+### Security
+- **`brace-expansion` 5.0.8 → 5.0.9** — high-severity DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation. Reaches consumers transitively through `glob`, a runtime dependency.
+- **`undici` 7.28.0 → 7.29.0** — resolves five advisories (one high, four moderate): cross-user information disclosure and parse-time crash via degenerate private cache directives, CRLF injection via blob-like body `type`, cache-control whitespace disclosure, cookie attribute injection, and response desynchronisation via the retry interceptor. Dev-only dependency; not shipped to consumers.
+- `npm audit` now reports 0 vulnerabilities.
+
+### Fixed
+- The lockfile's recorded package version was stale at `1.4.10`; it now tracks the real version.
+
+---
+
 ## [1.6.14] — 2026-08-05
 
 ### Fixed
