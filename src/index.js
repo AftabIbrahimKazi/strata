@@ -105,7 +105,7 @@ const plugin = (opts = {}) => ({
     const cwd    = opts.cwd || process.cwd()
     const config = loadConfig(cwd)
 
-    const { scanFiles, getWatchFiles } = require('./scanner/scanner')
+    const { scanFiles, getWatchFiles, getScanWarnings } = require('./scanner/scanner')
     const { generate }  = require('./generator/generator')
 
     const contentGlobs = config.content || [
@@ -114,6 +114,13 @@ const plugin = (opts = {}) => ({
 
     const classNames = scanFiles(contentGlobs, cwd)
     const { componentCSS, utilityCSS } = generate(classNames, config)
+
+    // Surface a scan that produced nothing as a real PostCSS warning. Most
+    // consumers build through a bundler rather than the CLI, and an empty or
+    // near-empty stylesheet used to arrive with no diagnostic at all.
+    for (const w of getScanWarnings()) {
+      result.warn(`[strata] ${w}`, { plugin: 'strata-css' })
+    }
 
     // Tell the caller's bundler (webpack/Turbopack/esbuild/etc.) that this
     // output depends on every scanned content file, not just the CSS file
