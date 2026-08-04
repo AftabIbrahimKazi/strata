@@ -175,6 +175,61 @@ async function run() {
   ok('previously safelisted classes survive the config reload',
     reloadedCSS.includes('.shadow-lg'))
 
+  console.log('\n── Scanner: file extensions ──────────────────────────────────')
+
+  // The scanner used to gate on an allowlist of 8 extensions, so any other
+  // file a content glob matched was read and discarded with no warning —
+  // .blade.php, .mdx, .erb, .hbs, .mjs, .cjs all produced zero classes. A
+  // Laravel project pointing content at ./resources/**/*.blade.php got an
+  // empty stylesheet and no error. The glob is the filter now; only binary
+  // formats are skipped.
+  const extDir = path.join(fixtureDir, 'ext')
+  fs.mkdirSync(extDir, { recursive: true })
+  const textExts = ['php', 'blade.php', 'mdx', 'md', 'erb', 'hbs', 'twig', 'mjs', 'cjs', 'svg']
+  for (const e of textExts) {
+    fs.writeFileSync(path.join(extDir, `file.${e}`), `<div class="ext-${e.replace(/\./g, '-')}">x</div>`)
+  }
+  // A binary format that must still be skipped.
+  fs.writeFileSync(path.join(extDir, 'image.png'), Buffer.from([0x89, 0x50, 0x4e, 0x47]))
+
+  clearFileCache()
+  for (const e of textExts) {
+    const got = extractClassesFromFile(path.join(extDir, `file.${e}`))
+    ok(`.${e} is scanned`, !!got && got.has(`ext-${e.replace(/\./g, '-')}`))
+  }
+  ok('.png is skipped as binary',
+    extractClassesFromFile(path.join(extDir, 'image.png')) === null)
+
+  console.log('\n── Scanner: relative globs resolve against cwd ───────────────')
+
+  // Relative content globs were passed to glob.sync() without a cwd, so they
+  // resolved against process.cwd() rather than the Strata project root. Any
+  // build run from a different directory (monorepos, bundlers invoked from a
+  // parent dir) matched zero files and emitted an empty stylesheet, silently.
+  const projDir = fs.mkdtempSync(path.join(os.tmpdir(), 'strata-cwd-test-'))
+  fs.mkdirSync(path.join(projDir, 'src'), { recursive: true })
+  // A real registry class, so a miss means "not scanned" rather than
+  // "scanned but unknown to the registry".
+  fs.writeFileSync(path.join(projDir, 'src', 'App.jsx'),
+    '<div className="text-uppercase" />')
+  fs.writeFileSync(path.join(projDir, 'strata.config.js'),
+    `module.exports = { content: ['./src/**/*.jsx'] }\n`)     // deliberately relative
+  const projEntry = path.join(projDir, 'entry.css')
+  fs.writeFileSync(projEntry, '@strata utilities;\n')
+
+  ok('test runs from a different cwd than the fixture project',
+    path.resolve(process.cwd()) !== path.resolve(projDir))
+
+  strata.invalidate()
+  const projCSS = await strata.build(projEntry, null, { cwd: projDir })
+
+  ok('relative content glob resolves against opts.cwd, not process.cwd()',
+    projCSS.includes('.text-uppercase'))
+  ok('stylesheet is not empty when built from another directory',
+    projCSS.trim().length > 0)
+
+  fs.rmSync(projDir, { recursive: true, force: true })
+
   console.log('\n── Scanner: robustness ───────────────────────────────────────')
 
   // Unbalanced brace must not hang, throw, or swallow the rest of the file.
