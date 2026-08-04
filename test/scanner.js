@@ -35,7 +35,10 @@ function ok(label, condition) {
   }
 }
 
-const { scanFiles, extractClassesFromFile, clearFileCache } = require('../src/scanner/scanner')
+const {
+  scanFiles, extractClassesFromFile, clearFileCache,
+  getScanStats, getScanWarnings,
+} = require('../src/scanner/scanner')
 const strata = require('../src/index')
 
 // ─── Fixture ───────────────────────────────────────────────────────────
@@ -229,6 +232,43 @@ async function run() {
     projCSS.trim().length > 0)
 
   fs.rmSync(projDir, { recursive: true, force: true })
+
+  console.log('\n── Scanner: diagnostics ──────────────────────────────────────')
+
+  // Every scanner bug in this project's history failed silently: the build
+  // succeeded and the CSS was quietly wrong. Reporting what the scan did, and
+  // warning when it produced nothing, is what makes that family visible.
+  clearFileCache()
+  scanFiles([srcGlob])
+  const stats = getScanStats()
+  ok('stats report files matched',  stats.matched > 0)
+  ok('stats report files scanned',  stats.scanned > 0)
+  ok('stats report classes found',  stats.classes > 0)
+  ok('stats echo the globs used',   stats.globs.includes(srcGlob))
+  ok('healthy scan produces no warnings', getScanWarnings().length === 0)
+
+  // A glob that matches nothing is almost always a misconfiguration — the
+  // exact shape of the cwd bug, which used to yield an empty stylesheet
+  // with no diagnostic whatsoever.
+  clearFileCache()
+  scanFiles([path.join(fixtureDir, 'nope', '**', '*.tsx').replace(/\\/g, '/')])
+  const noMatchWarnings = getScanWarnings()
+  ok('zero matched files produces a warning', noMatchWarnings.length === 1)
+  ok('warning names the offending globs',
+    noMatchWarnings[0].includes('nope'))
+  ok('warning names the directory globs resolved against',
+    noMatchWarnings[0].includes('relative to'))
+
+  // Files matched but no classes in them — the other silent-failure shape.
+  const emptyDir = path.join(fixtureDir, 'empty')
+  fs.mkdirSync(emptyDir, { recursive: true })
+  fs.writeFileSync(path.join(emptyDir, 'Nothing.tsx'), 'export const x = 1\n')
+  clearFileCache()
+  scanFiles([emptyDir.replace(/\\/g, '/') + '/**/*.tsx'])
+  const noClassWarnings = getScanWarnings()
+  ok('matched-but-classless scan produces a warning', noClassWarnings.length === 1)
+  ok('warning distinguishes it from the zero-match case',
+    noClassWarnings[0].includes('no class names were found'))
 
   console.log('\n── Scanner: robustness ───────────────────────────────────────')
 
