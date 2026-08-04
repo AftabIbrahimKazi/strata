@@ -34,10 +34,24 @@ module.exports = {
   content: ['./src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}'],
   input:   './strata.css',
   output:  './dist/strata.output.css',
+  safelist: [],   // optional — see below
 }
 ```
 
 The `content` globs must cover every file that uses class names. Classes not found by the scanner are not emitted.
+
+### `safelist`
+
+Class names to always emit, whether or not the scanner finds them. Use it for classes that cannot exist as a literal in your source — built at runtime from a variable, returned by an API, or present in markup Strata never scans:
+
+```js
+safelist: [
+  'btn-primary',
+  'shadow-lg rounded-pill',   // an entry may hold several space-separated classes
+]
+```
+
+Safelisted names go through the same registry lookup as scanned ones, so arbitrary values (`w-[320px]`) and responsive variants (`px-md-4`) work here too. A name that matches nothing in the registry is ignored silently.
 
 ## CSS Layers
 
@@ -472,7 +486,15 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
 
 ## Known Limitations
 
-- Scanner uses a regex on `class="..."` attributes. Dynamic class construction (`class={\`prefix-${value}\`}`) is not detected — use safelisting in `strata.config.js`.
+- The scanner reads **string literals** out of class attributes. It understands plain attributes (`class="..."`, `className="..."`), braced literals, and — since v1.6.13 — any expression inside `className={...}`: `clsx()`, `cn()`, `classnames()`, ternaries, arrays, template-literal static chunks, and strings nested inside `${...}` interpolations. Helper names are not hardcoded; every quoted string in the expression is treated as a class candidate.
+- What still cannot be detected is a class name that **never exists as a literal anywhere** — i.e. genuinely dynamic construction: `` className={`btn-${variant}`} `` or `const cls = 'p-' + n`. No scanner can recover these. Use `safelist` in `strata.config.js`:
+  ```js
+  module.exports = {
+    content: ['./src/**/*.{html,jsx,tsx}'],
+    safelist: ['btn-primary btn-secondary', 'p-1', 'p-2'],  // entries may hold multiple space-separated classes
+  }
+  ```
+  A related trap: a class assembled into a variable far from the markup (`const cls = clsx('w-[200px]')` in one file, `className={cls}` in another) *is* detected, because `clsx('w-[200px]')` still contains the literal — but only if that call sits inside a `class`/`className` assignment or attribute. A helper in an unrelated module is not scanned; safelist those.
 - CSS variables cannot be used in `@media` query values — breakpoints use hardcoded `px` values.
 - `text-[value]`: length units → `font-size`, everything else → `color`. Use `fs-[...]` for token-based font-size.
 - Arbitrary-value classes (`w-[...]`, `border-[...]`, `p-[...]`, etc.) interpolate the bracket contents directly into the generated CSS with no value-level escaping — only the class selector is escaped. Safe under Strata's JIT model (class names are scanned from your own source files at build time), but never run the scanner over unsanitized user-submitted HTML/content.

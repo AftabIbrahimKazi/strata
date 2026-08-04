@@ -110,7 +110,11 @@ ok('accordion resolves',           !!lookup('accordion'))
 ok('carousel resolves',            !!lookup('carousel'))
 ok('dropdown resolves',            !!lookup('dropdown'))
 ok('offcanvas resolves',           !!lookup('offcanvas'))
-ok('offcanvas-start resolves',     !!lookup('offcanvas-start'))
+// Offcanvas direction moved from .offcanvas-start/-end classes to the
+// data-st-side="left|right|top|bottom" attribute pattern used across all
+// components. The old class is intentionally gone.
+ok('offcanvas resolves with data-st-side variants',
+  (lookup('offcanvas') || {}).css?.includes('data-st-side') === true)
 ok('collapse resolves',            !!lookup('collapse'))
 ok('toast resolves',               !!lookup('toast'))
 ok('tooltip resolves',             !!lookup('tooltip'))
@@ -444,7 +448,10 @@ ok('@layer declaration present',           distCSS.includes('@layer'))
 ok('st-components-xs layer declared',      distCSS.includes('st-components-xs'))
 ok('st-components-md layer declared',      distCSS.includes('st-components-md'))
 ok('st-utilities-xs layer declared',       distCSS.includes('st-utilities-xs'))
-ok('body.modal-open in output',            distCSS.includes('body.modal-open'))
+// v1.4.4 replaced the JS-managed body.modal-open class with a pure-CSS
+// :has() scroll lock — no body class manipulation needed.
+ok('modal scroll lock via :has() in output',
+  distCSS.includes('body:has(.modal[aria-hidden="false"])'))
 ok('modal-static animation in output',     distCSS.includes('st-modal-shake'))
 ok('CSS custom properties present',        distCSS.includes('--st-primary'))
 ok('Dark theme present',                   distCSS.includes('[data-st-theme="dark"]'))
