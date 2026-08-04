@@ -40,6 +40,11 @@ module.exports = {
 
 The `content` globs must cover every file that uses class names. Classes not found by the scanner are not emitted.
 
+Two things worth knowing about how globs are resolved:
+
+- **Relative globs resolve against the project root** — the directory containing `strata.config.js` (i.e. the plugin's `cwd`), not whatever directory the build happens to run from. Builds invoked from a parent directory or another package in a monorepo behave the same as builds run from the root.
+- **Any file the glob matches is scanned**, whatever its extension — `.php`, `.blade.php`, `.mdx`, `.md`, `.erb`, `.hbs`, `.twig`, `.mjs`, `.cjs`, `.svg` and so on. Only binary/media formats (images, fonts, audio, video, archives, `.map`, `.lock`) are skipped. The glob is the filter; Strata does not second-guess it.
+
 ### `safelist`
 
 Class names to always emit, whether or not the scanner finds them. Use it for classes that cannot exist as a literal in your source — built at runtime from a variable, returned by an API, or present in markup Strata never scans:
