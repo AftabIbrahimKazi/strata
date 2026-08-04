@@ -2,6 +2,18 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.6.14] — 2026-08-05
+
+### Fixed
+- **Relative `content` globs resolved against the wrong directory, producing an empty stylesheet.** `scanFiles()` passed patterns to `glob.sync()` without a `cwd`, so a glob like `./src/**/*.jsx` always resolved against `process.cwd()` rather than the Strata project root. Whenever a build ran from a different directory — monorepo package builds, bundlers invoked from a parent directory — **zero files matched and the output contained no utility CSS at all**, with no error. The config itself was located correctly (it is resolved from `opts.cwd`), which made the setup look entirely correct. Globs now resolve against `opts.cwd`, and matched paths are absolute so cache keys, PostCSS dependency messages and watcher paths stay consistent regardless of where the build runs.
+- **Files matched by a `content` glob were silently discarded unless their extension was one of eight.** The scanner gated on an allowlist (`.html .jsx .tsx .vue .astro .svelte .js .ts`); anything else matched by the glob was read and thrown away with no warning. This silently broke every non-JS ecosystem — `.php` and `.blade.php` (Laravel, WordPress), `.mdx`/`.md` (Next.js, Astro content), `.erb` (Rails), `.hbs`, `.twig` — and even `.mjs`/`.cjs`. A Laravel project pointing `content` at `./resources/**/*.blade.php` received an empty stylesheet and no diagnostic. The allowlist is replaced by a denylist of binary/media formats: the content glob is the filter, so a file you explicitly asked for is now always scanned. `.svg` is deliberately scanned, as SVG markup can carry class attributes.
+
+### Tests
+- 12 new assertions in `test/scanner.js` covering both bugs — `.php`, `.blade.php`, `.mdx`, `.md`, `.erb`, `.hbs`, `.twig`, `.mjs`, `.cjs`, `.svg` are scanned while `.png` is skipped, and a build run from a directory other than the project root resolves its relative globs correctly and emits non-empty CSS. All 12 verified to fail against 1.6.13 and pass with the fix.
+- Differential run over 195 repository files confirms zero tokens lost versus the 1.6.13 scanner.
+
+---
+
 ## [1.6.13] — 2026-08-04
 
 ### Fixed
