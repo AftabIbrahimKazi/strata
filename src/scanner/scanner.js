@@ -231,16 +231,65 @@ function extractClassesFromFile(filePath) {
   return classes
 }
 
+// Stats from the most recent scanFiles() call. Every bug in this scanner's
+// history has been a silent one: files matched but skipped, globs resolved
+// against the wrong directory, class shapes not understood. In each case the
+// build succeeded and the CSS was quietly wrong. Reporting what the scan
+// actually did is what makes that whole family visible.
+let lastScanStats = {
+  globs: [], cwd: null, matched: 0, scanned: 0, skipped: 0, classes: 0,
+}
+
 function scanFiles(contentGlobs, cwd) {
   const allClasses = new Set()
   const files = getFiles(contentGlobs, cwd)
 
+  let scanned = 0
+  let skipped = 0
   for (let i = 0; i < files.length; i++) {
     const classes = extractClassesFromFile(files[i])
-    if (classes) classes.forEach(cls => allClasses.add(cls))
+    if (classes) {
+      scanned++
+      classes.forEach(cls => allClasses.add(cls))
+    } else {
+      skipped++
+    }
+  }
+
+  lastScanStats = {
+    globs:   contentGlobs.slice(),
+    cwd:     cwd || process.cwd(),
+    matched: files.length,
+    scanned,
+    skipped,
+    classes: allClasses.size,
   }
 
   return allClasses
+}
+
+function getScanStats() {
+  return Object.assign({}, lastScanStats)
+}
+
+// Returns human-readable problems with the last scan, or [] if it looks sane.
+// Deliberately conservative: only conditions that are almost certainly a
+// misconfiguration rather than a legitimate empty state.
+function getScanWarnings() {
+  const s = lastScanStats
+  const warnings = []
+  if (s.matched === 0) {
+    warnings.push(
+      `no files matched the content globs [${s.globs.join(', ')}] ` +
+      `relative to ${s.cwd} — no utility CSS will be generated`
+    )
+  } else if (s.classes === 0) {
+    warnings.push(
+      `${s.matched} file(s) matched the content globs but no class names were ` +
+      `found in them — check that classes appear in class/className attributes`
+    )
+  }
+  return warnings
 }
 
 function getWatchFiles(contentGlobs, cwd) {
@@ -261,4 +310,7 @@ function clearFileCache(filePath) {
   }
 }
 
-module.exports = { scanFiles, extractClassesFromFile, getWatchFiles, clearFileCache }
+module.exports = {
+  scanFiles, extractClassesFromFile, getWatchFiles, clearFileCache,
+  getScanStats, getScanWarnings,
+}
