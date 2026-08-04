@@ -58,6 +58,25 @@ safelist: [
 
 Safelisted names go through the same registry lookup as scanned ones, so arbitrary values (`w-[320px]`) and responsive variants (`px-md-4`) work here too. A name that matches nothing in the registry is ignored silently.
 
+### Diagnosing a missing class
+
+If a class isn't showing up in the output, check what the scanner actually saw:
+
+```bash
+node bin/strata.js --build --verbose
+# [Strata]   scanned 35/35 matched file(s), 0 skipped, 788 class name(s) found
+# [Strata]   globs: ./src/**/*.{html,jsx,tsx}  (relative to /path/to/project)
+```
+
+Two conditions are reported as warnings automatically, with no flag needed — on the CLI and as a PostCSS warning, so they surface through bundlers too:
+
+| Warning | Usual cause |
+|---|---|
+| `no files matched the content globs …` | Globs don't match your layout, or point at the wrong directory. The message prints the directory they resolved against — compare it with where your source actually lives. |
+| `N file(s) matched … but no class names were found` | Files are being read, but classes aren't in `class`/`className` attributes — e.g. assembled in a helper module the scanner never sees. Safelist those. |
+
+If neither warning appears and a specific class is still missing, it's almost certainly built dynamically (`` `btn-${variant}` ``) — no scanner can see those. Safelist it.
+
 ## CSS Layers
 
 Layer declaration order controls cascade priority — source order in HTML never matters:

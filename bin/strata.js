@@ -9,8 +9,9 @@ const chokidar = require('chokidar')
 const strata   = require('../src/index')
 const { getWatchFiles } = require('../src/scanner/scanner')
 
-const args = process.argv.slice(2)
-const cwd  = process.cwd()
+const args    = process.argv.slice(2)
+const cwd     = process.cwd()
+const verbose = args.includes('--verbose') || args.includes('-v')
 
 function ask(rl, question) {
   return new Promise(resolve => rl.question(question, resolve))
@@ -117,6 +118,20 @@ async function build(cssMinify = false, jsMinify = true) {
     ? (Buffer.byteLength(fs.readFileSync(jsDest)) / 1024).toFixed(2)
     : '0'
   console.log(`[Strata] ✓ Built → ${outputFile} (CSS ${cssSize} KB, JS ${jsSize} KB) in ${ms}ms`)
+
+  // Report what the scan actually did. A build that silently produces no CSS
+  // used to look identical to a healthy one; these lines make the difference
+  // obvious without anyone needing to opt in.
+  const { getScanStats, getScanWarnings } = require('../src/scanner/scanner')
+  const stats = getScanStats()
+  if (verbose) {
+    console.log(`[Strata]   scanned ${stats.scanned}/${stats.matched} matched file(s), ` +
+                `${stats.skipped} skipped, ${stats.classes} class name(s) found`)
+    console.log(`[Strata]   globs: ${stats.globs.join(', ')}  (relative to ${stats.cwd})`)
+  }
+  for (const w of getScanWarnings()) {
+    console.warn(`[Strata] ⚠  ${w}`)
+  }
 }
 
 // ─── Watch ────────────────────────────────────────────────────────────
