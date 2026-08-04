@@ -357,6 +357,26 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the full versioning rules, branch p
 
 ## Packages
 
+### How component JS reaches your build
+
+CSS for every component is emitted by the JIT registry and needs nothing extra. **Component JavaScript is separate**: each component is its own published package, and `strata.components.js` bundles whichever ones are installed in your project.
+
+```bash
+npm i @strata-packages/modal @strata-packages/offcanvas \
+      @strata-packages/skeleton-loader @strata-packages/chart
+```
+
+The build resolves them from your `node_modules/@strata-packages/*`, concatenates them into `dist/strata.components.js`, and exposes them under the `Strata.*` namespace (`Strata.Modal`, `Strata.Offcanvas`, `Strata.skeleton`, `Strata.Chart`). Load that one file — not the individual package scripts.
+
+Any component you haven't installed is reported at build time:
+
+```
+[Strata] ⚠  2 JS component(s) not bundled: skeleton-loader, chart
+[Strata]    install them to include their JS: npm i @strata-packages/skeleton-loader @strata-packages/chart
+```
+
+Before v1.8.14 this resolution only looked inside the Strata monorepo, so installs from npm produced a `strata.components.js` containing no components at all, with no warning.
+
 | Package | Description | Docs |
 |---|---|---|
 | `strata-css` | JIT CSS framework (this package) | This file |

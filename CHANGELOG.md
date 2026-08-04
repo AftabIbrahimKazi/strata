@@ -2,6 +2,26 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.8.14] — 2026-08-05
+
+### Fixed
+- **npm consumers received no component JavaScript at all.** `bin/strata.js` sourced component JS exclusively from this monorepo's `packages/` directory, which is not in `package.json`'s `files` allowlist and therefore never ships. Consumers installing from npm got a `strata.components.js` containing nothing but the init stub — **259 bytes, with no Modal, Offcanvas, Skeleton or Chart** — while the same build inside the monorepo produced 43.9 KB with all four. The failure was completely silent: an `if (fs.existsSync(p))` guard skipped each missing file, and the build reported `✓ Built`. Verified by packing the tarball and installing it into a clean project.
+
+  Components are now resolved from the consuming project's `node_modules/@strata-packages/*` first, falling back to the monorepo directory for local development. Consumer-first is also the correct precedence — a package the user explicitly installed should win — and the two agree inside this repo, since npm workspaces symlink `node_modules/@strata-packages/*` to `packages/*`.
+
+  This is a **behaviour change for consumers**: install the component packages you use (`npm i @strata-packages/modal @strata-packages/offcanvas @strata-packages/skeleton-loader @strata-packages/chart`). Only their JavaScript was ever affected — component **CSS** has always been emitted correctly by the registry.
+
+### Added
+- **Missing components are now reported instead of silently omitted.** Any component that cannot be resolved produces a build warning naming it, the exact `npm i` command to fix it, and a note that CSS is unaffected. `--verbose` additionally lists the components that were bundled.
+
+### Docs
+- Documented how component JS reaches a build, and corrected the contradiction between `CLAUDE.md` (which said component scripts must not be loaded separately) and what `strata init` scaffolds.
+
+### Tests
+- `test/components-bundle.js` — drives the real CLI against a simulated npm-consumer layout, including an npm-style install of Strata itself with no `packages/` sibling, so the monorepo fallback cannot mask a missing component. Covers full install, no install, and partial install. All 16 assertions verified to fail (11 of 16) against the pre-fix CLI.
+
+---
+
 ## [1.7.14] — 2026-08-05
 
 ### Added
