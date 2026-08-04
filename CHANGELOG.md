@@ -2,6 +2,23 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.6.13] — 2026-08-04
+
+### Fixed
+- **Classes used only inside `className={...}` expressions never generated CSS.** The scanner matched exactly two shapes — `className="literal"` and `className={"literal"}` — because its regex required a quote immediately after `{`. Every other form was invisible: `clsx()`, `cn()`, `classnames()`, ternaries, arrays, template literals. A class used only in one of those produced no CSS, with no error and no warning; it appeared to work only when the same class happened to also exist as a plain literal elsewhere in the tree. The scanner now walks the whole braced expression and treats every string literal inside it as a class candidate — including template-literal static chunks and strings nested in `${...}` interpolations — without hardcoding helper names, so `clsx`/`cn`/`cx`/`classnames` and any other wrapper work identically. Present since 1.0.0.
+- **`element.className = '...'` assignments were skipped.** The attribute pattern required `=` with no surrounding whitespace, so runtime assignments like `backdrop.className = 'modal-backdrop'` were missed — including in Strata's own modal and offcanvas packages, whose backdrop classes were silently absent from generated CSS.
+- **An edited `strata.config.js` never took effect without a process restart.** `loadConfig()` used bare `require()`, which memoises for the lifetime of the process, so new `content` globs or `safelist` entries were silently ignored in dev servers and watch sessions. The module cache is now busted on change, keyed on mtime + size, and cleared outright by `invalidate()`. Three `cachedConfig*` variables had been declared for this since 1.0.0 but never used.
+
+### Added
+- **`safelist` in `strata.config.js` now actually works.** It had been documented as the escape hatch for dynamic class construction since 1.0.0 but was never implemented — following the documentation produced a silent no-op. Entries may contain several space-separated class names and go through the normal registry lookup, so arbitrary values and responsive variants are supported. Applied inside `generate()`, the single choke point shared by the PostCSS plugin and the CLI build path.
+- **`npm test`** — the repository had three test files and no way to run them. Now runs the full suite (287 assertions) and exits non-zero on failure.
+
+### Tests
+- `test/scanner.js` — new suite locking in every className shape the scanner must understand, each asserted via a class that appears in that shape *and nowhere else* in the fixture, so an unsupported shape cannot be masked by an incidental occurrence elsewhere. Verified to fail (15 of 22) against the pre-fix scanner. Covers safelist, config reload, unbalanced braces, and escaped quotes.
+- Repaired two assertions in `test/verify.js` that had been failing since 1.4.4 — they asserted `offcanvas-start` and `body.modal-open`, both intentionally replaced (by `data-st-side` and the `:has()` scroll lock respectively) without the tests being updated. A permanently red suite is why the scanner bug went unnoticed for so long.
+
+---
+
 ## [1.5.13] — 2026-08-03
 
 ### Fixed
