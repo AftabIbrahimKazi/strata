@@ -1,0 +1,24 @@
+name: Documentation issue
+description: Something in CLAUDE.md, a package's docs, or the README is missing, unclear, or wrong.
+labels: [documentation]
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Where
+      description: File and section — e.g. "CLAUDE.md — Arbitrary Values", "packages/modal/CLAUDE.md"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's wrong or missing
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: Optional — a corrected example, missing class name, clarified wording, whatever you'd put there instead.
