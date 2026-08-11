@@ -1,6 +1,11 @@
 # @strata-packages/offcanvas
 
-Lightweight offcanvas drawer component. Works standalone (no dependencies) or integrated with Strata CSS.
+> Lightweight offcanvas drawer component for [Strata CSS](https://github.com/AftabIbrahimKazi/strata). Works standalone (no dependencies) or integrated with Strata CSS.
+
+[![npm](https://img.shields.io/npm/v/@strata-packages/offcanvas)](https://www.npmjs.com/package/@strata-packages/offcanvas)
+[![license](https://img.shields.io/npm/l/@strata-packages/offcanvas)](LICENSE)
+
+---
 
 ## Installation
 
@@ -109,3 +114,9 @@ const drawer = document.getElementById('myDrawer')
 drawer.setAttribute('data-st-side', 'left')
 Strata.Offcanvas.open(drawer)
 ```
+
+---
+
+## License
+
+MIT © [Aftab Ibrahim Kazi](https://github.com/AftabIbrahimKazi)

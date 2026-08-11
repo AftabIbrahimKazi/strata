@@ -1,6 +1,11 @@
 # @strata-packages/flipbook
 
-CSS-driven flipbook with organic page-flip animation. Renders HTML pages or PDFs. Drag to flip, sounds, 6 presets, responsive.
+> CSS-driven 3D page-flip flipbook for [Strata CSS](https://github.com/AftabIbrahimKazi/strata). Renders HTML pages or PDFs with an organic page-flip animation. Drag to flip, sounds, 6 presets, responsive.
+
+[![npm](https://img.shields.io/npm/v/@strata-packages/flipbook)](https://www.npmjs.com/package/@strata-packages/flipbook)
+[![license](https://img.shields.io/npm/l/@strata-packages/flipbook)](LICENSE)
+
+---
 
 ## Quick Start
 
@@ -61,3 +66,9 @@ Or pass content explicitly:
 All MIT or Apache-2.0. None inject inline styles or JS.
 
 See [CLAUDE.md](CLAUDE.md) for full API reference.
+
+---
+
+## License
+
+MIT © [Aftab Ibrahim Kazi](https://github.com/AftabIbrahimKazi)
