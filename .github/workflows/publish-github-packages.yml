@@ -53,6 +53,9 @@ jobs:
           node-version: 20
           registry-url: https://npm.pkg.github.com
 
+      - name: Install workspace dependencies
+        run: npm ci
+
       - name: Scope package name for GitHub Packages
         working-directory: ${{ matrix.path }}
         run: |
