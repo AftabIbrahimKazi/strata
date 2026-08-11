@@ -1,0 +1,62 @@
+name: Bug report
+description: Something isn't behaving the way the docs say it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: A clear description of the bug. Include the class name(s) involved if it's a missing/wrong CSS output issue.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal `strata.config.js`, the class name(s) or markup involved, and the command you ran.
+      render: js
+    validations:
+      required: true
+
+  - type: textarea
+    id: verbose
+    attributes:
+      label: Output of `strata-css --build --verbose`
+      description: Paste the full output. This usually shows immediately whether it's a scanning issue (globs/files matched) or a registry issue (class not found).
+      render: text
+
+  - type: input
+    id: version
+    attributes:
+      label: strata-css version
+      placeholder: "run `npm ls strata-css` — e.g. 1.8.14"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: env
+    attributes:
+      label: Where are you running the build?
+      options:
+        - Plain PostCSS / CLI
+        - Vite
+        - Webpack
+        - Next.js
+        - Other bundler
+        - npm monorepo / workspace
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Node version, OS, package manager, monorepo layout — anything that might be relevant.
