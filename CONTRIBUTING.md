@@ -63,12 +63,12 @@ Bumped once per bug fixed. Never resets mid-era.
 
 ## Pre-release Tags
 
-Pre-releases are tied to branches in the pipeline.
+Only `beta` and `main` are published to npm. `dev` and `test` are internal integration/QA stages — code there is never released.
 
 | Branch | Version format | npm tag | GitHub label |
 |---|---|---|---|
-| `dev` | `1.2.3-dev.1` | `--tag dev` | Pre-release |
-| `test` | `1.2.3-test.1` | `--tag test` | Pre-release |
+| `dev` | — | not published | — |
+| `test` | — | not published | — |
 | `beta` | `1.2.3-beta.1` | `--tag beta` | Pre-release |
 | `main` | `1.2.3` | `--tag latest` | Latest release |
 
@@ -76,7 +76,6 @@ Users install specific stages:
 ```bash
 npm install strata-css          # stable (latest)
 npm install strata-css@beta     # beta
-npm install strata-css@dev      # dev
 ```
 
 ---
@@ -107,20 +106,19 @@ This range is the compatibility contract — any `1.x.x` package works with any 
 
 ## Branch Pipeline
 
-All code flows through branches in order. **Never push directly to `main`.**
+Only four branches exist, ever: `main`, `beta`, `test`, `dev`. No `feature/*`, `fix/*`, or other short-lived branches — work commits directly onto `dev`. **Never push directly to `main`, `beta`, or `test`.**
 
 ```
-feature/fix branch → dev → test → beta → main
+dev → test → beta → main
 ```
 
 ### Rules
 
-1. All work starts on a feature or fix branch off `dev`
-2. PR into `dev` — build must pass
-3. Merge `dev` → `test` — run build verify
-4. Merge `test` → `beta` — final check before release
-5. PR `beta` → `main` — requires review
-6. After merge to `main`: tag the version and publish to npm
+1. Work is committed directly to `dev` — build must pass
+2. PR `dev` → `test` — run build verify
+3. PR `test` → `beta` — final check before release
+4. PR `beta` → `main` — requires review
+5. After merge to `main`: tag the version and publish to npm
 
 ### Build check at each stage
 
