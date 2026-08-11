@@ -1,0 +1,30 @@
+{
+  "name": "strata-css-docs-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "strata:build": "strata-css --build",
+    "strata:watch": "strata-css --watch",
+    "predev": "npm run strata:build",
+    "dev": "next dev",
+    "prebuild": "npm run strata:build",
+    "build": "next build",
+    "publish:docs": "node scripts/publish-docs.js",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "strata-css": "^1.8.15"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.0",
+    "typescript": "^5"
+  }
+}
