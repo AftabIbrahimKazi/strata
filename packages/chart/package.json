@@ -32,8 +32,8 @@
     "url": "https://github.com/AftabIbrahimKazi/strata/issues"
   },
   "peerDependencies": {
-    "three": ">=0.150.0",
-    "strata-css": ">=1.0.0"
+    "strata-css": ">=1.0.0",
+    "three": ">=0.150.0"
   },
   "peerDependenciesMeta": {
     "strata-css": {
