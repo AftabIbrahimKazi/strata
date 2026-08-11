@@ -1,0 +1,10 @@
+name: General issue
+description: Doesn't fit bug / feature / docs — questions, discussion starters that need to stay as issues, etc.
+labels: []
+body:
+  - type: textarea
+    id: body
+    attributes:
+      label: Details
+    validations:
+      required: true
