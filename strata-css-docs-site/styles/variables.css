@@ -1,0 +1,29 @@
+/* ============================================================
+   Custom properties — only for cases Strata's own tokens don't
+   cover. Prefer Strata's --st-* tokens (src/layers/base.js in
+   the root package) before adding anything here.
+   ============================================================ */
+:root {
+}
+
+/* ============================================================
+   Responsive overrides — range-based breakpoints only.
+   0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
+   ============================================================ */
+@media (min-width: 0px) and (max-width: 575.98px) {
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+}
+
+@media (min-width: 1400px) {
+}
