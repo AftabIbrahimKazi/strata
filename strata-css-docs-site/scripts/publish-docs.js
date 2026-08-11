@@ -15,4 +15,9 @@ if (!fs.existsSync(SRC)) {
 fs.rmSync(DEST, { recursive: true, force: true });
 fs.cpSync(SRC, DEST, { recursive: true });
 
-console.log(`[publish-docs] Copied ${SRC} -> ${DEST}`);
+// GitHub Pages' legacy "Deploy from a branch" mode runs Jekyll, which
+// silently ignores any file/folder starting with `_` (e.g. Next's
+// `_next/`) unless this marker is present.
+fs.writeFileSync(path.join(DEST, '.nojekyll'), '');
+
+console.log(`[publish-docs] Copied ${SRC} -> ${DEST} (+ .nojekyll)`);
