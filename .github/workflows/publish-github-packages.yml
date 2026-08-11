@@ -1,10 +1,10 @@
-# Mirrors the already-released package to GitHub Packages so the repo's
-# "Packages" sidebar reflects the npm release.
+# Mirrors already-released packages to GitHub Packages so the repo's
+# "Packages" sidebar reflects every published package, not just strata-css.
 #
 # npmjs.com stays the primary registry and is published manually — this
 # workflow never touches it. GitHub Packages requires owner-scoped names,
-# so the mirror is published as @aftabibrahimkazi/strata-css; the rename
-# happens only in the workflow's checkout, never in the repo.
+# so each mirror is published as @aftabibrahimkazi/<name>; the rename
+# happens only in the workflow's checkout, never in the source package.json.
 #
 # Run it manually (Actions → Mirror to GitHub Packages → Run workflow)
 # after publishing a new version to npm.
@@ -21,6 +21,28 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - path: .
+            name: strata-css
+          - path: packages/chart
+            name: chart
+          - path: packages/flipbook
+            name: flipbook
+          - path: packages/forms
+            name: forms
+          - path: packages/modal
+            name: modal
+          - path: packages/offcanvas
+            name: offcanvas
+          - path: packages/picker
+            name: picker
+          - path: packages/shopmap
+            name: shopmap
+          - path: packages/skeleton-loader
+            name: skeleton-loader
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,15 +54,17 @@ jobs:
           registry-url: https://npm.pkg.github.com
 
       - name: Scope package name for GitHub Packages
+        working-directory: ${{ matrix.path }}
         run: |
           node -e "
             const fs = require('fs')
             const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'))
-            pkg.name = '@aftabibrahimkazi/strata-css'
+            pkg.name = '@aftabibrahimkazi/${{ matrix.name }}'
             fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2))
           "
 
       - name: Publish to GitHub Packages
+        working-directory: ${{ matrix.path }}
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
