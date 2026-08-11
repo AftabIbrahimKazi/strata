@@ -1,0 +1,8 @@
+[
+  { "slug": "installation", "title": "Installation" },
+  { "slug": "configuration", "title": "Configuration" },
+  { "slug": "build-pipeline", "title": "Build Pipeline" },
+  { "slug": "theme-system", "title": "Theme System" },
+  { "slug": "data-attribute-states", "title": "Data-Attribute States" },
+  { "slug": "versioning", "title": "Versioning & Contributing" }
+]
