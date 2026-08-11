@@ -658,7 +658,7 @@ element.setAttribute('data-st-active', 'true')
 module.exports = {
   // Files to scan for class names
   content: [
-    './src/**/*.{html,jsx,tsx,vue,astro,svelte}'
+    './src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}'
   ],
 
   // Input and output paths
@@ -790,15 +790,7 @@ module.exports = {
 
 ## Roadmap
 
-### v1.4 — Current
-Full component library, utility system, JIT processing, three-theme system, transition system.
-
-### v2.0 — Planned
-- Formal plugin API
-- VSCode IntelliSense extension
-- Strata DevTools browser extension
-- Design token pipeline (Figma support)
-- Storybook integration
+See [ROADMAP.md](ROADMAP.md) for planned work.
 
 ---
 
@@ -821,9 +813,10 @@ Tag and publish a GitHub Release for the current version:
 ```bash
 git tag vX.Y.Z
 git push origin vX.Y.Z
+# Copy just the X.Y.Z entry out of CHANGELOG.md into notes.md, then:
 gh release create vX.Y.Z \
   --title "Strata CSS vX.Y.Z" \
-  --notes-file CHANGELOG.md \
+  --notes-file notes.md \
   --verify-tag
 ```
 
