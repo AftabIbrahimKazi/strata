@@ -1,0 +1,21 @@
+1:"$Sreact.fragment"
+2:I[77819,["/_next/static/chunks/2x7oy8w783zqa.js"],"OutletBoundary"]
+3:"$Sreact.suspense"
+7:I[77819,["/_next/static/chunks/2x7oy8w783zqa.js"],"ViewportBoundary"]
+8:I[77819,["/_next/static/chunks/2x7oy8w783zqa.js"],"MetadataBoundary"]
+9:I[57471,["/_next/static/chunks/2x7oy8w783zqa.js"],"IconMark"]
+b:I[80629,["/_next/static/chunks/2x7oy8w783zqa.js"],"default"]
+c:I[79080,["/_next/static/chunks/2x7oy8w783zqa.js"],"default"]
+6:X
+e:X
+e:C
+0:{"buildId":"IquZBrnJdWPkNDod9hNtF","data":[{"rsc":["$","$1","c",{"children":[["$","div",null,{"children":[["$","h1",null,{"className":"fw-bold mb-3","children":"Versioning & Contributing"}],["$","p",null,{"className":"mb-4","children":["Strata follows ",["$","code",null,{"children":"MAJOR.FEATURE.BUGFIX"}]," — FEATURE and BUGFIX never reset mid-era, only on a MAJOR bump."]}],["$","ul",null,{"className":"mb-4","children":[["$","li",null,{"className":"mb-2","children":["A ",["$","code",null,{"children":"feat:"}]," commit increments FEATURE."]}],["$","li",null,{"className":"mb-2","children":["A ",["$","code",null,{"children":"fix:"}]," commit increments BUGFIX."]}],["$","li",null,{"children":["A ",["$","code",null,{"children":"BREAKING:"}]," commit resets to a new MAJOR era (FEATURE/BUGFIX reset to 0 only here)."]}]]}],["$","div",null,{"className":"alert alert-info mb-4","children":["$undefined",["$","div",null,{"children":["Full versioning rules, the branch pipeline, commit format, and the publishing checklist live in ",["$","code",null,{"children":"CONTRIBUTING.md"}]," at the repo root."]}]]}]]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":"$@5","staleTime":"$6","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$L7",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L8",null,{"children":["$","$3",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Strata CSS"}],["$","meta","1",{"name":"description","content":"Documentation for Strata CSS — a JIT CSS framework."}],["$","link","2",{"rel":"icon","href":"/favicon.ico?favicon.2vob68tjqpejf.ico","sizes":"256x256","type":"image/x-icon"}],["$","$L9","3",{}]]}]}]}],null]}],"isPartial":"$@a","staleTime":"$6","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Lb",null,{"parallelRouterKey":"children","template":["$","$Lc",null,{}]}]]}],"isPartial":"$@d","staleTime":"$6","varyParams":"$e"},{"rsc":["$","$1","c",{"children":[null,["$","$Lb",null,{"parallelRouterKey":"children","template":["$","$Lc",null,{}]}]]}],"isPartial":"$@f","staleTime":"$6","varyParams":"$e"}],"isUpgradeableISRFallback":false,"a":"$@10","rootVaryParams":null,"needsRuntimeRequest":"$@11"}
+4:null
+11:true
+6:300
+6:C
+10:0
+a:"$undefined"
+d:"$undefined"
+f:"$undefined"
+5:"$undefined"

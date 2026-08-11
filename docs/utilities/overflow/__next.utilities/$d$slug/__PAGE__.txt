@@ -1,0 +1,22 @@
+1:"$Sreact.fragment"
+2:I[39878,["/_next/static/chunks/2x7oy8w783zqa.js","/_next/static/chunks/36w6uonbboo8i.js"],"default"]
+3:I[77819,["/_next/static/chunks/2x7oy8w783zqa.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+8:I[77819,["/_next/static/chunks/2x7oy8w783zqa.js"],"ViewportBoundary"]
+9:I[77819,["/_next/static/chunks/2x7oy8w783zqa.js"],"MetadataBoundary"]
+a:I[57471,["/_next/static/chunks/2x7oy8w783zqa.js"],"IconMark"]
+c:I[80629,["/_next/static/chunks/2x7oy8w783zqa.js"],"default"]
+d:I[79080,["/_next/static/chunks/2x7oy8w783zqa.js"],"default"]
+7:X
+f:X
+f:C
+0:{"buildId":"IquZBrnJdWPkNDod9hNtF","data":[{"rsc":["$","$1","c",{"children":[["$","div",null,{"children":[["$","h1",null,{"className":"fw-bold mb-2","children":"Overflow"}],["$","p",null,{"className":"text-muted mb-4","children":"Overflow behavior on both axes and combined. Responsive (e.g. overflow-md-hidden, overflow-x-lg-auto)."}],[["$","section","Overflow",{"className":"mb-5","children":[["$","h2",null,{"className":"mb-3","children":"Overflow"}],["$","$L2",null,{"classes":["overflow-auto","overflow-hidden","overflow-visible","overflow-scroll"]}],["$","div",null,{"className":"d-flex flex-wrap gap-2","children":[["$","code","overflow-auto",{"className":"badge-light","children":"overflow-auto"}],["$","code","overflow-hidden",{"className":"badge-light","children":"overflow-hidden"}],["$","code","overflow-visible",{"className":"badge-light","children":"overflow-visible"}],["$","code","overflow-scroll",{"className":"badge-light","children":"overflow-scroll"}]]}]]}],["$","section","Overflow X",{"className":"mb-5","children":[["$","h2",null,{"className":"mb-3","children":"Overflow X"}],["$","$L2",null,{"classes":["overflow-x-auto","overflow-x-hidden","overflow-x-visible","overflow-x-scroll"]}],["$","div",null,{"className":"d-flex flex-wrap gap-2","children":[["$","code","overflow-x-auto",{"className":"badge-light","children":"overflow-x-auto"}],["$","code","overflow-x-hidden",{"className":"badge-light","children":"overflow-x-hidden"}],["$","code","overflow-x-visible",{"className":"badge-light","children":"overflow-x-visible"}],["$","code","overflow-x-scroll",{"className":"badge-light","children":"overflow-x-scroll"}]]}]]}],["$","section","Overflow Y",{"className":"mb-5","children":[["$","h2",null,{"className":"mb-3","children":"Overflow Y"}],["$","$L2",null,{"classes":["overflow-y-auto","overflow-y-hidden","overflow-y-visible","overflow-y-scroll"]}],["$","div",null,{"className":"d-flex flex-wrap gap-2","children":[["$","code","overflow-y-auto",{"className":"badge-light","children":"overflow-y-auto"}],["$","code","overflow-y-hidden",{"className":"badge-light","children":"overflow-y-hidden"}],["$","code","overflow-y-visible",{"className":"badge-light","children":"overflow-y-visible"}],["$","code","overflow-y-scroll",{"className":"badge-light","children":"overflow-y-scroll"}]]}]]}]]]}],[["$","script","script-0",{"src":"/_next/static/chunks/36w6uonbboo8i.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":"$@6","staleTime":"$7","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$L8",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L9",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Strata CSS"}],["$","meta","1",{"name":"description","content":"Documentation for Strata CSS — a JIT CSS framework."}],["$","link","2",{"rel":"icon","href":"/favicon.ico?favicon.2vob68tjqpejf.ico","sizes":"256x256","type":"image/x-icon"}],["$","$La","3",{}]]}]}]}],null]}],"isPartial":"$@b","staleTime":"$7","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Lc",null,{"parallelRouterKey":"children","template":["$","$Ld",null,{}]}]]}],"isPartial":"$@e","staleTime":"$7","varyParams":"$f"},{"rsc":["$","$1","c",{"children":[null,["$","$Lc",null,{"parallelRouterKey":"children","template":["$","$Ld",null,{}]}]]}],"isPartial":"$@10","staleTime":"$7","varyParams":"$f"}],"isUpgradeableISRFallback":false,"a":"$@11","rootVaryParams":null,"needsRuntimeRequest":"$@12"}
+5:null
+12:true
+7:300
+7:C
+11:0
+b:"$undefined"
+e:"$undefined"
+10:"$undefined"
+6:"$undefined"
