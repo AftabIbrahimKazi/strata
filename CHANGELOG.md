@@ -2,6 +2,11 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.8.15] — 2026-08-12
+
+### Fixed
+- **Dependabot alert (high severity): nanoid transitive dependency.** `postcss` pulled in `nanoid@3.3.16`, which has a predictable-ID generation issue on non-secure entropy sources. Pinned to `>=3.3.17` via npm `overrides`, since `nanoid` is not a direct dependency of `strata-css`.
+
 ## [1.8.14] — 2026-08-05
 
 ### Fixed
