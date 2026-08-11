@@ -69,7 +69,7 @@
   "dependencies": {
     "chokidar": "^5.0.0",
     "glob": "^13.0.6",
-    "postcss": "^8.5.14"
+    "postcss": "^8.5.26"
   },
   "peerDependencies": {
     "autoprefixer": ">=10",
@@ -84,9 +84,9 @@
     }
   },
   "devDependencies": {
-    "autoprefixer": "^10.5.0",
-    "cssnano": "^8.0.1",
+    "autoprefixer": "^10.5.4",
+    "cssnano": "^8.0.5",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.10"
   }
 }
