@@ -1,0 +1,43 @@
+name: Feature request
+description: Propose a new utility, component, config option, or capability.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve
+      description: What are you unable to do today? Prefer a real scenario over an abstract one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API
+      description: What would the class name, config key, or CLI flag look like? Show example usage.
+      render: html
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area does this touch?
+      options:
+        - Utility classes
+        - Component classes
+        - Arbitrary value syntax
+        - Theme system / CSS variables
+        - Scanner (class detection)
+        - Config (strata.config.js)
+        - CLI (bin/strata.js)
+        - A @strata-packages/* component
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Workarounds you've tried
+      description: e.g. an arbitrary-value class, a safelist entry, custom CSS layered on top. Helps judge how painful the gap actually is.
