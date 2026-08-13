@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../styles/strata.output.css";
 import "../styles/variables.css";
 import "../styles/main.css";
+import "../styles/components/theme-toggle.css";
 
 export const metadata: Metadata = {
   title: "Strata CSS",
