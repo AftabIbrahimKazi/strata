@@ -4,6 +4,7 @@ import "../styles/variables.css";
 import "../styles/main.css";
 import "../styles/components/theme-toggle.css";
 import "../styles/components/back-to-top.css";
+import "../styles/components/icon-btn.css";
 import BackToTop from "@/components/BackToTop";
 
 export const metadata: Metadata = {
