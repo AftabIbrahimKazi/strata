@@ -3,6 +3,45 @@
    components don't cover. No inline styles, no !important.
    ============================================================ */
 
+/* Plain-text link hover underline — adapted from a Uiverse.io design
+   (by JaydipPrajapati1910). Applies only to links that are pure text:
+   nav items, footer links, sidebar items, in-page anchors, prose links.
+   Button-styled links, badge/card links, and icon-adjacent links (the
+   logo, the GitHub icon) intentionally don't use this — they already
+   have their own hover treatment.
+   .text-link  — apply directly to a single plain-text <Link>/<a>.
+   .prose-links a — apply to a wrapper so every plain link inside
+   (including markdown-rendered content) gets the same treatment
+   without needing a class on each individual <a>. */
+.text-link,
+.prose-links a {
+  position: relative;
+  text-decoration: none;
+}
+
+.text-link::after,
+.prose-links a::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0%;
+  height: 2px;
+  background-color: var(--st-primary);
+  transition-property: width, left;
+  transition-duration: 400ms;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.text-link:hover::after,
+.text-link:focus::after,
+.prose-links a:hover::after,
+.prose-links a:focus::after {
+  width: 100%;
+  left: 0%;
+}
+
 /* ============================================================
    Responsive overrides — range-based breakpoints only.
    0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
