@@ -74,12 +74,12 @@ export default function Footer() {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-muted text-decoration-none"
+                        className="text-muted text-link"
                       >
                         {link.label}
                       </a>
                     ) : (
-                      <Link href={link.href} className="text-muted text-decoration-none">
+                      <Link href={link.href} className="text-muted text-link">
                         {link.label}
                       </Link>
                     )}
@@ -93,14 +93,14 @@ export default function Footer() {
         <div className="border-top pt-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
           <div className="d-flex flex-wrap gap-3">
             {POLICY_LINKS.map((link) => (
-              <Link key={link.label} href={link.href} className="text-muted text-decoration-none">
+              <Link key={link.label} href={link.href} className="text-muted text-link">
                 {link.label}
               </Link>
             ))}
           </div>
           <div className="d-flex flex-wrap gap-3">
             {LEGAL_LINKS.map((link) => (
-              <Link key={link.label} href={link.href} className="text-muted text-decoration-none">
+              <Link key={link.label} href={link.href} className="text-muted text-link">
                 {link.label}
               </Link>
             ))}

@@ -8,7 +8,7 @@
 
 .back-to-top-btn {
   position: fixed;
-  bottom: 24px;
+  bottom: 72px;
   right: 24px;
   z-index: var(--st-z-tooltip, 1060);
   width: 45px;
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  bottom: -18px;
+  bottom: -36px;
   opacity: 0;
   transition-duration: 0.7s;
 }
