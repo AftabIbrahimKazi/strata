@@ -1,6 +1,6 @@
 export default function PrivacyPage() {
   return (
-    <div className="container py-5 max-w-[720px]">
+    <div className="container py-5 max-w-[720px] prose-links">
       <h1 className="mb-4">Privacy Policy</h1>
 
       <p className="mb-3">

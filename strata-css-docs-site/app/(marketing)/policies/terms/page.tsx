@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function TermsPage() {
   return (
-    <div className="container py-5 max-w-[720px]">
+    <div className="container py-5 max-w-[720px] prose-links">
       <h1 className="mb-4">Terms of Use</h1>
 
       <p className="mb-3">
