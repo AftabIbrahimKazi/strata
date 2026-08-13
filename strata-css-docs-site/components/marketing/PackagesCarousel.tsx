@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCoverflow, Navigation, Pagination } from "swiper/modules";
+import { EffectCards, Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/effect-coverflow";
+import "swiper/css/effect-cards";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import PackageIcon from "./PackageIcon";
@@ -27,18 +27,16 @@ function StatIcon({ name }: { name: "size" | "deps" | "updated" | "license" }) {
 export default function PackagesCarousel({ packages }: { packages: PackageInfo[] }) {
   return (
     <Swiper
-      modules={[EffectCoverflow, Navigation, Pagination]}
-      effect="coverflow"
+      modules={[EffectCards, Navigation, Pagination]}
+      effect="cards"
       grabCursor
-      centeredSlides
-      slidesPerView="auto"
-      coverflowEffect={{ rotate: 30, stretch: 0, depth: 120, modifier: 1, slideShadows: false }}
+      cardsEffect={{ perSlideOffset: 8, perSlideRotate: 2, slideShadows: false }}
       navigation
       pagination={{ clickable: true }}
       className="packages-carousel"
     >
       {packages.map((pkg) => (
-        <SwiperSlide key={pkg.slug} className="packages-carousel-slide">
+        <SwiperSlide key={pkg.slug}>
           <div className="card h-100">
             <div className="card-body d-flex flex-column">
               <div className="d-flex align-items-start gap-3 mb-3">
