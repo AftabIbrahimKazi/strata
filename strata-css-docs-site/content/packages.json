@@ -1,0 +1,10 @@
+[
+  { "slug": "forms", "npmName": "@strata-packages/forms", "title": "Forms", "description": "Custom select — all variants." },
+  { "slug": "picker", "npmName": "@strata-packages/picker", "title": "Picker", "description": "Date, time, and datetime pickers." },
+  { "slug": "modal", "npmName": "@strata-packages/modal", "title": "Modal", "description": "Accessible modal component." },
+  { "slug": "skeleton-loader", "npmName": "@strata-packages/skeleton-loader", "title": "Skeleton Loader", "description": "Shimmer skeleton loading placeholders." },
+  { "slug": "chart", "npmName": "@strata-packages/chart", "title": "Chart", "description": "Three.js data visualization." },
+  { "slug": "offcanvas", "npmName": "@strata-packages/offcanvas", "title": "Offcanvas", "description": "Slide-in drawer component." },
+  { "slug": "flipbook", "npmName": "@strata-packages/flipbook", "title": "Flipbook", "description": "CSS-driven 3D page-flip flipbook." },
+  { "slug": "shopmap", "npmName": "@strata-packages/shopmap", "title": "Shopmap", "description": "JIT-themed MapLibre GL shop map." }
+]
