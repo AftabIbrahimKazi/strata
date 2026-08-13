@@ -17,7 +17,8 @@
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "strata-css": "^1.8.15"
+    "strata-css": "^1.8.15",
+    "swiper": "^14.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
