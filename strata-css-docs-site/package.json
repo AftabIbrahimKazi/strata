@@ -9,7 +9,6 @@
     "dev": "next dev",
     "prebuild": "npm run strata:build",
     "build": "next build",
-    "publish:docs": "node scripts/publish-docs.js",
     "start": "next start",
     "lint": "eslint"
   },
