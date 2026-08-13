@@ -3,6 +3,8 @@ import "../styles/strata.output.css";
 import "../styles/variables.css";
 import "../styles/main.css";
 import "../styles/components/theme-toggle.css";
+import "../styles/components/back-to-top.css";
+import BackToTop from "@/components/BackToTop";
 
 export const metadata: Metadata = {
   title: "Strata CSS",
@@ -22,7 +24,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <BackToTop />
+      </body>
     </html>
   );
 }
