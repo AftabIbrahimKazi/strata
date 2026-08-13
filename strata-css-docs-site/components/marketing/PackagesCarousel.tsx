@@ -10,6 +10,20 @@ import "swiper/css/pagination";
 import PackageIcon from "./PackageIcon";
 import type { PackageInfo } from "@/lib/packages";
 
+function StatIcon({ name }: { name: "size" | "deps" | "updated" | "license" }) {
+  const paths: Record<string, string> = {
+    size: "M21 8 12 3 3 8v8l9 5 9-5V8Zm-9-5v18M3 8l9 5 9-5",
+    deps: "m9 18 6-6-6-6",
+    updated: "M8 2v3M16 2v3M4 8h16M5 5h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z",
+    license: "M12 3 5 6v6c0 4.5 3 7 7 9 4-2 7-4.5 7-9V6l-7-3Zm-2.5 9 1.8 1.8L15 10",
+  };
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={paths[name]} />
+    </svg>
+  );
+}
+
 export default function PackagesCarousel({ packages }: { packages: PackageInfo[] }) {
   return (
     <Swiper
@@ -27,10 +41,18 @@ export default function PackagesCarousel({ packages }: { packages: PackageInfo[]
         <SwiperSlide key={pkg.slug} className="packages-carousel-slide">
           <div className="card h-100">
             <div className="card-body d-flex flex-column">
-              <div className="mb-3 text-primary">
-                <PackageIcon slug={pkg.slug} />
+              <div className="d-flex align-items-start gap-3 mb-3">
+                <div className="package-icon-box text-primary flex-shrink-0">
+                  <PackageIcon slug={pkg.slug} size={28} />
+                </div>
+                <div>
+                  <span className="border border-primary text-primary bg-transparent rounded-pill px-2 py-1 d-inline-block mb-2">
+                    COMPONENT
+                  </span>
+                  <h3 className="card-title mb-0">{pkg.title}</h3>
+                </div>
               </div>
-              <h3 className="card-title">{pkg.title}</h3>
+
               <p className="card-text text-muted mb-3">{pkg.description}</p>
 
               <div className="d-flex flex-wrap gap-2 mb-3">
@@ -42,7 +64,32 @@ export default function PackagesCarousel({ packages }: { packages: PackageInfo[]
                 ))}
               </div>
 
-              <div className="d-flex align-items-center gap-2 mt-auto">
+              <div className="row g-2 border-top pt-3 mb-3 text-muted">
+                <div className="col-6 d-flex align-items-center gap-2">
+                  <StatIcon name="size" />
+                  <span>{pkg.gzipSizeKb} KB gzip</span>
+                </div>
+                <div className="col-6 d-flex align-items-center gap-2">
+                  <StatIcon name="deps" />
+                  <span>{pkg.techStack.length} deps</span>
+                </div>
+                <div className="col-6 d-flex align-items-center gap-2">
+                  <StatIcon name="updated" />
+                  <span>
+                    {pkg.lastUpdatedDaysAgo === null
+                      ? "—"
+                      : pkg.lastUpdatedDaysAgo === 0
+                        ? "Today"
+                        : `${pkg.lastUpdatedDaysAgo}d ago`}
+                  </span>
+                </div>
+                <div className="col-6 d-flex align-items-center gap-2">
+                  <StatIcon name="license" />
+                  <span>{pkg.license}</span>
+                </div>
+              </div>
+
+              <div className="d-flex align-items-center gap-2 mt-auto border-top pt-3">
                 <a
                   href={`https://github.com/AftabIbrahimKazi/strata/tree/main/packages/${pkg.slug}`}
                   target="_blank"
@@ -66,7 +113,7 @@ export default function PackagesCarousel({ packages }: { packages: PackageInfo[]
                   </svg>
                 </a>
                 <Link href={`/packages/${pkg.slug}`} className="btn-primary btn-sm flex-fill text-center">
-                  Docs
+                  View Documentation →
                 </Link>
               </div>
             </div>
