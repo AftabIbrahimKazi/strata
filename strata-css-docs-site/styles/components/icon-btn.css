@@ -1,0 +1,74 @@
+/* ============================================================
+   Icon-only button/link — adapted from a Uiverse.io design (by
+   asgardOP). Circular, colored background, with a shrink-away
+   dark backdrop on hover and a press-down scale on click. For
+   links/buttons that are *just* an icon (currently: the header's
+   GitHub link) — not for icon+text or icon-swap controls like
+   the theme toggle, which already has its own custom animation.
+   ============================================================ */
+
+.icon-btn {
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50px;
+  border: none;
+  background: #000;
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.1s;
+  text-decoration: none;
+}
+
+.icon-btn svg {
+  color: #fff;
+  width: 20px;
+  height: 20px;
+  z-index: 9;
+}
+
+.icon-btn:active {
+  transform: scale(0.85);
+}
+
+.icon-btn::before {
+  content: "";
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  background-color: var(--st-bg-secondary);
+  border-radius: 50px;
+  z-index: -1;
+  border: 0px solid rgba(255, 255, 255, 0.411);
+  transition: 0.4s;
+}
+
+.icon-btn:hover::before {
+  width: 0px;
+  height: 0px;
+}
+
+/* ============================================================
+   Responsive overrides — range-based breakpoints only.
+   0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
+   ============================================================ */
+@media (min-width: 0px) and (max-width: 575.98px) {
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+}
+
+@media (min-width: 1400px) {
+}
