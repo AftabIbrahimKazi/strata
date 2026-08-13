@@ -1,5 +1,4 @@
-import { getWeeklyDownloads, getLatestVersionInfo } from "@/lib/npm";
-import { getRepoStars } from "@/lib/github";
+import { getTotalDownloads, getLatestVersionInfo } from "@/lib/npm";
 
 function StatTile({
   label,
@@ -24,9 +23,8 @@ function StatTile({
 }
 
 export default async function LiveStats() {
-  const [downloads, stars, versionInfo] = await Promise.all([
-    getWeeklyDownloads("strata-css"),
-    getRepoStars("AftabIbrahimKazi", "strata"),
+  const [totalDownloads, versionInfo] = await Promise.all([
+    getTotalDownloads("strata-css"),
     getLatestVersionInfo("strata-css"),
   ]);
 
@@ -34,16 +32,12 @@ export default async function LiveStats() {
     <section className="container py-4">
       <h2 className="mb-3">Live Stats</h2>
       <div className="row g-3">
+        <StatTile label="Total Downloads" value={totalDownloads.toLocaleString()} sub="npm, all-time" />
         <StatTile
-          label="npm Weekly Downloads"
-          value={downloads.count.toLocaleString()}
-          sub={
-            downloads.deltaPct !== null
-              ? `${downloads.deltaPct >= 0 ? "▲" : "▼"} ${Math.abs(downloads.deltaPct)}% vs last week`
-              : undefined
-          }
+          label="Versions Shipped"
+          value={versionInfo ? versionInfo.versionCount.toLocaleString() : "—"}
+          sub="Continuously improved"
         />
-        <StatTile label="GitHub Stars" value={stars !== null ? stars.toLocaleString() : "—"} />
         <StatTile
           label="Latest Version"
           value={versionInfo ? `v${versionInfo.version}` : "—"}
