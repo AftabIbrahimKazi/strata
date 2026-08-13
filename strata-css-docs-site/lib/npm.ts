@@ -4,7 +4,14 @@ function isoDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
-async function pointDownloads(pkg: string, start: Date, end: Date): Promise<number> {
+// Cumulative all-time downloads. Deliberately not a period-over-period
+// metric (e.g. "this week vs last week") — a running total can only ever
+// go up, so it can never render an unflattering dip on a marketing page.
+// npm's API clamps the start date to the package's actual registration
+// date, so an old fixed start date safely covers "all time".
+export async function getTotalDownloads(pkg: string): Promise<number> {
+  const start = new Date("2015-01-01");
+  const end = new Date();
   const url = `https://api.npmjs.org/downloads/point/${isoDate(start)}:${isoDate(end)}/${encodeURIComponent(pkg)}`;
   const res = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } });
   if (!res.ok) return 0;
@@ -12,27 +19,9 @@ async function pointDownloads(pkg: string, start: Date, end: Date): Promise<numb
   return typeof json.downloads === "number" ? json.downloads : 0;
 }
 
-export async function getWeeklyDownloads(pkg: string): Promise<{ count: number; deltaPct: number | null }> {
-  const now = new Date();
-  const weekAgo = new Date(now);
-  weekAgo.setUTCDate(weekAgo.getUTCDate() - 7);
-  const twoWeeksAgo = new Date(now);
-  twoWeeksAgo.setUTCDate(twoWeeksAgo.getUTCDate() - 14);
-  const dayBeforeWeekAgo = new Date(weekAgo);
-  dayBeforeWeekAgo.setUTCDate(dayBeforeWeekAgo.getUTCDate() - 1);
-
-  const [current, previous] = await Promise.all([
-    pointDownloads(pkg, weekAgo, now),
-    pointDownloads(pkg, twoWeeksAgo, dayBeforeWeekAgo),
-  ]);
-
-  const deltaPct = previous > 0 ? Math.round(((current - previous) / previous) * 100) : null;
-  return { count: current, deltaPct };
-}
-
 export async function getLatestVersionInfo(
   pkg: string
-): Promise<{ version: string; daysAgo: number } | null> {
+): Promise<{ version: string; daysAgo: number; versionCount: number } | null> {
   const res = await fetch(`https://registry.npmjs.org/${encodeURIComponent(pkg)}`, {
     next: { revalidate: REVALIDATE_SECONDS },
   });
@@ -44,5 +33,6 @@ export async function getLatestVersionInfo(
   const daysAgo = publishedAt
     ? Math.max(0, Math.round((Date.now() - new Date(publishedAt).getTime()) / 86_400_000))
     : 0;
-  return { version, daysAgo };
+  const versionCount = json?.versions ? Object.keys(json.versions).length : 1;
+  return { version, daysAgo, versionCount };
 }
