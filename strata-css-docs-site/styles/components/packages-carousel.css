@@ -1,0 +1,44 @@
+/* ============================================================
+   Companion Packages carousel — Swiper (installed as a local
+   dependency, not loaded from a CDN) with the coverflow effect
+   instead of a plain slide carousel. Swiper handles the carousel
+   mechanics/CSS itself (imported in PackagesCarousel.tsx); this
+   file only sizes the slides and re-themes Swiper's own color
+   variables to match the site instead of its default blue.
+   ============================================================ */
+
+.packages-carousel {
+  padding: 1rem 0 3rem;
+  --swiper-navigation-color: var(--st-primary);
+  --swiper-pagination-color: var(--st-primary);
+  --swiper-navigation-size: 22px;
+}
+
+.packages-carousel-slide {
+  width: 280px;
+}
+
+/* ============================================================
+   Responsive overrides — range-based breakpoints only.
+   0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
+   ============================================================ */
+@media (min-width: 0px) and (max-width: 575.98px) {
+  .packages-carousel-slide {
+    width: 240px;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+}
+
+@media (min-width: 1400px) {
+}
