@@ -1,15 +1,15 @@
 import Logo from "@/components/Logo";
 import packages from "@/content/packages.json";
-import { getWeeklyDownloads, getLatestVersionInfo } from "@/lib/npm";
+import { getTotalDownloads, getLatestVersionInfo } from "@/lib/npm";
 
 export default async function PackagesGrid() {
   const enriched = await Promise.all(
     packages.map(async (pkg) => {
       const [downloads, versionInfo] = await Promise.all([
-        getWeeklyDownloads(pkg.npmName),
+        getTotalDownloads(pkg.npmName),
         getLatestVersionInfo(pkg.npmName),
       ]);
-      return { ...pkg, downloads: downloads.count, version: versionInfo?.version ?? null };
+      return { ...pkg, downloads, version: versionInfo?.version ?? null };
     })
   );
 
@@ -41,7 +41,7 @@ export default async function PackagesGrid() {
                 <h3 className="card-title">{pkg.title}</h3>
                 <p className="card-text text-muted mb-3">{pkg.description}</p>
                 <div className="d-flex align-items-center gap-3 text-muted">
-                  <span>↓ {pkg.downloads.toLocaleString()}/wk</span>
+                  <span>↓ {pkg.downloads.toLocaleString()} downloads</span>
                   {pkg.version && <span>v{pkg.version}</span>}
                 </div>
               </div>
