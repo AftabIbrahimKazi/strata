@@ -4,7 +4,7 @@ import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   return (
-    <header className="navbar border-bottom p-3 d-flex align-items-center justify-content-between gap-3">
+    <header className="navbar sticky-top bg-body border-bottom p-3 d-flex align-items-center justify-content-between gap-3">
       <Link href="/" className="navbar-brand fw-bold text-decoration-none d-flex align-items-center gap-2">
         <Logo />
         strata
