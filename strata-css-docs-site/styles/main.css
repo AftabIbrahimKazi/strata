@@ -3,6 +3,26 @@
    components don't cover. No inline styles, no !important.
    ============================================================ */
 
+/* Auto-hiding header — hidden once scrolled past the top zone (the
+   "hero" on the landing page; the same threshold doubles as a generic
+   near-top proxy on docs pages, which have no hero), reappears on
+   scroll-to-top or cursor-near-top-edge/hover (see Header.tsx). Uses a
+   transform, not Strata's data-st-visible (which only nudges 4px and
+   keeps the element's layout space reserved) — position: sticky means
+   a translated "stuck" header leaves no visible gap, since its normal-
+   flow slot is already scrolled out of view by the time it's hidden. */
+.header-autohide {
+  transition: transform var(--st-duration) var(--st-easing);
+}
+
+.header-autohide[data-header-hidden="true"] {
+  transform: translateY(-100%);
+}
+
+.header-autohide[data-header-hidden="false"] {
+  transform: translateY(0);
+}
+
 /* Plain-text link hover underline — adapted from a Uiverse.io design
    (by JaydipPrajapati1910). Applies only to links that are pure text:
    nav items, footer links, sidebar items, in-page anchors, prose links.
