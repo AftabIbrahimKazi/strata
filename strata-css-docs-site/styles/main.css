@@ -35,9 +35,9 @@
 }
 
 .text-link:hover::after,
-.text-link:focus::after,
+.text-link:focus-visible::after,
 .prose-links a:hover::after,
-.prose-links a:focus::after {
+.prose-links a:focus-visible::after {
   width: 100%;
   left: 0%;
 }
