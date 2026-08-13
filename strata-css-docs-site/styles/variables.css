@@ -1,9 +1,70 @@
 /* ============================================================
-   Custom properties — only for cases Strata's own tokens don't
-   cover. Prefer Strata's --st-* tokens (src/layers/base.js in
-   the root package) before adding anything here.
+   Strata's "layered" brand palette — overrides Strata's own
+   theme tokens (src/layers/base.js in the root package) rather
+   than introducing new ones, so every component that already
+   reads --st-* picks this up automatically.
    ============================================================ */
+
 :root {
+  --st-primary:         #ff8a3d;
+  --st-primary-hover:   #ffb15c;
+  --st-secondary:       #8a7e6e;
+  --st-secondary-hover: #766b5d;
+
+  --st-bg:              #fff3e6;
+  --st-bg-secondary:    #fffbf5;
+  --st-text:            #1a1a1a;
+  --st-text-muted:      #6b6558;
+  --st-border:          #f0e0cc;
+
+  --st-focus-ring:      0 0 0 0.25rem rgba(255, 138, 61, 0.25);
+}
+
+[data-st-theme="dark"] {
+  --st-primary:         #ff8a3d;
+  --st-primary-hover:   #ffb15c;
+  --st-secondary:       #9c8f80;
+  --st-secondary-hover: #b0a494;
+
+  --st-bg:              #0d0d0d;
+  --st-bg-secondary:    #1a1a1a;
+  --st-text:            #fff3e6;
+  --st-text-muted:      #a89a8c;
+  --st-border:          #2a2a2a;
+
+  --st-focus-ring:      0 0 0 0.25rem rgba(255, 138, 61, 0.25);
+}
+
+[data-st-theme="dim"] {
+  --st-primary:         #ffb15c;
+  --st-primary-hover:   #ff8a3d;
+  --st-secondary:       #b0a494;
+  --st-secondary-hover: #c4b9aa;
+
+  --st-bg:              #1a1a1a;
+  --st-bg-secondary:    #2a2a2a;
+  --st-text:            #fff3e6;
+  --st-text-muted:      #b8a99a;
+  --st-border:          #3d2b1f;
+
+  --st-focus-ring:      0 0 0 0.25rem rgba(255, 177, 92, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-st-theme="light"]):not([data-st-theme="dim"]):not([data-st-theme="dark"]) {
+    --st-primary:         #ff8a3d;
+    --st-primary-hover:   #ffb15c;
+    --st-secondary:       #9c8f80;
+    --st-secondary-hover: #b0a494;
+
+    --st-bg:              #0d0d0d;
+    --st-bg-secondary:    #1a1a1a;
+    --st-text:            #fff3e6;
+    --st-text-muted:      #a89a8c;
+    --st-border:          #2a2a2a;
+
+    --st-focus-ring:      0 0 0 0.25rem rgba(255, 138, 61, 0.25);
+  }
 }
 
 /* ============================================================
