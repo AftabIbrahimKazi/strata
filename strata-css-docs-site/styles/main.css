@@ -42,6 +42,43 @@
   left: 0%;
 }
 
+/* Secondary buttons — adapted from a Uiverse.io design (by Dhananjoy43):
+   gradient fill + pulse ring on hover. Recolored from the original's
+   teal/purple to the brand gradient, and the pulse ring uses a single
+   consistent primary-based color (the original mixed two unrelated
+   hardcoded colors across its keyframe stops). Overrides Strata's
+   .btn-outline-secondary registry class — every button using that class
+   site-wide (Copy, View on GitHub, install chip, Playground toggles)
+   picks this up automatically. */
+.btn-outline-secondary {
+  background-image: linear-gradient(135deg, var(--st-primary) 0%, var(--st-primary-hover) 100%);
+  color: var(--st-bg);
+  border: none;
+  border-radius: 20px;
+  transition: scale 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+  cursor: pointer;
+  animation: btn-secondary-pulse 1.5s infinite;
+}
+
+.btn-outline-secondary:active {
+  scale: 0.95;
+}
+
+@keyframes btn-secondary-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-primary) 40%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--st-primary) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-primary) 0%, transparent);
+  }
+}
+
 /* ============================================================
    Responsive overrides — range-based breakpoints only.
    0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
