@@ -14,9 +14,9 @@ export default function TermsPage() {
 
       <p className="mb-0">
         Code snippets shown on this site are free to copy and use in your own projects under the
-        same MIT terms as the framework itself. Package names, the Strata name, and associated
-        branding are not covered by the MIT license and shouldn&apos;t be used to imply
-        endorsement without permission.
+        same MIT terms as the framework itself. The <code>strata-css</code> package name and its
+        associated branding on this site are not covered by the MIT license and shouldn&apos;t be
+        used to imply endorsement without permission.
       </p>
     </div>
   );
