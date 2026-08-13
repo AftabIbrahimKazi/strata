@@ -20,7 +20,7 @@ const FEATURES = [
   },
 ];
 
-export default function Home() {
+export default function DocsHome() {
   return (
     <div>
       <span className="badge-primary d-inline-block mb-3">Introduction</span>
