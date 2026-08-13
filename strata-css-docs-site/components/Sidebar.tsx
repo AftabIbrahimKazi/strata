@@ -23,6 +23,11 @@ function NavGroup({ heading, items, base }: { heading: string; items: { slug: st
 export default function Sidebar() {
   return (
     <aside className="d-none d-lg-block w-[240px] flex-shrink-0 border-end p-3 overflow-y-auto position-sticky top-0 min-vh-100">
+      <div className="mb-4">
+        <Link href="/docs" className="text-decoration-none fw-semibold d-block py-1">
+          Introduction
+        </Link>
+      </div>
       <NavGroup heading="Guides" items={guides} base="guides" />
       <NavGroup heading="Utilities" items={utilities.map((u) => ({ slug: u.slug, title: u.title }))} base="utilities" />
       <NavGroup heading="Components" items={components.map((c) => ({ slug: c.slug, title: c.title }))} base="components" />
