@@ -1,0 +1,70 @@
+/* ============================================================
+   Theme toggle icon-swap animation — adapted from a Uiverse.io
+   checkbox toggle (by catraco) into a 3-state cycling button
+   (light -> dim -> dark), since a checkbox is inherently binary.
+   No Strata utility covers this, so it lives here per the custom
+   CSS convention: this is the rare case that convention exists for.
+   ============================================================ */
+
+.theme-toggle-btn {
+  --color: var(--st-text-muted);
+  --size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 1.8em;
+  height: 1.8em;
+  font-size: var(--size);
+  fill: var(--color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.theme-toggle-btn svg {
+  position: absolute;
+  display: none;
+  width: 1em;
+  height: 1em;
+}
+
+.theme-toggle-btn[data-theme-icon="light"] .icon-sun,
+.theme-toggle-btn[data-theme-icon="dim"] .icon-dim,
+.theme-toggle-btn[data-theme-icon="dark"] .icon-moon {
+  display: block;
+  animation: theme-toggle-fill 0.5s;
+}
+
+@keyframes theme-toggle-fill {
+  0% {
+    transform: rotate(-360deg) scale(0);
+    opacity: 0;
+  }
+  75% {
+    transform: rotate(25deg);
+  }
+}
+
+/* ============================================================
+   Responsive overrides — range-based breakpoints only.
+   0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
+   ============================================================ */
+@media (min-width: 0px) and (max-width: 575.98px) {
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+}
+
+@media (min-width: 1400px) {
+}
