@@ -79,6 +79,55 @@
   }
 }
 
+/* Primary buttons — adapted from a Uiverse.io design (by KhaledMatalkah):
+   always-on glowing pulse + a stronger glow ring on hover. Kept the
+   reference's own gradient (#FFB900 -> #FF7730) rather than reusing
+   --st-primary/--st-primary-hover, since secondary buttons already use
+   that exact gradient — using it here too would make primary and
+   secondary indistinguishable except for hover-only vs always-on pulse.
+   Overrides Strata's .btn-primary registry class — every button using
+   that class site-wide (Get Started, Visit the Docs, Playground active
+   toggles) picks this up automatically. */
+.btn-primary {
+  position: relative;
+  background: linear-gradient(to right, #ffb900, #ff7730);
+  border: none;
+  color: #fff;
+  border-radius: 25px;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  animation: btn-primary-pulse 2s infinite;
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 30px;
+  box-shadow: 0 0 20px #ff7730;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
+}
+
+@keyframes btn-primary-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 30px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
 /* ============================================================
    Responsive overrides — range-based breakpoints only.
    0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
