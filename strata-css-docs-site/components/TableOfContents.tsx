@@ -10,7 +10,7 @@ export default function TableOfContents({
       <ul className="list-unstyled">
         {items.map((item) => (
           <li key={item.id} className="mb-2">
-            <a href={`#${item.id}`} className="text-decoration-none">
+            <a href={`#${item.id}`} className="text-link">
               {item.label}
             </a>
           </li>
