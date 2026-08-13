@@ -1,0 +1,83 @@
+/* ============================================================
+   Back-to-top button — adapted from a Uiverse.io design (by
+   vinodjangid07), recolored to the brand gradient. Visibility
+   (show/hide on scroll) is handled by Strata's own generic
+   data-st-visible fade system (src/layers/base.js) — only the
+   button's own shape/hover-label animation is custom here.
+   ============================================================ */
+
+.back-to-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: var(--st-z-tooltip, 1060);
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(var(--st-primary), var(--st-primary-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--st-shadow);
+}
+
+.back-to-top-btn .arrow path {
+  fill: var(--st-bg);
+}
+
+.back-to-top-btn .back-to-top-label {
+  font-size: 0.7em;
+  width: 100px;
+  position: absolute;
+  color: var(--st-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: -18px;
+  opacity: 0;
+  transition-duration: 0.7s;
+}
+
+.back-to-top-btn:hover .back-to-top-label {
+  opacity: 1;
+  transition-duration: 0.7s;
+}
+
+.back-to-top-btn:hover .arrow {
+  animation: back-to-top-slide-in 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes back-to-top-slide-in {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Responsive overrides — range-based breakpoints only.
+   0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
+   ============================================================ */
+@media (min-width: 0px) and (max-width: 575.98px) {
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+}
+
+@media (min-width: 1400px) {
+}
