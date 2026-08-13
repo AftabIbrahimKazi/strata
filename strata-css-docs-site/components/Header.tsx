@@ -1,10 +1,47 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 
+const NEAR_TOP_THRESHOLD = 120;
+// Once the header is translated off-screen, it has nothing left under the
+// cursor to trigger onMouseEnter — so hover-to-reveal is detected via
+// cursor proximity to the top edge of the viewport instead, not hovering
+// the (invisible) header element itself.
+const CURSOR_REVEAL_ZONE = 40;
+
 export default function Header() {
+  const [nearTop, setNearTop] = useState(true);
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      setNearTop(window.scrollY < NEAR_TOP_THRESHOLD);
+    }
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    function onMouseMove(e: MouseEvent) {
+      setHovered(e.clientY <= CURSOR_REVEAL_ZONE);
+    }
+    window.addEventListener("mousemove", onMouseMove);
+    return () => window.removeEventListener("mousemove", onMouseMove);
+  }, []);
+
+  const visible = nearTop || hovered;
+
   return (
-    <header className="navbar sticky-top bg-body border-bottom p-3 d-flex align-items-center justify-content-between gap-3">
+    <header
+      className="navbar sticky-top bg-body border-bottom p-3 d-flex align-items-center justify-content-between gap-3 header-autohide"
+      data-header-hidden={!visible}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <Link href="/" className="navbar-brand fw-bold text-decoration-none d-flex align-items-center gap-2">
         <Logo />
         strata
@@ -25,6 +62,12 @@ export default function Header() {
         </Link>
         <Link href="/#packages" className="d-none d-sm-inline text-link">
           Packages
+        </Link>
+        <Link href="/blogs" className="d-none d-sm-inline text-link">
+          Blogs
+        </Link>
+        <Link href="/showcase" className="d-none d-sm-inline text-link">
+          Showcase
         </Link>
         <a
           href="https://github.com/AftabIbrahimKazi/strata"
