@@ -27,6 +27,19 @@ export default async function PackageDocPage({ params }: { params: Promise<{ slu
         ))}
       </div>
 
+      <div className="row g-3 border-top border-bottom py-3 mb-4 text-muted">
+        <div className="col-6 col-sm-3">{pkg.gzipSizeKb} KB gzip</div>
+        <div className="col-6 col-sm-3">{pkg.techStack.length} deps</div>
+        <div className="col-6 col-sm-3">
+          {pkg.lastUpdatedDaysAgo === null
+            ? "Last updated —"
+            : pkg.lastUpdatedDaysAgo === 0
+              ? "Updated today"
+              : `Updated ${pkg.lastUpdatedDaysAgo}d ago`}
+        </div>
+        <div className="col-6 col-sm-3">{pkg.license} License</div>
+      </div>
+
       <h2 className="mb-3">Install</h2>
       <pre className="p-3 border rounded bg-[var(--st-bg-secondary)] overflow-x-auto mb-4">
         {`npm install ${pkg.npmName}`}
