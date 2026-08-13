@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "../styles/strata.output.css";
 import "../styles/variables.css";
 import "../styles/main.css";
-import PageShell from "@/components/PageShell";
 
 export const metadata: Metadata = {
   title: "Strata CSS",
@@ -22,9 +21,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body>
-        <PageShell>{children}</PageShell>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
