@@ -2,7 +2,7 @@ import CodeBlock from "@/components/CodeBlock";
 
 export default function InstallationPage() {
   return (
-    <div>
+    <div className="prose-links">
       <h1 className="fw-bold mb-3">Installation</h1>
       <p className="mb-4">Install Strata CSS from npm:</p>
       <CodeBlock code={`npm install strata-css`} lang="bash" />
