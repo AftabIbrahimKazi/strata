@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Callout from "@/components/Callout";
 
 export const metadata: Metadata = {
   title: "Build Pipeline Guide",
@@ -8,13 +9,21 @@ export const metadata: Metadata = {
 
 export default function BuildPipelinePage() {
   return (
-    <div>
+    <div className="prose-links">
       <h1 className="fw-bold mb-3">Build Pipeline</h1>
       <p className="mb-4">
         Strata is a JIT CSS framework — you write class names in your HTML/JSX, Strata scans
         those files, looks each class up in its registry, and emits only the CSS that&apos;s
         actually used. No purging step needed.
       </p>
+
+      <Callout variant="tip" title="Nothing on this page is something you run yourself">
+        This is what happens automatically, every time, inside every build — whether it&apos;s
+        triggered by the CLI (<code>--build</code> / <code>--watch</code>), the PostCSS plugin
+        running as part of Vite/Webpack&apos;s own pipeline, or the one-off build{" "}
+        <code>strata-css init</code> runs for you during setup. There&apos;s no separate step
+        here to remember; it&apos;s the same pipeline no matter which of those triggered it.
+      </Callout>
 
       <h2 className="mt-4 mb-3">What happens on build</h2>
       <ol className="mb-4">

@@ -63,15 +63,19 @@
 }
 
 /* Secondary buttons — adapted from a Uiverse.io design (by Dhananjoy43):
-   gradient fill + pulse ring on hover. Recolored from the original's
-   teal/purple to the brand gradient, and the pulse ring uses a single
-   consistent primary-based color (the original mixed two unrelated
-   hardcoded colors across its keyframe stops). Overrides Strata's
+   gradient fill + pulse ring on hover. Overrides Strata's
    .btn-outline-secondary registry class — every button using that class
    site-wide (Copy, View on GitHub, install chip, Playground toggles)
-   picks this up automatically. */
+   picks this up automatically.
+   Uses --st-secondary/-hover, not --st-primary: this site's brand palette
+   (styles/variables.css) sets --st-primary to an orange in the same family
+   as .btn-primary's own hardcoded gradient below, so a primary-based
+   secondary button read as barely distinguishable from primary in light
+   mode — a real usability complaint, not just a style preference. The
+   muted --st-secondary tokens read as visually secondary the way the name
+   implies, and stay distinct from primary regardless of brand palette. */
 .btn-outline-secondary {
-  background-image: linear-gradient(135deg, var(--st-primary) 0%, var(--st-primary-hover) 100%);
+  background-image: linear-gradient(135deg, var(--st-secondary) 0%, var(--st-secondary-hover) 100%);
   color: var(--st-bg);
   border: none;
   border-radius: 20px;
@@ -89,33 +93,35 @@
 
 @keyframes btn-secondary-pulse {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-primary) 40%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-secondary) 40%, transparent);
   }
   70% {
-    box-shadow: 0 0 0 10px color-mix(in srgb, var(--st-primary) 0%, transparent);
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--st-secondary) 0%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-primary) 0%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-secondary) 0%, transparent);
   }
 }
 
 /* Primary buttons — adapted from a Uiverse.io design (by KhaledMatalkah):
    always-on glowing pulse + a stronger glow ring on hover. Kept the
    reference's own gradient (#FFB900 -> #FF7730) rather than reusing
-   --st-primary/--st-primary-hover, since secondary buttons already use
-   that exact gradient — using it here too would make primary and
-   secondary indistinguishable except for hover-only vs always-on pulse.
-   Overrides Strata's .btn-primary registry class — every button using
-   that class site-wide (Get Started, Visit the Docs, Playground active
-   toggles) picks this up automatically. */
+   --st-primary/--st-primary-hover — .btn-outline-secondary now uses
+   --st-secondary/-hover instead (see above), so this is no longer the
+   only thing keeping the two buttons visually distinct.
+   Pulse ring shrunk from a 30px spread at 0.7 opacity to 10px at 0.45 —
+   the original was distracting on any page with more than one primary
+   button in view at once. Overrides Strata's .btn-primary registry class
+   — every button using that class site-wide (Get Started, Visit the
+   Docs, Playground active toggles) picks this up automatically. */
 .btn-primary {
   position: relative;
   background: linear-gradient(to right, #ffb900, #ff7730);
   border: none;
   color: #fff;
   border-radius: 25px;
-  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
-  animation: btn-primary-pulse 2s infinite;
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45);
+  animation: btn-primary-pulse 2.5s infinite;
 }
 
 .btn-primary::before {
@@ -138,14 +144,29 @@
 
 @keyframes btn-primary-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.45);
   }
   70% {
-    box-shadow: 0 0 0 30px rgba(255, 255, 255, 0);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
   }
   100% {
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
   }
+}
+
+/* Data-attribute-states guide — data-st-shake demo. Mirrors the real
+   st-modal-shake keyframe from src/registry/registry.js exactly; the
+   demo box isn't a real .modal-dialog (that requires a .modal ancestor
+   with position:fixed, which can't be contained inline in a docs page),
+   so it needs its own trigger class instead of the registry selector. */
+@keyframes docs-demo-shake {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-5px); }
+  75%      { transform: translateX(5px); }
+}
+
+.docs-demo-shake {
+  animation: docs-demo-shake 0.25s var(--st-easing);
 }
 
 /* ============================================================

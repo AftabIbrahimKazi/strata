@@ -1,0 +1,25 @@
+/* ============================================================
+   Docs intro "eyebrow" kicker — replaces the reused .badge-primary
+   pill on the Introduction page. A static section label isn't a
+   status or an action, so it reads better as understated kicker
+   typography than another button-shaped pill.
+   ============================================================ */
+.docs-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--st-primary);
+}
+
+.docs-eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 1.25rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--st-primary);
+}

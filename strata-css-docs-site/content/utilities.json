@@ -2,111 +2,73 @@
   {
     "slug": "spacing",
     "title": "Spacing",
-    "description": "Margin and padding utilities on a 0–5 scale, plus directional and axis variants. All are responsive (e.g. mt-md-3, px-lg-4).",
-    "groups": [
-      { "heading": "Margin", "classes": ["m-0", "m-1", "m-2", "m-3", "m-4", "m-5"] },
-      { "heading": "Padding", "classes": ["p-0", "p-1", "p-2", "p-3", "p-4", "p-5"] },
-      { "heading": "Directional margin", "classes": ["mt-3", "mb-3", "ms-3", "me-3", "mx-3", "my-3"] },
-      { "heading": "Directional padding", "classes": ["pt-3", "pb-3", "ps-3", "pe-3", "px-3", "py-3"] }
-    ]
+    "description": "Margin, padding, and gap utilities on a 0–5 scale, plus directional, axis, responsive, !important, and arbitrary-value variants. See the dedicated Spacing page for full details.",
+    "groups": []
   },
   {
     "slug": "display",
     "title": "Display",
-    "description": "Control an element's display type. Responsive (e.g. d-md-none, d-lg-flex).",
-    "groups": [
-      { "heading": "Display", "classes": ["d-none", "d-inline", "d-inline-block", "d-block", "d-grid", "d-flex", "d-inline-flex", "d-table", "d-table-row", "d-table-cell"] }
-    ]
+    "description": "Control an element's display type — named values, responsive variants, and print-only overrides. See the dedicated Display page for full details.",
+    "groups": []
   },
   {
     "slug": "flexbox",
     "title": "Flexbox",
-    "description": "Flex container and item utilities. Responsive (e.g. flex-md-row, justify-content-lg-center).",
-    "groups": [
-      { "heading": "Direction & wrap", "classes": ["flex-row", "flex-column", "flex-wrap", "flex-nowrap", "flex-fill", "flex-grow-0", "flex-grow-1", "flex-shrink-0", "flex-shrink-1"] },
-      { "heading": "Justify content", "classes": ["justify-content-start", "justify-content-end", "justify-content-center", "justify-content-between", "justify-content-around", "justify-content-evenly"] },
-      { "heading": "Align items", "classes": ["align-items-start", "align-items-end", "align-items-center", "align-items-baseline", "align-items-stretch"] },
-      { "heading": "Align self", "classes": ["align-self-auto", "align-self-start", "align-self-end", "align-self-center", "align-self-baseline", "align-self-stretch"] }
-    ]
+    "description": "Flex container and item utilities — direction, wrap, justify/align, order, grow/shrink. See the dedicated Flexbox page for full details, including which classes don't get responsive variants.",
+    "groups": []
   },
   {
     "slug": "grid",
     "title": "Grid",
-    "description": "A 12-column responsive grid system with containers, rows, columns, offsets, and gutters (e.g. g-md-3, gx-lg-4).",
-    "groups": [
-      { "heading": "Containers", "classes": ["container", "container-fluid", "container-sm", "container-md", "container-lg", "container-xl", "container-xxl"] },
-      { "heading": "Rows & columns", "classes": ["row", "col", "col-1", "col-2", "col-3", "col-4", "col-6", "col-12", "col-auto", "offset-3"] },
-      { "heading": "Gutters", "classes": ["g-0", "g-1", "g-2", "g-3", "g-4", "g-5", "gx-3", "gy-3"] }
-    ]
+    "description": "A 12-column responsive grid system with containers, rows, columns, offsets, row-cols, and gutters. See the dedicated Grid page for full details.",
+    "groups": []
   },
   {
     "slug": "sizing",
     "title": "Sizing",
-    "description": "Width and height utilities, including max/min constraints and viewport units. Responsive (e.g. w-md-50, h-lg-auto).",
-    "groups": [
-      { "heading": "Width", "classes": ["w-25", "w-50", "w-75", "w-100", "w-auto"] },
-      { "heading": "Height", "classes": ["h-25", "h-50", "h-75", "h-100", "h-auto"] },
-      { "heading": "Max / min width", "classes": ["max-w-xs", "max-w-sm", "max-w-md", "max-w-lg", "max-w-xl", "max-w-full", "max-w-none", "min-w-0", "min-w-full", "min-w-screen"] },
-      { "heading": "Max / min height", "classes": ["max-h-full", "max-h-screen", "max-h-none", "min-h-0", "min-h-full", "min-h-screen"] },
-      { "heading": "Viewport", "classes": ["mw-100", "mh-100", "vw-100", "vh-100", "min-vh-100"] }
-    ]
+    "description": "Width and height utilities, including max/min constraints and viewport units. See the dedicated Sizing page for full details.",
+    "groups": []
   },
   {
     "slug": "typography",
     "title": "Typography",
-    "description": "Text alignment, case, weight, style, line-height, and wrapping. Responsive (e.g. text-md-center, fw-md-bold).",
-    "groups": [
-      { "heading": "Alignment", "classes": ["text-start", "text-center", "text-end", "text-justify"] },
-      { "heading": "Case", "classes": ["text-uppercase", "text-lowercase", "text-capitalize", "text-none"] },
-      { "heading": "Weight", "classes": ["fw-light", "fw-lighter", "fw-normal", "fw-medium", "fw-semibold", "fw-bold", "fw-bolder"] },
-      { "heading": "Style & decoration", "classes": ["fst-italic", "fst-normal", "text-decoration-none", "text-decoration-underline", "text-decoration-line-through"] },
-      { "heading": "Line height", "classes": ["lh-1", "lh-sm", "lh-base", "lh-lg"] },
-      { "heading": "Wrapping", "classes": ["text-truncate", "text-wrap", "text-nowrap", "text-break", "font-monospace"] }
-    ]
+    "description": "Text alignment, case, weight, style, line-height, wrapping, and link utilities. See the dedicated Typography page for full details.",
+    "groups": []
   },
   {
     "slug": "colors",
     "title": "Colors",
-    "description": "Text and background color utilities across the semantic palette.",
-    "groups": [
-      { "heading": "Text color", "classes": ["text-primary", "text-secondary", "text-success", "text-danger", "text-warning", "text-info", "text-light", "text-dark", "text-white", "text-muted", "text-body"] },
-      { "heading": "Background color", "classes": ["bg-primary", "bg-secondary", "bg-success", "bg-danger", "bg-warning", "bg-info", "bg-light", "bg-dark", "bg-white", "bg-transparent", "bg-body"] }
-    ]
+    "description": "Text and background color utilities across the semantic palette, plus subtle variants. See the dedicated Colors page for full details.",
+    "groups": []
   },
   {
     "slug": "borders",
     "title": "Borders",
-    "description": "Border presence, direction, width, color, and radius.",
-    "groups": [
-      { "heading": "Presence & direction", "classes": ["border", "border-0", "border-top", "border-bottom", "border-start", "border-end"] },
-      { "heading": "Width & color", "classes": ["border-1", "border-2", "border-3", "border-primary", "border-danger"] },
-      { "heading": "Radius", "classes": ["rounded", "rounded-0", "rounded-1", "rounded-2", "rounded-3", "rounded-pill", "rounded-circle", "rounded-top", "rounded-bottom"] }
-    ]
+    "description": "Border presence, direction, width, color, and radius. See the dedicated Borders page for full details.",
+    "groups": []
   },
   {
     "slug": "shadows",
     "title": "Shadows",
-    "description": "Box-shadow utilities. Responsive (e.g. shadow-md-sm, shadow-lg-lg).",
+    "description": "Box-shadow utilities on a 4-step scale, plus arbitrary values — all responsive. No named !important variant exists for this group (use the arbitrary form: !shadow-[...]). Demos below start from a borderless box — the shared preview component's own baked-in 1px border otherwise draws a hard edge that drowns out a soft shadow, especially shadow-sm and the shadow-none baseline.",
     "groups": [
-      { "heading": "Shadow", "classes": ["shadow-sm", "shadow", "shadow-lg", "shadow-none"] }
+      { "heading": "Shadow", "classes": ["shadow-none", "shadow-sm", "shadow", "shadow-lg"], "bare": true, "multi": false },
+      { "heading": "Responsive", "classes": ["shadow-md-sm", "shadow-lg-lg"], "bare": true, "multi": false },
+      { "heading": "Arbitrary", "classes": ["shadow-[0_4px_6px_rgba(0,0,0,0.1)]", "shadow-md-[0_20px_40px_rgba(0,0,0,0.35)]"], "bare": true, "multi": false }
     ]
   },
   {
     "slug": "position",
     "title": "Position",
-    "description": "Positioning scheme, offsets, and sticky/fixed helpers. Responsive (e.g. position-md-sticky).",
-    "groups": [
-      { "heading": "Scheme", "classes": ["position-static", "position-relative", "position-absolute", "position-fixed", "position-sticky"] },
-      { "heading": "Offsets", "classes": ["top-0", "top-50", "top-100", "bottom-0", "start-0", "end-0"] },
-      { "heading": "Helpers", "classes": ["fixed-top", "fixed-bottom", "sticky-top", "sticky-bottom", "translate-middle", "translate-middle-x", "translate-middle-y"] }
-    ]
+    "description": "Positioning scheme, offsets, and sticky/fixed helpers, including centering utilities. See the dedicated Position page for full details.",
+    "groups": []
   },
   {
     "slug": "overflow",
     "title": "Overflow",
-    "description": "Overflow behavior on both axes and combined. Responsive (e.g. overflow-md-hidden, overflow-x-lg-auto).",
+    "description": "Overflow behavior on both axes and combined — all responsive. Only the combined overflow-* form has a named !important variant (!overflow-hidden); overflow-x-*/overflow-y-* don't.",
     "groups": [
-      { "heading": "Overflow", "classes": ["overflow-auto", "overflow-hidden", "overflow-visible", "overflow-scroll"] },
+      { "heading": "Overflow", "classes": ["overflow-auto", "overflow-hidden", "overflow-visible", "overflow-scroll", "!overflow-hidden"] },
       { "heading": "Overflow X", "classes": ["overflow-x-auto", "overflow-x-hidden", "overflow-x-visible", "overflow-x-scroll"] },
       { "heading": "Overflow Y", "classes": ["overflow-y-auto", "overflow-y-hidden", "overflow-y-visible", "overflow-y-scroll"] }
     ]
@@ -114,29 +76,22 @@
   {
     "slug": "opacity-visibility",
     "title": "Opacity & Visibility",
-    "description": "Opacity scale and visibility helpers, including breakpoint show/hide. Responsive (e.g. opacity-md-50).",
+    "description": "Opacity scale and visibility helpers, including breakpoint show/hide. opacity-*/visible/invisible all have a named !important variant; the responsive forms don't combine with !important.",
     "groups": [
-      { "heading": "Opacity", "classes": ["opacity-0", "opacity-25", "opacity-50", "opacity-75", "opacity-100"] },
-      { "heading": "Visibility", "classes": ["visible", "invisible", "visually-hidden"] }
+      { "heading": "Opacity", "classes": ["opacity-0", "opacity-25", "opacity-50", "opacity-75", "opacity-100", "!opacity-50"] },
+      { "heading": "Visibility", "classes": ["visible", "invisible", "visually-hidden", "visually-hidden-focusable"] }
     ]
   },
   {
     "slug": "misc",
     "title": "Misc",
-    "description": "Cursor, z-index, gap, pointer events, user select, and float utilities.",
-    "groups": [
-      { "heading": "Cursor", "classes": ["cursor-auto", "cursor-default", "cursor-pointer", "cursor-wait", "cursor-text", "cursor-move", "cursor-not-allowed", "cursor-grab"] },
-      { "heading": "Z-index & gap", "classes": ["z-0", "z-1", "z-2", "z-3", "z-auto", "z-n1", "gap-0", "gap-1", "gap-2", "gap-3", "gap-4", "gap-5", "row-gap-3", "col-gap-3"] },
-      { "heading": "Pointer & select", "classes": ["pe-none", "pe-auto", "user-select-all", "user-select-auto", "user-select-none"] },
-      { "heading": "Float", "classes": ["float-start", "float-end", "float-none", "clearfix", "hstack", "vstack"] }
-    ]
+    "description": "Cursor, z-index, pointer events, user select, and float utilities. See the dedicated Misc page for full details, including a responsive float form most references skip.",
+    "groups": []
   },
   {
     "slug": "arbitrary-values",
     "title": "Arbitrary Values",
-    "description": "Any utility not in the registry can be expressed with square brackets — the value is used directly, e.g. w-[320px], text-[#e63946], bg-[linear-gradient(...)]. text-[value] routes to font-size for length units, color otherwise; use fs-[...] for token-based font-size to avoid the ambiguity.",
-    "groups": [
-      { "heading": "Common patterns", "classes": ["w-[320px]", "max-w-[440px]", "min-h-[600px]", "mt-[72px]", "bg-[#f0f4f8]"] }
-    ]
+    "description": "Any utility not covered by a named class can be expressed with square brackets. See the dedicated Arbitrary Values page for the complete reference of which prefixes support responsive breakpoints and !important.",
+    "groups": []
   }
 ]
