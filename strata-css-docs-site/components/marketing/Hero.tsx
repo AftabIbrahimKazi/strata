@@ -8,11 +8,10 @@ export default async function Hero() {
   return (
     <section className="text-center p-4 py-5">
       {versionInfo && (
-        <Link
-          href="/policies/changelog"
-          className="badge-primary d-inline-block mb-4 text-decoration-none"
-        >
-          ✨ What&apos;s new in v{versionInfo.version}
+        <Link href="/policies/changelog" className="whats-new-chip d-inline-flex align-items-center gap-2 mb-4 text-decoration-none">
+          <span aria-hidden="true">✨</span>
+          What&apos;s new in v{versionInfo.version}
+          <span className="whats-new-chip-arrow" aria-hidden="true">→</span>
         </Link>
       )}
       <h1 className="fw-bold mb-3">
@@ -20,8 +19,9 @@ export default async function Hero() {
         <span className="text-primary">cascade</span>.
       </h1>
       <p className="text-muted mb-4">
-        Strata is a JIT CSS framework that combines the power of component-driven design with
-        the flexibility of utility classes.
+        Strata is a JIT CSS framework that combines component-driven design with utility-first
+        flexibility — it scans your files and generates only the CSS you actually use, no purge
+        step required.
       </p>
       <div className="d-flex flex-wrap justify-content-center gap-2">
         <Link href="/docs" className="btn-primary">
