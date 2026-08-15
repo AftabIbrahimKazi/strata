@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPackages, getPackage } from "@/lib/packages";
 import PackageIcon from "@/components/marketing/PackageIcon";
+import { renderRepoMarkdownFromFirstSection } from "@/lib/markdown";
 
 export function generateStaticParams() {
   return getPackages().map((p) => ({ slug: p.slug }));
@@ -69,12 +70,7 @@ export default async function PackageDocPage({ params }: { params: Promise<{ slu
         <div className="col-6 col-sm-3">{pkg.license} License</div>
       </div>
 
-      <h2 className="mb-3">Install</h2>
-      <pre className="p-3 border rounded bg-[var(--st-bg-secondary)] overflow-x-auto mb-4">
-        {`npm install ${pkg.npmName}`}
-      </pre>
-
-      <div className="d-flex flex-wrap gap-2">
+      <div className="d-flex flex-wrap gap-2 mb-5">
         <a
           href={`https://github.com/AftabIbrahimKazi/strata/tree/main/packages/${pkg.slug}`}
           target="_blank"
@@ -92,6 +88,11 @@ export default async function PackageDocPage({ params }: { params: Promise<{ slu
           View on npm
         </a>
       </div>
+
+      <div
+        className="prose-links"
+        dangerouslySetInnerHTML={{ __html: renderRepoMarkdownFromFirstSection(`packages/${pkg.slug}/README.md`) }}
+      />
     </div>
   );
 }
