@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Showcase",
+  description: "Sites built with Strata CSS — coming soon.",
+  alternates: { canonical: "/showcase" },
+};
+
 export default function ShowcasePage() {
   return (
     <div className="container py-5 text-center">

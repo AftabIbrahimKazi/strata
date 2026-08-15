@@ -42,33 +42,37 @@ export default function Header() {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Link href="/" className="navbar-brand fw-bold text-decoration-none d-flex align-items-center gap-2">
-        <Logo />
-        strata
-      </Link>
+      <div className="d-flex align-items-center gap-4">
+        <Link href="/" className="navbar-brand fw-bold text-decoration-none d-flex align-items-center gap-2">
+          <Logo />
+          strata
+        </Link>
 
-      <div className="d-none d-md-flex flex-fill max-w-[420px]">
-        <input
-          type="search"
-          placeholder="Search documentation..."
-          aria-label="Search documentation"
-          className="form-control"
-        />
+        <div className="d-flex align-items-center gap-3">
+          <Link href="/docs" className="d-none d-sm-inline text-link">
+            Docs
+          </Link>
+          <Link href="/#packages" className="d-none d-sm-inline text-link">
+            Packages
+          </Link>
+          <Link href="/blogs" className="d-none d-sm-inline text-link">
+            Blogs
+          </Link>
+          <Link href="/showcase" className="d-none d-sm-inline text-link">
+            Showcase
+          </Link>
+        </div>
       </div>
 
       <div className="d-flex align-items-center gap-3">
-        <Link href="/docs" className="d-none d-sm-inline text-link">
-          Docs
-        </Link>
-        <Link href="/#packages" className="d-none d-sm-inline text-link">
-          Packages
-        </Link>
-        <Link href="/blogs" className="d-none d-sm-inline text-link">
-          Blogs
-        </Link>
-        <Link href="/showcase" className="d-none d-sm-inline text-link">
-          Showcase
-        </Link>
+        <div className="d-none d-md-flex max-w-[420px]">
+          <input
+            type="search"
+            placeholder="Search documentation..."
+            aria-label="Search documentation"
+            className="form-control"
+          />
+        </div>
         <a
           href="https://github.com/AftabIbrahimKazi/strata"
           target="_blank"

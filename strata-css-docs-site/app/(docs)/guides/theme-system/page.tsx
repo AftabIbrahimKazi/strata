@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
 import Callout from "@/components/Callout";
+
+export const metadata: Metadata = {
+  title: "Theme System Guide",
+  description: "Strata CSS's light/dark/dim theme system, driven by a single data-st-theme attribute.",
+  alternates: { canonical: "/guides/theme-system" },
+};
 
 export default function ThemeSystemPage() {
   return (
