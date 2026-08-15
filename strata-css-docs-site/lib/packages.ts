@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 export type PackageInfo = {
   slug: string;
@@ -41,9 +41,15 @@ function getGzipSizeKb(pkgDir: string, files: string[]): number {
 
 // Real last-commit date for the package's folder, via git — not a claimed
 // "actively maintained" label.
+// execFileSync passes `slug` as a real argument rather than shell-interpolated
+// text — CodeQL flagged the previous execSync(`...${slug}...`) form as a
+// shell-command-injection sink. `slug` is only ever a local packages/*
+// directory name (see getPackages() below), never external input, so the
+// practical risk was low — but this removes the pattern entirely rather
+// than relying on that trust assumption.
 function getLastUpdatedDaysAgo(repoRoot: string, slug: string): number | null {
   try {
-    const iso = execSync(`git log -1 --format=%cI -- packages/${slug}`, {
+    const iso = execFileSync("git", ["log", "-1", "--format=%cI", "--", `packages/${slug}`], {
       cwd: repoRoot,
       encoding: "utf8",
     }).trim();
