@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ConfigurationPage() {
   return (
-    <div>
+    <div className="prose-links">
       <h1 className="fw-bold mb-3">Configuration</h1>
       <p className="mb-4">
         Add a <code>strata.config.js</code> (or <code>.cjs</code>) to your project root:
@@ -19,6 +19,14 @@ export default function ConfigurationPage() {
         lang="js"
         code={`module.exports = {\n  content: ['./src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}'],\n  input:   './strata.css',\n  output:  './dist/strata.output.css',\n  safelist: [],\n}`}
       />
+      <Callout variant="tip" title="Already ran npx strata-css init?">
+        The <a href="/guides/installation">installer</a> writes a starting{" "}
+        <code>strata.config.js</code> for you — correct <code>input</code>/<code>output</code>{" "}
+        paths for your framework, but always the same generic{" "}
+        <code>./src/**/*.{"{html,jsx,tsx,vue,astro,svelte,js,ts}"}</code> content glob, regardless
+        of your actual folder layout. Everything below is about checking and customizing what it
+        generated, not an alternative to it.
+      </Callout>
 
       <h2 className="mt-5 mb-3">Content globs</h2>
       <p className="mb-3">
@@ -30,6 +38,14 @@ export default function ConfigurationPage() {
         <code>.blade.php</code>, <code>.mdx</code>, <code>.erb</code>, <code>.hbs</code>,{" "}
         <code>.twig</code>, and so on. Only binary/media formats are skipped.
       </p>
+      <Callout variant="warning" title="The default glob assumes a src/ layout — many frameworks don't use one">
+        Next.js's App Router puts routes in <code>app/</code>, not <code>src/app/</code>, unless
+        you opted into a <code>src</code> directory — this documentation site&apos;s own config
+        is <code>[&apos;./app/**/*.{"{js,jsx,ts,tsx}"}&apos;, &apos;./components/**/*.{"{js,jsx,ts,tsx}"}&apos;]</code>
+        , not the generic default. If classes aren&apos;t showing up right after{" "}
+        <code>init</code>, this glob not matching your real folders is the most common cause —
+        check it before anything else.
+      </Callout>
 
       <h2 className="mt-5 mb-3">Safelist</h2>
       <p className="mb-3">
@@ -47,7 +63,11 @@ export default function ConfigurationPage() {
       </Callout>
 
       <h2 className="mt-5 mb-3">Diagnosing a missing class</h2>
-      <p className="mb-3">If a class isn&apos;t showing up, check what the scanner actually saw:</p>
+      <p className="mb-3">
+        <code>init</code> does run an initial build for you, but silently — no scanned-file
+        count, no warnings printed. If a class isn&apos;t showing up, run this yourself to see
+        what the scanner actually saw:
+      </p>
       <CodeBlock
         lang="bash"
         code={`node bin/strata.js --build --verbose\n# [Strata]   scanned 35/35 matched file(s), 0 skipped, 788 class name(s) found\n# [Strata]   globs: ./src/**/*.{html,jsx,tsx}  (relative to /path/to/project)`}
