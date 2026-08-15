@@ -1,0 +1,40 @@
+/* ============================================================
+   Roadmap "Planned" status badge — outline pill with a soft-pulsing
+   dot, distinct from Strata's own solid .badge-primary (kept for
+   Introduction/Playground preview labels elsewhere).
+   ============================================================ */
+.roadmap-status-badge {
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--st-text-muted);
+  background: var(--st-bg-secondary);
+}
+
+.roadmap-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--st-primary);
+  animation: roadmap-status-pulse 2s ease-in-out infinite;
+}
+
+@keyframes roadmap-status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--st-primary) 45%, transparent);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--st-primary) 0%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roadmap-status-dot {
+    animation: none;
+  }
+}

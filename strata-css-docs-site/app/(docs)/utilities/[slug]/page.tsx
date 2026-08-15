@@ -1,9 +1,25 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import utilities from "@/content/utilities.json";
 import Playground from "@/components/Playground";
 
 export function generateStaticParams() {
   return utilities.map((u) => ({ slug: u.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const entry = utilities.find((u) => u.slug === slug);
+  if (!entry) return {};
+  return {
+    title: `${entry.title} Utilities`,
+    description: entry.description,
+    alternates: { canonical: `/utilities/${slug}` },
+  };
 }
 
 export default async function UtilityPage({ params }: { params: Promise<{ slug: string }> }) {

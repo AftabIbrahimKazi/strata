@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { readRepoTextEscaped } from "@/lib/markdown";
+
+export const metadata: Metadata = {
+  title: "License",
+  description: "Strata CSS is MIT licensed — read the full license text.",
+  alternates: { canonical: "/policies/license" },
+};
 
 export default function LicensePage() {
   const text = readRepoTextEscaped("LICENSE");

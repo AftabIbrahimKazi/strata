@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
+
+export const metadata: Metadata = {
+  title: "Installation Guide",
+  description: "Install Strata CSS from npm and wire up the entry CSS file and PostCSS build.",
+  alternates: { canonical: "/guides/installation" },
+};
 
 export default function InstallationPage() {
   return (

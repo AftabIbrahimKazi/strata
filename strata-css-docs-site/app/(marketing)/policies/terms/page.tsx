@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Use",
+  description: "Terms of use for the Strata CSS documentation site.",
+  alternates: { canonical: "/policies/terms" },
+};
 
 export default function TermsPage() {
   return (

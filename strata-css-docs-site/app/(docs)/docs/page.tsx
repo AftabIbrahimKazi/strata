@@ -1,5 +1,13 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Logo from "@/components/Logo";
+
+export const metadata: Metadata = {
+  title: "Documentation",
+  description:
+    "Strata CSS documentation — a JIT CSS framework combining component-first classes with utility-first, JIT-scanned styling.",
+  alternates: { canonical: "/docs" },
+};
 
 const FEATURES = [
   {
