@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
 import Callout from "@/components/Callout";
+
+export const metadata: Metadata = {
+  title: "Configuration Guide",
+  description: "Configure Strata CSS's content globs, input/output paths, and safelist via strata.config.js.",
+  alternates: { canonical: "/guides/configuration" },
+};
 
 export default function ConfigurationPage() {
   return (

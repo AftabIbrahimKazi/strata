@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Data-Attribute State System Guide",
+  description: "Drive interactive states — visible, collapsed, active, loading, disabled — with data-st-* attributes, no JS framework needed.",
+  alternates: { canonical: "/guides/data-attribute-states" },
+};
+
 const ATTRS = [
   { attr: "data-st-visible", values: '"true" / "false"', effect: "Fade in/out (opacity + visibility + transform)" },
   { attr: "data-st-collapsed", values: '"true" / "false"', effect: "Expand/collapse (max-height + opacity)" },

@@ -3148,15 +3148,25 @@ Object.entries(BORDER_SIDE_PROPS).forEach(([side, props]) => {
 })
 
 // Shadow
+// BP_KEYS ('sm','md','lg','xl','xxl') overlaps with the named shadow scale's
+// own suffixes ('sm','lg') — a bare `shadow-${bp}` registration for bp='sm'
+// or bp='lg' collides character-for-character with the base named-scale
+// classes `shadow-sm`/`shadow-lg` registered above. Map.set-based reg() lets
+// the later call win outright, so that used to silently overwrite the small/
+// large shadow classes with "default shadow from this breakpoint up" instead
+// — shadow-sm and shadow-lg stopped applying their own strength entirely.
+// The k === '' case is also not part of the documented shadow-{bp}-{variant}
+// pattern (shadow-md-sm, shadow-lg-lg, ...), so it's dropped rather than
+// renamed — nothing documented depended on a bare shadow-{bp} class existing.
 const SHADOW_MAP = {
   'sm': 'var(--st-shadow-sm)', '': 'var(--st-shadow)',
   'lg': 'var(--st-shadow-lg)', 'none': 'none',
 }
 Object.entries(SHADOW_MAP).forEach(([k, v]) => {
-  const cls = k ? `shadow-${k}` : 'shadow'
+  if (!k) return
   BP_KEYS.forEach(bp => {
-    reg(`shadow-${bp}${k ? '-' + k : ''}`, 'utilities',
-      mq(bp, `.shadow-${bp}${k ? '-' + k : ''} { box-shadow: ${v}; }`))
+    reg(`shadow-${bp}-${k}`, 'utilities',
+      mq(bp, `.shadow-${bp}-${k} { box-shadow: ${v}; }`))
   })
 })
 
