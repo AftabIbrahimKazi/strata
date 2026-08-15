@@ -19,7 +19,10 @@ export default function Roadmap() {
               <p className="fw-semibold mb-1">{item.title}</p>
               <p className="text-muted mb-0">{item.value}</p>
             </div>
-            <span className="badge-primary flex-shrink-0">Planned</span>
+            <span className="roadmap-status-badge flex-shrink-0 d-inline-flex align-items-center gap-2">
+              <span className="roadmap-status-dot" aria-hidden="true" />
+              Planned
+            </span>
           </div>
         ))}
       </div>

@@ -1,9 +1,25 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getPackages, getPackage } from "@/lib/packages";
 import PackageIcon from "@/components/marketing/PackageIcon";
 
 export function generateStaticParams() {
   return getPackages().map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const pkg = getPackage(slug);
+  if (!pkg) return {};
+  return {
+    title: pkg.title,
+    description: pkg.description,
+    alternates: { canonical: `/packages/${slug}` },
+  };
 }
 
 export default async function PackageDocPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -18,14 +34,27 @@ export default async function PackageDocPage({ params }: { params: Promise<{ slu
       </div>
       <h1 className="fw-bold mb-2">{pkg.title}</h1>
       <p className="text-muted mb-3">{pkg.description}</p>
-      <div className="d-flex flex-wrap gap-2 mb-4">
-        <span className="badge-primary">v{pkg.version}</span>
+      <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <span className="gh-badge">
+          <span className="gh-badge-label">version</span>
+          <span className="gh-badge-value">{pkg.version}</span>
+        </span>
         {pkg.techStack.map((t) => (
-          <span key={t} className="badge-light">
+          <span key={t} className="gh-tag">
             {t}
           </span>
         ))}
       </div>
+
+      {pkg.tags.length > 0 && (
+        <div className="d-flex flex-wrap align-items-center gap-2 mb-4">
+          {pkg.tags.map((t) => (
+            <span key={t} className="gh-tag">
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="row g-3 border-top border-bottom py-3 mb-4 text-muted">
         <div className="col-6 col-sm-3">{pkg.gzipSizeKb} KB gzip</div>

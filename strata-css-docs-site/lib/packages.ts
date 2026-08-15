@@ -11,6 +11,7 @@ export type PackageInfo = {
   version: string;
   license: string;
   techStack: string[];
+  tags: string[];
   gzipSizeKb: number;
   lastUpdatedDaysAgo: number | null;
 };
@@ -55,10 +56,11 @@ function getLastUpdatedDaysAgo(repoRoot: string, slug: string): number | null {
 
 // Reads every packages/<slug>/package.json from the repo root at build time
 // (see lib/roadmap.ts for why this is safe on Vercel) — description,
-// version, license, tech stack, shipped-file size, and last-updated date
-// all come straight from the real repo, not a hand-maintained copy. A
-// package gets picked up automatically the moment it exists in packages/,
-// no site edit needed.
+// version, license, tech stack, tags (package.json "keywords"), shipped-
+// file size, and last-updated date all come straight from the real repo,
+// not a hand-maintained copy. A package gets picked up automatically the
+// moment it exists in packages/, no site edit needed — same for adding/
+// changing its keywords, which is all it takes to change the tags shown.
 export function getPackages(): PackageInfo[] {
   const repoRoot = path.join(/* turbopackIgnore: true */ process.cwd(), "..");
   const packagesRoot = path.join(repoRoot, "packages");
@@ -83,6 +85,8 @@ export function getPackages(): PackageInfo[] {
           (d) => d !== "strata-css"
         );
         const shippedFiles: string[] = Array.isArray(pkg.files) ? pkg.files : [];
+        const keywords: string[] = Array.isArray(pkg.keywords) ? pkg.keywords : [];
+        const tags = keywords.filter((k) => k !== "strata" && k !== "strata-css");
         return {
           slug,
           npmName: pkg.name as string,
@@ -91,6 +95,7 @@ export function getPackages(): PackageInfo[] {
           version: pkg.version as string,
           license: (pkg.license as string) || "MIT",
           techStack: deps.length ? deps : ["CSS", "Vanilla JS"],
+          tags,
           gzipSizeKb: getGzipSizeKb(pkgDir, shippedFiles),
           lastUpdatedDaysAgo: getLastUpdatedDaysAgo(repoRoot, slug),
         };

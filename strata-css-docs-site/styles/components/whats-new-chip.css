@@ -1,0 +1,31 @@
+/* ============================================================
+   Hero "What's new" chip — outline pill + trailing arrow, distinct
+   from Strata's own .badge-primary (kept solid/filled and used
+   elsewhere: Introduction, Roadmap, Playground preview labels).
+   ============================================================ */
+.whats-new-chip {
+  border: 1px solid var(--st-primary);
+  border-radius: 999px;
+  padding: 0.375rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--st-primary);
+  background: transparent;
+  transition:
+    background-color var(--st-duration) var(--st-easing),
+    border-color var(--st-duration) var(--st-easing),
+    color var(--st-duration) var(--st-easing);
+}
+
+.whats-new-chip:hover {
+  background: var(--st-primary);
+  color: var(--st-bg);
+}
+
+.whats-new-chip-arrow {
+  transition: transform var(--st-duration) var(--st-easing);
+}
+
+.whats-new-chip:hover .whats-new-chip-arrow {
+  transform: translateX(3px);
+}
