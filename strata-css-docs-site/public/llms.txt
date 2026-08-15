@@ -1,0 +1,41 @@
+# Strata CSS
+
+> A JIT CSS framework that combines Bootstrap-style component-first classes (`btn-primary`, `card`, `navbar`) with Tailwind-style JIT scanning. It scans your source files for class names at build time and generates only the CSS those classes actually need — no purge step, no unused-utility bloat. Free, MIT-licensed, published as `strata-css` on npm.
+
+Strata routes generated CSS into native CSS cascade layers (base, components, utilities — each split further by breakpoint), so a utility class always beats a component class at the same breakpoint and a higher breakpoint always beats a lower one, regardless of source order in your HTML. Interactive states (visible, collapsed, active, loading, disabled) are driven by `data-st-*` attributes directly in CSS, with no JavaScript framework required. Optional companion packages (`@strata-packages/*` on npm) add JavaScript-driven components — modal, offcanvas, skeleton loader, chart, forms, picker, flipbook, shopmap — each usable standalone or integrated with Strata's theme system.
+
+## Getting started
+
+- [Documentation home](https://strata-css-docs-site.vercel.app/docs): overview, quick start, and links to every guide
+- [Installation](https://strata-css-docs-site.vercel.app/guides/installation): npm install, the `strata-css init` interactive installer, and manual setup per framework (Next.js, Vite, Webpack, plain HTML/PHP/Django/Rails)
+- [Configuration](https://strata-css-docs-site.vercel.app/guides/configuration): content globs, safelist, input/output paths
+- [Build Pipeline](https://strata-css-docs-site.vercel.app/guides/build-pipeline): what happens inside every build, in order
+- [Theme System](https://strata-css-docs-site.vercel.app/guides/theme-system): the `data-st-theme` attribute, light/dark/dim, and every `--st-*` design token with its default value
+- [Data-Attribute States](https://strata-css-docs-site.vercel.app/guides/data-attribute-states): `data-st-visible`, `data-st-collapsed`, `data-st-active`, `data-st-loading`, `data-st-disabled`, `data-st-skeleton`, `data-st-shake`, `data-st-side`
+- [Versioning & Contributing](https://strata-css-docs-site.vercel.app/guides/versioning): the `MAJOR.FEATURE.BUGFIX` scheme and branch pipeline
+
+## Utility reference
+
+Full reference pages, each verified directly against the registry source (named scale, responsive variants, `!important` forms, and arbitrary-value support):
+[Spacing](https://strata-css-docs-site.vercel.app/utilities/spacing), [Display](https://strata-css-docs-site.vercel.app/utilities/display), [Flexbox](https://strata-css-docs-site.vercel.app/utilities/flexbox), [Grid](https://strata-css-docs-site.vercel.app/utilities/grid), [Sizing](https://strata-css-docs-site.vercel.app/utilities/sizing), [Typography](https://strata-css-docs-site.vercel.app/utilities/typography), [Colors](https://strata-css-docs-site.vercel.app/utilities/colors), [Borders](https://strata-css-docs-site.vercel.app/utilities/borders), [Shadows](https://strata-css-docs-site.vercel.app/utilities/shadows), [Position](https://strata-css-docs-site.vercel.app/utilities/position), [Overflow](https://strata-css-docs-site.vercel.app/utilities/overflow), [Opacity & Visibility](https://strata-css-docs-site.vercel.app/utilities/opacity-visibility), [Misc](https://strata-css-docs-site.vercel.app/utilities/misc), [Arbitrary Values](https://strata-css-docs-site.vercel.app/utilities/arbitrary-values) (which of the ~24 arbitrary-capable prefixes support responsive breakpoints and `!important`).
+
+## Component reference
+
+[Buttons](https://strata-css-docs-site.vercel.app/components/buttons), [Cards](https://strata-css-docs-site.vercel.app/components/cards), [Forms](https://strata-css-docs-site.vercel.app/components/forms), [Navigation](https://strata-css-docs-site.vercel.app/components/navigation), [Modals](https://strata-css-docs-site.vercel.app/components/modals), [Feedback](https://strata-css-docs-site.vercel.app/components/feedback) (alerts, badges, progress), [Data Display](https://strata-css-docs-site.vercel.app/components/data-display) (tables, lists), [Overlays](https://strata-css-docs-site.vercel.app/components/overlays) (dropdowns, tooltips, popovers), [Accordion & Offcanvas](https://strata-css-docs-site.vercel.app/components/accordion-offcanvas), [Placeholders](https://strata-css-docs-site.vercel.app/components/placeholders)
+
+## Companion packages
+
+Optional, separately-installed JavaScript components — each has full install/API/usage docs on its own page:
+[All packages](https://strata-css-docs-site.vercel.app/packages), [Chart](https://strata-css-docs-site.vercel.app/packages/chart) (Three.js 2D/3D charts), [Shopmap](https://strata-css-docs-site.vercel.app/packages/shopmap) (MapLibre GL shop-location maps), [Modal](https://strata-css-docs-site.vercel.app/packages/modal), [Forms](https://strata-css-docs-site.vercel.app/packages/forms) (custom select), [Picker](https://strata-css-docs-site.vercel.app/packages/picker) (date/time), [Offcanvas](https://strata-css-docs-site.vercel.app/packages/offcanvas), [Flipbook](https://strata-css-docs-site.vercel.app/packages/flipbook), [Skeleton Loader](https://strata-css-docs-site.vercel.app/packages/skeleton-loader)
+
+## Other
+
+- [FAQ](https://strata-css-docs-site.vercel.app/#faq): common questions, answered directly
+- [Changelog](https://strata-css-docs-site.vercel.app/policies/changelog): every released version, in order
+- [Source on GitHub](https://github.com/AftabIbrahimKazi/strata)
+- [Package on npm](https://www.npmjs.com/package/strata-css)
+- [Full sitemap](https://strata-css-docs-site.vercel.app/sitemap.xml)
+
+## License
+
+MIT. Free for commercial and personal use, by Aftab Ibrahim Kazi ([GitHub](https://github.com/AftabIbrahimKazi)).
