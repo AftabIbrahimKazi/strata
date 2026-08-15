@@ -9,6 +9,7 @@ import "../styles/components/packages-carousel.css";
 import "../styles/components/whats-new-chip.css";
 import "../styles/components/ecosystem.css";
 import "../styles/components/roadmap-status.css";
+import "../styles/components/docs-eyebrow.css";
 import BackToTop from "@/components/BackToTop";
 
 const SITE_URL = "https://strata-css-docs-site.vercel.app";
