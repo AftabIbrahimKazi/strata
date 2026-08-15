@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import Callout from "@/components/Callout";
+
+export const metadata: Metadata = {
+  title: "Versioning & Contributing Guide",
+  description: "Strata CSS's MAJOR.FEATURE.BUGFIX versioning rules and how commits map to version bumps.",
+  alternates: { canonical: "/guides/versioning" },
+};
 
 export default function VersioningPage() {
   return (

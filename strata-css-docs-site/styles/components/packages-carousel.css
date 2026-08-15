@@ -1,32 +1,121 @@
 /* ============================================================
    Companion Packages carousel — Swiper (installed as a local
-   dependency, not loaded from a CDN) with the "cards" effect: one
-   flat, straight-on card at a time with the next one peeking
-   behind it — not a 3D-tilted coverflow. Swiper handles the
-   carousel mechanics/CSS itself (imported in PackagesCarousel.tsx);
-   this file only sizes the container and re-themes Swiper's own
-   color variables to match the site instead of its default blue.
+   dependency, not loaded from a CDN) with the "cube" effect: each
+   package's demo image rotates on a 3D cube face; details for the
+   active face show in a separate panel next to it (synced via
+   Swiper's onSlideChange in PackagesCarousel.tsx). Swiper handles
+   the carousel mechanics/CSS itself (imported in
+   PackagesCarousel.tsx); this file only sizes the cube/faces and
+   re-themes Swiper's own color variables to match the site instead
+   of its default blue.
    ============================================================ */
 
-.packages-carousel {
+.packages-cube {
   width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
-  padding: 1rem 0 3rem;
+  max-width: 320px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 3rem;
   --swiper-navigation-color: var(--st-primary);
   --swiper-pagination-color: var(--st-primary);
-  --swiper-navigation-size: 22px;
+  --swiper-navigation-size: 20px;
+  /* Negative offset pushes the prev/next chevrons outside the cube's left/
+     right edges instead of overlapping the face content — same
+     overflow:visible reasoning as the pagination offset below. */
+  --swiper-navigation-sides-offset: -44px;
+  /* Effect-cube's own CSS sets overflow:visible on this element, so
+     pushing the pagination past the box's bottom edge (into the margin
+     reserved above) renders it below the cube instead of overlaid on it. */
+  --swiper-pagination-bottom: -36px;
+  /* Swiper's inactive-bullet default is a hardcoded dark rgba, invisible
+     against a dark theme background — only the active (primary-colored)
+     bullet was visible. Tie it to the theme's own muted text color instead. */
+  --swiper-pagination-bullet-inactive-color: var(--st-text-muted);
+  --swiper-pagination-bullet-inactive-opacity: 0.5;
 }
 
-.package-icon-box {
-  width: 56px;
-  height: 56px;
+.packages-cube-face {
+  width: 100%;
+  height: 100%;
   border-radius: var(--st-border-radius);
-  display: flex;
+  background: linear-gradient(135deg, var(--st-primary) 0%, var(--st-primary-hover) 100%);
+}
+
+/* Fixed-height regions on the details panel so switching between packages
+   (different description lengths, different tech-stack badge counts)
+   never shifts the layout. */
+.pkg-desc-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 4rem;
+}
+
+.pkg-badges-row,
+.pkg-tags-row {
+  min-height: 2.75rem;
+}
+
+/* GitHub/shields.io-style badges — a two-tone "label | value" pill for the
+   version, and flat single-tone chips for tech stack + repo tags (both
+   read live from package.json — see lib/packages.ts). */
+.gh-badge {
+  display: inline-flex;
+  align-items: stretch;
+  border-radius: 3px;
+  overflow: hidden;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.gh-badge-label {
+  background: var(--st-text-muted);
+  color: var(--st-bg);
+  padding: 0 0.5rem;
+}
+
+.gh-badge-value {
+  background: var(--st-primary);
+  color: var(--st-bg);
+  padding: 0 0.5rem;
+}
+
+/* Copyable "npm i <pkg>" command shown per-package — lets a user (or the
+   AI tool they're driving) grab the exact install string without leaving
+   the carousel. */
+.install-cmd {
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-border-radius);
+  padding: 0.5rem 0.5rem 0.5rem 0.875rem;
+}
+
+.install-cmd-text {
+  font-family: var(--st-font-monospace, monospace);
+  font-size: 0.8125rem;
+  color: var(--st-text);
+  background: transparent;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.install-cmd-copy {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.gh-tag {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--st-primary) 15%, transparent);
-  border: 1px solid color-mix(in srgb, var(--st-primary) 30%, transparent);
+  border-radius: 3px;
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  color: var(--st-text-muted);
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
 }
 
 /* ============================================================
@@ -34,6 +123,10 @@
    0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
    ============================================================ */
 @media (min-width: 0px) and (max-width: 575.98px) {
+  .packages-cube {
+    max-width: 240px;
+    --swiper-navigation-sides-offset: -32px;
+  }
 }
 
 @media (min-width: 576px) and (max-width: 767.98px) {
