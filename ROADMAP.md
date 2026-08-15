@@ -9,7 +9,7 @@ Planned and candidate features. Not commitments — items graduate to a mileston
 ### Critical CSS extraction (`critical` config option)
 
 **Status:** Idea — researched, not started
-**Value:** First-paint performance on first visit. A genuine differentiator — Tailwind has no built-in equivalent.
+**Value:** First-paint performance on first visit. Design details (fold detection, layer integrity, CSP support) are still in the planning stage.
 
 The browser blocks painting until all `<head>` CSS is downloaded. On a first visit the user waits for the full `strata.output.css` even though painting the above-the-fold content (header, hero) needs only a few KB of it.
 
@@ -41,14 +41,14 @@ All ~4,000 `reg()` calls execute at `require()` time (~40ms — the largest cold
 
 ---
 
-### `fs-*` named font-size scale
+### Native browser popup primitives (`<dialog>`, Popover API)
 
-**Status:** Deferred (from BeautyBook findings)
-**Value:** Bootstrap-parity `fs-1` through `fs-6` named classes. Arbitrary `fs-[...]` already shipped in 1.3.0.
+**Status:** Idea — not started
+**Value:** Modal, popover, and offcanvas packages currently roll their own show/hide, backdrop, and focus handling via `data-st-visible`/`data-st-backdrop` and custom JS. Browsers now ship this natively (`<dialog>`/`showModal()`, `::backdrop`, and the `popover`/`popovertarget` attributes) — adopting them means less JS to ship and better default accessibility, and covers the offcanvas slide-in-drawer case just as well as centered modals. Planned as a `@strata-packages/modal`, `@strata-packages/offcanvas`, and CSS update in the near future.
 
 ---
 
-### Flipbook 3D renderer (`renderer: '3d'`)
+### Flipbook: richer animation and native rendering
 
-**Status:** Reserved in API — accepted but ignored
-**Value:** True geometric page bend via Three.js/WebGL, replacing the CSS cylindrical-shading illusion. Public API stays identical.
+**Status:** Reserved in API — accepted but ignored (`renderer: '3d'`)
+**Value:** The current flipbook covers the basics well but isn't top-notch yet. Coming versions aim for noticeably better animation quality and more native rendering options, starting with a true geometric page bend via Three.js/WebGL (`renderer: '3d'`) replacing the CSS cylindrical-shading illusion — public API stays identical.

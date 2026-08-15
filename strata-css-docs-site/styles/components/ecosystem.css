@@ -1,0 +1,50 @@
+/* ============================================================
+   Ecosystem section — static square tool-logo tiles on the left
+   (branding only, not interactive); real Socket score rings on the
+   right (see Ecosystem.tsx for what's live-fetched vs. a verified
+   static snapshot, and lib/socket.ts for why the fetch works).
+   ============================================================ */
+
+.tool-logo-square {
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-border-radius);
+  background: var(--st-bg-secondary);
+}
+
+/* Dark backdrop scoped to just the ring, matching Socket's own report-page
+   ring style — not a bordered card around the section. */
+.score-ring-chip {
+  background: #1a1d1f;
+  border-radius: 999px;
+  padding: 0.5rem;
+}
+
+.score-ring-label {
+  color: var(--st-text-muted);
+  font-size: 0.8125rem;
+  max-width: 7rem;
+}
+
+/* ============================================================
+   Responsive overrides — range-based breakpoints only.
+   0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
+   ============================================================ */
+@media (min-width: 0px) and (max-width: 575.98px) {
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+}
+
+@media (min-width: 1400px) {
+}

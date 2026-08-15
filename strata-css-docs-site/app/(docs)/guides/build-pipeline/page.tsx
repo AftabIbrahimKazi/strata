@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Build Pipeline Guide",
+  description: "How Strata's JIT build pipeline scans, looks up, and generates only the CSS your project actually uses.",
+  alternates: { canonical: "/guides/build-pipeline" },
+};
+
 export default function BuildPipelinePage() {
   return (
     <div>
