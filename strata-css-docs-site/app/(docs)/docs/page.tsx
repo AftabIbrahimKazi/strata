@@ -54,7 +54,7 @@ const NEXT_STEPS = [
 
 export default function DocsHome() {
   return (
-    <div className="prose-links">
+    <div>
       <span className="docs-eyebrow mb-3">Introduction</span>
       <h1 className="fw-bold mb-3">Welcome to Strata CSS</h1>
       <p className="text-muted mb-4">
@@ -91,53 +91,55 @@ export default function DocsHome() {
         ))}
       </div>
 
-      <h2 className="mb-3">Why layers?</h2>
-      <p className="mb-3">
-        Utility classes are convenient but notoriously hard to override predictably — the last
-        rule in source order usually wins, not the one you actually meant. Strata sidesteps
-        that by generating everything into native CSS cascade layers: base tokens, then
-        components, then utilities, each split further by breakpoint. A utility always beats a
-        component at the same breakpoint, and a higher breakpoint always beats a lower one —
-        regardless of the order classes appear in your HTML. You stop fighting specificity and
-        start relying on it.
-      </p>
-      <p className="mb-5">
-        Combined with JIT scanning — Strata only emits CSS for classes it actually finds in
-        your source, no purge step, no unused utility bloat — you get the ergonomics of a
-        utility-first workflow with the predictability of a component library.
-      </p>
+      <div className="prose-links">
+        <h2 className="mb-3">Why layers?</h2>
+        <p className="mb-3">
+          Utility classes are convenient but notoriously hard to override predictably — the last
+          rule in source order usually wins, not the one you actually meant. Strata sidesteps
+          that by generating everything into native CSS cascade layers: base tokens, then
+          components, then utilities, each split further by breakpoint. A utility always beats a
+          component at the same breakpoint, and a higher breakpoint always beats a lower one —
+          regardless of the order classes appear in your HTML. You stop fighting specificity and
+          start relying on it.
+        </p>
+        <p className="mb-5">
+          Combined with JIT scanning — Strata only emits CSS for classes it actually finds in
+          your source, no purge step, no unused utility bloat — you get the ergonomics of a
+          utility-first workflow with the predictability of a component library.
+        </p>
 
-      <h2 className="mb-3">Quick start</h2>
-      <p className="mb-3">Install it:</p>
-      <CodeBlock code={`npm install strata-css`} lang="bash" />
+        <h2 className="mb-3">Quick start</h2>
+        <p className="mb-3">Install it:</p>
+        <CodeBlock code={`npm install strata-css`} lang="bash" />
 
-      <p className="mt-4 mb-3">
-        Then run the interactive installer — it detects your framework (Next.js, Astro, Nuxt,
-        SvelteKit, Laravel, Vite) and writes the entry CSS file, config, and build scripts for
-        you:
-      </p>
-      <CodeBlock code={`npx strata-css init`} lang="bash" />
+        <p className="mt-4 mb-3">
+          Then run the interactive installer — it detects your framework (Next.js, Astro, Nuxt,
+          SvelteKit, Laravel, Vite) and writes the entry CSS file, config, and build scripts for
+          you:
+        </p>
+        <CodeBlock code={`npx strata-css init`} lang="bash" />
 
-      <p className="mt-4 mb-3">
-        Or wire it up by hand — add the three directives to an entry CSS file yourself. Strata
-        replaces these with generated CSS at build time:
-      </p>
-      <CodeBlock lang="css" code={`@strata base;\n@strata components;\n@strata utilities;`} />
+        <p className="mt-4 mb-3">
+          Or wire it up by hand — add the three directives to an entry CSS file yourself. Strata
+          replaces these with generated CSS at build time:
+        </p>
+        <CodeBlock lang="css" code={`@strata base;\n@strata components;\n@strata utilities;`} />
 
-      <p className="mt-4 mb-3">Use classes directly in your markup, no build step required to see them in your editor:</p>
-      <CodeBlock
-        lang="html"
-        code={`<button class="btn-primary px-4 py-2 rounded-pill shadow-sm">\n  Get Started\n</button>`}
-      />
+        <p className="mt-4 mb-3">Use classes directly in your markup, no build step required to see them in your editor:</p>
+        <CodeBlock
+          lang="html"
+          code={`<button class="btn-primary px-4 py-2 rounded-pill shadow-sm">\n  Get Started\n</button>`}
+        />
 
-      <p className="mt-4 mb-5">
-        Then build — Strata scans your files and generates only the CSS those classes need:
-      </p>
-      <CodeBlock code={`npx strata-css --build`} lang="bash" />
-      <p className="mt-3 mb-5">
-        The full <a href="/guides/installation">Installation guide</a> covers what{" "}
-        <code>init</code> does under the hood, broken down by framework.
-      </p>
+        <p className="mt-4 mb-5">
+          Then build — Strata scans your files and generates only the CSS those classes need:
+        </p>
+        <CodeBlock code={`npx strata-css --build`} lang="bash" />
+        <p className="mt-3 mb-5">
+          The full <a href="/guides/installation">Installation guide</a> covers what{" "}
+          <code>init</code> does under the hood, broken down by framework.
+        </p>
+      </div>
 
       <h2 className="mb-3">Where to go next</h2>
       <div className="row g-3">
