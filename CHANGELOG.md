@@ -2,6 +2,11 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.8.17] — 2026-08-16
+
+### Fixed
+- **`package.json`'s `homepage` field pointed at a dead URL.** Still referenced `https://aftabibrahimkazi.github.io/strata`, the old GitHub Pages address from before the docs site moved to Vercel — that URL now returns a genuine 404 (confirmed via a live fetch), so anyone following the "homepage" link from the npm package page landed on a dead page. Updated to the current docs site URL.
+
 ## [1.8.16] — 2026-08-16
 
 ### Fixed
