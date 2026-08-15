@@ -2,6 +2,11 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [1.8.16] — 2026-08-16
+
+### Fixed
+- **`shadow-sm` and `shadow-lg` silently stopped applying their own shadow strength.** The responsive shadow registration built class names as `shadow-${breakpoint}` for every entry in the breakpoint list (`sm`, `md`, `lg`, `xl`, `xxl`). Since `sm` and `lg` are also the named shadow scale's own suffixes, that produced class names identical to the base `shadow-sm`/`shadow-lg` classes — and because registration is last-write-wins, the responsive loop (which runs later) silently overwrote both with "default-strength shadow, active from that breakpoint up" instead. `shadow-sm`, `shadow`, and `shadow-lg` rendered as the exact same shadow. The documented `shadow-{bp}-{variant}` responsive pattern (`shadow-md-sm`, `shadow-lg-lg`, …) was unaffected and still correct. Fixed by dropping the undocumented bare `shadow-${bp}` registration entirely.
+
 ## [1.8.15] — 2026-08-12
 
 ### Fixed
