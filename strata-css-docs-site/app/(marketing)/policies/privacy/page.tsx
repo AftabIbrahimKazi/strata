@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "This site collects no personal data and uses no tracking cookies or third-party analytics.",
+  alternates: { canonical: "/policies/privacy" },
+};
+
 export default function PrivacyPage() {
   return (
     <div className="container py-5 max-w-[720px] prose-links">
