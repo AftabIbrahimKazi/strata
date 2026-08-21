@@ -1,0 +1,18 @@
+/* ============================================================
+   What's New carousel (homepage) — Swiper, single slide per view,
+   autoplay with a short delay, looping. Re-themes Swiper's pagination
+   color variables to match the site instead of its default blue,
+   same approach as packages-carousel.css.
+   ============================================================ */
+
+.whats-new-swiper {
+  --swiper-pagination-color: var(--st-primary);
+  --swiper-pagination-bullet-inactive-color: var(--st-text-muted);
+  --swiper-pagination-bullet-inactive-opacity: 0.5;
+  padding-bottom: 2.5rem;
+}
+
+.whats-new-slide {
+  min-height: 11rem;
+  background: var(--st-bg-secondary);
+}
