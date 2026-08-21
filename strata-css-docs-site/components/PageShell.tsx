@@ -7,9 +7,9 @@ export default function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Header />
-      <div className="d-flex flex-fill">
+      <div className="d-flex flex-fill min-w-0">
         <Sidebar />
-        <main className="flex-fill p-4 max-w-[840px]">
+        <main className="flex-fill min-w-0 p-4 max-w-[840px] overflow-x-auto">
           {children}
           <DocsPrevNext />
         </main>
