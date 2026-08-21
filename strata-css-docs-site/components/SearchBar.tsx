@@ -66,7 +66,7 @@ export default function SearchBar() {
         type="search"
         placeholder="Search documentation..."
         aria-label="Search documentation"
-        className="form-control"
+        className="form-control search-input pe-[2rem]"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
@@ -79,11 +79,26 @@ export default function SearchBar() {
         aria-controls="search-results"
         autoComplete="off"
       />
+      {query && (
+        <button
+          type="button"
+          aria-label="Clear search"
+          className="search-clear-btn position-absolute border-0 bg-transparent d-flex align-items-center justify-content-center"
+          onClick={() => {
+            setQuery("");
+            setOpen(false);
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
+      )}
       {open && results.length > 0 && (
         <ul
           id="search-results"
           role="listbox"
-          className="list-unstyled position-absolute bg-body border rounded shadow-lg w-[320px] p-1 overflow-y-auto max-h-[360px]"
+          className="list-unstyled position-absolute bg-body-secondary border rounded shadow-lg w-[320px] p-1 overflow-y-auto max-h-[360px]"
           style={{ top: "calc(100% + 4px)", left: 0, zIndex: 1050 }}
         >
           {results.map((entry, i) => (
@@ -92,8 +107,8 @@ export default function SearchBar() {
                 type="button"
                 role="option"
                 aria-selected={i === activeIndex}
-                className="d-block w-100 text-start p-2 rounded border-0 bg-transparent"
-                style={i === activeIndex ? { background: "var(--st-bg-secondary)" } : undefined}
+                className="d-block w-100 text-start p-2 rounded border-0 bg-transparent search-result-item"
+                data-active={i === activeIndex}
                 onMouseEnter={() => setActiveIndex(i)}
                 onClick={() => goTo(entry.href)}
               >
