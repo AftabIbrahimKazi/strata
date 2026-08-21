@@ -1,12 +1,14 @@
 import Hero from "@/components/marketing/Hero";
 import Introduction from "@/components/marketing/Introduction";
 import PackagesGrid from "@/components/marketing/PackagesGrid";
+import WhatsNew from "@/components/marketing/WhatsNew";
 import Roadmap from "@/components/marketing/Roadmap";
 import Ecosystem from "@/components/marketing/Ecosystem";
 import LiveStats from "@/components/marketing/LiveStats";
 import Faq from "@/components/marketing/Faq";
 import { FAQS } from "@/content/faq";
 import { getLatestVersionInfo } from "@/lib/npm";
+import { getLatestFeatures } from "@/lib/whatsNew";
 
 const AUTHOR = {
   "@type": "Person",
@@ -20,6 +22,7 @@ const AUTHOR = {
 
 export default async function Landing() {
   const versionInfo = await getLatestVersionInfo("strata-css");
+  const latestFeatures = getLatestFeatures();
 
   const softwareJsonLd = {
     "@context": "https://schema.org",
@@ -72,6 +75,7 @@ export default async function Landing() {
       <Hero />
       <Introduction />
       <PackagesGrid />
+      <WhatsNew items={latestFeatures} />
       <Roadmap />
       <Ecosystem />
       <LiveStats />
