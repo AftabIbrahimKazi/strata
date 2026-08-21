@@ -169,6 +169,66 @@
   animation: docs-demo-shake 0.25s var(--st-easing);
 }
 
+/* Search bar — the native type="search" decorations (the round "x" clear
+   button, in particular) render in the browser's own blue/gray, not the
+   theme palette, and can't be recolored with CSS. Hidden here in favor of
+   a themed SVG button rendered by SearchBar.tsx. */
+.search-input::-webkit-search-decoration,
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-results-button,
+.search-input::-webkit-search-results-decoration {
+  display: none;
+  appearance: none;
+}
+
+.search-clear-btn {
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  color: var(--st-text-muted);
+  border-radius: var(--st-border-radius, 6px);
+}
+
+.search-clear-btn:hover {
+  color: var(--st-text);
+  background: var(--st-bg-secondary);
+}
+
+.search-result-item[data-active="true"] {
+  background: color-mix(in srgb, var(--st-primary) 15%, transparent);
+}
+
+/* Themed scrollbar — follows --st-bg-secondary/--st-border/--st-text-muted,
+   so it re-colors automatically on theme switch (light/dark/dim). Firefox
+   uses the two-color `scrollbar-color` shorthand; WebKit/Blink need the
+   pseudo-element rules since they ignore that property. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--st-text-muted) var(--st-bg-secondary);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--st-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--st-text-muted);
+  border-radius: var(--st-border-radius, 6px);
+  border: 2px solid var(--st-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--st-secondary);
+}
+
 /* ============================================================
    Responsive overrides — range-based breakpoints only.
    0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
