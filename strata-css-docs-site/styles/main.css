@@ -169,6 +169,15 @@
   animation: docs-demo-shake 0.25s var(--st-easing);
 }
 
+/* strata-css's button reset (src/layers/base.js) doesn't set color:
+   inherit, so any plain <button> falls back to the browser/OS default
+   text color (usually black) regardless of theme. Fixed upstream for
+   the next strata-css release; overridden locally here in the meantime
+   so custom buttons (search results, etc.) aren't stuck black in dark/dim. */
+button {
+  color: inherit;
+}
+
 /* Search bar — the native type="search" decorations (the round "x" clear
    button, in particular) render in the browser's own blue/gray, not the
    theme palette, and can't be recolored with CSS. Hidden here in favor of
