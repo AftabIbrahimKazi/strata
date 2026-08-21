@@ -62,6 +62,18 @@
   left: 0%;
 }
 
+/* Markdown-rendered tables (package README content, rendered via
+   dangerouslySetInnerHTML into .prose-links — see lib/markdown.ts) have
+   no JSX wrapper to hang the hand-written .table-responsive class on, so
+   a wide table (e.g. packages/shopmap's README) blows out the page's
+   horizontal width instead of scrolling internally. display:block lets
+   the table itself become the scroll container. */
+.prose-links table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 /* Secondary buttons — adapted from a Uiverse.io design (by Dhananjoy43):
    gradient fill + pulse ring on hover. Overrides Strata's
    .btn-outline-secondary registry class — every button using that class
