@@ -251,6 +251,7 @@ const BASE_CSS = `
     border: none;
     background: none;
     font-family: inherit;
+    color: inherit;
   }
 
   label {
