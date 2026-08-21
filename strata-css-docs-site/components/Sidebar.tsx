@@ -22,7 +22,7 @@ function NavGroup({ heading, items, base }: { heading: string; items: { slug: st
 
 export default function Sidebar() {
   return (
-    <aside className="d-none d-lg-block w-[240px] flex-shrink-0 border-end p-3 overflow-y-auto position-sticky top-0 min-vh-100">
+    <aside className="d-none d-lg-block w-[240px] flex-shrink-0 border-end p-3 overflow-y-auto position-sticky top-0 h-[100vh]">
       <div className="mb-4">
         <Link href="/docs" className="text-link fw-semibold d-block py-1">
           Introduction

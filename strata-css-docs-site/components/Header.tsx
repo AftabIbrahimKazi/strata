@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
+import SearchBar from "./SearchBar";
 
 const NEAR_TOP_THRESHOLD = 120;
 // Once the header is translated off-screen, it has nothing left under the
@@ -65,14 +66,7 @@ export default function Header() {
       </div>
 
       <div className="d-flex align-items-center gap-3">
-        <div className="d-none d-md-flex max-w-[420px]">
-          <input
-            type="search"
-            placeholder="Search documentation..."
-            aria-label="Search documentation"
-            className="form-control"
-          />
-        </div>
+        <SearchBar />
         <a
           href="https://github.com/AftabIbrahimKazi/strata"
           target="_blank"
