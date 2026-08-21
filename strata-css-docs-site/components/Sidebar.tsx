@@ -10,7 +10,7 @@ function NavGroup({ heading, items, base }: { heading: string; items: { slug: st
       <ul className="list-unstyled">
         {items.map((item) => (
           <li key={item.slug} className="mb-1">
-            <Link href={`/${base}/${item.slug}`} className="text-link d-block py-1">
+            <Link href={`/${base}/${item.slug}`} className="text-link d-block py-1" prefetch={false}>
               {item.title}
             </Link>
           </li>
@@ -24,7 +24,7 @@ export default function Sidebar() {
   return (
     <aside className="d-none d-lg-block w-[240px] flex-shrink-0 border-end p-3 overflow-y-auto position-sticky top-0 h-[100vh]">
       <div className="mb-4">
-        <Link href="/docs" className="text-link fw-semibold d-block py-1">
+        <Link href="/docs" className="text-link fw-semibold d-block py-1" prefetch={false}>
           Introduction
         </Link>
       </div>
