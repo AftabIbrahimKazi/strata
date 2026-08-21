@@ -53,6 +53,22 @@ All ~4,000 `reg()` calls execute at `require()` time (~40ms — the largest cold
 **Status:** Idea — not started
 **Value:** A free, local-only language server (à la PHP Intelephense) giving autocomplete, hover docs, and "this class doesn't exist" diagnostics for Strata class names in any editor via LSP — plus a compact machine-readable class manifest generated from the registry so AI assistants can look up real classes instead of guessing, hallucinating less and burning fewer tokens. Runs entirely on the user's machine; no hosted backend, no cost to ship or maintain beyond build time.
 
+### Premade components showcase page
+
+**Status:** Idea — not started
+**Value:** A dedicated site section demonstrating ready-made component compositions — real UI patterns built from Strata utilities/components — so visitors can see what's possible and start from a finished example instead of primitives.
+
+### Drag-and-drop component library
+
+**Status:** Idea — not started
+**Value:** A companion library of premade components that drop straight into a project, saving assembly time beyond copy-pasting individual classes. Builds on the showcase page's examples.
+
+### Premade themes
+
+**Status:** Idea — not started
+**Value:** Ready-made visual themes for Strata projects — swappable token sets beyond the built-in light/dark/dim presets.
+**Note (internal — not for public site):** Planned as a paid offering. Reminder to self: do not mention monetization on the marketing site's roadmap section; this line stays out of the `**Value:**` field on purpose so the public parser never surfaces it.
+
 ### Flipbook: richer animation and native rendering
 
 **Status:** Reserved in API — accepted but ignored (`renderer: '3d'`)
