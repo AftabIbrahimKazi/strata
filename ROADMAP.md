@@ -48,6 +48,11 @@ All ~4,000 `reg()` calls execute at `require()` time (~40ms — the largest cold
 
 ---
 
+### Editor extension (IntelliSense for Strata classes)
+
+**Status:** Idea — not started
+**Value:** A free, local-only language server (à la PHP Intelephense) giving autocomplete, hover docs, and "this class doesn't exist" diagnostics for Strata class names in any editor via LSP — plus a compact machine-readable class manifest generated from the registry so AI assistants can look up real classes instead of guessing, hallucinating less and burning fewer tokens. Runs entirely on the user's machine; no hosted backend, no cost to ship or maintain beyond build time.
+
 ### Flipbook: richer animation and native rendering
 
 **Status:** Reserved in API — accepted but ignored (`renderer: '3d'`)
