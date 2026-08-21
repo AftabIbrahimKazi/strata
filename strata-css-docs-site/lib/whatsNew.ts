@@ -1,0 +1,53 @@
+import fs from "node:fs";
+import path from "node:path";
+
+export type WhatsNewItem = { version: string; date: string; title: string; description: string };
+
+const BRIEF_LENGTH = 160;
+
+// Reads the repo root's CHANGELOG.md at build time (same static-file pattern
+// as lib/roadmap.ts) and surfaces the 3 most recent "### Added" bullets —
+// i.e. actual new features, not Fixed/Security/Docs/Tests entries — across
+// versions, newest first. Adding a new "### Added" bullet to the top of
+// CHANGELOG.md is the only thing needed to update this section; no code
+// change required.
+export function getLatestFeatures(count = 3): WhatsNewItem[] {
+  const changelogPath = path.join(/* turbopackIgnore: true */ process.cwd(), "..", "CHANGELOG.md");
+  let raw: string;
+  try {
+    raw = fs.readFileSync(changelogPath, "utf8");
+  } catch {
+    return [];
+  }
+
+  const versionMatches = [...raw.matchAll(/^## \[(.+?)\] — (.+)$/gm)];
+  const items: WhatsNewItem[] = [];
+
+  for (let i = 0; i < versionMatches.length && items.length < count; i++) {
+    const version = versionMatches[i][1];
+    const date = versionMatches[i][2];
+    const start = versionMatches[i].index ?? 0;
+    const end = versionMatches[i + 1]?.index ?? raw.length;
+    const block = raw.slice(start, end);
+
+    const addedMatch = block.match(/^### Added.*$([\s\S]*?)(?=^### |\n---|$(?![\s\S]))/m);
+    if (!addedMatch) continue;
+
+    const bullets = addedMatch[1].split(/\n(?=- )/).map((b) => b.trim()).filter(Boolean);
+
+    for (const bullet of bullets) {
+      if (items.length >= count) break;
+      const firstLine = bullet.replace(/^- /, "").split("\n")[0].trim();
+      const titleMatch = firstLine.match(/\*\*(.+?)\*\*/);
+      const title = titleMatch ? titleMatch[1].replace(/`/g, "") : firstLine.slice(0, 60);
+      let description = firstLine.replace(/\*\*(.+?)\*\*/, "").replace(/`/g, "").trim();
+      description = description.replace(/^[.\s-]+/, "");
+      if (description.length > BRIEF_LENGTH) {
+        description = description.slice(0, BRIEF_LENGTH).replace(/\s+\S*$/, "") + "…";
+      }
+      items.push({ version, date, title, description });
+    }
+  }
+
+  return items;
+}
