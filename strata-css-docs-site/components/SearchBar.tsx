@@ -62,7 +62,7 @@ export default function SearchBar({ variant = "desktop" }: { variant?: "desktop"
 
   return (
     <div
-      className={`${variant === "desktop" ? "d-none d-md-flex" : "d-flex w-100"} max-w-[420px] position-relative`}
+      className={`${variant === "desktop" ? "d-none d-lg-flex" : "d-flex w-100"} max-w-[420px] position-relative`}
       ref={containerRef}
     >
       <input

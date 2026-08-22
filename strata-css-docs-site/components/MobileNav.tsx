@@ -8,6 +8,13 @@ import SearchBar from "./SearchBar";
 
 type OffcanvasApi = { open: (selector: string) => void; close: () => void };
 
+function blurIfInsideDrawer() {
+  const active = document.activeElement;
+  if (active instanceof HTMLElement && active.closest("#mobile-nav-drawer")) {
+    active.blur();
+  }
+}
+
 export default function MobileNav() {
   const pathname = usePathname();
   const apiRef = useRef<OffcanvasApi | null>(null);
@@ -35,8 +42,36 @@ export default function MobileNav() {
   }, []);
 
   useEffect(() => {
+    blurIfInsideDrawer();
     apiRef.current?.close();
   }, [pathname]);
+
+  // The package sets aria-hidden="true" on the drawer the instant it closes —
+  // dismiss click, backdrop click, or Escape — without first blurring
+  // whatever inside it currently has focus (usually the element that
+  // triggered the close). Browsers block aria-hidden while a focused
+  // descendant remains, logging "Blocked aria-hidden..." and leaving the
+  // drawer exposed to assistive tech. Capture-phase listeners run before the
+  // package's own bubble-phase ones for the same event, so blurring here
+  // always lands first — covering all three close paths, including the
+  // backdrop element the package appends outside our React tree.
+  useEffect(() => {
+    function onClickCapture(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-st-dismiss="offcanvas"]') || target.classList?.contains("offcanvas-backdrop")) {
+        blurIfInsideDrawer();
+      }
+    }
+    function onKeyDownCapture(e: KeyboardEvent) {
+      if (e.key === "Escape") blurIfInsideDrawer();
+    }
+    document.addEventListener("click", onClickCapture, true);
+    document.addEventListener("keydown", onKeyDownCapture, true);
+    return () => {
+      document.removeEventListener("click", onClickCapture, true);
+      document.removeEventListener("keydown", onKeyDownCapture, true);
+    };
+  }, []);
 
   return (
     <>
