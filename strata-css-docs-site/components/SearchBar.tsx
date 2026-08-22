@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { docNav } from "@/lib/docNav";
 
-export default function SearchBar() {
+export default function SearchBar({ variant = "desktop" }: { variant?: "desktop" | "mobile" }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -61,7 +61,10 @@ export default function SearchBar() {
   }
 
   return (
-    <div className="d-none d-md-flex max-w-[420px] position-relative" ref={containerRef}>
+    <div
+      className={`${variant === "desktop" ? "d-none d-md-flex" : "d-flex w-100"} max-w-[420px] position-relative`}
+      ref={containerRef}
+    >
       <input
         type="search"
         placeholder="Search documentation..."
