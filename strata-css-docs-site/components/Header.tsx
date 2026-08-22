@@ -5,6 +5,7 @@ import Link from "next/link";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 import SearchBar from "./SearchBar";
+import MobileNav from "./MobileNav";
 
 const NEAR_TOP_THRESHOLD = 120;
 // Once the header is translated off-screen, it has nothing left under the
@@ -44,6 +45,7 @@ export default function Header() {
       onMouseLeave={() => setHovered(false)}
     >
       <div className="d-flex align-items-center gap-4">
+        <MobileNav />
         <Link href="/" className="navbar-brand fw-bold text-decoration-none d-flex align-items-center gap-2">
           <Logo />
           strata
