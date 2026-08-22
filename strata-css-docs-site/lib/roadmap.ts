@@ -3,18 +3,26 @@ import path from "node:path";
 
 export type RoadmapItem = { title: string; value: string };
 
-// Reads the repo root's ROADMAP.md at build time (fs.readFileSync runs during
-// `next build`, which has the full repo checked out — not a runtime fetch,
-// so this works fine even though Vercel's deployed function only ships
-// strata-css-docs-site/). Only the "### Heading" + "**Value:**" line are
-// public-appropriate; the rest (Status, design questions) is contributor-facing.
+// Reads the repo root's ROADMAP.md, falling back to a checked-in backup copy
+// inside this project when ISR re-renders the page at request time on Vercel,
+// where only strata-css-docs-site/ is shipped. Only the "### Heading" +
+// "**Value:**" line are public-appropriate; the rest (Status, design
+// questions) is contributor-facing.
 export function getRoadmapItems(): RoadmapItem[] {
   const roadmapPath = path.join(/* turbopackIgnore: true */ process.cwd(), "..", "ROADMAP.md");
+  // Falls back to a checked-in copy inside the deployed project when the repo-root
+  // file isn't present — e.g. Vercel's serverless function only ships this
+  // directory, so a request-time re-render (ISR) can't reach ../ROADMAP.md.
+  const backupPath = path.join(/* turbopackIgnore: true */ process.cwd(), "content", "ROADMAP.backup.md");
   let raw: string;
   try {
     raw = fs.readFileSync(roadmapPath, "utf8");
   } catch {
-    return [];
+    try {
+      raw = fs.readFileSync(backupPath, "utf8");
+    } catch {
+      return [];
+    }
   }
 
   const items: RoadmapItem[] = [];
