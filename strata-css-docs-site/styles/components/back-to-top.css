@@ -10,7 +10,7 @@
   position: fixed;
   bottom: 72px;
   right: 24px;
-  z-index: var(--st-z-tooltip, 1060);
+  z-index: var(--st-z-fixed, 1030);
   width: 45px;
   height: 45px;
   background: linear-gradient(var(--st-primary), var(--st-primary-hover));
