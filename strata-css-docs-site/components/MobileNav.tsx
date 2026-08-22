@@ -78,7 +78,7 @@ export default function MobileNav() {
       <button
         type="button"
         aria-label="Open menu"
-        className="icon-btn d-lg-none"
+        className="icon-btn mobile-nav-toggle"
         data-st-toggle="offcanvas"
         data-st-target="#mobile-nav-drawer"
       >

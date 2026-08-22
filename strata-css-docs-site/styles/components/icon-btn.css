@@ -52,6 +52,16 @@
   height: 0px;
 }
 
+/* Strata's d-lg-none utility can't hide this: it lives in a CSS @layer, and
+   per the cascade-layers spec, unlayered rules (this file included) always
+   win over layered ones regardless of specificity or source order. So the
+   hamburger's own hide-at-desktop rule has to live here, unlayered, too. */
+@media (min-width: 992px) {
+  .mobile-nav-toggle {
+    display: none;
+  }
+}
+
 /* ============================================================
    Responsive overrides — range-based breakpoints only.
    0–575.98 / 576–767.98 / 768–991.98 / 992–1199.98 / 1200–1399.98 / 1400+
