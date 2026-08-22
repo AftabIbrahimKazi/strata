@@ -39,7 +39,7 @@ export default function Header() {
 
   return (
     <header
-      className="navbar sticky-top bg-body border-bottom p-3 d-flex align-items-center justify-content-between gap-3 header-autohide"
+      className="navbar sticky-top bg-body border-bottom p-3 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
       data-header-hidden={!visible}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
