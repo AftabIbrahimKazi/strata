@@ -52,16 +52,16 @@ export default function Header() {
         </Link>
 
         <div className="d-flex align-items-center gap-3">
-          <Link href="/docs" className="d-none d-sm-inline text-link">
+          <Link href="/docs" prefetch={false} className="d-none d-sm-inline text-link">
             Docs
           </Link>
-          <Link href="/#packages" className="d-none d-sm-inline text-link">
+          <Link href="/#packages" prefetch={false} className="d-none d-sm-inline text-link">
             Packages
           </Link>
-          <Link href="/blogs" className="d-none d-sm-inline text-link">
+          <Link href="/blogs" prefetch={false} className="d-none d-sm-inline text-link">
             Blogs
           </Link>
-          <Link href="/showcase" className="d-none d-sm-inline text-link">
+          <Link href="/showcase" prefetch={false} className="d-none d-sm-inline text-link">
             Showcase
           </Link>
         </div>
