@@ -13,11 +13,19 @@ const BRIEF_LENGTH = 160;
 // change required.
 export function getLatestFeatures(count = 3): WhatsNewItem[] {
   const changelogPath = path.join(/* turbopackIgnore: true */ process.cwd(), "..", "CHANGELOG.md");
+  // Falls back to a checked-in copy inside the deployed project when the repo-root
+  // file isn't present — e.g. Vercel's serverless function only ships this
+  // directory, so a request-time re-render (ISR) can't reach ../CHANGELOG.md.
+  const backupPath = path.join(/* turbopackIgnore: true */ process.cwd(), "content", "CHANGELOG.backup.md");
   let raw: string;
   try {
     raw = fs.readFileSync(changelogPath, "utf8");
   } catch {
-    return [];
+    try {
+      raw = fs.readFileSync(backupPath, "utf8");
+    } catch {
+      return [];
+    }
   }
 
   const versionMatches = [...raw.matchAll(/^## \[(.+?)\] — (.+)$/gm)];
