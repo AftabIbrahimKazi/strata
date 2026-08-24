@@ -21,9 +21,9 @@
 
 ---
 
-## What is Strata?
+## What is Strata CSS?
 
-Strata is an open source CSS framework that takes the best from Bootstrap and Tailwind while fixing their biggest pain points.
+Strata CSS is an open source CSS framework that takes the best from Bootstrap and Tailwind while fixing their biggest pain points.
 
 **From Bootstrap** — component-first classes (`btn-primary`, `card`, `navbar`) that work out of the box with zero configuration.
 
@@ -55,9 +55,7 @@ Results generated via `npm run benchmark`. See [`benchmark/`](./benchmark/) for 
 
 ## Live Demo
 
-View the interactive component showcase: [aftabibrahimkazi.github.io/strata](https://aftabibrahimkazi.github.io/strata)
-
-To view locally: open `docs/index.html` directly in a browser — no build step required.
+View the full documentation and interactive component showcase: [strata-css-docs-site.vercel.app](https://strata-css-docs-site.vercel.app)
 
 ---
 
