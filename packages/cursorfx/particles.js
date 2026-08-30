@@ -60,10 +60,13 @@
    * would quietly undo the whole point of splitting the package up.
    */
 
-  var registry = { origin: {}, motion: {}, render: {} }
+  var registry = Object.create(null)
+  registry.origin = Object.create(null)
+  registry.motion = Object.create(null)
+  registry.render = Object.create(null)
 
   function behaviour(axis, def) {
-    if (!registry[axis]) throw new Error('CursorFX: unknown behaviour axis "' + axis + '"')
+    if (!Object.prototype.hasOwnProperty.call(registry, axis)) throw new Error('CursorFX: unknown behaviour axis "' + axis + '"')
     if (!def || !def.name) return
     registry[axis][def.name] = def
   }
