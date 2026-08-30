@@ -2,15 +2,20 @@
 
 ## What it is
 
-Cursor effects. One shared engine plus six independent presets, each in its own
+Cursor effects. One shared engine plus nine independent presets, each in its own
 file. A project loads the core and the single preset it uses — the package is
-structured this way because nobody ships six cursor effects at once.
+structured this way because nobody ships nine cursor effects at once.
 
 ## File map
 
 ```
 cursorfx.js          The engine. Pool, RAF loop, canvas, pointer, hover hit-test.
 cursorfx.css         Global CSS: engine-owned rules + shared API attributes.
+particles.js         The particle pipeline. Emission, ageing, integration, draw.
+
+behaviours/origin/   where a particle is born     pointer, ring, edge
+behaviours/motion/   how it moves each frame      ballistic, curl
+behaviours/render/   how it is drawn each frame   dot, puff, segment
 
 presets/<name>/<name>.js     one folder per preset
 presets/<name>/<name>.css    only if that preset needs CSS
@@ -23,6 +28,7 @@ presets/<name>/<name>.css    only if that preset needs CSS
   cursor-morph/   DOM    - dot that morphs to the hovered box
   reveal/         DOM    - pointer opens a hole in the top of two stacked layers
   spark/          canvas - electric streaks off movement, clicks and target edges  (no CSS)
+  smoke/          canvas - curl-noise smoke plume off the pointer path   (no CSS)
 ```
 
 Nothing here is generated and there is no build step — `cursorfx.js` is the
@@ -228,6 +234,85 @@ avoid. Indexed by slot, a streak allocates nothing after that slot's first use.
 The shape is generated in `spawn()` and never touched again. Regenerating it in
 `render()` is the single easiest way to ruin this preset — the streaks vibrate
 and the effect reads as static. A test pins it.
+
+## The behaviour pipeline
+
+Canvas presets are recipes assembled by `particles.js` from three axes. The
+engine needed **no changes** for this: `recipe()` returns a plain preset object
+satisfying the existing contract, so `mount()` and the pool never learned that
+behaviours exist.
+
+`particles.js` is deliberately **not** part of the engine. Magnetic,
+HoverFlicker, Reveal and CursorMorph emit nothing, and a page running only those
+must never download particle machinery. A test asserts the DOM presets contain
+no reference to it.
+
+Rules that hold this together, each pinned by a test:
+
+- **No barrel module.** `behaviours/index.js` must never exist. It is the single
+  easiest way to undo the split, and the most tempting when writing a
+  convenience entry point.
+- **No behaviour imports another.** A behaviour may reach the pipeline and
+  nothing else, or one file silently drags a second into every page.
+- **`particles.js` names no behaviour.** If the pipeline knows their names the
+  registry is decorative.
+- **Every behaviour gets a per-instance scope.** Two recipes using `curl` must
+  not see each other's seeds, and Spark's three triggers each get their own
+  origin scratch space — scoped by trigger, not by origin name, because Spark
+  runs `edge` on hover and `ring` on click.
+- **A missing behaviour warns by name at mount**, listing the file to add, and
+  the recipe degrades instead of throwing sixty times a second.
+
+Two traps worth knowing:
+
+- **`render` on a recipe spec is the behaviour name, not a hook.** The extra
+  draw pass is `onRender` (ClickBurst's shock ring uses it). Reusing `render`
+  meant calling a string as a function.
+- **Life and size variance are one-sided fractions** (`lifeVary: 0.4` → 60–100%
+  of `life`). Each recipe carries the figure its hand-written version used, so
+  the refactor is visually identical rather than merely similar.
+
+**What it cost.** Measured, gzipped: a Trail-only page went 1.4 kB → 7.5 kB, and
+all four canvas presets 5.7 kB → 12.3 kB. Comments stripped, 11.2 kB of code
+became 21.2 kB. The duplication removed was ~700 bytes; generality cost more
+than it saved. This is a composability win and a size loss, and the README says
+so. Do not describe it as making the package lighter.
+
+## Smoke's shared-canvas contract
+
+Smoke is the first preset to touch `globalCompositeOperation`. It saves the
+previous value, sets `lighter`, and restores it after its own draws — the canvas
+belongs to the engine and every mounted canvas preset draws into it in mount
+order, so leaving the mode changed makes a co-mounted `Trail` or `Spark` render
+additively for reasons that are invisible in either of their files. Any future
+preset changing canvas state must save and restore it the same way, exactly as
+Trail and Spark already do for `globalAlpha`.
+
+Its per-particle field constants (`seed`, `curlStrength`) live in two arrays
+indexed by pool slot, for the reason described under Spark's jag store — the
+pool clears `data` on both acquire and release. Two parallel arrays rather than
+one array of objects, so a slot's first use is its only allocation.
+
+Smoke is also the package's first genuinely expensive preset: one
+`createRadialGradient` per live particle per frame, and it wants most of the
+global budget on its own. That cost is inherent to the look — flat fills read as
+discs, not as smoke — but it is the reason the README tells consumers to raise
+`maxParticles` and warns that pairing it with another canvas preset starves one
+of them.
+
+## Adding a behaviour
+
+1. Create `behaviours/<axis>/<name>.js`, copying the UMD wrapper from an
+   existing one — it self-registers with the pipeline in both Node and the
+   browser, and declares `axis` so a test can check it.
+2. Add it to `exports` in `package.json` (`files` already ships `behaviours`).
+3. Add it to `BEHAVIOURS` in `test/cursorfx.js`.
+4. Never import another behaviour from it, and never add an index module.
+
+An origin writes `x`, `y`, `vx`, `vy` and may write `heading`; a motion owns
+position per frame; a render owns drawing and must leave canvas state as it
+found it. Per-particle state goes in `scope.slots()`, never on the particle —
+the pool clears `data` on acquire and release.
 
 ## Adding a preset
 
