@@ -15,11 +15,11 @@ export default async function Hero() {
         </Link>
       )}
       <h1 className="fw-bold mb-3">
-        CSS that works in <span className="text-primary">layers</span> with the{" "}
+        Strata CSS — CSS that works in <span className="text-primary">layers</span> with the{" "}
         <span className="text-primary">cascade</span>.
       </h1>
       <p className="text-muted mb-4">
-        Strata is a JIT CSS framework that combines component-driven design with utility-first
+        Strata CSS is a JIT CSS framework that combines component-driven design with utility-first
         flexibility — it scans your files and generates only the CSS you actually use, no purge
         step required.
       </p>

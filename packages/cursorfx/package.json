@@ -1,0 +1,61 @@
+{
+  "name": "@strata-packages/cursorfx",
+  "version": "0.0.0",
+  "description": "Modular cursor effects \u2014 one shared engine, six opt-in presets. Works standalone or with Strata CSS.",
+  "main": "cursorfx.js",
+  "exports": {
+    ".": "./cursorfx.js",
+    "./css": "./cursorfx.css",
+    "./presets/trail": "./presets/trail/trail.js",
+    "./presets/click-burst": "./presets/click-burst/click-burst.js",
+    "./presets/electric": "./presets/electric/electric.js",
+    "./presets/magnetic": "./presets/magnetic/magnetic.js",
+    "./presets/magnetic/css": "./presets/magnetic/magnetic.css",
+    "./presets/hover-flicker": "./presets/hover-flicker/hover-flicker.js",
+    "./presets/hover-flicker/css": "./presets/hover-flicker/hover-flicker.css",
+    "./presets/cursor-morph": "./presets/cursor-morph/cursor-morph.js",
+    "./presets/cursor-morph/css": "./presets/cursor-morph/cursor-morph.css",
+    "./presets/reveal": "./presets/reveal/reveal.js",
+    "./presets/reveal/css": "./presets/reveal/reveal.css"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "cursorfx.js",
+    "cursorfx.css",
+    "presets",
+    "README.md",
+    "CHANGELOG.md",
+    "CLAUDE.md"
+  ],
+  "keywords": [
+    "cursor",
+    "cursor-effects",
+    "trail",
+    "particles",
+    "magnetic",
+    "custom-cursor",
+    "strata",
+    "strata-css"
+  ],
+  "author": "Aftab Ibrahim Kazi",
+  "license": "MIT",
+  "homepage": "https://strata-css-docs-site.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AftabIbrahimKazi/strata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AftabIbrahimKazi/strata/issues"
+  },
+  "peerDependencies": {
+    "strata-css": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "strata-css": {
+      "optional": true
+    }
+  },
+  "style": "cursorfx.css"
+}
