@@ -778,10 +778,12 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
 
 </div>
 
-<!-- strata.components.js carries the CursorFX engine. Presets are separate
-     files by design, so a real page loads only the one it mounts — this page
-     demonstrates all six, so it loads all six. -->
+<!-- CursorFX installs separately from strata-css, like flipbook and picker:
+     the CLI does not bundle it, so its engine is loaded here directly. Presets
+     are separate files by design, so a real page loads only the one it mounts —
+     this page demonstrates all seven, so it loads all seven. -->
 <script src="../dist/strata.components.js"></script>
+<script src="../packages/cursorfx/cursorfx.js"></script>
 <script src="../packages/cursorfx/presets/trail/trail.js"></script>
 <script src="../packages/cursorfx/presets/click-burst/click-burst.js"></script>
 <script src="../packages/cursorfx/presets/electric/electric.js"></script>
@@ -793,7 +795,9 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
 (function () {
   'use strict'
 
-  var FX  = Strata.CursorFX
+  // strata.components.js creates the Strata namespace, so cursorfx.js attaches
+  // there; without it the UMD registers as StrataCursorFX. Accept either.
+  var FX  = (window.Strata && window.Strata.CursorFX) || window.StrataCursorFX
   var CAP = 220
 
   // No init() call: <body data-st-cursorfx> already booted the engine and

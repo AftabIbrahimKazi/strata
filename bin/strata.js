@@ -104,7 +104,7 @@ async function build(cssMinify = false, jsMinify = true) {
   // explicitly installed should win. In this monorepo the two paths agree
   // anyway — npm workspaces symlink node_modules/@strata-packages/* to
   // packages/*, so local development resolves to the same files.
-  const COMPONENTS  = ['modal', 'offcanvas', 'skeleton-loader', 'chart', 'cursorfx']
+  const COMPONENTS  = ['modal', 'offcanvas', 'skeleton-loader', 'chart']
   const monorepoDir = path.join(__dirname, '..', 'packages')
 
   function resolveComponent(name) {

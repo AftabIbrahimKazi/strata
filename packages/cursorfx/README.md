@@ -10,9 +10,9 @@ A project uses **one** cursor effect, not six. So the engine and the presets
 ship as separate files — you load the core plus the single preset you want, and
 nothing else reaches the browser. Same idea as Swiper's modules.
 
-Nothing is bundled and there is no build step. `cursorfx.js` is the engine, and
-it doubles as the single file Strata's CLI resolves per package — so even the
-Strata path ships the engine only, never six presets you did not ask for.
+Nothing is bundled and there is no build step: `cursorfx.js` is the engine, and
+each preset is its own file, so a page ships the engine plus only what it
+mounts.
 
 ## Install
 
@@ -73,64 +73,22 @@ Preset files register themselves on `CursorFX.presets` when loaded as globals.
 Under a bundler, import the preset and pass it to `mount()` directly (or
 `CursorFX.use(Trail)` to put it on `presets` by name).
 
-## With Strata's CLI
+## With Strata
 
-`strata.components.js` carries the CursorFX **engine** when the package is
-installed. Presets stay separate — load the one you mount:
+CursorFX installs and loads separately from `strata-css`, the same as `flipbook`
+and `picker` — Strata's CLI does not bundle it. Load the engine, then the presets
+you mount:
 
 ```html
+<link rel="stylesheet" href="dist/strata.output.css">
 <script src="dist/strata.components.js"></script>
+
+<script src="node_modules/@strata-packages/cursorfx/cursorfx.js"></script>
 <script src="node_modules/@strata-packages/cursorfx/presets/trail/trail.js"></script>
-<script>
-  Strata.CursorFX.init()
-  Strata.CursorFX.mount(Strata.CursorFX.presets.Trail)
-</script>
 ```
 
-## CSS
-
-Global rules live in `core.css`; each preset that needs CSS ships it inside its
-own folder. Load the core once, then only the presets you mount:
-
-```html
-<link rel="stylesheet" href="cursorfx/cursorfx.css">
-<link rel="stylesheet" href="cursorfx/presets/magnetic/magnetic.css">
-```
-
-```js
-import '@strata-packages/cursorfx/css'
-import '@strata-packages/cursorfx/presets/magnetic/css'
-```
-
-**Trail, ClickBurst and Electric need no stylesheet at all** — they draw into the
-engine's canvas, which `cursorfx.css` styles.
-
-What sits where: `cursorfx.css` holds anything the engine owns (the canvas) or keyed
-to a shared API attribute that any preset may use (`data-cursorfx-hide-cursor`).
-Everything else lives with its preset.
-
-CursorFX is a standalone package — its CSS is not part of Strata's registry, so
-Strata does not emit these rules for you.
-
-## Hover targets
-
-Presets that react to elements read `[data-st-cfx-target]`. The value names
-which presets may react; an empty value means all of them:
-
-```html
-<button data-st-cfx-target>every mounted preset</button>
-<button data-st-cfx-target="magnetic">Magnetic only</button>
-<button data-st-cfx-target="magnetic hover-flicker">both</button>
-```
-
-Keys are the preset folder names: `trail`, `click-burst`, `electric`,
-`magnetic`, `hover-flicker`, `cursor-morph`.
-
-Change the attribute entirely with `init({ hoverSelector: '.my-target' })` — a
-selector with no `data-st-cfx-target` attribute simply opts into every preset.
-
-The engine hit-tests **once per frame** for the whole page and shares the result
-with every mounted preset, so a second preset costs no extra hit-testing.
+When Strata is on the page the engine registers as `Strata.CursorFX`; on its own
+it registers as `StrataCursorFX`. Declarative init works either way.
 
 ## Colours
 

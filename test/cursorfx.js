@@ -572,14 +572,21 @@ console.log('\n── CursorFX: shipped artefacts parse ────────
     try { new Function(entry); return true } catch { return false }
   })())
 
-  // The shipped artefact is what consumers actually load.
+  // CursorFX installs separately from strata-css, like flipbook and picker, so
+  // it must NOT be in the CLI's COMPONENTS list. Being there would bundle it
+  // into strata.components.js and, worse, warn every strata-css consumer who
+  // has not installed a package they never asked for.
+  const cli = fs.readFileSync(path.join(__dirname, '..', 'bin', 'strata.js'), 'utf8')
+  const list = /const COMPONENTS\s*=\s*\[([^\]]*)\]/.exec(cli)
+  ok('the CLI does not auto-bundle cursorfx', !!list && !list[1].includes('cursorfx'))
+
   const dist = path.join(__dirname, '..', 'dist', 'strata.components.js')
   if (fs.existsSync(dist)) {
     const built = fs.readFileSync(dist, 'utf8')
     ok('dist/strata.components.js parses after minification', (() => {
       try { new Function(built); return true } catch { return false }
     })())
-    ok('dist/strata.components.js carries CursorFX', built.includes('CursorFX'))
+    ok('dist/strata.components.js carries no CursorFX', !built.includes('CursorFX'))
   }
 }
 
