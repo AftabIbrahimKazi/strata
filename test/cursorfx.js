@@ -463,6 +463,22 @@ console.log('\n── CursorFX: colours, gradients and tokens ──────
      C.stops('var(--nope, #00ff00)')[0].join() === '0,255,0')
 
   // Commas inside rgb() and var() must not split the stop list.
+  // CodeQL flagged the original one-regex var() parser as a polynomial ReDoS:
+  // /^var\(\s*(--[\w-]+)\s*(?:,\s*([\s\S]+))?\)$/ backtracks on "var(---,"
+  // followed by many spaces. Colour values come straight from author markup,
+  // so that input is reachable. It is parsed by hand now; this pins the fix.
+  ok('var() parsing is linear, not backtracking', (() => {
+    const probe = n => {
+      const t = Date.now()
+      C.stops('var(---,' + ' '.repeat(n))
+      return Date.now() - t
+    }
+    const small = probe(30000)
+    const large = probe(120000)
+    // Quadratic blowup would be ~16x for 4x the input; allow generous headroom.
+    return large < 500 && large < (small + 1) * 8
+  })())
+
   ok('splits stops without breaking on inner commas',
      C.stops('rgb(1,2,3) var(--nope, #040506)').length === 2)
   ok('interpolates between stops',
