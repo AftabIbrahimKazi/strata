@@ -543,6 +543,24 @@ console.log('\n── CursorFX: behaviour pipeline ─────────�
      files.every(([axis, f]) =>
        pkg.exports['./behaviours/' + axis + '/' + f.replace(/\.js$/, '')]))
   ok('particles.js is exported', !!pkg.exports['./particles'])
+
+  // behaviour() is public API, so its name and axis are library input. On a
+  // plain object `registry['__proto__']` returns Object.prototype rather than
+  // undefined, so a truthiness guard passes and the assignment lands on every
+  // object in the page. Flagged by CodeQL on the first release of this file.
+  const P = require(path.join(PKG, 'particles.js'))
+  let threw = false
+  try { P.behaviour('__proto__', { name: 'x', axis: 'origin' }) } catch (e) { threw = true }
+  ok('an unknown axis is rejected, __proto__ included', threw)
+  ok('Object.prototype was not touched by the axis', ({}).x === undefined)
+
+  P.behaviour('origin', { name: '__proto__', axis: 'origin' })
+  ok('a behaviour named __proto__ is refused',
+     ({}).seed === undefined && !Object.prototype.hasOwnProperty.call({}, 'name'))
+  ok('the registry keeps a null prototype',
+     Object.getPrototypeOf(P.registry.origin) === null &&
+     Object.getPrototypeOf(P.registry.motion) === null &&
+     Object.getPrototypeOf(P.registry.render) === null)
 }
 
 {
