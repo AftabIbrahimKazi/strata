@@ -520,7 +520,7 @@
 
   var API = {
 
-    version: '0.0.0',
+    version: '0.1.1',
 
     /** Preset registry. Preset files attach themselves here on load. */
     presets: {},
