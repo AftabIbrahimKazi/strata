@@ -1,0 +1,59 @@
+/**
+ * Strata CursorFX — Global CSS
+ *
+ * Global rules only: anything the engine itself owns, and anything keyed to a
+ * shared API attribute that any preset — present or future — may rely on.
+ * Preset-specific rules live beside their preset, in presets/<name>/<name>.css.
+ *
+ * The test for this file: would a second preset that used the same attribute
+ * duplicate the rule? If yes, it belongs here.
+ *
+ * Load this once, then only the presets you actually mount:
+ *   <link rel="stylesheet" href="cursorfx/cursorfx.css">
+ *   <link rel="stylesheet" href="cursorfx/presets/magnetic/magnetic.css">
+ *
+ * Canvas presets (Trail, ClickBurst, Electric) need no stylesheet of their own —
+ * they draw into the engine's canvas, which this file styles.
+ */
+
+/* ─── Engine-owned: the shared canvas ─────────────────────────────────────
+ * One canvas serves every canvas preset. The engine creates it, sets
+ * data-st-cfx="canvas" and writes --st-cfx-z from its zIndex option; the
+ * appearance is CSS's business, so it can be overridden without !important.
+ */
+
+[data-st-cfx="canvas"] {
+  position: fixed;
+  top:  0;
+  left: 0;
+  width:  100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: var(--st-cfx-z, 2147483000);
+}
+
+/* ─── Shared API: hiding the native cursor ────────────────────────────────
+ * Set on <html> by any preset that draws its own cursor. CursorMorph uses it
+ * today; anything that replaces the pointer wants the same behaviour, so the
+ * rule is global rather than living with one preset.
+ */
+
+[data-st-cfx-cursor="hidden"],
+[data-st-cfx-cursor="hidden"] * {
+  cursor: none;
+}
+
+/* ─── Shared API: hover targets ───────────────────────────────────────────
+ * data-st-cfx-target is the one attribute authors write by hand. The engine
+ * hit-tests it once per frame and hands the result to every mounted preset.
+ *
+ * Deliberately carries no visual rule: presets that animate a target declare
+ * their own, and a global default would apply to pages running only canvas
+ * presets, which never touch the target element at all.
+ */
+
+/* ─── Reduced motion ──────────────────────────────────────────────────────
+ * The engine refuses to start its RAF loop under `reduce`, which silences
+ * every canvas preset and any preset that interpolates. Presets driven purely
+ * by CSS must neutralise themselves; each does so in its own file.
+ */

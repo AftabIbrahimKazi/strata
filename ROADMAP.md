@@ -73,3 +73,34 @@ All ~4,000 `reg()` calls execute at `require()` time (~40ms — the largest cold
 
 **Status:** Reserved in API — accepted but ignored (`renderer: '3d'`)
 **Value:** The current flipbook covers the basics well but isn't top-notch yet. Coming versions aim for noticeably better animation quality and more native rendering options, starting with a true geometric page bend via Three.js/WebGL (`renderer: '3d'`) replacing the CSS cylindrical-shading illusion — public API stays identical.
+
+### Modular sub-packages for large components (the CursorFX pattern)
+
+**Status:** Idea — candidates identified, queued behind CursorFX
+**Value:** Several packages ship every feature to every consumer. A dashboard showing only bar charts still downloads pie, line and scatter geometry; a plain styled select still downloads search filtering and multi-select. Splitting each into a small core plus opt-in modules — the structure Swiper uses, and the one `@strata-packages/cursorfx` is built on — means a project ships only the parts it actually mounts.
+
+`@strata-packages/cursorfx` establishes the pattern: a `<name>.js` engine holding
+everything shared, one folder per module holding its own JS and (only if needed)
+its own CSS, and no bundle — the entry file doubles as the single file Strata's
+CLI resolves per package. `@strata-packages/shopmap` already arrived at a similar
+shape independently, with `providers/`, `layers/` and `themes/` as separate
+directories.
+
+**Candidates, in priority order:**
+
+| Package | Size | Seam already present |
+|---|---|---|
+| `chart` | 45 KB JS | `buildBarGroup` / `buildLineGroup` / `buildPieGroup` / `buildScatterGroup`, dispatched by one `buildChartGroup(type, …)` switch. Shared core is scene setup, grid lines, text sprites, token reading, tooltip. Ships no CSS, so there is no stylesheet split to design. |
+| `flipbook` | 46 KB JS + 35 KB CSS | Optional features already gated on option flags — `sound`, `pagination`, `drag`, `exportable` — plus three CDN loaders (`pdfjsUrl`, `pdfLibUrl`, `pdfjsWorkerUrl`). Largest total win, and the only candidate with enough CSS for a per-module stylesheet split to matter. |
+| `forms` | 59 KB JS | Largest single file in the repo. `searchable`, `multi`/`multiSelect`, `group` and `tags` are documented as distinct capabilities; the common case is a plain styled select that needs none of them. |
+| `picker` | 38 KB JS | Weakest of the four. `date`/`time`/`datetime`/`month`/`year`/`range` look like modules but are more coupled — `datetime` is `date` + `time` composed, and `range` shares the calendar grid. Read the internals before committing; likely only worth a `date` + `time` core with `datetime` as composition. |
+
+**Not candidates:** `modal` (4.5 KB), `offcanvas` (4.6 KB) and `skeleton-loader`
+(8 KB) are too small and have no independent variants — splitting would add
+files and import ceremony to save a few hundred bytes.
+
+**Sequencing:** starts after CursorFX is finished. CursorFX could be restructured
+freely because it is unpublished at 0.0.0; all four candidates are published, so
+each split changes a public package shape. Plan to add module entry points
+alongside the existing monolithic entry and keep the old one working, or take a
+major version bump — decide per package before starting.
