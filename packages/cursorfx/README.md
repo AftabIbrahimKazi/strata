@@ -1,6 +1,6 @@
 # @strata-packages/cursorfx
 
-Modular cursor effects. One shared engine, six opt-in presets.
+Modular cursor effects. One shared engine, nine opt-in presets.
 
 Works standalone or with [Strata CSS](https://strata-css-docs-site.vercel.app).
 
@@ -12,7 +12,10 @@ nothing else reaches the browser. Same idea as Swiper's modules.
 
 Nothing is bundled and there is no build step: `cursorfx.js` is the engine, and
 each preset is its own file, so a page ships the engine plus only what it
-mounts.
+mounts. Canvas presets additionally need the particle pipeline and the
+behaviours they name — see [What a canvas preset needs](#what-a-canvas-preset-needs).
+Behaviours are separate files for the same reason presets are, and there is
+deliberately no barrel module collecting them.
 
 ## Install
 
@@ -27,11 +30,27 @@ integration:
 
 ```html
 <script src="node_modules/@strata-packages/cursorfx/cursorfx.js"></script>
+
+<!-- Canvas presets are built from behaviours; load the pipeline and the ones
+     Trail names, in this order. See "What a canvas preset needs" below. -->
+<script src="node_modules/@strata-packages/cursorfx/particles.js"></script>
+<script src="node_modules/@strata-packages/cursorfx/behaviours/origin/pointer.js"></script>
+<script src="node_modules/@strata-packages/cursorfx/behaviours/motion/ballistic.js"></script>
+<script src="node_modules/@strata-packages/cursorfx/behaviours/render/dot.js"></script>
+
 <script src="node_modules/@strata-packages/cursorfx/presets/trail/trail.js"></script>
 
 <body data-st-cursorfx="trail"
       data-st-cfx-trail-color="#ff2d55"
       data-st-cfx-trail-count="5">
+```
+
+**DOM presets need none of that.** `Magnetic`, `HoverFlicker`, `CursorMorph` and
+`Reveal` emit no particles, so they are the engine plus their one file:
+
+```html
+<script src="node_modules/@strata-packages/cursorfx/cursorfx.js"></script>
+<script src="node_modules/@strata-packages/cursorfx/presets/magnetic/magnetic.js"></script>
 ```
 
 Options are the ones documented below, written in kebab-case — `hoverBoost`
@@ -63,7 +82,12 @@ Everything above is available imperatively when you want runtime control:
 
 ```js
 import CursorFX from '@strata-packages/cursorfx'
-import Trail    from '@strata-packages/cursorfx/presets/trail'
+
+// Canvas presets: the behaviours register themselves on import.
+import '@strata-packages/cursorfx/behaviours/origin/pointer'
+import '@strata-packages/cursorfx/behaviours/motion/ballistic'
+import '@strata-packages/cursorfx/behaviours/render/dot'
+import Trail from '@strata-packages/cursorfx/presets/trail'
 
 CursorFX.init()
 const trail = CursorFX.mount(Trail, { color: '#ff2d55' })
@@ -138,6 +162,56 @@ take a single colour — both default to `currentColor`.
 Every other option can reference a token too:
 `data-st-cfx-trail-count="var(--fx-density)"` is resolved before it is coerced.
 
+## What a canvas preset needs
+
+The five canvas presets are **recipes**: an origin, a motion and a render, each
+its own file, sharing one pipeline. Load `particles.js` plus the behaviours your
+preset names, then the preset. Order matters — the pipeline first, behaviours
+next, the recipe last.
+
+| Preset | origin | motion | render |
+|---|---|---|---|
+| `Trail` | `pointer` | `ballistic` | `dot` |
+| `ClickBurst` | `ring` | `ballistic` | `dot` |
+| `Spark` | `pointer`, `ring`, `edge` | `ballistic` | `segment` |
+| `Smoke` | `pointer` | `curl` | `puff` |
+| `Electric` | — | — | — (draws arcs, emits no particles) |
+
+A recipe naming a behaviour that is not loaded warns in the console with the
+exact file to add, rather than rendering nothing.
+
+`Magnetic`, `HoverFlicker`, `CursorMorph` and `Reveal` are DOM effects and load
+none of this.
+
+## Composing your own
+
+Combine the same behaviours differently and you get effects nothing ships — no
+new file, no new preset:
+
+```js
+const turbulent = CursorFX.particles.recipe({
+  name: 'Turbulent', key: 'turbulent',
+  motion: 'curl',        // Smoke's motion…
+  render: 'segment',     // …driving Spark's shape
+  emit: { move: { origin: 'pointer', mode: 'fixed' } },
+  defaults: { color: '#7df9ff', count: 4, life: 0.8, size: 7 }
+})
+CursorFX.mount(turbulent)
+```
+
+`mode` is how a move emits: `fixed` (n per move), `distance` (one per `rate` px
+travelled, capped at `count`) or `chance` (probability `speed / speedGate`).
+Triggers are `move`, `click` and `hover`, and one recipe may use all three with
+a different origin each — that is what `Spark` does.
+
+`examples/cursorfx.html` §10 has every combination behind three dropdowns.
+
+**What this costs.** The pipeline plus its behaviours is *more* code than the
+four hand-written presets it replaced — a Trail-only page went from about 1.4 kB
+to 7.5 kB gzipped. It buys composition and makes new effects cheap to add; it
+does not make the package smaller. If you only ever mount one stock preset, that
+is a real price for a feature you will not use.
+
 ## Presets
 
 | Preset | Kind | What it does |
@@ -149,6 +223,8 @@ Every other option can reference a token too:
 | `HoverFlicker` | DOM | Hovered targets flicker like failing neon |
 | `CursorMorph` | DOM | A dot that morphs into the outline of what it's over |
 | `Reveal` | DOM | The pointer opens a soft hole in the top layer, showing what is beneath |
+| `Spark` | canvas | Short electric streaks thrown off the pointer, clicks, and hover-target edges |
+| `Smoke` | canvas | Soft volumetric smoke that curls off the pointer path |
 
 ### Options
 
@@ -174,6 +250,78 @@ Methods: `setColor(css)`, `setSpeed(ms)`
 **CursorMorph** — `size`, `color`, `radius`, `ease`, `padding`, `hideNative`,
 `zIndex`
 Methods: `setColor(css)`, `setSize(px)`
+
+### Spark
+
+Jagged electric streaks, thrown off three things at once: pointer movement,
+clicks, and the borders of hover targets.
+
+```html
+<body data-st-cursorfx="spark"
+      data-st-cfx-spark-color="#82c8ff #ffd682"
+      data-st-cfx-spark-glow="8">
+```
+
+Options: `color`, `count` (per qualifying move), `burst` (per click), `length`,
+`segments` (jag detail; `2` is a straight line), `jitter` (lateral displacement
+at mid-streak), `width`, `taper`, `life`, `drift`, `spread`, `speedGate`,
+`dragBoost`, `glow`, `hoverRate` (ms between edge streaks; `0` disables),
+`hoverOrigin` (`edge` | `pointer`)
+Methods: `setColor(css)`, `burst(x, y)`
+
+Three details that make it read as electricity rather than noise:
+
+- **A streak's jag is generated once, at birth, and then held still while it
+  fades.** Re-randomising the shape each frame — the obvious implementation —
+  makes every spark vibrate, and a field of vibrating sparks looks like static.
+- **The kink sits mid-streak.** Lateral offsets are scaled by `sin(t·π)`, which
+  anchors both ends at zero. Jittering around the origin instead produces a
+  hook off the start point.
+- **Emission is gated on pointer speed.** A slow drift stays quiet; a fast
+  sweep fires. `dragBoost` raises the rate while the pointer is held down.
+
+Streaks taper along their length, which needs one stroke per segment — a single
+path can only carry one `lineWidth`. Set `taper: false` to halve the draw calls.
+
+### Smoke
+
+Soft volumetric smoke that curls off the pointer — wave the cursor through it
+like a hand through a plume.
+
+```html
+<body data-st-cursorfx="smoke"
+      data-st-cfx-smoke-color="#beeee0 #35d0a2"
+      data-st-cfx-smoke-life="1.4">
+```
+
+Options: `color`, `count` (ceiling per move), `rate` (px of travel per puff),
+`size`, `sizeBoost` (extra birth radius at full speed), `sizeVary`, `grow`
+(px/s), `life` (s), `opacity` (peak alpha of a single puff — they accumulate),
+`jitter`, `push` (birth velocity along the heading), `damping`, `curl`,
+`curlScale` (field frequency), `curlSpeed`, `speedGate`, `minSpeed`,
+`additive`, `hoverBoost`
+Methods: `setColor(css)`, `puff(x, y, n)`
+
+Three details decide whether it reads as smoke or as a cloud of dots:
+
+- **Particles are steered by a curl field, not by ballistic velocity.** Two
+  independent sine waves per axis make each particle orbit its own centre, which
+  looks bloby. One scalar field driving a rotation makes neighbours curl
+  coherently around each other, which is what turbulence looks like. The birth
+  kick is damped away within a few frames to hand the particle over to the field.
+- **Each puff is a radial gradient drawn additively**, so overlaps accumulate
+  into volume instead of stacking as visible discs. A multi-stop `color` maps
+  across the puff's own radius: stop 0 is the hot core, the last stop is the
+  edge it dissolves into.
+- **Emission, birth radius and opacity all track this frame's pointer speed,
+  unsmoothed.** A rolling average lags by a few frames and the plume stops
+  feeling like it is responding to the hand.
+
+This is the most expensive preset in the package — one radial gradient per puff
+per frame — and it wants a large share of the particle budget. Raise
+`data-st-cfx-max-particles` (default 300, shared by every mounted preset) and
+expect a page running Smoke alongside another canvas preset to starve one of
+them. `additive: false` and a shorter `life` are the two cheapest dials.
 
 ### Reveal
 
