@@ -27,3 +27,7 @@ benchmark/results/
 # Paid/private packages — not published to GitHub, not part of the OSS repo
 paid-packages/
 examples/flipbook-3d-test.html
+
+# npm auth lives in the global ~/.npmrc. A repo-local one would hold a
+# publish token in plain text, one `git add -A` away from being pushed.
+.npmrc
