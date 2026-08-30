@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — CursorFX Reveal</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <link rel="stylesheet" href="../packages/cursorfx/cursorfx.css">
+  <link rel="stylesheet" href="../packages/cursorfx/presets/reveal/reveal.css">
+  <style>
+    body { background: #0b0d12; }
+
+    section { padding: 3.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .panel h6 {
+      font-size: 0.7rem; letter-spacing: 0.09em; text-transform: uppercase;
+      color: #7c8797; margin-bottom: 0.75rem;
+    }
+
+    .ctrl {
+      display: grid; grid-template-columns: 92px 1fr 58px;
+      align-items: center; gap: 0.75rem;
+      font-size: 0.8rem; padding: 0.25rem 0;
+    }
+    .ctrl code { color: #8fb8ff; }
+    .ctrl output { font-family: monospace; color: #b9c4d4; text-align: right; }
+    .ctrl input[type=range] { width: 100%; }
+
+    .pill {
+      display: inline-block; font-size: 0.68rem; font-family: monospace;
+      padding: 0.15rem 0.5rem; border-radius: 99px;
+      border: 1px solid rgba(255,255,255,0.16); color: #b9c4d4;
+    }
+
+    pre {
+      background: #05070b; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 0.9rem 1.1rem;
+      font-size: 0.76rem; color: #c8d2e0; overflow-x: auto;
+    }
+
+    /* Every reveal container here. The preset's own CSS does the stacking;
+       these rules only give each demo its size and rounding. */
+    [data-st-cfx-target~="reveal"] { cursor: none; }
+
+    .demo-photo {
+      border-radius: 14px; overflow: hidden;
+      width: min(520px, 100%); aspect-ratio: 16 / 9;
+    }
+    .demo-photo svg { width: 100%; height: 100%; display: block; }
+
+    .demo-text {
+      border-radius: 12px; padding: 1.5rem 2rem;
+      font-size: clamp(1.6rem, 5vw, 2.8rem); font-weight: 800;
+      letter-spacing: -0.02em; line-height: 1.1;
+    }
+    .text-plain  { color: #6b7280; }
+    .text-fancy  {
+      background: linear-gradient(92deg, #ff2d55, #ffd166 45%, #7df9ff);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+
+    .demo-btn {
+      border: 0; border-radius: 999px; padding: 0; overflow: hidden;
+      font: inherit; font-weight: 700; font-size: 1.05rem;
+    }
+    .demo-btn > span {
+      display: grid; place-items: center;
+      padding: 0.9rem 2.4rem; white-space: nowrap;
+    }
+    .btn-face-a { background: #1f2937; color: #e8ecf4; }
+    .btn-face-b { background: linear-gradient(135deg, #ff2d55, #ffd166); color: #05070b; }
+
+    .demo-card {
+      border-radius: 16px; overflow: hidden;
+      width: min(320px, 100%); aspect-ratio: 3 / 4;
+    }
+    .card-face {
+      display: grid; align-content: end; gap: 0.35rem;
+      padding: 1.5rem; height: 100%;
+    }
+    .card-front { background: linear-gradient(160deg, #16203a, #0b0d12); color: #e8ecf4; }
+    .card-back  { background: linear-gradient(160deg, #7df9ff, #4ade80); color: #05070b; }
+    .card-face h3 { font-size: 1.25rem; margin: 0; }
+    .card-face p  { font-size: 0.82rem; margin: 0; opacity: 0.75; }
+
+    .stage {
+      display: flex; flex-wrap: wrap; gap: 2.5rem;
+      align-items: center; justify-content: center;
+      border: 1px dashed rgba(255,255,255,0.14); border-radius: 14px;
+      background: rgba(255,255,255,0.02); padding: 2.5rem 2rem;
+    }
+
+    /* Section 5 proves theme-level tuning: these rules retune the effect for
+       one subtree only, with no markup or JS involved. */
+    .themed-soft  { --st-cfx-reveal-radius: 70px;  --st-cfx-reveal-feather: 160px; }
+    .themed-hard  { --st-cfx-reveal-radius: 130px; --st-cfx-reveal-feather: 0px; }
+    .themed-ghost { --st-cfx-reveal-opacity: 0.55; }
+  </style>
+</head>
+
+<!-- Boots from markup. The control panel below only retunes what is already
+     running; nothing here is initialised by hand. -->
+<body class="text-light"
+      data-st-cursorfx="reveal"
+      data-st-cfx-reveal-radius="110"
+      data-st-cfx-reveal-feather="60"
+      data-st-cfx-reveal-follow="90">
+
+<div class="container">
+
+  <section>
+    <p class="pill mb-3">@strata-packages/cursorfx · Reveal</p>
+    <h1 class="mb-3">Reveal</h1>
+    <p class="text-[1.05rem] max-w-[64ch] text-muted mb-0">
+      Two stacked layers. The pointer opens a soft hole in the top one, showing
+      what is underneath — only where the cursor is, not across the whole
+      element. Move over anything below.
+    </p>
+  </section>
+
+  <!-- ═══ 1 — Images ═══════════════════════════════════════════════════ -->
+  <section>
+    <h2 class="mb-1">1 — Images</h2>
+    <p class="text-muted mb-4 max-w-[68ch]">
+      The classic case: a before and an after, revealed under the pointer. These
+      are two inline SVGs rather than photographs, so the page stays
+      self-contained — the preset does not care what the layers are.
+    </p>
+
+    <div class="stage mb-4">
+      <div class="demo-photo" data-st-cfx-target="reveal">
+
+        <!-- underneath: night -->
+        <svg viewBox="0 0 640 360" role="img" aria-label="The same landscape at night">
+          <defs>
+            <linearGradient id="skyNight" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0b1026"/><stop offset="100%" stop-color="#1b2450"/>
+            </linearGradient>
+          </defs>
+          <rect width="640" height="360" fill="url(#skyNight)"/>
+          <circle cx="500" cy="80" r="30" fill="#e8ecf4"/>
+          <circle cx="488" cy="72" r="30" fill="#1b2450"/>
+          <g fill="#ffffff">
+            <circle cx="80" cy="60" r="1.6"/><circle cx="150" cy="110" r="1.2"/>
+            <circle cx="230" cy="50" r="1.8"/><circle cx="320" cy="95" r="1.3"/>
+            <circle cx="410" cy="45" r="1.5"/><circle cx="120" cy="160" r="1.1"/>
+            <circle cx="560" cy="150" r="1.4"/><circle cx="600" cy="60" r="1.2"/>
+          </g>
+          <path d="M0 250 L140 150 L250 250 L360 170 L480 260 L640 190 L640 360 L0 360 Z" fill="#0d1330"/>
+          <path d="M0 300 L180 230 L320 300 L470 240 L640 300 L640 360 L0 360 Z" fill="#070a1c"/>
+        </svg>
+
+        <!-- on top: day (last child = masked) -->
+        <svg viewBox="0 0 640 360" aria-hidden="true">
+          <defs>
+            <linearGradient id="skyDay" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7dd3fc"/><stop offset="100%" stop-color="#fde68a"/>
+            </linearGradient>
+          </defs>
+          <rect width="640" height="360" fill="url(#skyDay)"/>
+          <circle cx="500" cy="80" r="34" fill="#fff7cc"/>
+          <path d="M0 250 L140 150 L250 250 L360 170 L480 260 L640 190 L640 360 L0 360 Z" fill="#4ade80"/>
+          <path d="M0 300 L180 230 L320 300 L470 240 L640 300 L640 360 L0 360 Z" fill="#16a34a"/>
+        </svg>
+
+      </div>
+    </div>
+
+<pre>&lt;div data-st-cfx-target="reveal"&gt;
+  &lt;img src="night.jpg" alt="…"&gt;              &lt;!-- revealed underneath --&gt;
+  &lt;img src="day.jpg" aria-hidden="true"&gt;     &lt;!-- last child is masked --&gt;
+&lt;/div&gt;</pre>
+  </section>
+
+  <!-- ═══ 2 — Buttons ══════════════════════════════════════════════════ -->
+  <section>
+    <h2 class="mb-1">2 — Buttons</h2>
+    <p class="text-muted mb-4 max-w-[68ch]">
+      Two states stacked. The hole follows the pointer across the label, so the
+      button reads as lit from underneath rather than simply swapping on hover.
+    </p>
+
+    <div class="stage mb-4">
+      <button class="demo-btn" data-st-cfx-target="reveal">
+        <span class="btn-face-b">Add to basket · £24</span>
+        <span class="btn-face-a" aria-hidden="true">Add to basket</span>
+      </button>
+
+      <button class="demo-btn" data-st-cfx-target="reveal">
+        <span class="btn-face-b">Yes, really</span>
+        <span class="btn-face-a" aria-hidden="true">Are you sure?</span>
+      </button>
+    </div>
+
+    <p class="text-muted text-[0.8rem] mb-0 max-w-[68ch]">
+      The visible label sits <em>underneath</em> and the decorative layer on top
+      carries <code>aria-hidden="true"</code> — otherwise a screen reader
+      announces both.
+    </p>
+  </section>
+
+  <!-- ═══ 3 — Text ═════════════════════════════════════════════════════ -->
+  <section>
+    <h2 class="mb-1">3 — Text</h2>
+    <p class="text-muted mb-4 max-w-[68ch]">
+      Two type treatments of the same words. Both layers must carry identical
+      text or the reveal tears as the hole moves.
+    </p>
+
+    <div class="stage mb-4">
+      <div class="demo-text" data-st-cfx-target="reveal">
+        <div class="text-fancy">Design in the open.</div>
+        <div class="text-plain" aria-hidden="true">Design in the open.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 4 — Cards ════════════════════════════════════════════════════ -->
+  <section>
+    <h2 class="mb-1">4 — Cards</h2>
+    <p class="text-muted mb-4 max-w-[68ch]">
+      Two faces of the same card. The container sizes to the larger of the two,
+      so the faces need not match exactly.
+    </p>
+
+    <div class="stage mb-4">
+      <div class="demo-card" data-st-cfx-target="reveal">
+        <div class="card-face card-back">
+          <h3>Ships in 2 days</h3>
+          <p>Free returns within 30 days.</p>
+        </div>
+        <div class="card-face card-front" aria-hidden="true">
+          <h3>Aurora Chair</h3>
+          <p>Walnut and wool · £420</p>
+        </div>
+      </div>
+
+      <div class="demo-card" data-st-cfx-target="reveal">
+        <div class="card-face card-back">
+          <h3>4 remaining</h3>
+          <p>Restocks the first week of each month.</p>
+        </div>
+        <div class="card-face card-front" aria-hidden="true">
+          <h3>Meridian Lamp</h3>
+          <p>Brushed brass · £185</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 5 — Tuning from CSS ══════════════════════════════════════════ -->
+  <section>
+    <h2 class="mb-1">5 — Retuned from CSS alone</h2>
+    <p class="text-muted mb-4 max-w-[68ch]">
+      Identical markup in all three. The only difference is a class setting
+      <code>--st-cfx-reveal-*</code> — no attributes, no JavaScript. This is why
+      an instance writes a property inline <em>only</em> when it overrides a
+      default: anything left alone falls through to your stylesheet.
+    </p>
+
+    <div class="stage mb-4">
+      <div class="themed-soft">
+        <div class="demo-card" data-st-cfx-target="reveal">
+          <div class="card-face card-back"><h3>Soft</h3><p>small radius, wide feather</p></div>
+          <div class="card-face card-front" aria-hidden="true"><h3>Soft</h3><p>hover me</p></div>
+        </div>
+      </div>
+
+      <div class="themed-hard">
+        <div class="demo-card" data-st-cfx-target="reveal">
+          <div class="card-face card-back"><h3>Hard</h3><p>no feather at all</p></div>
+          <div class="card-face card-front" aria-hidden="true"><h3>Hard</h3><p>hover me</p></div>
+        </div>
+      </div>
+
+      <div class="themed-ghost">
+        <div class="demo-card" data-st-cfx-target="reveal">
+          <div class="card-face card-back"><h3>Ghost</h3><p>top layer partly kept</p></div>
+          <div class="card-face card-front" aria-hidden="true"><h3>Ghost</h3><p>hover me</p></div>
+        </div>
+      </div>
+    </div>
+
+<pre>.themed-soft  { --st-cfx-reveal-radius: 70px;  --st-cfx-reveal-feather: 160px; }
+.themed-hard  { --st-cfx-reveal-radius: 130px; --st-cfx-reveal-feather: 0px; }
+.themed-ghost { --st-cfx-reveal-opacity: 0.55; }</pre>
+  </section>
+
+  <!-- ═══ 6 — Live options ═════════════════════════════════════════════ -->
+  <section>
+    <h2 class="mb-1">6 — Every option, live</h2>
+    <p class="text-muted mb-4 max-w-[68ch]">
+      These drive the running instance and affect every reveal on the page
+      except the three in section 5, whose own CSS values win.
+    </p>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Options</h6>
+          <div class="ctrl"><code>radius</code>  <input type="range" id="rv-radius"  min="20" max="260" step="10"   value="110"><output>110</output></div>
+          <div class="ctrl"><code>feather</code> <input type="range" id="rv-feather" min="0"  max="200" step="10"   value="60"><output>60</output></div>
+          <div class="ctrl"><code>opacity</code> <input type="range" id="rv-opacity" min="0"  max="1"   step="0.05" value="0"><output>0</output></div>
+          <div class="ctrl"><code>fade</code>    <input type="range" id="rv-fade"    min="0"  max="800" step="20"   value="220"><output>220</output></div>
+          <div class="ctrl"><code>follow</code>  <input type="range" id="rv-follow"  min="0"  max="400" step="10"   value="90"><output>90</output></div>
+          <div class="ctrl"><code>invert</code>
+            <label class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="rv-invert">
+            </label><output>false</output>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>What the JS actually does</h6>
+          <p class="text-muted text-[0.78rem]">
+            Two custom properties per pointer move, and one attribute flip on
+            enter and leave. No <code>render()</code>, no per-frame work. The
+            mask, its softness and both transitions are CSS.
+          </p>
+<pre>--st-cfx-reveal-x: 214.0px
+--st-cfx-reveal-y: 96.0px
+data-st-cfx-reveal="true"</pre>
+          <p class="text-muted text-[0.72rem] mt-2 mb-0">
+            Drag <code>radius</code>, then inspect a container: the property
+            appears only once it differs from the default, and disappears again
+            when you set it back.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-5 text-muted text-[0.8rem]">
+    Strata CursorFX — <code>examples/cursorfx-reveal.html</code> ·
+    the full showcase is <a href="cursorfx.html">cursorfx.html</a>
+  </footer>
+
+</div>
+
+<script src="../packages/cursorfx/cursorfx.js"></script>
+<script src="../packages/cursorfx/presets/reveal/reveal.js"></script>
+<script>
+(function () {
+  'use strict'
+
+  // The engine and the preset were mounted by <body data-st-cursorfx>; this
+  // only reaches the running instance to drive the control panel.
+  //
+  // This page loads cursorfx.js directly rather than Strata's bundled
+  // strata.components.js, so the UMD wrapper had no Strata namespace to attach
+  // to and registered as StrataCursorFX instead. Accept either.
+  var FX = (window.Strata && window.Strata.CursorFX) || window.StrataCursorFX
+
+  function bind(id, apply) {
+    var el = document.getElementById(id)
+    if (!el) return
+    var out = el.parentNode.querySelector('output')
+    el.addEventListener('input', function () {
+      var v = el.type === 'checkbox' ? el.checked : parseFloat(el.value)
+      if (out) out.textContent = v
+      var inst = FX.get('reveal')
+      if (inst) apply(inst, v)
+    })
+  }
+
+  bind('rv-radius',  function (i, v) { i.setRadius(v) })
+  bind('rv-opacity', function (i, v) { i.setOpacity(v) })
+  bind('rv-invert',  function (i, v) { i.setInvert(v) })
+
+  // feather, fade and follow have no setter — they are plain options the
+  // preset reads when it next writes its tokens, so nudge it to re-apply.
+  function reapply(key) {
+    return function (i, v) {
+      i.options[key] = v
+      i.setRadius(i.options.radius)   // rewrites the whole token set
+    }
+  }
+  bind('rv-feather', reapply('feather'))
+  bind('rv-fade',    reapply('fade'))
+  bind('rv-follow',  reapply('follow'))
+}())
+</script>
+</body>
+</html>

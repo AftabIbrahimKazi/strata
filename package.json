@@ -26,7 +26,7 @@
     "build": "npm run build:chart && node bin/strata.js --build",
     "minify": "npm run build:chart && node bin/strata.js --minify",
     "build:chart": "tsc -p src/components/modules/chart/tsconfig.json",
-    "test": "node bin/strata.js --build && node test/scanner.js && node test/dependency-tracking.js && node test/components-bundle.js && node test/verify.js",
+    "test": "node bin/strata.js --build && node test/scanner.js && node test/dependency-tracking.js && node test/components-bundle.js && node test/cursorfx.js && node test/verify.js",
     "benchmark": "node --expose-gc benchmark/run.js",
     "publish:stable": "npm publish --tag latest",
     "publish:beta": "npm publish --tag beta",
