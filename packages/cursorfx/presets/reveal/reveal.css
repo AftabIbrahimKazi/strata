@@ -1,0 +1,123 @@
+/**
+ * Strata CursorFX — Reveal preset CSS
+ * Requires cursorfx.css.
+ *
+ * Markup: a container marked as a target, holding two stacked layers. The last
+ * element child is the one that gets masked.
+ *
+ *   <div data-st-cfx-target="reveal">
+ *     <img src="after.jpg"  alt="">     revealed underneath
+ *     <img src="before.jpg" alt="">     masked on top
+ *   </div>
+ *
+ * Every knob below is a custom property with a default, so a theme can retune
+ * the effect in a stylesheet without touching markup or JS:
+ *
+ *   :root            { --st-cfx-reveal-radius: 90px; }        everywhere
+ *   .hero            { --st-cfx-reveal-feather: 140px; }      one section
+ *   [data-st-theme="dark"] { --st-cfx-reveal-opacity: 0.15; } one theme
+ *
+ * The JS writes these same properties inline only where an instance overrode a
+ * default, so stylesheet values win everywhere else.
+ */
+
+/* Reveal is the one preset that restructures its container, so it must be
+ * named explicitly — data-st-cfx-target="reveal". A bare data-st-cfx-target
+ * (meaning "every preset") deliberately does not match, so marking an element
+ * for Trail or Magnetic never silently turns it into a grid.
+ *
+ * Custom properties are only animatable once registered. Without @property the
+ * transitions simply snap, which is an acceptable degradation. */
+@property --st-cfx-reveal-r {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+/* Registered so the hole can ease toward the pointer rather than jumping.
+ * mask-position cannot do this — the position lives inside the gradient. */
+@property --st-cfx-reveal-x {
+  syntax: '<length-percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --st-cfx-reveal-y {
+  syntax: '<length-percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+
+/* ─── Container: stack the layers ─────────────────────────────────────────
+ * One grid cell for every child, so both layers overlap and the container
+ * sizes to the largest. Works for images, text, buttons and cards alike —
+ * no absolute positioning, no fixed height.
+ */
+
+[data-st-cfx-target~="reveal"] {
+  display: grid;
+  isolation: isolate;
+
+  /* The JS writes x/y here; easing them here means the masked child inherits an
+     already-smoothed value and needs no transition of its own for tracking. */
+  transition:
+    --st-cfx-reveal-x var(--st-cfx-reveal-follow, 90ms) linear,
+    --st-cfx-reveal-y var(--st-cfx-reveal-follow, 90ms) linear;
+}
+
+[data-st-cfx-target~="reveal"] > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+/* ─── Top layer: the mask ─────────────────────────────────────────────────
+ * Alpha 0 hides the top layer and shows what is beneath; alpha 1 keeps it.
+ * --st-cfx-reveal-opacity is how much of the top layer survives inside the
+ * hole, so 0 is a full reveal.
+ */
+
+[data-st-cfx-target~="reveal"] > :last-child {
+  --st-cfx-reveal-r: 0px;
+
+  --_in:  rgba(0, 0, 0, var(--st-cfx-reveal-opacity, 0));
+  --_out: rgba(0, 0, 0, 1);
+
+  -webkit-mask-image: radial-gradient(circle at
+    var(--st-cfx-reveal-x, 50%) var(--st-cfx-reveal-y, 50%),
+    var(--_in) 0,
+    var(--_in) var(--st-cfx-reveal-r),
+    var(--_out) calc(var(--st-cfx-reveal-r) + var(--st-cfx-reveal-feather, 60px)));
+  mask-image: radial-gradient(circle at
+    var(--st-cfx-reveal-x, 50%) var(--st-cfx-reveal-y, 50%),
+    var(--_in) 0,
+    var(--_in) var(--st-cfx-reveal-r),
+    var(--_out) calc(var(--st-cfx-reveal-r) + var(--st-cfx-reveal-feather, 60px)));
+
+  transition: --st-cfx-reveal-r var(--st-cfx-reveal-fade, 220ms) var(--st-easing, ease-out);
+}
+
+/* Open on hover, shut on leave. The attribute flips rather than being removed,
+ * so the closing transition has a rule to run on. */
+[data-st-cfx-target~="reveal"][data-st-cfx-reveal="true"] > :last-child {
+  --st-cfx-reveal-r: var(--st-cfx-reveal-radius, 110px);
+}
+
+/* ─── Inverted: show the top layer only inside the circle ─────────────── */
+
+[data-st-cfx-reveal-invert="true"] > :last-child {
+  --_in:  rgba(0, 0, 0, 1);
+  --_out: rgba(0, 0, 0, var(--st-cfx-reveal-opacity, 0));
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────
+ * The engine stops its loop, which stops the pointer updates. Removing the
+ * mask entirely leaves the top layer intact rather than frozen mid-reveal.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-st-cfx-target~="reveal"] > :last-child {
+    -webkit-mask-image: none;
+    mask-image: none;
+    transition: none;
+  }
+}

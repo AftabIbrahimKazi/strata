@@ -1,0 +1,30 @@
+/**
+ * Strata CursorFX — Magnetic preset CSS
+ * Requires core.css.
+ *
+ * The JS writes --st-cfx-mx / --st-cfx-my / --st-cfx-scale and nothing else; every
+ * transition, easing and transform below is CSS's job.
+ */
+
+[data-st-cfx-magnetic="true"] {
+  transform: translate3d(var(--st-cfx-mx, 0), var(--st-cfx-my, 0), 0)
+             scale(var(--st-cfx-scale, 1));
+  transition: transform var(--st-duration, 200ms) var(--st-easing, ease-out);
+  will-change: transform;
+}
+
+/* Returning to rest is slower than following the pointer — reads as weight
+ * rather than lag. This is why the JS flips the value instead of removing the
+ * attribute: the element stays selectable on the way out, so the transition
+ * has a rule to run on. */
+[data-st-cfx-magnetic="false"] {
+  transform: none;
+  transition: transform var(--st-duration-slow, 350ms) var(--st-easing, ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-st-cfx-magnetic] {
+    transform: none;
+    transition: none;
+  }
+}
