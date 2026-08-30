@@ -1,5 +1,11 @@
 # Changelog — @strata-packages/cursorfx
 
+## [0.1.1] — 2026-08-31
+
+### Fixed
+
+- **Prototype-polluting assignment in `behaviour()`** (CodeQL). `registry[axis]` on a plain object returns `Object.prototype` for `__proto__` rather than `undefined`, so the truthiness guard passed and the assignment landed on every object in the page. The axis is now checked against a fixed list, the three registries have null prototypes, and a behaviour named `__proto__` is refused with a warning. `behaviour()` is public API, so its arguments are library input.
+
 ## [0.1.0] — 2026-08-31
 
 ### Added
