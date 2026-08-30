@@ -16,7 +16,8 @@
     "./presets/cursor-morph": "./presets/cursor-morph/cursor-morph.js",
     "./presets/cursor-morph/css": "./presets/cursor-morph/cursor-morph.css",
     "./presets/reveal": "./presets/reveal/reveal.js",
-    "./presets/reveal/css": "./presets/reveal/reveal.css"
+    "./presets/reveal/css": "./presets/reveal/reveal.css",
+    "./presets/spark": "./presets/spark/spark.js"
   },
   "publishConfig": {
     "access": "public"
