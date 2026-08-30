@@ -26,15 +26,18 @@
     "build": "npm run build:chart && node bin/strata.js --build",
     "minify": "npm run build:chart && node bin/strata.js --minify",
     "build:chart": "tsc -p src/components/modules/chart/tsconfig.json",
-    "test": "node bin/strata.js --build && node test/scanner.js && node test/dependency-tracking.js && node test/components-bundle.js && node test/verify.js",
+    "test": "node bin/strata.js --build && node test/scanner.js && node test/dependency-tracking.js && node test/components-bundle.js && node test/cursorfx.js && node test/verify.js",
     "benchmark": "node --expose-gc benchmark/run.js",
     "publish:stable": "npm publish --tag latest",
     "publish:beta": "npm publish --tag beta",
     "publish:skeleton": "npm publish --workspace packages/skeleton-loader --tag latest",
     "publish:modal": "npm publish --workspace packages/modal --tag latest",
-    "publish:chart": "npm publish --workspace packages/chart --tag latest"
+    "publish:chart": "npm publish --workspace packages/chart --tag latest",
+    "publish:cursorfx": "npm publish --workspace packages/cursorfx --tag latest"
   },
   "keywords": [
+    "strata",
+    "strata-css",
     "css",
     "framework",
     "postcss",
@@ -47,7 +50,8 @@
     "utility-first",
     "theming",
     "dark-mode",
-    "css-framework"
+    "css-framework",
+    "css-layers"
   ],
   "author": "Aftab Ibrahim Kazi",
   "license": "MIT",
