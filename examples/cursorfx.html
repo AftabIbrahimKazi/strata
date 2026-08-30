@@ -169,7 +169,7 @@
     <p class="pill mb-3">@strata-packages/cursorfx v0.0.0</p>
     <h1 class="mb-3">CursorFX</h1>
     <p class="text-[1.1rem] max-w-[62ch] text-muted mb-4">
-      One shared engine, six opt-in presets. Each section below mounts its
+      One shared engine, nine opt-in presets. Each section below mounts its
       preset as it scrolls into view and unmounts it on the way out — so what
       you feel at any moment is exactly one preset, driven by the same engine.
     </p>
@@ -614,9 +614,144 @@ neon.setSpeed(400)</pre>
     </div>
   </section>
 
+  <section class="demo" data-preset="Smoke">
+    <h2 class="mb-1">9 — Smoke <span class="pill">canvas</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Wave the cursor like a hand through a plume. Puffs are steered by a curl
+      field rather than thrown in straight lines, and every puff is a radial
+      gradient drawn additively, so overlaps build volume instead of stacking
+      as discs.
+    </p>
+
+    <div class="stage mb-4">
+      <span class="target" data-st-cfx-target="smoke">thicker over me</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>color</code>     <input type="color" id="sm-color" value="#35d0a2"><output>—</output></div>
+          <div class="ctrl"><code>count</code>     <input type="range" id="sm-count"  min="1"   max="30"   step="1"     value="14"><output>14</output></div>
+          <div class="ctrl"><code>rate</code>      <input type="range" id="sm-rate"   min="1"   max="20"   step="1"     value="2"><output>2</output></div>
+          <div class="ctrl"><code>size</code>      <input type="range" id="sm-size"   min="2"   max="40"   step="1"     value="7"><output>7</output></div>
+          <div class="ctrl"><code>grow</code>      <input type="range" id="sm-grow"   min="0"   max="60"   step="1"     value="13"><output>13</output></div>
+          <div class="ctrl"><code>life</code>      <input type="range" id="sm-life"   min="0.2" max="4"    step="0.1"   value="1.1"><output>1.1</output></div>
+          <div class="ctrl"><code>opacity</code>   <input type="range" id="sm-op"     min="0.01" max="0.4" step="0.01"  value="0.09"><output>0.09</output></div>
+          <div class="ctrl"><code>curl</code>      <input type="range" id="sm-curl"   min="0"   max="160"  step="2"     value="42"><output>42</output></div>
+          <div class="ctrl"><code>curlScale</code> <input type="range" id="sm-scale"  min="0.001" max="0.03" step="0.001" value="0.006"><output>0.006</output></div>
+          <div class="ctrl"><code>curlSpeed</code> <input type="range" id="sm-cspeed" min="0"   max="4"    step="0.1"   value="0.9"><output>0.9</output></div>
+          <div class="ctrl"><code>push</code>      <input type="range" id="sm-push"   min="0"   max="200"  step="4"     value="36"><output>36</output></div>
+          <div class="ctrl"><code>damping</code>   <input type="range" id="sm-damp"   min="0.5" max="0.99" step="0.01"  value="0.9"><output>0.9</output></div>
+          <div class="ctrl"><code>jitter</code>    <input type="range" id="sm-jitter" min="0"   max="60"   step="2"     value="16"><output>16</output></div>
+          <div class="ctrl"><code>speedGate</code> <input type="range" id="sm-gate"   min="4"   max="120"  step="2"     value="30"><output>30</output></div>
+          <div class="ctrl"><code>additive</code>
+            <label class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="sm-add" checked>
+            </label><output>true</output>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Why it curls</h6>
+          <p class="text-muted text-[0.78rem]">
+            Two independent sine waves per axis make each particle orbit its own
+            centre, which reads as a cloud of wobbling blobs. One scalar field
+            driving a rotation makes neighbours inherit nearly the same heading,
+            so they curl around each other — turbulence rather than wobble.
+            Drop <code>curl</code> to 0 to see the difference immediately.
+          </p>
+          <p class="text-muted text-[0.78rem] mb-2">
+            The birth kick is damped out within a few frames, which is what hands
+            each puff over to the field. Raise <code>damping</code> toward 0.99
+            and the plume goes back to travelling in decaying straight lines.
+          </p>
+<pre>Strata.CursorFX.get('smoke').puff(x, y, 40)</pre>
+          <button class="btn-outline-light btn-sm mt-2" id="sm-puff">puff() at centre</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Composition ═════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="__compose">
+    <h2 class="mb-1">10 — Effects with no preset file <span class="pill">canvas</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Every canvas preset above is a recipe: an origin, a motion and a render,
+      each a separate file. Mix them differently and you get an effect nobody
+      shipped. Nothing below loads a new file — these are the same eight
+      behaviours the presets are built from, recombined.
+    </p>
+
+    <div class="stage mb-4">
+      <span class="target" data-st-cfx-target="">move across me</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Pick a combination</h6>
+          <div class="ctrl"><code>motion</code>
+            <select class="form-select form-select-sm" id="cx-motion" title="motion behaviour">
+              <option value="ballistic">ballistic — straight, damped</option>
+              <option value="curl" selected>curl — turbulent swirl</option>
+            </select>
+          </div>
+          <div class="ctrl"><code>render</code>
+            <select class="form-select form-select-sm" id="cx-render" title="render behaviour">
+              <option value="dot">dot — flat circle</option>
+              <option value="puff">puff — soft gradient</option>
+              <option value="segment" selected>segment — jagged streak</option>
+            </select>
+          </div>
+          <div class="ctrl"><code>origin</code>
+            <select class="form-select form-select-sm" id="cx-origin" title="origin behaviour">
+              <option value="pointer" selected>pointer</option>
+              <option value="ring">ring</option>
+            </select>
+          </div>
+          <div class="ctrl"><code>color</code>  <input type="color" id="cx-color" value="#7df9ff" title="colour"><output>—</output></div>
+          <div class="ctrl"><code>count</code>  <input type="range" id="cx-count" min="1" max="20" step="1" value="4" title="particles per move"><output>4</output></div>
+          <div class="ctrl"><code>life</code>   <input type="range" id="cx-life"  min="0.1" max="2.5" step="0.1" value="0.8" title="lifetime in seconds"><output>0.8</output></div>
+          <p class="text-muted text-[0.78rem] mt-3 mb-0">
+            <code>curl</code> + <code>segment</code> is smoke's motion driving
+            spark's shape — turbulent electricity, which is not one of the nine
+            presets. <code>ballistic</code> + <code>puff</code> is a soft burst
+            that nothing ships either.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>What this costs</h6>
+          <p class="text-muted text-[0.78rem]">
+            A combination is a recipe object — no new file, no new preset. The
+            loop, emission, ageing, colour and canvas-state handling all come
+            from <code>particles.js</code>, which is already on the page for the
+            presets above.
+          </p>
+<pre>Strata.CursorFX.particles.recipe({
+  name: 'Mine', key: 'mine',
+  motion: 'curl',
+  render: 'segment',
+  emit: { move: { origin: 'pointer',
+                  mode: 'fixed' } },
+  defaults: { color: '#7df9ff' }
+})</pre>
+          <p class="text-muted text-[0.78rem] mt-2 mb-0">
+            The honest trade: <code>particles.js</code> plus its behaviours is
+            more code than the four hand-written presets it replaced. It buys
+            this panel, not a smaller download.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ═══ Global particle cap ═════════════════════════════════════════ -->
   <section class="demo" data-preset="__budget">
-    <h2 class="mb-1">9 — The particle cap is global</h2>
+    <h2 class="mb-1">11 — The particle cap is global</h2>
     <p class="text-muted mb-4 max-w-[70ch]">
       <code>maxParticles</code> is one budget shared by every mounted preset, not
       a per-preset allowance. Mount Trail and ClickBurst together and they compete
@@ -667,7 +802,7 @@ neon.setSpeed(400)</pre>
 
   <!-- ═══ Engine ══════════════════════════════════════════════════════ -->
   <section class="demo" data-preset="__engine">
-    <h2 class="mb-1">10 — The engine</h2>
+    <h2 class="mb-1">12 — The engine</h2>
     <p class="text-muted mb-4">Everything the presets do not have to think about.</p>
 
     <div class="row g-4 mb-4">
@@ -751,7 +886,7 @@ neon.setSpeed(400)</pre>
 
   <!-- ═══ Declarative configuration ════════════════════════════════════ -->
   <section class="demo" data-preset="__declarative">
-    <h2 class="mb-1">11 — Configuring it without JavaScript</h2>
+    <h2 class="mb-1">13 — Configuring it without JavaScript</h2>
     <p class="text-muted mb-4 max-w-[70ch]">
       Everything the control panels above do can be set in markup instead. A
       real page names its presets, sets their options, and writes no script.
@@ -840,6 +975,23 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
      this page demonstrates all seven, so it loads all seven. -->
 <script src="../dist/strata.components.js"></script>
 <script src="../packages/cursorfx/cursorfx.js"></script>
+
+<!-- The particle pipeline and the behaviours the canvas recipes below are built
+     from. Load order matters: pipeline, then behaviours, then recipes. A page
+     using only DOM presets (Magnetic, HoverFlicker, Reveal, CursorMorph) loads
+     none of this — that is the point of it not living in the engine. This demo
+     mounts every preset, so it loads every behaviour; a real page loads two or
+     three. -->
+<script src="../packages/cursorfx/particles.js"></script>
+<script src="../packages/cursorfx/behaviours/origin/pointer.js"></script>
+<script src="../packages/cursorfx/behaviours/origin/ring.js"></script>
+<script src="../packages/cursorfx/behaviours/origin/edge.js"></script>
+<script src="../packages/cursorfx/behaviours/motion/ballistic.js"></script>
+<script src="../packages/cursorfx/behaviours/motion/curl.js"></script>
+<script src="../packages/cursorfx/behaviours/render/dot.js"></script>
+<script src="../packages/cursorfx/behaviours/render/puff.js"></script>
+<script src="../packages/cursorfx/behaviours/render/segment.js"></script>
+
 <script src="../packages/cursorfx/presets/trail/trail.js"></script>
 <script src="../packages/cursorfx/presets/click-burst/click-burst.js"></script>
 <script src="../packages/cursorfx/presets/electric/electric.js"></script>
@@ -848,6 +1000,7 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
 <script src="../packages/cursorfx/presets/cursor-morph/cursor-morph.js"></script>
 <script src="../packages/cursorfx/presets/reveal/reveal.js"></script>
 <script src="../packages/cursorfx/presets/spark/spark.js"></script>
+<script src="../packages/cursorfx/presets/smoke/smoke.js"></script>
 <script>
 (function () {
   'use strict'
@@ -873,7 +1026,10 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
     CursorMorph:  { size: 14, color: '', radius: 999, ease: 0.18, padding: 6, hideNative: true },
     Reveal:       { radius: 110, feather: 60, opacity: 0, fade: 220, follow: 90, invert: false },
     Spark:        { color: '#82c8ff', length: 14, segments: 4, jitter: 7, width: 1.4,
-                    life: 0.32, drift: 26, speedGate: 34, glow: 6, hoverRate: 90, taper: true }
+                    life: 0.32, drift: 26, speedGate: 34, glow: 6, hoverRate: 90, taper: true },
+    Smoke:        { color: '#35d0a2', count: 14, rate: 2, size: 7, grow: 13, life: 1.1,
+                    opacity: 0.09, curl: 42, curlScale: 0.006, curlSpeed: 0.9, push: 36,
+                    damping: 0.9, jitter: 16, speedGate: 30, additive: true }
   }
 
   var live    = {}     // name → instance, for whatever is mounted right now
@@ -1090,6 +1246,110 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
     var i = live.Spark
     if (i) i.burst(window.innerWidth / 2, window.innerHeight / 2)
   })
+
+  // Every Smoke option is read fresh each frame, so all of them apply live —
+  // nothing here needs a remount.
+  bind('sm-color',  'Smoke', 'color',     function (i, v) { if (i) i.setColor(v) })
+  bind('sm-count',  'Smoke', 'count',     function (i, v) { if (i) i.options.count = v })
+  bind('sm-rate',   'Smoke', 'rate',      function (i, v) { if (i) i.options.rate = v })
+  bind('sm-size',   'Smoke', 'size',      function (i, v) { if (i) i.options.size = v })
+  bind('sm-grow',   'Smoke', 'grow',      function (i, v) { if (i) i.options.grow = v })
+  bind('sm-life',   'Smoke', 'life',      function (i, v) { if (i) i.options.life = v })
+  bind('sm-op',     'Smoke', 'opacity',   function (i, v) { if (i) i.options.opacity = v })
+  bind('sm-curl',   'Smoke', 'curl',      function (i, v) { if (i) i.options.curl = v })
+  bind('sm-scale',  'Smoke', 'curlScale', function (i, v) { if (i) i.options.curlScale = v })
+  bind('sm-cspeed', 'Smoke', 'curlSpeed', function (i, v) { if (i) i.options.curlSpeed = v })
+  bind('sm-push',   'Smoke', 'push',      function (i, v) { if (i) i.options.push = v })
+  bind('sm-damp',   'Smoke', 'damping',   function (i, v) { if (i) i.options.damping = v })
+  bind('sm-jitter', 'Smoke', 'jitter',    function (i, v) { if (i) i.options.jitter = v })
+  bind('sm-gate',   'Smoke', 'speedGate', function (i, v) { if (i) i.options.speedGate = v })
+  bind('sm-add',    'Smoke', 'additive',  function (i, v) { if (i) i.options.additive = v })
+
+  on('sm-puff', function () {
+    var i = live.Smoke
+    if (i) i.puff(window.innerWidth / 2, window.innerHeight / 2, 40)
+  })
+
+  // ─── Composition ──────────────────────────────────────────────────────
+  // Section 10. A recipe is built here from behaviour names, with no preset
+  // file behind it — the point being that the combinations nobody shipped are
+  // reachable from the same eight files the shipped presets use.
+  var cx = { motion: 'curl', render: 'segment', origin: 'pointer',
+             color: '#7df9ff', count: 4, life: 0.8 }
+  var cxLive = null
+
+  function cxBuild() {
+    var P = FX.particles
+    if (!P) return null
+    return P.recipe({
+      name: 'Composed', key: 'composed',
+      motion: cx.motion,
+      render: cx.render,
+      emit: { move: { origin: cx.origin, mode: 'fixed' } },
+      defaults: {
+        color: cx.color, count: cx.count, life: cx.life, size: 7,
+        // Enough of each behaviour's own options that every combination looks
+        // deliberate rather than accidentally inert.
+        spread: 1.2, push: 40, drag: 1.4, damping: 0.9,
+        curl: 60, curlScale: 0.006, curlSpeed: 0.9,
+        grow: 12, opacity: 0.12, additive: true, jitter: 12,
+        length: 16, segments: 4, width: 1.4, taper: true, glow: 6,
+        velocity: 160, scatter: 0.4, shrink: true
+      }
+    })
+  }
+
+  function cxMount() {
+    cxUnmount()
+    var r = cxBuild()
+    if (r) cxLive = FX.mount(r, {})
+  }
+
+  function cxUnmount() {
+    if (cxLive) { cxLive.unmount(); cxLive = null }
+  }
+
+  function cxPick(id, key) {
+    var el = document.getElementById(id)
+    if (!el) return
+    el.addEventListener('change', function () {
+      cx[key] = el.value
+      if (cxLive) cxMount()          // behaviour swaps need a fresh recipe
+    })
+  }
+
+  cxPick('cx-motion', 'motion')
+  cxPick('cx-render', 'render')
+  cxPick('cx-origin', 'origin')
+
+  function cxTune(id, key, parse) {
+    var el = document.getElementById(id)
+    if (!el) return
+    var out = el.parentNode.querySelector('output')
+    el.addEventListener('input', function () {
+      cx[key] = parse ? parse(el.value) : el.value
+      if (out && el.type !== 'color') out.textContent = cx[key]
+      // Options apply live; only a behaviour swap rebuilds.
+      if (cxLive) cxLive.options[key] = cx[key]
+      if (cxLive && key === 'color') cxLive.setColor(cx[key])
+    })
+  }
+
+  cxTune('cx-color', 'color')
+  cxTune('cx-count', 'count', parseFloat)
+  cxTune('cx-life',  'life',  parseFloat)
+
+  // The composition section owns the canvas the same way a preset section
+  // does, so what you feel is one effect at a time.
+  new IntersectionObserver(function (e) {
+    if (manual) return
+    if (e[0].isIntersecting && e[0].intersectionRatio > 0.5) {
+      if (current) { unmount(current); current = null }
+      cxMount()
+    } else {
+      cxUnmount()
+    }
+  }, { threshold: [0, 0.5, 1] }).observe(document.querySelector('[data-preset="__compose"]'))
 
   bind('rv-radius',  'Reveal', 'radius',  function (i, v) { if (i) i.setRadius(v) })
   bind('rv-opacity', 'Reveal', 'opacity', function (i, v) { if (i) i.setOpacity(v) })
