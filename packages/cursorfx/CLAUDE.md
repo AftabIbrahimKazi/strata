@@ -24,11 +24,14 @@ presets/<name>/<name>.css    only if that preset needs CSS
   reveal/         DOM    - pointer opens a hole in the top of two stacked layers
 ```
 
-Nothing here is generated and there is no build step. `cursorfx.js` is the
-engine source, and it is also the file Strata's CLI resolves
-(`@strata-packages/<name>/<name>.js`) — one file serving both roles, which is
-why no bundle is needed. Presets are never bundled into it: a Strata consumer
-gets the engine in `strata.components.js` and loads the preset they mount.
+Nothing here is generated and there is no build step — `cursorfx.js` is the
+engine source, loaded directly.
+
+CursorFX installs separately from `strata-css`, like `flipbook` and `picker`,
+and is deliberately **not** in the CLI's `COMPONENTS` list. Being there would
+concatenate it into `strata.components.js` and warn every `strata-css` consumer
+about a package they never asked for. Consumers load `cursorfx.js` themselves,
+then the presets they mount. A test asserts the CLI never picks it up.
 
 **What belongs in core.css:** anything the engine itself owns (the canvas), and
 anything keyed to a shared API attribute that a second preset would otherwise

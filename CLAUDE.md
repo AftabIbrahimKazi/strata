@@ -366,7 +366,13 @@ npm i @strata-packages/modal @strata-packages/offcanvas \
       @strata-packages/skeleton-loader @strata-packages/chart \n      @strata-packages/cursorfx
 ```
 
-The build resolves them from your `node_modules/@strata-packages/*`, concatenates them into `dist/strata.components.js`, and exposes them under the `Strata.*` namespace (`Strata.Modal`, `Strata.Offcanvas`, `Strata.skeleton`, `Strata.Chart`, `Strata.CursorFX`). Load that one file — not the individual package scripts.
+The build resolves them from your `node_modules/@strata-packages/*`, concatenates them into `dist/strata.components.js`, and exposes them under the `Strata.*` namespace (`Strata.Modal`, `Strata.Offcanvas`, `Strata.skeleton`, `Strata.Chart`). Load that one file — not the individual package scripts.
+
+Four packages are bundled this way: `modal`, `offcanvas`, `skeleton-loader` and
+`chart`. The rest — `forms`, `picker`, `flipbook`, `shopmap`, `cursorfx` — install
+and load separately, with their own `<script>` tag or import. They are deliberately
+outside this list: being in it would warn every `strata-css` consumer about a
+package they never asked for.
 
 Any component you haven't installed is reported at build time:
 
@@ -388,7 +394,7 @@ Before v1.8.14 this resolution only looked inside the Strata monorepo, so instal
 | `@strata-packages/offcanvas` | Slide-in drawer component | `packages/offcanvas/CLAUDE.md` |
 | `@strata-packages/flipbook` | CSS-driven 3D page-flip flipbook | `packages/flipbook/CLAUDE.md` |
 | `@strata-packages/shopmap` | JIT-themed MapLibre GL shop map | `packages/shopmap/CLAUDE.md` |
-| `@strata-packages/cursorfx` | Modular cursor effects — engine + 6 presets | `packages/cursorfx/CLAUDE.md` |
+| `@strata-packages/cursorfx` | Modular cursor effects — engine + 7 presets | `packages/cursorfx/CLAUDE.md` |
 
 ## New in v1.1.0
 
