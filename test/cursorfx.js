@@ -45,9 +45,9 @@ function freshRequire(rel) {
 }
 
 const PRESET_NAMES = ['Trail', 'ClickBurst', 'Electric', 'Magnetic', 'HoverFlicker',
-                      'CursorMorph', 'Reveal']
+                      'CursorMorph', 'Reveal', 'Spark']
 const PRESET_FILES = ['trail', 'click-burst', 'electric', 'magnetic', 'hover-flicker',
-                      'cursor-morph', 'reveal']
+                      'cursor-morph', 'reveal', 'spark']
 
 // Presets are separate files now, so anything that mounts one has to register
 // it first — exactly what a consumer does.
@@ -299,6 +299,93 @@ console.log('\n── CursorFX: attribute state and target scoping ────�
      !el('all').hasAttribute('data-st-cfx-magnetic') &&
      !el('all').hasAttribute('data-st-cfx-flicker'))
 
+  delete global.window
+  delete global.document
+}
+
+console.log('\n── CursorFX: Spark ──────────────────────────────────')
+
+{
+  const dom = new JSDOM(
+    '<!doctype html><body><b id="t" data-st-cfx-target="spark">x</b></body>',
+    { pretendToBeVisual: true, virtualConsole: new VirtualConsole() }
+  )
+  global.window = dom.window
+  global.document = dom.window.document
+
+  const FX = loadPresets(freshRequire('cursorfx.js'))
+  const Spark = FX.presets.Spark
+  FX.init({ maxParticles: 200 })
+
+  const ctx = { globalAlpha: 1, lineWidth: 1, strokeStyle: '', shadowBlur: 0,
+                shadowColor: '', lineCap: '', lineJoin: '',
+                beginPath() {}, moveTo() {}, lineTo() {}, stroke() {} }
+  const move = (x, y) => document.dispatchEvent(
+    new dom.window.PointerEvent('pointermove', { clientX: x, clientY: y }))
+
+  const s = FX.mount(Spark, { drift: 0 })
+
+  // Emission is gated on pointer speed: a slow drift should stay quiet while a
+  // fast sweep should fire. Without this the effect fires constantly and reads
+  // as noise rather than as sparks thrown off movement.
+  let before = FX.budget()
+  for (let i = 0; i < 40; i++) move(100 + i * 0.4, 100)
+  const slow = before - FX.budget()
+  before = FX.budget()
+  for (let i = 0; i < 20; i++) move(100 + i * 90, 100)
+  const fast = before - FX.budget()
+  ok('emission is gated on pointer speed', fast > slow)
+
+  before = FX.budget()
+  document.dispatchEvent(new dom.window.PointerEvent('pointerdown', { clientX: 50, clientY: 50 }))
+  ok('a click emits the full burst', before - FX.budget() === s.options.burst)
+
+  // The jag store is indexed by pool slot and allocated once, so a streak
+  // allocates nothing after its slot has been used. Storing shape on the
+  // particle cannot work: the pool clears `data` on acquire and release.
+  ok('jag store is sized to the pool, not per particle',
+     s.local.jag.length === s.pool.size)
+
+  // Hover emission originates on the target's border, distributed by perimeter.
+  const el = document.getElementById('t')
+  const R = { left: 10, top: 20, right: 110, bottom: 60, width: 100, height: 40 }
+  Object.defineProperty(el, 'getBoundingClientRect', { value: () => R })
+  Spark.onHoverEnter(el, s)
+  for (let i = 0; i < 4; i++) Spark.render(ctx, 0.09, s)
+
+  let onEdge = 0, total = 0
+  s.pool.forEachOwnedBy(s, p => {
+    total++
+    const onV = (Math.abs(p.x - R.left) < 0.01 || Math.abs(p.x - R.right) < 0.01) &&
+                p.y >= R.top - 0.01 && p.y <= R.bottom + 0.01
+    const onH = (Math.abs(p.y - R.top) < 0.01 || Math.abs(p.y - R.bottom) < 0.01) &&
+                p.x >= R.left - 0.01 && p.x <= R.right + 0.01
+    if (onV || onH) onEdge++
+  })
+  ok('hover streaks originate on the target border', total > 0 && onEdge === total)
+
+  Spark.onHoverLeave(el, s)
+  const after = FX.budget()
+  for (let i = 0; i < 4; i++) Spark.render(ctx, 0.09, s)
+  ok('leaving a target stops hover emission', FX.budget() >= after)
+
+  // A streak's jag is generated at birth and held. Re-randomising it per frame
+  // is what makes the reference demo's sparks vibrate instead of reading as
+  // electricity, so this is the assertion that defines the preset.
+  document.dispatchEvent(new dom.window.PointerEvent('pointerdown', { clientX: 80, clientY: 80 }))
+  const p0 = s.pool.items.find(x => x.active && x.owner === s)
+  ok('a live particle exists to check', !!p0)
+  const shape = p0 ? (s.local.jag[p0._i] || []).slice() : []
+  Spark.render(ctx, 0.01, s)
+  Spark.render(ctx, 0.01, s)
+  ok('a streak holds its shape while it fades',
+     shape.length > 0 &&
+     shape.every((v, i) => (s.local.jag[p0._i] || [])[i] === v))
+
+  ok('Spark needs no stylesheet',
+     !require('fs').existsSync(path.join(PKG, 'presets', 'spark', 'spark.css')))
+
+  FX.destroy()
   delete global.window
   delete global.document
 }

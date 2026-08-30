@@ -190,7 +190,7 @@
         That is the whole integration for a real page. This one goes further
         only because it mounts and unmounts presets as you scroll and drives
         every option from a live control panel — which is what the imperative
-        API is for. Section 10 covers both.
+        API is for. Section 11 covers both.
       </p>
     </div>
 
@@ -558,9 +558,65 @@ neon.setSpeed(400)</pre>
     </div>
   </section>
 
+  <!-- ═══ Spark ═══════════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="Spark">
+    <h2 class="mb-1">8 — Spark <span class="pill">canvas</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Electric streaks off three sources at once: pointer movement (gated on
+      speed), clicks, and the borders of hover targets. Move slowly, then sweep
+      fast — the difference is the point.
+    </p>
+
+    <div class="stage mb-4">
+      <span class="target" data-st-cfx-target="spark">streaks off my edges</span>
+      <button class="btn-primary" data-st-cfx-target="spark">and mine</button>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>color</code>     <input type="color" id="sp-color" value="#82c8ff"><output>—</output></div>
+          <div class="ctrl"><code>length</code>    <input type="range" id="sp-length"  min="4"  max="60"  step="2"    value="14"><output>14</output></div>
+          <div class="ctrl"><code>segments</code>  <input type="range" id="sp-seg"     min="2"  max="10"  step="1"    value="4"><output>4</output></div>
+          <div class="ctrl"><code>jitter</code>    <input type="range" id="sp-jitter"  min="0"  max="30"  step="1"    value="7"><output>7</output></div>
+          <div class="ctrl"><code>width</code>     <input type="range" id="sp-width"   min="0.5" max="5"  step="0.1"  value="1.4"><output>1.4</output></div>
+          <div class="ctrl"><code>life</code>      <input type="range" id="sp-life"    min="0.1" max="1.2" step="0.02" value="0.32"><output>0.32</output></div>
+          <div class="ctrl"><code>drift</code>     <input type="range" id="sp-drift"   min="0"  max="200" step="5"    value="26"><output>26</output></div>
+          <div class="ctrl"><code>speedGate</code> <input type="range" id="sp-gate"    min="4"  max="120" step="2"    value="34"><output>34</output></div>
+          <div class="ctrl"><code>glow</code>      <input type="range" id="sp-glow"    min="0"  max="24"  step="1"    value="6"><output>6</output></div>
+          <div class="ctrl"><code>hoverRate</code> <input type="range" id="sp-hover"   min="0"  max="500" step="10"   value="90"><output>90</output></div>
+          <div class="ctrl"><code>taper</code>
+            <label class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="sp-taper" checked>
+            </label><output>true</output>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Why it holds still</h6>
+          <p class="text-muted text-[0.78rem]">
+            Each streak's jag is generated once when the particle is born and
+            then left alone while it fades. Regenerating it every frame — the
+            obvious way to write this — makes every spark vibrate, and a field
+            of vibrating sparks reads as static rather than electricity.
+          </p>
+          <p class="text-muted text-[0.78rem] mb-2">
+            Offsets are scaled by <code>sin(t·π)</code>, so the kink lands
+            mid-streak with both ends anchored. Push <code>jitter</code> up and
+            <code>segments</code> to 8 to see the filament shape clearly.
+          </p>
+<pre>Strata.CursorFX.get('spark').burst(x, y)</pre>
+          <button class="btn-outline-light btn-sm mt-2" id="sp-fire">burst() at centre</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ═══ Global particle cap ═════════════════════════════════════════ -->
   <section class="demo" data-preset="__budget">
-    <h2 class="mb-1">8 — The particle cap is global</h2>
+    <h2 class="mb-1">9 — The particle cap is global</h2>
     <p class="text-muted mb-4 max-w-[70ch]">
       <code>maxParticles</code> is one budget shared by every mounted preset, not
       a per-preset allowance. Mount Trail and ClickBurst together and they compete
@@ -611,7 +667,7 @@ neon.setSpeed(400)</pre>
 
   <!-- ═══ Engine ══════════════════════════════════════════════════════ -->
   <section class="demo" data-preset="__engine">
-    <h2 class="mb-1">9 — The engine</h2>
+    <h2 class="mb-1">10 — The engine</h2>
     <p class="text-muted mb-4">Everything the presets do not have to think about.</p>
 
     <div class="row g-4 mb-4">
@@ -695,7 +751,7 @@ neon.setSpeed(400)</pre>
 
   <!-- ═══ Declarative configuration ════════════════════════════════════ -->
   <section class="demo" data-preset="__declarative">
-    <h2 class="mb-1">10 — Configuring it without JavaScript</h2>
+    <h2 class="mb-1">11 — Configuring it without JavaScript</h2>
     <p class="text-muted mb-4 max-w-[70ch]">
       Everything the control panels above do can be set in markup instead. A
       real page names its presets, sets their options, and writes no script.
@@ -791,6 +847,7 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
 <script src="../packages/cursorfx/presets/hover-flicker/hover-flicker.js"></script>
 <script src="../packages/cursorfx/presets/cursor-morph/cursor-morph.js"></script>
 <script src="../packages/cursorfx/presets/reveal/reveal.js"></script>
+<script src="../packages/cursorfx/presets/spark/spark.js"></script>
 <script>
 (function () {
   'use strict'
@@ -814,7 +871,9 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
     Magnetic:     { strength: 0.3, max: 24, scale: 1.04 },
     HoverFlicker: { color: '#ff2d55', duration: 900 },
     CursorMorph:  { size: 14, color: '', radius: 999, ease: 0.18, padding: 6, hideNative: true },
-    Reveal:       { radius: 110, feather: 60, opacity: 0, fade: 220, follow: 90, invert: false }
+    Reveal:       { radius: 110, feather: 60, opacity: 0, fade: 220, follow: 90, invert: false },
+    Spark:        { color: '#82c8ff', length: 14, segments: 4, jitter: 7, width: 1.4,
+                    life: 0.32, drift: 26, speedGate: 34, glow: 6, hoverRate: 90, taper: true }
   }
 
   var live    = {}     // name → instance, for whatever is mounted right now
@@ -1013,6 +1072,23 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
     document.getElementById('hf-dur').value = 2000
     opts.HoverFlicker.duration = 2000
     if (live.HoverFlicker) live.HoverFlicker.setSpeed(2000)
+  })
+
+  bind('sp-color',  'Spark', 'color',     function (i, v) { if (i) i.setColor(v) })
+  bind('sp-length', 'Spark', 'length',    function (i, v) { if (i) i.options.length = v })
+  bind('sp-seg',    'Spark', 'segments',  function (i, v) { if (i) i.options.segments = v })
+  bind('sp-jitter', 'Spark', 'jitter',    function (i, v) { if (i) i.options.jitter = v })
+  bind('sp-width',  'Spark', 'width',     function (i, v) { if (i) i.options.width = v })
+  bind('sp-life',   'Spark', 'life',      function (i, v) { if (i) i.options.life = v })
+  bind('sp-drift',  'Spark', 'drift',     function (i, v) { if (i) i.options.drift = v })
+  bind('sp-gate',   'Spark', 'speedGate', function (i, v) { if (i) i.options.speedGate = v })
+  bind('sp-glow',   'Spark', 'glow',      function (i, v) { if (i) i.options.glow = v })
+  bind('sp-hover',  'Spark', 'hoverRate', function (i, v) { if (i) i.options.hoverRate = v })
+  bind('sp-taper',  'Spark', 'taper',     function (i, v) { if (i) i.options.taper = v })
+
+  on('sp-fire', function () {
+    var i = live.Spark
+    if (i) i.burst(window.innerWidth / 2, window.innerHeight / 2)
   })
 
   bind('rv-radius',  'Reveal', 'radius',  function (i, v) { if (i) i.setRadius(v) })

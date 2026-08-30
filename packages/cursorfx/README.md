@@ -149,6 +149,7 @@ Every other option can reference a token too:
 | `HoverFlicker` | DOM | Hovered targets flicker like failing neon |
 | `CursorMorph` | DOM | A dot that morphs into the outline of what it's over |
 | `Reveal` | DOM | The pointer opens a soft hole in the top layer, showing what is beneath |
+| `Spark` | canvas | Short electric streaks thrown off the pointer, clicks, and hover-target edges |
 
 ### Options
 
@@ -174,6 +175,38 @@ Methods: `setColor(css)`, `setSpeed(ms)`
 **CursorMorph** — `size`, `color`, `radius`, `ease`, `padding`, `hideNative`,
 `zIndex`
 Methods: `setColor(css)`, `setSize(px)`
+
+### Spark
+
+Jagged electric streaks, thrown off three things at once: pointer movement,
+clicks, and the borders of hover targets.
+
+```html
+<body data-st-cursorfx="spark"
+      data-st-cfx-spark-color="#82c8ff #ffd682"
+      data-st-cfx-spark-glow="8">
+```
+
+Options: `color`, `count` (per qualifying move), `burst` (per click), `length`,
+`segments` (jag detail; `2` is a straight line), `jitter` (lateral displacement
+at mid-streak), `width`, `taper`, `life`, `drift`, `spread`, `speedGate`,
+`dragBoost`, `glow`, `hoverRate` (ms between edge streaks; `0` disables),
+`hoverOrigin` (`edge` | `pointer`)
+Methods: `setColor(css)`, `burst(x, y)`
+
+Three details that make it read as electricity rather than noise:
+
+- **A streak's jag is generated once, at birth, and then held still while it
+  fades.** Re-randomising the shape each frame — the obvious implementation —
+  makes every spark vibrate, and a field of vibrating sparks looks like static.
+- **The kink sits mid-streak.** Lateral offsets are scaled by `sin(t·π)`, which
+  anchors both ends at zero. Jittering around the origin instead produces a
+  hook off the start point.
+- **Emission is gated on pointer speed.** A slow drift stays quiet; a fast
+  sweep fires. `dragBoost` raises the rate while the pointer is held down.
+
+Streaks taper along their length, which needs one stroke per segment — a single
+path can only carry one `lineWidth`. Set `taper: false` to halve the draw calls.
 
 ### Reveal
 

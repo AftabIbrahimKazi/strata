@@ -22,6 +22,7 @@ presets/<name>/<name>.css    only if that preset needs CSS
   hover-flicker/  DOM    - neon flicker on hover
   cursor-morph/   DOM    - dot that morphs to the hovered box
   reveal/         DOM    - pointer opens a hole in the top of two stacked layers
+  spark/          canvas - electric streaks off movement, clicks and target edges  (no CSS)
 ```
 
 Nothing here is generated and there is no build step — `cursorfx.js` is the
@@ -214,6 +215,19 @@ on the page into a grid.
 be transitioned; mask position cannot be animated directly because it lives
 inside the gradient. Pointer coordinates are written on the container and eased
 there, so the masked child inherits an already-smoothed value.
+
+## Spark's jag store
+
+Spark keeps each streak's lateral offsets in `inst.local.jag`, an array indexed
+by the particle's **pool slot** (`p._i`) and sized to the pool at mount. Two
+reasons it cannot live on the particle: the pool clears `data` on both acquire
+and release (which is what stops presets leaking state into each other), and
+allocating an array per spawn would reintroduce the garbage the pool exists to
+avoid. Indexed by slot, a streak allocates nothing after that slot's first use.
+
+The shape is generated in `spawn()` and never touched again. Regenerating it in
+`render()` is the single easiest way to ruin this preset — the streaks vibrate
+and the effect reads as static. A test pins it.
 
 ## Adding a preset
 

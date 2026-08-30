@@ -1,5 +1,11 @@
 # Changelog — @strata-packages/cursorfx
 
+## [Unreleased]
+
+### Added
+- **`Spark` preset** — jagged electric streaks thrown off pointer movement, clicks, and the borders of hover targets. Streak shape is generated once at birth and held while it fades; lateral offsets use a `sin(t·π)` envelope so the kink sits mid-streak with both ends anchored. Emission is gated on pointer speed, with `dragBoost` while the pointer is held. Per-segment width taper, optional glow, and `hoverOrigin: 'edge' | 'pointer'`.
+- First preset to read `state.down`, which the engine had always tracked but nothing used.
+
 ## [0.0.0] — 2026-08-30
 
 ### Added
