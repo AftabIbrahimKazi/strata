@@ -1,0 +1,27 @@
+/**
+ * Strata CursorFX — HoverFlicker preset CSS
+ * Requires core.css.
+ *
+ * The JS toggles one attribute and writes two custom properties. Everything
+ * else is the keyframe below — this preset never joins the RAF loop.
+ */
+
+@keyframes st-cfx-flicker {
+  0%, 100% { opacity: 1;    text-shadow: 0 0 6px  var(--st-cfx-flicker-color, currentColor); }
+  8%       { opacity: 0.4;  text-shadow: none; }
+  10%      { opacity: 1;    text-shadow: 0 0 10px var(--st-cfx-flicker-color, currentColor); }
+  18%      { opacity: 0.75; text-shadow: 0 0 2px  var(--st-cfx-flicker-color, currentColor); }
+  22%      { opacity: 1;    text-shadow: 0 0 12px var(--st-cfx-flicker-color, currentColor); }
+  60%      { opacity: 1;    text-shadow: 0 0 8px  var(--st-cfx-flicker-color, currentColor); }
+  63%      { opacity: 0.5;  text-shadow: none; }
+  66%      { opacity: 1;    text-shadow: 0 0 14px var(--st-cfx-flicker-color, currentColor); }
+}
+
+[data-st-cfx-flicker="true"] {
+  animation: st-cfx-flicker var(--st-cfx-flicker-duration, 900ms) var(--st-easing, ease-out) infinite;
+  color: var(--st-cfx-flicker-color, inherit);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-st-cfx-flicker="true"] { animation: none; }
+}

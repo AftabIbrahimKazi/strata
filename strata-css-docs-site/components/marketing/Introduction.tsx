@@ -9,9 +9,9 @@ export default function Introduction() {
           <div className="d-flex align-items-center gap-4">
             <Logo size={40} />
             <div>
-              <h2 className="mb-2">What is Strata?</h2>
+              <h2 className="mb-2">What is Strata CSS?</h2>
               <p className="text-muted mb-0">
-                Strata is a modern JIT CSS framework that combines the best of
+                Strata CSS is a modern JIT CSS framework that combines the best of
                 component-driven development and utility-first flexibility. It gives you a
                 powerful, atomic toolkit with the simplicity of writing CSS.
               </p>
