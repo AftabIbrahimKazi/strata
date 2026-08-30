@@ -32,7 +32,8 @@
     "publish:beta": "npm publish --tag beta",
     "publish:skeleton": "npm publish --workspace packages/skeleton-loader --tag latest",
     "publish:modal": "npm publish --workspace packages/modal --tag latest",
-    "publish:chart": "npm publish --workspace packages/chart --tag latest"
+    "publish:chart": "npm publish --workspace packages/chart --tag latest",
+    "publish:cursorfx": "npm publish --workspace packages/cursorfx --tag latest"
   },
   "keywords": [
     "strata",

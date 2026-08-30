@@ -18,6 +18,9 @@
     "./presets/reveal": "./presets/reveal/reveal.js",
     "./presets/reveal/css": "./presets/reveal/reveal.css"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "cursorfx.js",
     "cursorfx.css",
