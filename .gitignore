@@ -23,3 +23,7 @@ benchmark/results/
 # Environment
 .env
 .env.local
+
+# Paid/private packages — not published to GitHub, not part of the OSS repo
+paid-packages/
+examples/flipbook-3d-test.html
