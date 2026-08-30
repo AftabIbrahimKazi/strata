@@ -60,14 +60,33 @@
    * would quietly undo the whole point of splitting the package up.
    */
 
+  /* Null-prototype maps at both levels, and an axis checked against a fixed
+   * list rather than by truthiness. All of it matters for the same reason:
+   * `registry['__proto__']` on a plain object returns Object.prototype instead
+   * of undefined, so a behaviour named or filed under `__proto__` would pass
+   * the guard and write onto every object in the page. Behaviour names come
+   * from package files today, but `behaviour()` is public API — a consumer
+   * registering a custom behaviour supplies both arguments, and that is
+   * library input. */
+  var AXES = ['origin', 'motion', 'render']
+
   var registry = Object.create(null)
   registry.origin = Object.create(null)
   registry.motion = Object.create(null)
   registry.render = Object.create(null)
 
+  function knownAxis(axis) {
+    for (var i = 0; i < AXES.length; i++) if (AXES[i] === axis) return true
+    return false
+  }
+
   function behaviour(axis, def) {
-    if (!Object.prototype.hasOwnProperty.call(registry, axis)) throw new Error('CursorFX: unknown behaviour axis "' + axis + '"')
-    if (!def || !def.name) return
+    if (!knownAxis(axis)) throw new Error('CursorFX: unknown behaviour axis "' + axis + '"')
+    if (!def || typeof def.name !== 'string' || !def.name) return
+    if (def.name === '__proto__') {
+      warn('CursorFX: a behaviour may not be named "__proto__".')
+      return
+    }
     registry[axis][def.name] = def
   }
 
