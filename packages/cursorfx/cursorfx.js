@@ -110,16 +110,31 @@
    * @strata-packages/chart uses to pick up --st-primary and friends.
    */
 
-  var VAR_RE = /^var\(\s*(--[\w-]+)\s*(?:,\s*([\s\S]+))?\)$/
+  // Token names only. Anchored, one character class, no alternation next to a
+  // quantifier — linear whatever the input.
+  var TOKEN_NAME_RE = /^--[\w-]+$/
 
+  /* Parsed by hand rather than with one compound regex. The obvious pattern,
+   * /^var\(\s*(--[\w-]+)\s*(?:,\s*([\s\S]+))?\)$/, backtracks polynomially on
+   * input like "var(---," followed by many spaces: `--[\w-]+` and the `\s*`
+   * and `,\s*` around it can divide the same characters many ways. Colour
+   * values reach here straight from author markup, so that is reachable.
+   * Slicing at the first comma has no ambiguity to backtrack over. */
   function resolveVar(v, depth) {
     if (typeof v !== 'string') return v
     v = v.trim()
-    var m = VAR_RE.exec(v)
-    if (!m || !win || (depth || 0) > 8) return v          // depth guard: --a: var(--b); --b: var(--a)
-    var got = win.getComputedStyle(doc.documentElement).getPropertyValue(m[1]).trim()
+    if (!win || (depth || 0) > 8) return v      // depth guard: --a: var(--b); --b: var(--a)
+    if (v.slice(0, 4) !== 'var(' || v.charAt(v.length - 1) !== ')') return v
+
+    var inner = v.slice(4, -1)
+    var comma = inner.indexOf(',')
+    var name  = (comma === -1 ? inner : inner.slice(0, comma)).trim()
+    if (!TOKEN_NAME_RE.test(name)) return v
+
+    var fallback = comma === -1 ? null : inner.slice(comma + 1).trim()
+    var got = win.getComputedStyle(doc.documentElement).getPropertyValue(name).trim()
     if (got) return resolveVar(got, (depth || 0) + 1)
-    return m[2] ? resolveVar(m[2].trim(), (depth || 0) + 1) : ''
+    return fallback ? resolveVar(fallback, (depth || 0) + 1) : ''
   }
 
   // Splits at paren depth 0 only, so commas inside rgb(...) and var(--x, #fff)
