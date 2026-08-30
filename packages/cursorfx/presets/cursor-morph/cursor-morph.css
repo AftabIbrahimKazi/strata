@@ -1,0 +1,21 @@
+/**
+ * Strata CursorFX — CursorMorph preset CSS
+ * Requires core.css, which supplies the cursor-hiding rule.
+ *
+ * The JS writes the interpolated box as custom properties each frame; the
+ * element itself is described entirely here.
+ */
+
+[data-st-cfx="morph"] {
+  position: fixed;
+  top:  0;
+  left: 0;
+  width:         var(--st-cfx-morph-w, 14px);
+  height:        var(--st-cfx-morph-h, 14px);
+  border-radius: var(--st-cfx-morph-r, 999px);
+  transform:     translate3d(var(--st-cfx-morph-x, 0), var(--st-cfx-morph-y, 0), 0);
+  border:     1.5px solid var(--st-cfx-morph-color, currentColor);
+  background: color-mix(in srgb, var(--st-cfx-morph-color, currentColor) 12%, transparent);
+  pointer-events: none;
+  will-change: transform, width, height;
+}

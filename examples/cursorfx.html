@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — CursorFX Showcase</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <!-- CursorFX ships its own CSS. Global engine rules, then only the presets
+       that need a stylesheet — Trail, ClickBurst and Electric draw to the
+       engine's canvas and need none. -->
+  <link rel="stylesheet" href="../packages/cursorfx/cursorfx.css">
+  <link rel="stylesheet" href="../packages/cursorfx/presets/magnetic/magnetic.css">
+  <link rel="stylesheet" href="../packages/cursorfx/presets/hover-flicker/hover-flicker.css">
+  <link rel="stylesheet" href="../packages/cursorfx/presets/cursor-morph/cursor-morph.css">
+  <link rel="stylesheet" href="../packages/cursorfx/presets/reveal/reveal.css">
+  <style>
+    /* Referenced by the boot attributes on <body> — colours come from tokens
+       rather than being hardcoded in the markup. */
+    :root {
+      --demo-hot:  #ff2d55;
+      --demo-cool: #7df9ff;
+      /* A whole gradient in a token — passed straight to a preset colour. */
+      --demo-fade: linear-gradient(90deg, #ff2d55 0%, #ffd166 55%, #7df9ff 100%);
+    }
+
+    body { background: #0b0d12; }
+
+    /* Each section owns the viewport while it is being demonstrated, so the
+       effect under test is the only one mounted. */
+    .demo {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 4rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .stage {
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      border: 1px dashed rgba(255,255,255,0.14);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+      padding: 3rem 2rem;
+    }
+
+    .target {
+      padding: 1rem 1.75rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      color: #e8ecf4;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* The control rail. Kept deliberately plain — the effect is the subject. */
+    .ctrl {
+      display: grid;
+      grid-template-columns: 150px 1fr 62px;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.82rem;
+      padding: 0.3rem 0;
+    }
+    .ctrl code { color: #8fb8ff; }
+    .ctrl output { font-family: monospace; color: #b9c4d4; text-align: right; }
+    .ctrl input[type=range] { width: 100%; }
+
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .panel h6 {
+      font-size: 0.7rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #7c8797;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Reveal demo — two stacked layers; the preset's CSS does the stacking. */
+    .reveal-demo { border-radius: 12px; overflow: hidden; cursor: none; }
+    .layer-under, .layer-over {
+      display: grid; place-items: center;
+      width: 320px; height: 180px;
+      font-size: 1.6rem; font-weight: 700; letter-spacing: 0.08em;
+    }
+    .layer-under { background: linear-gradient(135deg, #7df9ff, #4ade80); color: #05070b; }
+    .layer-over  { background: linear-gradient(135deg, #ff2d55, #ffd166); color: #05070b; }
+    .btn-alt { background: inherit; }
+
+    .meter { height: 6px; border-radius: 99px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .meter > i { display: block; height: 100%; background: #4ade80; transition: width 120ms linear; }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-family: monospace;
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+      border: 1px solid rgba(255,255,255,0.16);
+      color: #b9c4d4;
+    }
+    .pill[data-on="true"]  { border-color: #4ade80; color: #4ade80; }
+    .pill[data-on="false"] { border-color: #5b6472; color: #5b6472; }
+
+    pre {
+      background: #05070b;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.76rem;
+      color: #c8d2e0;
+      overflow-x: auto;
+    }
+
+    /* Sticky readout of live engine state — visible in every section. */
+    #hud {
+      position: fixed;
+      right: 1rem;
+      bottom: 1rem;
+      z-index: 2147483002;
+      font-family: monospace;
+      font-size: 0.7rem;
+      background: rgba(5,7,11,0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 0.7rem 0.9rem;
+      color: #b9c4d4;
+      min-width: 190px;
+      pointer-events: none;
+    }
+    #hud b { color: #e8ecf4; font-weight: 600; }
+  </style>
+</head>
+
+<!-- The page boots the way any real page does: presets and options declared
+     here, nothing initialised by hand. The script below only takes over for the
+     live control panel and the scroll-driven mount/unmount. -->
+<body class="text-light"
+      data-st-cursorfx="trail"
+      data-st-cfx-trail-color="var(--demo-fade)"
+      data-st-cfx-trail-count="3"
+      data-st-cfx-trail-hover-boost="3"
+      data-st-cfx-max-particles="220"
+      data-st-cfx-tier="auto">
+
+<div id="hud">
+  <div>preset  <b id="hud-preset">—</b></div>
+  <div>budget  <b id="hud-budget">—</b></div>
+  <div class="meter mt-1 mb-2"><i id="hud-meter"></i></div>
+  <div>tier <span class="pill" id="hud-tier">—</span></div>
+  <div class="mt-1">loop <span class="pill" id="hud-loop">—</span></div>
+  <div class="mt-1">reduced <span class="pill" id="hud-reduced">—</span></div>
+</div>
+
+<div class="container">
+
+  <!-- ═══ Intro ═══════════════════════════════════════════════════════ -->
+  <header class="demo" id="s-intro">
+    <p class="pill mb-3">@strata-packages/cursorfx v0.0.0</p>
+    <h1 class="mb-3">CursorFX</h1>
+    <p class="text-[1.1rem] max-w-[62ch] text-muted mb-4">
+      One shared engine, six opt-in presets. Each section below mounts its
+      preset as it scrolls into view and unmounts it on the way out — so what
+      you feel at any moment is exactly one preset, driven by the same engine.
+    </p>
+    <p class="text-muted mb-4">Move your pointer. Scroll down.</p>
+    <div class="panel max-w-[64ch] mb-4">
+      <h6>How this page started — no script of its own</h6>
+      <p class="text-muted text-[0.85rem] mb-2">
+        Trail is already running. Nothing initialised it; these attributes on
+        <code>&lt;body&gt;</code> did, before any script below executed:
+      </p>
+<pre>&lt;body data-st-cursorfx="trail"
+      data-st-cfx-trail-color="var(--demo-fade)"
+      data-st-cfx-trail-count="3"
+      data-st-cfx-trail-hover-boost="3"
+      data-st-cfx-max-particles="220"
+      data-st-cfx-tier="auto"&gt;</pre>
+      <p class="text-muted text-[0.78rem] mt-2 mb-0">
+        That is the whole integration for a real page. This one goes further
+        only because it mounts and unmounts presets as you scroll and drives
+        every option from a live control panel — which is what the imperative
+        API is for. Section 10 covers both.
+      </p>
+    </div>
+
+    <div class="panel max-w-[62ch]">
+      <h6>What the engine is doing right now</h6>
+      <p class="text-muted mb-0 text-[0.85rem]">
+        The RAF loop has not started yet — it starts lazily on your first real
+        pointer event, so a page nobody interacts with never animates. Watch
+        <code>loop</code> in the corner readout flip when you move.
+      </p>
+    </div>
+  </header>
+
+  <!-- ═══ Trail ═══════════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="Trail">
+    <h2 class="mb-1">1 — Trail <span class="pill">canvas</span></h2>
+    <p class="text-muted mb-4">Fading particles along the pointer path.</p>
+
+    <div class="stage mb-4">
+      <span class="target" data-st-cfx-target>Hover me — hoverBoost multiplies emission</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>color</code>      <input type="color" id="tr-color" value="#ff2d55"><output>—</output></div>
+          <div class="ctrl"><code>count</code>      <input type="range" id="tr-count"  min="1"  max="12"  step="1"    value="3"><output>3</output></div>
+          <div class="ctrl"><code>size</code>       <input type="range" id="tr-size"   min="2"  max="24"  step="1"    value="6"><output>6</output></div>
+          <div class="ctrl"><code>life</code>       <input type="range" id="tr-life"   min="0.1" max="2"  step="0.05" value="0.6"><output>0.6</output></div>
+          <div class="ctrl"><code>spread</code>     <input type="range" id="tr-spread" min="0"  max="3"   step="0.1"  value="0.6"><output>0.6</output></div>
+          <div class="ctrl"><code>gravity</code>    <input type="range" id="tr-grav"   min="-600" max="900" step="20" value="0"><output>0</output></div>
+          <div class="ctrl"><code>hoverBoost</code> <input type="range" id="tr-boost"  min="1"  max="8"   step="1"    value="3"><output>3</output></div>
+          <div class="ctrl"><code>shrink</code>
+            <label class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="tr-shrink" checked>
+            </label><output>true</output>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Instance methods</h6>
+          <p class="text-muted text-[0.78rem]">
+            Preset-unique methods live on the object <code>mount()</code> returns.
+            The colour and count sliders above call these, not a remount.
+          </p>
+<pre>const trail = CursorFX.mount(Trail)
+
+trail.setColor('#ff2d55')
+trail.setParticleCount(6)
+trail.unmount()</pre>
+          <button class="btn-outline-light btn-sm mt-2" id="tr-rand">setColor(random)</button>
+          <button class="btn-outline-light btn-sm mt-2" id="tr-grad">setColor(linear-gradient)</button>
+          <button class="btn-outline-light btn-sm mt-2" id="tr-token">setColor(var(--demo-fade))</button>
+          <p class="text-muted text-[0.72rem] mt-2 mb-0">
+            A colour takes anything CSS takes — hex, <code>hsl()</code>, named
+            colours, a <code>linear-gradient()</code>, or a token holding any of
+            them. Gradients are read for their stops; Trail maps them to
+            particle age, so the first stop sits at the pointer and shades down
+            the tail. This page boots from
+            <code>var(--demo-fade)</code>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ ClickBurst ══════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="ClickBurst">
+    <h2 class="mb-1">2 — ClickBurst <span class="pill">canvas</span></h2>
+    <p class="text-muted mb-4">A radial burst on every click. The physics is real: gravity plus exponential drag.</p>
+
+    <div class="stage mb-4">
+      <span class="target">Click anywhere on the page</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>color</code>    <input type="color" id="cb-color" value="#ffd166"><output>—</output></div>
+          <div class="ctrl"><code>count</code>    <input type="range" id="cb-count" min="4"  max="60"  step="2"   value="24"><output>24</output></div>
+          <div class="ctrl"><code>velocity</code> <input type="range" id="cb-vel"   min="40" max="700" step="10"  value="260"><output>260</output></div>
+          <div class="ctrl"><code>life</code>     <input type="range" id="cb-life"  min="0.2" max="2.5" step="0.05" value="0.7"><output>0.7</output></div>
+          <div class="ctrl"><code>size</code>     <input type="range" id="cb-size"  min="2"  max="18"  step="1"   value="5"><output>5</output></div>
+          <div class="ctrl"><code>gravity</code>  <input type="range" id="cb-grav"  min="-400" max="1400" step="20" value="420"><output>420</output></div>
+          <div class="ctrl"><code>drag</code>     <input type="range" id="cb-drag"  min="0"  max="8"   step="0.2" value="2.2"><output>2.2</output></div>
+          <div class="ctrl"><code>ring</code>
+            <label class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="cb-ring">
+            </label><output>false</output>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Instance methods</h6>
+          <p class="text-muted text-[0.78rem]">
+            <code>burst(x, y)</code> fires at arbitrary coordinates — no click
+            needed. Useful for celebrating a form submit or a drop.
+          </p>
+<pre>const burst = CursorFX.mount(ClickBurst)
+
+burst.burst(x, y)
+burst.setColor('#ffd166')</pre>
+          <button class="btn-outline-light btn-sm mt-2" id="cb-fire">burst() at centre</button>
+          <button class="btn-outline-light btn-sm mt-2" id="cb-storm">burst() ×8 random</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Electric ════════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="Electric">
+    <h2 class="mb-1">3 — Electric <span class="pill">canvas</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Jagged arcs from the pointer to nearby hover targets. Draws no particles at
+      all, so it costs nothing against the global budget — watch the meter stay full.
+    </p>
+
+    <div class="stage mb-4">
+      <span class="target" data-st-cfx-target>node one</span>
+      <span class="target" data-st-cfx-target>node two</span>
+      <span class="target" data-st-cfx-target>node three</span>
+      <span class="target" data-st-cfx-target>node four</span>
+      <span class="target" data-st-cfx-target="magnetic">scoped to magnetic — no arc</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>color</code>     <input type="color" id="el-color" value="#7df9ff"><output>—</output></div>
+          <div class="ctrl"><code>radius</code>    <input type="range" id="el-radius" min="60" max="600" step="10" value="220"><output>220</output></div>
+          <div class="ctrl"><code>maxArcs</code>   <input type="range" id="el-arcs"   min="1"  max="8"   step="1"  value="3"><output>3</output></div>
+          <div class="ctrl"><code>jitter</code>    <input type="range" id="el-jit"    min="0"  max="70"  step="2"  value="18"><output>18</output></div>
+          <div class="ctrl"><code>segments</code>  <input type="range" id="el-seg"    min="2"  max="24"  step="1"  value="8"><output>8</output></div>
+          <div class="ctrl"><code>width</code>     <input type="range" id="el-width"  min="0.5" max="6"  step="0.5" value="1.5"><output>1.5</output></div>
+          <div class="ctrl"><code>glow</code>      <input type="range" id="el-glow"   min="0"  max="40"  step="2"  value="10"><output>10</output></div>
+          <div class="ctrl"><code>refreshMs</code> <input type="range" id="el-ref"    min="100" max="3000" step="100" value="500"><output>500</output></div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Instance methods</h6>
+          <p class="text-muted text-[0.78rem]">
+            Target positions are cached and re-measured on a timer, never per
+            frame — measuring every target every frame is a layout thrash.
+            Electric finds its own targets rather than being handed one by the
+            engine, so it filters <code>data-st-cfx-target</code> itself — the
+            last node above is scoped to Magnetic and never draws an arc.
+          </p>
+<pre>const arc = CursorFX.mount(Electric)
+
+arc.refreshTargets()
+arc.setColor('#7df9ff')</pre>
+          <button class="btn-outline-light btn-sm mt-2" id="el-shuffle">shuffle nodes + refreshTargets()</button>
+          <button class="btn-outline-light btn-sm mt-2" id="el-shuffle-stale">shuffle without refreshing</button>
+          <p class="text-muted text-[0.72rem] mt-2 mb-0">
+            Raise <code>refreshMs</code>, then shuffle without refreshing — the
+            arcs keep pointing at where the nodes used to be. That is the cache.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Magnetic ════════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="Magnetic">
+    <h2 class="mb-1">4 — Magnetic <span class="pill">DOM · CSS</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Targets lean toward the pointer. The JS writes two custom properties and
+      nothing else — every transition and easing is CSS.
+    </p>
+
+    <div class="stage mb-4">
+      <span class="target" data-st-cfx-target>Pull me</span>
+      <span class="target" data-st-cfx-target>And me</span>
+      <button class="btn-primary" data-st-cfx-target>A real button</button>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>strength</code> <input type="range" id="mg-str"   min="0" max="1"  step="0.05" value="0.3"><output>0.3</output></div>
+          <div class="ctrl"><code>max</code>      <input type="range" id="mg-max"   min="0" max="90" step="2"    value="24"><output>24</output></div>
+          <div class="ctrl"><code>scale</code>    <input type="range" id="mg-scale" min="1" max="1.4" step="0.02" value="1.04"><output>1.04</output></div>
+          <p class="text-muted text-[0.75rem] mt-3 mb-0">
+            <code>strength: 1</code> pins the element's centre to the pointer;
+            <code>max</code> is the displacement ceiling that keeps it sane.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>What the JS writes</h6>
+<pre>--cfx-mx: 12.40px
+--cfx-my: -6.10px
+--cfx-scale: 1.04</pre>
+          <p class="text-muted text-[0.78rem] mt-2">
+            CSS does the rest. Remove the stylesheet and the effect degrades to
+            nothing rather than breaking. The rect is measured once per hover,
+            not per frame.
+          </p>
+          <button class="btn-outline-light btn-sm" id="mg-strong">setStrength(0.9)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HoverFlicker ════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="HoverFlicker">
+    <h2 class="mb-1">5 — HoverFlicker <span class="pill">DOM · CSS</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      The lightest preset here: JS toggles one attribute, a CSS keyframe does
+      everything else. It does not participate in the RAF loop at all.
+    </p>
+
+    <div class="stage mb-4">
+      <span class="target text-[1.6rem]" data-st-cfx-target>NEON</span>
+      <span class="target text-[1.6rem]" data-st-cfx-target>VACANCY</span>
+      <span class="target text-[1.6rem]" data-st-cfx-target>OPEN 24H</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>color</code>    <input type="color" id="hf-color" value="#ff2d55"><output>—</output></div>
+          <div class="ctrl"><code>duration</code> <input type="range" id="hf-dur" min="200" max="3000" step="50" value="900"><output>900</output></div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Instance methods</h6>
+<pre>const neon = CursorFX.mount(HoverFlicker)
+
+neon.setColor('#ff2d55')
+neon.setSpeed(400)</pre>
+          <button class="btn-outline-light btn-sm mt-2" id="hf-fast">setSpeed(300)</button>
+          <button class="btn-outline-light btn-sm mt-2" id="hf-slow">setSpeed(2000)</button>
+          <p class="text-muted text-[0.72rem] mt-2 mb-0">
+            Speed and colour apply on the next hover — the attribute is written
+            when the pointer enters a target.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CursorMorph ═════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="CursorMorph">
+    <h2 class="mb-1">6 — CursorMorph <span class="pill">DOM · CSS</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      A dot that morphs into the outline of whatever it is over, borrowing that
+      element's own corner radius.
+    </p>
+
+    <div class="stage mb-4">
+      <span class="target" data-st-cfx-target>square-ish</span>
+      <button class="btn-primary rounded-pill" data-st-cfx-target>fully round</button>
+      <span class="target rounded-0" data-st-cfx-target>hard corners</span>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>color</code>   <input type="color" id="cm-color" value="#ffffff"><output>—</output></div>
+          <div class="ctrl"><code></code>
+            <button class="btn-outline-light btn-sm" id="cm-inherit">reset to currentColor</button>
+            <output>—</output>
+          </div>
+          <div class="ctrl"><code>size</code>    <input type="range" id="cm-size"  min="4"  max="48" step="2"  value="14"><output>14</output></div>
+          <div class="ctrl"><code>radius</code>  <input type="range" id="cm-rad"   min="0"  max="60" step="2"  value="60"><output>999</output></div>
+          <div class="ctrl"><code>ease</code>    <input type="range" id="cm-ease"  min="0.02" max="1" step="0.02" value="0.18"><output>0.18</output></div>
+          <div class="ctrl"><code>padding</code> <input type="range" id="cm-pad"   min="0"  max="30" step="1"  value="6"><output>6</output></div>
+          <div class="ctrl"><code>hideNative</code>
+            <label class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="cm-hide" checked>
+            </label><output>true</output>
+          </div>
+          <p class="text-muted text-[0.75rem] mt-3 mb-0">
+            <code>color</code> defaults to empty, which inherits
+            <code>currentColor</code> — legible on any background without the
+            package defining a colour of its own.
+            <code>hideNative</code> and <code>zIndex</code> are read at mount, so
+            that switch remounts the preset.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Frame-rate independent easing</h6>
+          <p class="text-muted text-[0.78rem]">
+            <code>ease</code> is applied as <code>1 - (1 - ease)^(dt·60)</code>,
+            so the dot feels identical at 60 Hz and 144 Hz. A naive
+            <code>x += (target - x) * ease</code> would move twice as fast on a
+            144 Hz display.
+          </p>
+          <p class="text-muted text-[0.78rem] mb-0">
+            <code>hideNative</code> hides the OS cursor page-wide. Turn it off if
+            you would rather not bet the page on one element rendering.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Reveal ══════════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="Reveal">
+    <h2 class="mb-1">7 — Reveal <span class="pill">DOM · CSS</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Two stacked layers; the pointer opens a soft hole in the top one. The JS
+      writes the pointer position and nothing else — the mask, its softness and
+      both transitions are CSS.
+    </p>
+
+    <div class="stage mb-4">
+      <div class="reveal-demo" data-st-cfx-target="reveal">
+        <div class="layer-under">UNDERNEATH</div>
+        <div class="layer-over" aria-hidden="true">ON TOP</div>
+      </div>
+
+      <button class="btn-primary" data-st-cfx-target="reveal">
+        <span>Buy now</span>
+        <span aria-hidden="true" class="btn-alt">£24.00</span>
+      </button>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every option</h6>
+          <div class="ctrl"><code>radius</code>  <input type="range" id="rv-radius" min="20" max="260" step="10" value="110"><output>110</output></div>
+          <div class="ctrl"><code>feather</code> <input type="range" id="rv-feather" min="0" max="200" step="10" value="60"><output>60</output></div>
+          <div class="ctrl"><code>opacity</code> <input type="range" id="rv-opacity" min="0" max="1" step="0.05" value="0"><output>0</output></div>
+          <div class="ctrl"><code>fade</code>    <input type="range" id="rv-fade" min="0" max="800" step="20" value="220"><output>220</output></div>
+          <div class="ctrl"><code>follow</code>  <input type="range" id="rv-follow" min="0" max="400" step="10" value="90"><output>90</output></div>
+          <div class="ctrl"><code>invert</code>
+            <label class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="rv-invert">
+            </label><output>false</output>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Tuning it from CSS, not markup</h6>
+          <p class="text-muted text-[0.78rem]">
+            An instance writes a custom property inline <em>only</em> when it
+            overrides a default — so a stylesheet can retune the effect
+            everywhere it was not explicitly set.
+          </p>
+<pre>:root { --st-cfx-reveal-radius: 90px; }
+.hero  { --st-cfx-reveal-feather: 140px; }</pre>
+          <p class="text-muted text-[0.72rem] mt-2 mb-0">
+            Drag <code>radius</code> above and inspect the container: the
+            property appears only once it differs from the default.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Global particle cap ═════════════════════════════════════════ -->
+  <section class="demo" data-preset="__budget">
+    <h2 class="mb-1">8 — The particle cap is global</h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      <code>maxParticles</code> is one budget shared by every mounted preset, not
+      a per-preset allowance. Mount Trail and ClickBurst together and they compete
+      for the same slots. Memory is allocated once at <code>init()</code> and never
+      grows: a preset that cannot get a particle drops the emission silently.
+    </p>
+
+    <div class="stage mb-4 flex-column">
+      <div class="d-flex gap-2 flex-wrap justify-content-center mb-4">
+        <button class="btn-outline-light btn-sm" data-mount="Trail">Trail</button>
+        <button class="btn-outline-light btn-sm" data-mount="ClickBurst">ClickBurst</button>
+        <button class="btn-outline-light btn-sm" data-mount="Electric">Electric</button>
+        <button class="btn-outline-light btn-sm" data-mount="Magnetic">Magnetic</button>
+        <button class="btn-outline-light btn-sm" data-mount="HoverFlicker">HoverFlicker</button>
+        <button class="btn-outline-light btn-sm" data-mount="CursorMorph">CursorMorph</button>
+        <button class="btn-danger btn-sm" id="bg-clear">unmount all</button>
+      </div>
+      <p class="text-muted text-[0.8rem] mb-2">mounted: <b id="bg-list">none</b></p>
+      <div class="max-w-[420px] w-100">
+        <div class="meter"><i id="bg-meter"></i></div>
+      </div>
+      <p class="text-muted text-[0.78rem] mt-2 mb-0 text-center max-w-[60ch]">
+        Mount Trail and ClickBurst, then click repeatedly — the meter bottoms out
+        and Trail visibly thins. That is the cap working, not a bug.
+      </p>
+      <div class="d-flex gap-2 flex-wrap justify-content-center mt-4">
+        <span class="target" data-st-cfx-target>every mounted preset</span>
+        <span class="target" data-st-cfx-target="magnetic">magnetic only</span>
+        <span class="target" data-st-cfx-target="hover-flicker">flicker only</span>
+        <span class="target" data-st-cfx-target="magnetic hover-flicker">both</span>
+      </div>
+      <p class="text-muted text-[0.78rem] mt-3 mb-0 text-center max-w-[60ch]">
+        <code>data-st-cfx-target</code> names which presets may react to an
+        element. An empty value means all of them. Mount Magnetic and
+        HoverFlicker together, then hover each of the four above.
+      </p>
+    </div>
+
+    <div class="panel">
+      <h6>Composition</h6>
+      <p class="text-muted text-[0.82rem] mb-0">
+        Electric, Magnetic, HoverFlicker and CursorMorph consume no particles, so
+        they layer onto anything for free. Only Trail and ClickBurst draw from the
+        pool. Mounting all six at once is the honest stress test.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ Engine ══════════════════════════════════════════════════════ -->
+  <section class="demo" data-preset="__engine">
+    <h2 class="mb-1">9 — The engine</h2>
+    <p class="text-muted mb-4">Everything the presets do not have to think about.</p>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Lazy loop</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            One RAF loop for all presets, started on the first real pointer event
+            and stopped when the last preset unmounts. A page nobody touches
+            never animates.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Tab visibility</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            Switch tabs and come back — the loop pauses on
+            <code>visibilitychange</code> and resumes. Watch <code>loop</code> in
+            the corner readout.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Reduced motion</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            <code>prefers-reduced-motion: reduce</code> stops the loop outright,
+            and the CSS neutralises the two effects it drives alone. The engine
+            listens for live changes, so toggling it in your OS takes effect
+            without a reload.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Shared hover hit-test</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            One <code>elementFromPoint</code> per frame for the whole page, shared
+            by every mounted preset. A second preset adds no hit-testing cost.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>One canvas</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            Created only when a canvas preset mounts, removed when the last one
+            unmounts. A page running only DOM presets never allocates one —
+            confirm it in devtools during sections 4–6.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Device tier</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            <code>tier: 'auto'</code> detects and reports; it never disables
+            anything itself. This page reads <code>CursorFX.tier()</code> into the
+            corner readout and leaves the decision to you.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h6>Full teardown</h6>
+      <p class="text-muted text-[0.82rem]">
+        <code>destroy()</code> removes every listener, element and attribute the
+        package added — the page returns to exactly its pre-init state. Tear it
+        down, then bring it back.
+      </p>
+      <button class="btn-danger btn-sm"  id="en-destroy">CursorFX.destroy()</button>
+      <button class="btn-success btn-sm" id="en-init">init() + mount(Trail)</button>
+      <p class="text-muted text-[0.78rem] mt-3 mb-0">
+        After destroy, scrolling no longer mounts anything and the readout goes
+        quiet — nothing is left listening.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ Declarative configuration ════════════════════════════════════ -->
+  <section class="demo" data-preset="__declarative">
+    <h2 class="mb-1">10 — Configuring it without JavaScript</h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Everything the control panels above do can be set in markup instead. A
+      real page names its presets, sets their options, and writes no script.
+    </p>
+
+    <div class="stage mb-4 flex-column">
+      <span class="target mb-4" data-st-cfx-target>hover me — still driven by attributes</span>
+<pre class="max-w-[60ch] w-100">&lt;body data-st-cursorfx="trail magnetic hover-flicker"
+      data-st-cfx-trail-color="#7df9ff"
+      data-st-cfx-trail-hover-boost="5"
+      data-st-cfx-magnetic-strength="0.4"
+      data-st-cfx-hover-flicker-duration="700"
+      data-st-cfx-max-particles="300"&gt;</pre>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Naming presets</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            <code>data-st-cursorfx</code> takes a space-separated list of preset
+            keys — the folder names: <code>trail</code>,
+            <code>click-burst</code>, <code>electric</code>,
+            <code>magnetic</code>, <code>hover-flicker</code>,
+            <code>cursor-morph</code>. Each still needs its script loaded; a key
+            whose file is missing warns in the console rather than doing nothing
+            quietly.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Setting options</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            <code>data-st-cfx-&lt;preset&gt;-&lt;option&gt;</code>, using the
+            documented option name in kebab-case — <code>hoverBoost</code>
+            becomes <code>hover-boost</code>, <code>maxArcs</code> becomes
+            <code>max-arcs</code>. Anything you leave out keeps its default.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Values</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            <code>"true"</code>/<code>"false"</code>, or a bare attribute, become
+            booleans. Anything numeric becomes a number. Everything else stays a
+            string. No JSON, no quoting rules.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Engine options</h6>
+          <p class="text-muted text-[0.82rem] mb-0">
+            <code>max-particles</code>, <code>z-index</code>, <code>tier</code>,
+            <code>hover-selector</code> and <code>respect-reduced-motion</code>
+            take no preset prefix — they configure the shared engine rather than
+            one preset.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel mt-4">
+      <h6>Reaching an instance afterwards</h6>
+      <p class="text-muted text-[0.82rem] mb-2">
+        A declarative page never receives what <code>mount()</code> returns, so
+        the engine offers a way back in. This page uses exactly that to adopt
+        the Trail instance its own markup mounted:
+      </p>
+<pre>Strata.CursorFX.get('trail').setColor('#0f0')
+Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
+    </div>
+  </section>
+
+  <footer class="py-5 text-muted text-[0.8rem]">
+    Strata CursorFX 0.0.0 — <code>examples/cursorfx.html</code>
+  </footer>
+
+</div>
+
+<!-- strata.components.js carries the CursorFX engine. Presets are separate
+     files by design, so a real page loads only the one it mounts — this page
+     demonstrates all six, so it loads all six. -->
+<script src="../dist/strata.components.js"></script>
+<script src="../packages/cursorfx/presets/trail/trail.js"></script>
+<script src="../packages/cursorfx/presets/click-burst/click-burst.js"></script>
+<script src="../packages/cursorfx/presets/electric/electric.js"></script>
+<script src="../packages/cursorfx/presets/magnetic/magnetic.js"></script>
+<script src="../packages/cursorfx/presets/hover-flicker/hover-flicker.js"></script>
+<script src="../packages/cursorfx/presets/cursor-morph/cursor-morph.js"></script>
+<script src="../packages/cursorfx/presets/reveal/reveal.js"></script>
+<script>
+(function () {
+  'use strict'
+
+  var FX  = Strata.CursorFX
+  var CAP = 220
+
+  // No init() call: <body data-st-cursorfx> already booted the engine and
+  // mounted Trail before this ran. All that is left is to adopt the instance
+  // so the control panel and the scroll observer can manage it.
+
+  // Live option state per preset. Options with a setter are applied through
+  // the instance; the rest are applied by remounting — which is itself worth
+  // showing, since mount/unmount is cheap and returns the pool intact.
+  var opts = {
+    Trail:        { color: '#ff2d55', count: 3, size: 6, life: 0.6, spread: 0.6, gravity: 0, shrink: true, hoverBoost: 3 },
+    ClickBurst:   { color: '#ffd166', count: 24, velocity: 260, life: 0.7, size: 5, gravity: 420, drag: 2.2, ring: false },
+    Electric:     { color: '#7df9ff', radius: 220, maxArcs: 3, jitter: 18, segments: 8, width: 1.5, glow: 10, refreshMs: 500 },
+    Magnetic:     { strength: 0.3, max: 24, scale: 1.04 },
+    HoverFlicker: { color: '#ff2d55', duration: 900 },
+    CursorMorph:  { size: 14, color: '', radius: 999, ease: 0.18, padding: 6, hideNative: true },
+    Reveal:       { radius: 110, feather: 60, opacity: 0, fade: 220, follow: 90, invert: false }
+  }
+
+  var live    = {}     // name → instance, for whatever is mounted right now
+  var current = null   // the preset the scrolled-to section owns
+  var manual  = false  // section 7 takes mounting over
+
+  // ─── Readout ──────────────────────────────────────────────────────────
+  var hud = {
+    preset:  document.getElementById('hud-preset'),
+    budget:  document.getElementById('hud-budget'),
+    meter:   document.getElementById('hud-meter'),
+    tier:    document.getElementById('hud-tier'),
+    loop:    document.getElementById('hud-loop'),
+    reduced: document.getElementById('hud-reduced')
+  }
+  var bgList  = document.getElementById('bg-list')
+  var bgMeter = document.getElementById('bg-meter')
+
+  function paint() {
+    var names = Object.keys(live)
+    hud.preset.textContent = names.length ? names.join(' + ') : '—'
+    bgList.textContent     = names.length ? names.join(', ')  : 'none'
+  }
+
+
+  // Presets mounted declaratively arrive without passing through mount(), so
+  // pick them up by key. This must wait for DOMContentLoaded: auto-init runs on
+  // that event, and this script runs before it. The engine registered its
+  // listener first, so ours fires after and sees the finished state.
+  function adopt() {
+    ['Trail', 'ClickBurst', 'Electric', 'Magnetic', 'HoverFlicker', 'CursorMorph']
+      .forEach(function (name) {
+        var inst = FX.get(FX.presets[name].key)
+        if (inst) { live[name] = inst; current = name }
+      })
+    paint()
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', adopt)
+  } else {
+    adopt()
+  }
+
+  function mount(name) {
+    if (live[name] || !FX.state.inited) return
+    live[name] = FX.mount(FX.presets[name], opts[name])
+    paint()
+  }
+
+  function unmount(name) {
+    if (!live[name]) return
+    live[name].unmount()
+    delete live[name]
+    paint()
+  }
+
+  function remount(name) {
+    if (!live[name]) return
+    unmount(name)
+    mount(name)
+  }
+
+  // ─── Scroll-driven mounting ───────────────────────────────────────────
+  // Each section owns its effect while on screen. This doubles as proof that
+  // unmount() is clean: no residue crosses a section boundary.
+  var io = new IntersectionObserver(function (entries) {
+    if (manual) return
+    entries.forEach(function (e) {
+      if (!e.isIntersecting || e.intersectionRatio <= 0.5) return
+      var name = e.target.getAttribute('data-preset')
+      if (name.indexOf('__') === 0) {
+        if (current) { unmount(current); current = null }
+        return
+      }
+      if (current && current !== name) unmount(current)
+      current = name
+      mount(name)
+    })
+  }, { threshold: [0, 0.5, 1] })
+
+  document.querySelectorAll('[data-preset]').forEach(function (s) { io.observe(s) })
+
+  // ─── Control wiring ───────────────────────────────────────────────────
+  // apply(instance, value) applies the change live; without one, the preset
+  // is remounted with the new option.
+  function bind(id, preset, key, apply) {
+    var el = document.getElementById(id)
+    if (!el) return
+    var out = el.parentNode.querySelector('output')
+    el.addEventListener('input', function () {
+      var v = el.type === 'checkbox' ? el.checked
+            : el.type === 'range'    ? parseFloat(el.value)
+            :                          el.value
+      opts[preset][key] = v
+      if (out && el.type !== 'color') out.textContent = v
+      if (apply) apply(live[preset], v)
+      else remount(preset)
+    })
+  }
+
+  function on(id, fn) {
+    var el = document.getElementById(id)
+    if (el) el.addEventListener('click', fn)
+  }
+
+  // Trail — colour and count go through the instance methods; the rest remount.
+  bind('tr-color',  'Trail', 'color',      function (i, v) { if (i) i.setColor(v) })
+  bind('tr-count',  'Trail', 'count',      function (i, v) { if (i) i.setParticleCount(v) })
+  bind('tr-size',   'Trail', 'size')
+  bind('tr-life',   'Trail', 'life')
+  bind('tr-spread', 'Trail', 'spread')
+  bind('tr-grav',   'Trail', 'gravity')
+  bind('tr-boost',  'Trail', 'hoverBoost')
+  bind('tr-shrink', 'Trail', 'shrink')
+
+  on('tr-grad', function () {
+    var c = 'linear-gradient(90deg, #ff2d55, #ffd166, #7df9ff)'
+    opts.Trail.color = c
+    if (live.Trail) live.Trail.setColor(c)
+  })
+
+  on('tr-token', function () {
+    var c = 'var(--demo-fade)'
+    opts.Trail.color = c
+    if (live.Trail) live.Trail.setColor(c)
+  })
+
+  on('tr-rand', function () {
+    var c = '#' + Math.floor(Math.random() * 0xffffff).toString(16).padStart(6, '0')
+    document.getElementById('tr-color').value = c
+    opts.Trail.color = c
+    if (live.Trail) live.Trail.setColor(c)
+  })
+
+  bind('cb-color', 'ClickBurst', 'color', function (i, v) { if (i) i.setColor(v) })
+  bind('cb-count', 'ClickBurst', 'count')
+  bind('cb-vel',   'ClickBurst', 'velocity')
+  bind('cb-life',  'ClickBurst', 'life')
+  bind('cb-size',  'ClickBurst', 'size')
+  bind('cb-grav',  'ClickBurst', 'gravity')
+  bind('cb-drag',  'ClickBurst', 'drag')
+  bind('cb-ring',  'ClickBurst', 'ring')
+
+  on('cb-fire', function () {
+    if (live.ClickBurst) live.ClickBurst.burst(window.innerWidth / 2, window.innerHeight / 2)
+  })
+  on('cb-storm', function () {
+    if (!live.ClickBurst) return
+    for (var i = 0; i < 8; i++) {
+      live.ClickBurst.burst(Math.random() * window.innerWidth, Math.random() * window.innerHeight)
+    }
+  })
+
+  bind('el-color',  'Electric', 'color', function (i, v) { if (i) i.setColor(v) })
+  bind('el-radius', 'Electric', 'radius')
+  bind('el-arcs',   'Electric', 'maxArcs')
+  bind('el-jit',    'Electric', 'jitter')
+  bind('el-seg',    'Electric', 'segments')
+  bind('el-width',  'Electric', 'width')
+  bind('el-glow',   'Electric', 'glow')
+  bind('el-ref',    'Electric', 'refreshMs')
+
+  function shuffleNodes() {
+    var stage = document.querySelector('[data-preset="Electric"] .stage')
+    var nodes = Array.prototype.slice.call(stage.children)
+    nodes.sort(function () { return Math.random() - 0.5 })
+    nodes.forEach(function (n) { stage.appendChild(n) })
+  }
+
+  on('el-shuffle', function () {
+    shuffleNodes()
+    if (live.Electric) live.Electric.refreshTargets()
+  })
+  on('el-shuffle-stale', shuffleNodes)
+
+  bind('mg-str',   'Magnetic', 'strength', function (i, v) { if (i) i.setStrength(v) })
+  bind('mg-max',   'Magnetic', 'max',      function (i, v) { if (i) i.options.max = v })
+  bind('mg-scale', 'Magnetic', 'scale')
+
+  on('mg-strong', function () {
+    document.getElementById('mg-str').value = 0.9
+    opts.Magnetic.strength = 0.9
+    if (live.Magnetic) live.Magnetic.setStrength(0.9)
+  })
+
+  bind('hf-color', 'HoverFlicker', 'color',    function (i, v) { if (i) i.setColor(v) })
+  bind('hf-dur',   'HoverFlicker', 'duration', function (i, v) { if (i) i.setSpeed(v) })
+
+  on('hf-fast', function () {
+    document.getElementById('hf-dur').value = 300
+    opts.HoverFlicker.duration = 300
+    if (live.HoverFlicker) live.HoverFlicker.setSpeed(300)
+  })
+  on('hf-slow', function () {
+    document.getElementById('hf-dur').value = 2000
+    opts.HoverFlicker.duration = 2000
+    if (live.HoverFlicker) live.HoverFlicker.setSpeed(2000)
+  })
+
+  bind('rv-radius',  'Reveal', 'radius',  function (i, v) { if (i) i.setRadius(v) })
+  bind('rv-opacity', 'Reveal', 'opacity', function (i, v) { if (i) i.setOpacity(v) })
+  bind('rv-invert',  'Reveal', 'invert',  function (i, v) { if (i) i.setInvert(v) })
+  bind('rv-feather', 'Reveal', 'feather')   // no setter — remount applies it
+  bind('rv-fade',    'Reveal', 'fade')
+  bind('rv-follow',  'Reveal', 'follow')
+
+  bind('cm-color', 'CursorMorph', 'color',   function (i, v) { if (i) i.setColor(v) })
+  bind('cm-size',  'CursorMorph', 'size',    function (i, v) { if (i) i.setSize(v) })
+  bind('cm-ease',  'CursorMorph', 'ease',    function (i, v) { if (i) i.options.ease = v })
+  bind('cm-pad',   'CursorMorph', 'padding', function (i, v) { if (i) i.options.padding = v })
+  bind('cm-hide',  'CursorMorph', 'hideNative')   // read at mount, so: remount
+
+  // The slider tops out at 60px, but the preset treats 999 as "fully round",
+  // so the last stop maps to that rather than to a 60px corner.
+  document.getElementById('cm-rad').addEventListener('input', function () {
+    var v = parseFloat(this.value)
+    var r = v >= 60 ? 999 : v
+    opts.CursorMorph.radius = r
+    this.parentNode.querySelector('output').textContent = r === 999 ? 'circle' : r
+    if (live.CursorMorph) live.CursorMorph.options.radius = r
+  })
+
+  // color: '' is the default and means "inherit currentColor". A colour input
+  // cannot express empty, so clearing it needs its own control.
+  on('cm-inherit', function () {
+    opts.CursorMorph.color = ''
+    if (live.CursorMorph) {
+      remount('CursorMorph')
+    }
+  })
+
+  // ─── Section 7: manual mounting, global budget ────────────────────────
+  var budgetSection = document.querySelector('[data-preset="__budget"]')
+
+  new IntersectionObserver(function (e) {
+    manual = e[0].isIntersecting && e[0].intersectionRatio > 0.5
+    if (manual && current) { unmount(current); current = null }
+  }, { threshold: [0, 0.5, 1] }).observe(budgetSection)
+
+  budgetSection.querySelectorAll('[data-mount]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var n = b.getAttribute('data-mount')
+      if (live[n]) unmount(n)
+      else         mount(n)
+      b.classList.toggle('btn-success',       !!live[n])
+      b.classList.toggle('btn-outline-light',  !live[n])
+    })
+  })
+
+  on('bg-clear', function () {
+    Object.keys(live).forEach(unmount)
+    budgetSection.querySelectorAll('[data-mount]').forEach(function (b) {
+      b.classList.remove('btn-success')
+      b.classList.add('btn-outline-light')
+    })
+  })
+
+  // ─── Section 8: destroy / re-init ─────────────────────────────────────
+  on('en-destroy', function () {
+    FX.destroy()
+    live = {}
+    current = null
+    paint()
+  })
+
+  on('en-init', function () {
+    FX.init({ maxParticles: CAP, tier: 'auto' })
+    mount('Trail')
+    current = 'Trail'
+  })
+
+  // The readout runs on its own timer rather than inside the engine's RAF
+  // loop — it has to keep reporting after that loop stops, which is the
+  // whole point of watching it.
+  setInterval(function () {
+    var alive = FX.state.inited
+    var free  = FX.budget()
+    var pct   = alive ? (free / CAP) * 100 : 0
+    var color = pct > 40 ? '#4ade80' : pct > 10 ? '#fbbf24' : '#ef4444'
+
+    hud.budget.textContent = alive ? free + ' / ' + CAP : 'destroyed'
+    hud.meter.style.width  = pct + '%'
+    hud.meter.style.background = color
+    bgMeter.style.width = pct + '%'
+    bgMeter.style.background = color
+
+    hud.tier.textContent = alive ? FX.tier() : '—'
+
+    hud.loop.textContent = FX.state.running ? 'running' : alive ? 'idle' : 'destroyed'
+    hud.loop.setAttribute('data-on', String(FX.state.running))
+
+    hud.reduced.textContent = FX.state.reduced ? 'reduce' : 'no-preference'
+    hud.reduced.setAttribute('data-on', String(!FX.state.reduced))
+  }, 120)
+
+  paint()
+}())
+</script>
+</body>
+</html>
