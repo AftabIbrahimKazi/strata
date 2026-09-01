@@ -30,6 +30,54 @@
     "groups": []
   },
   {
+    "slug": "aspect-ratio",
+    "title": "Aspect Ratio",
+    "description": "Native aspect-ratio utilities — no wrapper element and no companion class. aspect-square, aspect-video and aspect-auto, plus the .ratio-* names (aspect-1x1, aspect-4x3, aspect-16x9, aspect-21x9) kept for migration continuity. Every name accepts a breakpoint segment, and the arbitrary form takes any ratio or token: aspect-[16/10], aspect-[1.85], aspect-[var(--r)]. The older .ratio wrapper component still ships and is now implemented on aspect-ratio rather than the padding-top hack, with its fill rule scoped to replaced elements so an overlay child keeps its own size instead of being stretched to the box. Prefer aspect-* for new markup.",
+    "groups": [
+      {
+        "heading": "Named ratios",
+        "classes": [
+          "aspect-square",
+          "aspect-video",
+          "aspect-auto"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Ratio names (.ratio-* parity)",
+        "classes": [
+          "aspect-1x1",
+          "aspect-4x3",
+          "aspect-16x9",
+          "aspect-21x9"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Responsive",
+        "classes": [
+          "aspect-md-square",
+          "aspect-lg-video",
+          "aspect-sm-16x9"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Arbitrary",
+        "classes": [
+          "aspect-[16/10]",
+          "aspect-[1.85]",
+          "aspect-[var(--r)]"
+        ],
+        "bare": true,
+        "multi": false
+      }
+    ]
+  },
+  {
     "slug": "typography",
     "title": "Typography",
     "description": "Text alignment, case, weight, style, line-height, wrapping, and link utilities. See the dedicated Typography page for full details.",
@@ -52,9 +100,35 @@
     "title": "Shadows",
     "description": "Box-shadow utilities on a 4-step scale, plus arbitrary values — all responsive. No named !important variant exists for this group (use the arbitrary form: !shadow-[...]). Demos below start from a borderless box — the shared preview component's own baked-in 1px border otherwise draws a hard edge that drowns out a soft shadow, especially shadow-sm and the shadow-none baseline.",
     "groups": [
-      { "heading": "Shadow", "classes": ["shadow-none", "shadow-sm", "shadow", "shadow-lg"], "bare": true, "multi": false },
-      { "heading": "Responsive", "classes": ["shadow-md-sm", "shadow-lg-lg"], "bare": true, "multi": false },
-      { "heading": "Arbitrary", "classes": ["shadow-[0_4px_6px_rgba(0,0,0,0.1)]", "shadow-md-[0_20px_40px_rgba(0,0,0,0.35)]"], "bare": true, "multi": false }
+      {
+        "heading": "Shadow",
+        "classes": [
+          "shadow-none",
+          "shadow-sm",
+          "shadow",
+          "shadow-lg"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Responsive",
+        "classes": [
+          "shadow-md-sm",
+          "shadow-lg-lg"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Arbitrary",
+        "classes": [
+          "shadow-[0_4px_6px_rgba(0,0,0,0.1)]",
+          "shadow-md-[0_20px_40px_rgba(0,0,0,0.35)]"
+        ],
+        "bare": true,
+        "multi": false
+      }
     ]
   },
   {
@@ -68,9 +142,34 @@
     "title": "Overflow",
     "description": "Overflow behavior on both axes and combined — all responsive. Only the combined overflow-* form has a named !important variant (!overflow-hidden); overflow-x-*/overflow-y-* don't.",
     "groups": [
-      { "heading": "Overflow", "classes": ["overflow-auto", "overflow-hidden", "overflow-visible", "overflow-scroll", "!overflow-hidden"] },
-      { "heading": "Overflow X", "classes": ["overflow-x-auto", "overflow-x-hidden", "overflow-x-visible", "overflow-x-scroll"] },
-      { "heading": "Overflow Y", "classes": ["overflow-y-auto", "overflow-y-hidden", "overflow-y-visible", "overflow-y-scroll"] }
+      {
+        "heading": "Overflow",
+        "classes": [
+          "overflow-auto",
+          "overflow-hidden",
+          "overflow-visible",
+          "overflow-scroll",
+          "!overflow-hidden"
+        ]
+      },
+      {
+        "heading": "Overflow X",
+        "classes": [
+          "overflow-x-auto",
+          "overflow-x-hidden",
+          "overflow-x-visible",
+          "overflow-x-scroll"
+        ]
+      },
+      {
+        "heading": "Overflow Y",
+        "classes": [
+          "overflow-y-auto",
+          "overflow-y-hidden",
+          "overflow-y-visible",
+          "overflow-y-scroll"
+        ]
+      }
     ]
   },
   {
@@ -78,8 +177,26 @@
     "title": "Opacity & Visibility",
     "description": "Opacity scale and visibility helpers, including breakpoint show/hide. opacity-*/visible/invisible all have a named !important variant; the responsive forms don't combine with !important.",
     "groups": [
-      { "heading": "Opacity", "classes": ["opacity-0", "opacity-25", "opacity-50", "opacity-75", "opacity-100", "!opacity-50"] },
-      { "heading": "Visibility", "classes": ["visible", "invisible", "visually-hidden", "visually-hidden-focusable"] }
+      {
+        "heading": "Opacity",
+        "classes": [
+          "opacity-0",
+          "opacity-25",
+          "opacity-50",
+          "opacity-75",
+          "opacity-100",
+          "!opacity-50"
+        ]
+      },
+      {
+        "heading": "Visibility",
+        "classes": [
+          "visible",
+          "invisible",
+          "visually-hidden",
+          "visually-hidden-focusable"
+        ]
+      }
     ]
   },
   {
@@ -93,5 +210,115 @@
     "title": "Arbitrary Values",
     "description": "Any utility not covered by a named class can be expressed with square brackets. See the dedicated Arbitrary Values page for the complete reference of which prefixes support responsive breakpoints and !important.",
     "groups": []
+  },
+  {
+    "slug": "variants",
+    "title": "Variants",
+    "description": "Prefix any utility to make it conditional: hover:bg-primary, user-invalid:border-danger, group-hover:text-primary, before:d-inline-block, print:d-none. 45 pseudo-class states, 9 pseudo-elements, environment media queries, direction, and the relational group-* and peer-* pair. One variant per class token — hover:[a b c] cannot work, because the HTML parser splits class on whitespace into a token list before CSS is consulted. Breakpoints stay infix inside the utility (hover:w-md-[40%]), so a variant is a pure prefix and layer routing is unchanged. Variants stack in any order. hover: is emitted inside @media (hover: hover) so it never sticks on touch; relational variants wrap the trigger in :where(), so one variant scores (0,2,0) whether or not it is relational.",
+    "groups": [
+      {
+        "heading": "Interaction",
+        "classes": [
+          "hover:bg-primary",
+          "focus:bg-primary",
+          "focus-visible:outline-primary",
+          "focus-within:shadow-lg",
+          "active:bg-dark",
+          "visited:text-secondary",
+          "target:bg-light"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Form state",
+        "classes": [
+          "checked:bg-success",
+          "indeterminate:bg-warning",
+          "disabled:opacity-50",
+          "required:fw-bold",
+          "user-valid:border-success",
+          "user-invalid:border-danger",
+          "read-only:bg-light",
+          "placeholder-shown:fst-italic"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Structural",
+        "classes": [
+          "first:fw-bold",
+          "last:fw-bold",
+          "only:text-primary",
+          "odd:bg-light",
+          "even:bg-white",
+          "empty:d-none",
+          "first-of-type:fw-bold"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Pseudo-elements",
+        "classes": [
+          "before:d-inline-block",
+          "after:d-inline-block",
+          "marker:text-primary",
+          "placeholder:fst-italic",
+          "selection:bg-primary",
+          "first-letter:fw-bold",
+          "file:btn-primary",
+          "backdrop:bg-dark"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Environment",
+        "classes": [
+          "motion-safe:shadow-lg",
+          "motion-reduce:shadow-none",
+          "contrast-more:fw-bold",
+          "forced-colors:fw-bold",
+          "print:d-none",
+          "portrait:d-block",
+          "landscape:d-flex"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Direction",
+        "classes": [
+          "rtl:text-end",
+          "ltr:text-start"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Relational — group and peer",
+        "classes": [
+          "group-hover:text-primary",
+          "group-hover:opacity-100",
+          "peer-checked:text-success",
+          "peer-invalid:text-danger",
+          "peer-focus:shadow-lg"
+        ],
+        "bare": true,
+        "multi": false
+      },
+      {
+        "heading": "Stacked and responsive",
+        "classes": [
+          "motion-safe:hover:shadow-lg",
+          "hover:w-md-[40%]",
+          "hover:d-lg-flex"
+        ],
+        "bare": true,
+        "multi": false
+      }
+    ]
   }
 ]
