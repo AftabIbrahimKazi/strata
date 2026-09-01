@@ -4,6 +4,10 @@
 
 ### Fixed
 
+- **A target with `pointer-events: none` could never be hovered.** The engine hit-tests once a frame with `document.elementFromPoint`, which skips such elements, so the effect simply never fired and nothing said why. That forced a choice authors should not have to make: a target is not always something you click, and a hit zone wide enough to point at — a divider band, say — overlaps the content around it. Left hit-testable it swallows every click landing in the overlap; opted out, it stopped working. The docs site's `WaveRule` hit exactly this: a 24px band straddling a container edge, half of it over page content across the full page width.
+
+  Targets that opt out of hit-testing are now matched on geometry instead. The scan runs **only when the normal hit-test found no target at all**, so it can add a match but never change one, and the candidate list is cached for 500ms because it needs `getComputedStyle` per target while `hitTest` runs every frame. A stale cache can only delay a newly added passive target by one interval — it cannot drop an existing one, since a target that still hit-tests never reaches this path. Where several passive targets overlap, the last in document order wins, which approximates paint order closely enough for elements that by definition cannot be hit-tested properly.
+
 - **`LineWave`: removed `will-change` from the wave element.** It is only a hint — the envelope animates `transform` and `opacity`, which the compositor promotes anyway — so it bought nothing, while promoting a layer inside a sticky, already-transformed ancestor (a `.navbar.sticky-top` carrying a show/hide transform) made that ancestor re-rasterise at bounds that do not cover its own background. Scrolled page content showed through the header band for the length of every wave. The drop-shadow in the envelope keyframe expands the ink bounds further, and the element deliberately overhangs its parent by half its height, which is what put the seam outside the header box.
 
 ## [0.2.0] — 2026-09-01
