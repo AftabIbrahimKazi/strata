@@ -1,0 +1,130 @@
+/* ============================================================
+   CursorFX — site-level tuning.
+
+   The package ships every knob as a custom property with a
+   default, and its JS writes an inline property only where an
+   option was explicitly overridden. So the theme fit is done
+   here, in CSS, and it tracks the theme toggle for free
+   because the values are Strata's own --st-* tokens.
+
+   Deliberately NOT retuned: amplitude, cycles, travel,
+   duration and glow — LineWave's defaults are already the
+   reference divider's constants. Colour and opacity are,
+   because here the line is not decoration on top
+   of a divider: it IS the divider, and has to read as one of
+   Strata's own borders while idle.
+   ============================================================ */
+
+:root {
+  /* At rest this line stands in for a `border-top`, so it is painted in the
+     same token every other divider on the site uses, at full opacity. It is
+     indistinguishable from a static rule until the pointer
+     crosses it — which is the point. */
+  --st-cfx-wave-color: var(--st-border);
+  --st-cfx-wave-rest-opacity: 1;
+
+  /* The crest is where the theme accent shows: the wave brightens to the brand
+     amber as it passes, and the glow follows it. */
+  --st-cfx-wave-peak-opacity: 1;
+  --st-cfx-wave-glow-color: var(--st-primary);
+}
+
+/* ─── Divider ────────────────────────────────────────────────
+   Replaces a border outright: the line is drawn through the
+   band's middle and is visible at rest, so it reads as an
+   ordinary rule until the pointer crosses it. 24px is the
+   reference's band height, and it is the hit zone — a 1px
+   line cannot be pointed at. */
+.wave-rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 24px;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+/* The `.navbar` component carries its own `border-bottom: 1px solid
+   var(--st-border)` — separate from the border-bottom utility — so the header
+   showed the component's static rule and the wave line together. This file is
+   unlayered, so it wins over the st-components layer without !important. */
+.header-autohide {
+  border-bottom: none;
+}
+
+.wave-rule-bottom {
+  top: auto;
+  bottom: 0;
+  transform: translateY(50%);
+}
+
+/* ─── Hero reveal ────────────────────────────────────────────
+   Two stacked headline treatments: the plain one on top, a
+   banded "cross-section" underneath. The pointer opens a hole
+   through the top layer — the framework's own metaphor. */
+:root {
+  --st-cfx-reveal-radius: 120px;
+  --st-cfx-reveal-feather: 80px;
+}
+
+.hero-reveal {
+  cursor: crosshair;
+}
+
+.hero-strata {
+  /* The revealed layer must occupy exactly the same box as the <h1> above it,
+     or the hole shows misaligned text. It is a <p> rather than a second <h1>
+     so the document keeps one heading. Mirrors base.js's h1 metrics. */
+  font-size: 2.5rem;
+  line-height: 1.2;
+
+  /* Decorative and duplicated for sighted users only — never selectable. */
+  -webkit-user-select: none;
+  user-select: none;
+
+  /* Sedimentary banding in the brand palette, clipped to the glyphs.
+     background-clip: text needs a transparent fill to show through. */
+  background-image: repeating-linear-gradient(
+    175deg,
+    var(--st-primary) 0,
+    var(--st-primary) 0.18em,
+    var(--st-primary-hover) 0.18em,
+    var(--st-primary-hover) 0.34em,
+    var(--st-secondary) 0.34em,
+    var(--st-secondary) 0.46em
+  );
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+/* ─── Package cards (Swiper cube faces) ──────────────────────
+   Same idea as the hero: the pointer opens a hole through the
+   brand face to a banded cross-section underneath. Reveal turns
+   the container into a grid, so it only needs to fill the slide. */
+.packages-cube-reveal {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--st-border-radius);
+  /* The faces inside are square-cornered, so the rounding has to clip here. */
+  overflow: hidden;
+  cursor: crosshair;
+
+  /* A smaller window than the hero's — the face is a card, not a headline. */
+  --st-cfx-reveal-radius: 70px;
+  --st-cfx-reveal-feather: 50px;
+}
+
+/* The layer beneath: the strata the brand face is sitting on. Banding runs at
+   the same angle as the face's gradient so the two read as one object cut
+   open, rather than two unrelated panels. */
+.packages-cube-face-under {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--st-bg-secondary) 0,
+    var(--st-bg-secondary) 10px,
+    var(--st-bg) 10px,
+    var(--st-bg) 20px
+  );
+}

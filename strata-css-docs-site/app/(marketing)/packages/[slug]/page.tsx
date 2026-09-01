@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import WaveRule from "@/components/WaveRule";
 import type { Metadata } from "next";
 import { getPackages, getPackage } from "@/lib/packages";
 import PackageIcon from "@/components/marketing/PackageIcon";
@@ -57,7 +58,9 @@ export default async function PackageDocPage({ params }: { params: Promise<{ slu
         </div>
       )}
 
-      <div className="row g-3 border-top border-bottom py-3 mb-4 text-muted">
+      <div className="row gx-3 row-gap-3 py-3 mb-4 position-relative text-muted">
+        <WaveRule />
+        <WaveRule edge="bottom" />
         <div className="col-6 col-sm-3">{pkg.gzipSizeKb} KB gzip</div>
         <div className="col-6 col-sm-3">{pkg.techStack.length} deps</div>
         <div className="col-6 col-sm-3">

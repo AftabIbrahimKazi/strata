@@ -13,6 +13,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@strata-packages/cursorfx": "^0.2.0",
     "@strata-packages/offcanvas": "^1.0.1",
     "marked": "^18.0.9",
     "next": "16.3.0",
