@@ -394,7 +394,7 @@ Before v1.8.14 this resolution only looked inside the Strata monorepo, so instal
 | `@strata-packages/offcanvas` | Slide-in drawer component | `packages/offcanvas/CLAUDE.md` |
 | `@strata-packages/flipbook` | CSS-driven 3D page-flip flipbook | `packages/flipbook/CLAUDE.md` |
 | `@strata-packages/shopmap` | JIT-themed MapLibre GL shop map | `packages/shopmap/CLAUDE.md` |
-| `@strata-packages/cursorfx` | Modular cursor effects — engine + 7 presets | `packages/cursorfx/CLAUDE.md` |
+| `@strata-packages/cursorfx` | Modular cursor effects — engine + 10 presets | `packages/cursorfx/CLAUDE.md` |
 
 ## New in v1.1.0
 

@@ -1,0 +1,217 @@
+/**
+ * Strata CursorFX — LineWave
+ *
+ * The whole effect lives here. The preset's JavaScript builds the element once
+ * and then flips one attribute per hover; it writes nothing per frame, because
+ * everything that moves is a CSS animation:
+ *
+ *   shape     a repeating sine stroke used as a mask
+ *   travel    mask-position-x, so the crest moves along the line
+ *   envelope  scaleY() on the wave, crossfaded against a flat baseline
+ *   glow      filter + opacity on the same timeline
+ *   colour    a background, so any CSS paint works — including every gradient
+ *
+ * The reference implementation this replaces rewrote an SVG path `d` attribute
+ * every frame for the length of the animation. None of that is necessary: the
+ * geometry is a fixed shape being masked, scaled and slid.
+ */
+
+/* The hover target. A 1px rule is almost impossible to point at, so the target
+ * gets a thicker invisible hit zone with the line drawn through its middle —
+ * the same trick the reference used with its 24px band. */
+[data-st-cfx-target~="line-wave"] {
+  position: relative;
+}
+
+[data-st-cfx-wave] {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+  overflow: visible;
+
+  /* Every knob has a default here so a stylesheet can retune the effect
+   * without touching markup. The preset writes an inline custom property ONLY
+   * where an option differs from its default — writing them unconditionally
+   * would make inline style beat every theme rule. */
+  --st-cfx-wave-color: currentColor;
+  --st-cfx-wave-amplitude: 5px;
+  --st-cfx-wave-thickness: 1.5px;
+  --st-cfx-wave-cycles: 1.75;
+  --st-cfx-wave-travel: 1.4;
+  --st-cfx-wave-duration: 1.1s;
+  --st-cfx-wave-rest-opacity: 0.1;
+  --st-cfx-wave-peak-opacity: 0.6;
+  --st-cfx-wave-glow: 2.5px;
+  --st-cfx-wave-origin: 0%;
+
+  /* sine.inOut — the reference's GSAP easing, as its cubic-bezier equivalent. */
+  --st-cfx-wave-ease: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* The line itself. Height carries the amplitude: the mask is drawn with
+ * preserveAspectRatio="none" so it stretches to whatever box it is given,
+ * which is what lets one shape serve every amplitude without regenerating it. */
+[data-st-cfx-wave] > i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  display: block;
+  height: calc(var(--st-cfx-wave-amplitude) * 2 + var(--st-cfx-wave-thickness));
+
+  background: var(--st-cfx-wave-color);
+  opacity: var(--st-cfx-wave-rest-opacity);
+
+  /* A single period of a sine stroke, repeated. Tiling one period rather than
+   * generating the whole line means `cycles` is just a mask-size change — no
+   * new geometry, no JS. */
+  -webkit-mask-image: var(--st-cfx-wave-mask);
+          mask-image: var(--st-cfx-wave-mask);
+  -webkit-mask-repeat: repeat-x;
+          mask-repeat: repeat-x;
+  -webkit-mask-size: calc(100% / var(--st-cfx-wave-cycles)) 100%;
+          mask-size: calc(100% / var(--st-cfx-wave-cycles)) 100%;
+  -webkit-mask-position: var(--st-cfx-wave-origin) center;
+          mask-position: var(--st-cfx-wave-origin) center;
+
+  /* Collapsed between runs, so the start state and the finished state are the
+   * same thing and nothing has to be cleaned up. The visible resting line is
+   * NOT this element — see the baseline below. */
+  transform: translateY(-50%) scaleY(0);
+  will-change: transform, opacity;
+}
+
+/* ─── The resting line ────────────────────────────────────────────────────
+ * The wave element above is masked, and a mask scales with the box it is
+ * painted into — collapse that box and the stroke collapses with it, so
+ * between runs the wave renders nothing at all. That is correct for the wave,
+ * but it leaves the divider invisible whenever the pointer is elsewhere, which
+ * is most of the time.
+ *
+ * So the line at rest is a separate, unmasked rule, and the two crossfade: the
+ * baseline fades out exactly as the wave rises, and back in as it settles. At
+ * the peak only the wave is visible, so it still reads as one line bending —
+ * never two. Set --st-cfx-wave-rest-opacity to 0 for a divider that is
+ * genuinely invisible until touched.
+ */
+[data-st-cfx-wave]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--st-cfx-wave-thickness);
+  transform: translateY(-50%);
+  background: var(--st-cfx-wave-color);
+  opacity: var(--st-cfx-wave-rest-opacity);
+  pointer-events: none;
+}
+
+[data-st-cfx-wave-axis="vertical"]::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  right: auto;
+  width: var(--st-cfx-wave-thickness);
+  height: auto;
+  transform: translateX(-50%);
+}
+
+[data-st-cfx-wave="true"]::after {
+  animation: st-cfx-wave-baseline var(--st-cfx-wave-duration) var(--st-cfx-wave-ease) 1;
+}
+
+/* The inverse of the envelope, on the same timeline and easing — so the sum of
+ * the two never dips and the line never blinks. */
+@keyframes st-cfx-wave-baseline {
+  0%   { opacity: var(--st-cfx-wave-rest-opacity); }
+  50%  { opacity: 0; }
+  100% { opacity: var(--st-cfx-wave-rest-opacity); }
+}
+
+/* Running. The attribute flips to "true" on hover and back to "false" when the
+ * animation ends — never removed, so the selector always has something to
+ * match and the value carries the state, per the package's attribute rule. */
+[data-st-cfx-wave="true"] > i {
+  animation:
+    st-cfx-wave-envelope var(--st-cfx-wave-duration) var(--st-cfx-wave-ease) 1,
+    st-cfx-wave-travel   var(--st-cfx-wave-duration) linear 1;
+}
+
+@keyframes st-cfx-wave-envelope {
+  0%   { transform: translateY(-50%) scaleY(0);
+         opacity: var(--st-cfx-wave-rest-opacity);
+         filter: none; }
+  50%  { transform: translateY(-50%) scaleY(1);
+         opacity: var(--st-cfx-wave-peak-opacity);
+         filter: drop-shadow(0 0 var(--st-cfx-wave-glow) var(--st-cfx-wave-glow-color, currentColor)); }
+  100% { transform: translateY(-50%) scaleY(0);
+         opacity: var(--st-cfx-wave-rest-opacity);
+         filter: none; }
+}
+
+/* Travel is a phase slide, expressed as a fraction of one tile. Sliding the
+ * mask rather than redrawing the wave is the entire reason this needs no JS. */
+@keyframes st-cfx-wave-travel {
+  from { -webkit-mask-position: var(--st-cfx-wave-origin) center;
+                 mask-position: var(--st-cfx-wave-origin) center; }
+  to   { -webkit-mask-position: calc(var(--st-cfx-wave-origin) + var(--st-cfx-wave-travel) * 100%) center;
+                 mask-position: calc(var(--st-cfx-wave-origin) + var(--st-cfx-wave-travel) * 100%) center; }
+}
+
+/* Vertical dividers. The line is rotated rather than given a second mask, so
+ * one shape and one set of keyframes serve both orientations. */
+[data-st-cfx-wave="vertical"] > i,
+[data-st-cfx-wave][data-st-cfx-wave-axis="vertical"] > i {
+  /* The tile has to repeat along the line, and the line now runs down the
+   * page — without this the mask keeps tiling across a box only a few pixels
+   * wide, which renders as a smear rather than a wave. */
+  -webkit-mask-repeat: repeat-y;
+          mask-repeat: repeat-y;
+  -webkit-mask-size: 100% calc(100% / var(--st-cfx-wave-cycles));
+          mask-size: 100% calc(100% / var(--st-cfx-wave-cycles));
+  -webkit-mask-position: center var(--st-cfx-wave-origin);
+          mask-position: center var(--st-cfx-wave-origin);
+
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  right: auto;
+  width: calc(var(--st-cfx-wave-amplitude) * 2 + var(--st-cfx-wave-thickness));
+  height: 100%;
+  transform: translateX(-50%) scaleX(0);
+}
+
+[data-st-cfx-wave-axis="vertical"][data-st-cfx-wave="true"] > i {
+  animation:
+    st-cfx-wave-envelope-v var(--st-cfx-wave-duration) var(--st-cfx-wave-ease) 1,
+    st-cfx-wave-travel-v   var(--st-cfx-wave-duration) linear 1;
+}
+
+@keyframes st-cfx-wave-envelope-v {
+  0%   { transform: translateX(-50%) scaleX(0);
+         opacity: var(--st-cfx-wave-rest-opacity); filter: none; }
+  50%  { transform: translateX(-50%) scaleX(1);
+         opacity: var(--st-cfx-wave-peak-opacity);
+         filter: drop-shadow(0 0 var(--st-cfx-wave-glow) var(--st-cfx-wave-glow-color, currentColor)); }
+  100% { transform: translateX(-50%) scaleX(0);
+         opacity: var(--st-cfx-wave-rest-opacity); filter: none; }
+}
+
+@keyframes st-cfx-wave-travel-v {
+  from { -webkit-mask-position: center var(--st-cfx-wave-origin);
+                 mask-position: center var(--st-cfx-wave-origin); }
+  to   { -webkit-mask-position: center calc(var(--st-cfx-wave-origin) + var(--st-cfx-wave-travel) * 100%);
+                 mask-position: center calc(var(--st-cfx-wave-origin) + var(--st-cfx-wave-travel) * 100%); }
+}
+
+/* The engine pauses its loop for reduced motion, but this preset's animation is
+ * owned by CSS and would otherwise keep running — so it is stopped here too. */
+@media (prefers-reduced-motion: reduce) {
+  [data-st-cfx-wave] > i,
+  [data-st-cfx-wave]::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
