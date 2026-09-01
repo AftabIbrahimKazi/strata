@@ -75,6 +75,16 @@ Two conditions are reported as warnings automatically, with no flag needed — o
 | `no files matched the content globs …` | Globs don't match your layout, or point at the wrong directory. The message prints the directory they resolved against — compare it with where your source actually lives. |
 | `N file(s) matched … but no class names were found` | Files are being read, but classes aren't in `class`/`className` attributes — e.g. assembled in a helper module the scanner never sees. Safelist those. |
 
+A third warning covers the opposite case — the class *was* found, but matched no utility:
+
+```
+[Strata] ⚠  2 class(es) with arbitrary values matched no utility and emitted nothing:
+            nope-[12px], lh-[1.15]. Check the prefix is a real utility and the
+            breakpoint segment is one of sm|md|lg|xl|xxl.
+```
+
+This is deliberately limited to class names using arbitrary bracket syntax. A bracket says the author was reaching for a utility, so silence is a bug; an ordinary unmatched name (`swiper-slide`, a BEM block) is just someone else's class and is ignored without comment.
+
 If neither warning appears and a specific class is still missing, it's almost certainly built dynamically (`` `btn-${variant}` ``) — no scanner can see those. Safelist it.
 
 ## CSS Layers
@@ -548,4 +558,5 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
   A related trap: a class assembled into a variable far from the markup (`const cls = clsx('w-[200px]')` in one file, `className={cls}` in another) *is* detected, because `clsx('w-[200px]')` still contains the literal — but only if that call sits inside a `class`/`className` assignment or attribute. A helper in an unrelated module is not scanned; safelist those.
 - CSS variables cannot be used in `@media` query values — breakpoints use hardcoded `px` values.
 - `text-[value]`: length units → `font-size`, everything else → `color`. Use `fs-[...]` for token-based font-size.
+- Every arbitrary family accepts a breakpoint segment — `w-md-[40%]`, `bg-lg-[#fff]`, `text-sm-[1.25rem]` — and a build warning fires if one resolves to nothing. Values are still not validated: `w-md-[bogus]` emits `width: bogus` without complaint, because Strata does not parse CSS values.
 - Arbitrary-value classes (`w-[...]`, `border-[...]`, `p-[...]`, etc.) interpolate the bracket contents directly into the generated CSS with no value-level escaping — only the class selector is escaped. Safe under Strata's JIT model (class names are scanned from your own source files at build time), but never run the scanner over unsanitized user-submitted HTML/content.

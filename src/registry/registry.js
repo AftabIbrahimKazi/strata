@@ -3242,6 +3242,68 @@ BP_KEYS.forEach(bp => {
 // ─── Arbitrary value patterns — regex fallback ────────────────────────
 // Only used when no exact match found in EXACT_MAP
 
+// Every family below is declared twice — once with a breakpoint segment, once
+// without — because the two produce different selectors and different output
+// (one wrapped in @media, one not). Hand-writing both is what caused
+// `w-md-[40%]` to silently generate nothing for as long as it did: the plain
+// `w-[…]` twin existed and the responsive one was simply never written, and a
+// class that matches no pattern returns null rather than complaining.
+//
+// `arbFamily` emits both from a single declaration, so a family cannot be
+// half-registered any more. `spaces: true` maps underscores to spaces for
+// multi-part values (`inset-[0_1rem]`); it is opt-in per family rather than
+// universal because a token name may legitimately contain an underscore
+// (`w-[var(--my_token)]`), and rewriting that would break the value.
+// text-[…] picks its property from the value: a bare length is a font-size,
+// anything else is a colour. Shared by the plain and responsive twins.
+function textArbitraryProp(val) {
+  return /^[\d.]+(px|rem|em|%|vw|vh|ch|ex|pt|cm|mm)$/.test(val) ? 'font-size' : 'color'
+}
+
+function arbFamily(prefix, prop, opts = {}) {
+  const esc = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const val = (v) => (opts.spaces ? v.replace(/_/g, ' ') : v)
+  return [
+    { re: new RegExp(`^(!?)${esc}-(sm|md|lg|xl|xxl)-\\[(.+)\\]$`), fn: (m) => {
+      const i = m[1] ? ' !important' : ''
+      return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { ${prop}: ${val(m[3])}${i}; }`) }
+    }},
+    { re: new RegExp(`^(!?)${esc}-\\[(.+)\\]$`), fn: (m) => {
+      const i = m[1] ? ' !important' : ''
+      return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${prop}: ${val(m[2])}${i}; }` }
+    }},
+  ]
+}
+
+// Single-property families. Ordered longest-prefix-first where one prefix is a
+// prefix of another (`max-w` before `w`), so the more specific pattern wins.
+const SIMPLE_ARBITRARY = [
+  ...arbFamily('max-w',  'max-width'),
+  ...arbFamily('min-w',  'min-width'),
+  ...arbFamily('max-h',  'max-height'),
+  ...arbFamily('min-h',  'min-height'),
+  ...arbFamily('w',      'width'),
+  ...arbFamily('h',      'height'),
+  ...arbFamily('fs',     'font-size'),
+  ...arbFamily('fw',     'font-weight'),
+  ...arbFamily('opacity','opacity'),
+  ...arbFamily('z',      'z-index'),
+  ...arbFamily('top',    'top'),
+  ...arbFamily('bottom', 'bottom'),
+  ...arbFamily('left',   'left'),
+  ...arbFamily('right',  'right'),
+  // Logical aliases, matching the named scale above (`start-0` is `left: 0`).
+  // The named form existed without an arbitrary twin, so `start-[33%]` was
+  // another silent no-op — found by the new build warning, in a shipped example.
+  ...arbFamily('start',  'left'),
+  ...arbFamily('end',    'right'),
+  ...arbFamily('inset',  'inset',            { spaces: true }),
+  ...arbFamily('object-position', 'object-position', { spaces: true }),
+  ...arbFamily('cursor', 'cursor'),
+  ...arbFamily('duration', 'transition-duration'),
+  ...arbFamily('transition', 'transition',   { spaces: true }),
+]
+
 const ARBITRARY_PATTERNS = [
   // Spacing arbitrary — responsive: px-sm-[var(--space-40)], py-md-[1rem_2rem]
   { re: /^(!?)(m[trblxyes]?|p[trblxyes]?)-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
@@ -3263,26 +3325,19 @@ const ARBITRARY_PATTERNS = [
   }},
   // Text arbitrary: text-[#ff0000] → color, text-[15px] → font-size
   // Values ending in a CSS length unit are font-size; everything else is color.
-  { re: /^(!?)text-\[(.+)\]$/, fn: (m) => {
-    const i    = m[1] ? ' !important' : ''
-    const val  = m[2]
-    const prop = /^[\d.]+(px|rem|em|%|vw|vh|ch|ex|pt|cm|mm)$/.test(val)
-      ? 'font-size'
-      : 'color'
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${prop}: ${val}${i}; }` }
-  }},
-  // Font-size arbitrary: fs-[var(--token)], fs-[1.25rem] — unambiguous, always font-size
-  { re: /^(!?)fs-\[(.+)\]$/, fn: (m) => {
+  // Kept hand-written rather than routed through arbFamily because the property
+  // is chosen from the value, not fixed by the family.
+  { re: /^(!?)text-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { font-size: ${m[2]}${i}; }` }
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { ${textArbitraryProp(m[3])}: ${m[3]}${i}; }`) }
   }},
-  // BG arbitrary: bg-[#ff0000], bg-[linear-gradient(...)]
-  { re: /^(!?)bg-\[(.+)\]$/, fn: (m) => {
-    const i   = m[1] ? ' !important' : ''
-    const val = m[2].replace(/_/g, ' ')
-    // Use background shorthand so gradients work; solid colors also work with shorthand
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { background: ${val}${i}; }` }
+  { re: /^(!?)text-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${textArbitraryProp(m[2])}: ${m[2]}${i}; }` }
   }},
+  // BG arbitrary — responsive: bg-md-[#ff0000]
+  // Uses the `background` shorthand so gradients work; solid colours also do.
+  ...arbFamily('bg', 'background', { spaces: true }),
   // Border side arbitrary — responsive: border-top-sm-[2px_dashed_red], border-x-md-[...]
   { re: /^(!?)border-(top|end|bottom|start|x|y)-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
     const [, imp, side, bp, val] = m
@@ -3331,41 +3386,6 @@ const ARBITRARY_PATTERNS = [
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { border-radius: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
-  // Width arbitrary: w-[200px]
-  { re: /^(!?)w-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { width: ${m[2]}${i}; }` }
-  }},
-  // Height arbitrary: h-[100px]
-  { re: /^(!?)h-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { height: ${m[2]}${i}; }` }
-  }},
-  // Max-width arbitrary: max-w-[440px]
-  { re: /^(!?)max-w-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { max-width: ${m[2]}${i}; }` }
-  }},
-  // Min-width arbitrary: min-w-[200px]
-  { re: /^(!?)min-w-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { min-width: ${m[2]}${i}; }` }
-  }},
-  // Max-height arbitrary: max-h-[500px]
-  { re: /^(!?)max-h-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { max-height: ${m[2]}${i}; }` }
-  }},
-  // Min-height arbitrary: min-h-[300px]
-  { re: /^(!?)min-h-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { min-height: ${m[2]}${i}; }` }
-  }},
-  // Opacity arbitrary: opacity-[0.3]
-  { re: /^(!?)opacity-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { opacity: ${m[2]}${i}; }` }
-  }},
   // Shadow arbitrary — responsive: shadow-sm-[0_4px_6px_rgba(0,0,0,0.1)]
   { re: /^(!?)shadow-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
@@ -3375,15 +3395,6 @@ const ARBITRARY_PATTERNS = [
   { re: /^(!?)shadow-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { box-shadow: ${m[2].replace(/_/g,' ')}${i}; }` }
-  }},
-  // Z-index arbitrary: z-[100]
-  { re: /^(!?)z-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { z-index: ${m[2]}${i}; }` }
-  }},
-  // Transition arbitrary: transition-[background-color_0.3s_ease]
-  { re: /^transition-\[(.+)\]$/, fn: (m) => {
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { transition: ${m[1].replace(/_/g,' ')}; }` }
   }},
   // Gap arbitrary — responsive: gap-sm-[var(--space)], gap-md-[1rem_2rem]
   { re: /^(!?)gap-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
@@ -3435,45 +3446,9 @@ const ARBITRARY_PATTERNS = [
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { outline: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
-  // Font-weight arbitrary: fw-[var(--token)], fw-[600]
-  { re: /^(!?)fw-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { font-weight: ${m[2]}${i}; }` }
-  }},
-  // Duration arbitrary: duration-[400ms]
-  { re: /^duration-\[(.+)\]$/, fn: (m) => {
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { transition-duration: ${m[1]}; }` }
-  }},
-  // Cursor arbitrary: cursor-[crosshair]
-  { re: /^cursor-\[(.+)\]$/, fn: (m) => {
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { cursor: ${m[1]}; }` }
-  }},
-  // Positional offset arbitrary: top-[var(--h)], bottom-[2rem], left-[10px], right-[0], inset-[...]
-  { re: /^(!?)top-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { top: ${m[2]}${i}; }` }
-  }},
-  { re: /^(!?)bottom-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { bottom: ${m[2]}${i}; }` }
-  }},
-  { re: /^(!?)left-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { left: ${m[2]}${i}; }` }
-  }},
-  { re: /^(!?)right-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { right: ${m[2]}${i}; }` }
-  }},
-  { re: /^(!?)inset-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { inset: ${m[2].replace(/_/g,' ')}${i}; }` }
-  }},
-  // object-position arbitrary: object-position-[center_top], object-position-[var(--pos)]
-  { re: /^(!?)object-position-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { object-position: ${m[2].replace(/_/g,' ')}${i}; }` }
-  }},
+  // Single-property families, both twins generated from one declaration each.
+  // See SIMPLE_ARBITRARY above.
+  ...SIMPLE_ARBITRARY,
   // grid-template-columns arbitrary — responsive: gtc-sm-[1fr_1fr]
   { re: /^(!?)gtc-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
