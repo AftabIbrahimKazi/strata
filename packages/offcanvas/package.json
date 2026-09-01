@@ -1,6 +1,6 @@
 {
   "name": "@strata-packages/offcanvas",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lightweight offcanvas drawer component. Works standalone or with Strata CSS.",
   "main": "offcanvas.js",
   "style": "offcanvas.css",
