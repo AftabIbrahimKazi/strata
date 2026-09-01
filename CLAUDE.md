@@ -247,6 +247,48 @@ Any utility that isn't in the registry can be expressed with square brackets:
 - Length unit (`px rem em % vw vh ch ex pt cm mm`) → `font-size`
 - Everything else → `color`
 
+## Variants — pseudo-classes, pseudo-elements, relational states
+
+Prefix any utility with a variant. **One variant per class token:**
+
+```html
+<div class="card hover:bg-primary hover:text-white focus-visible:outline-primary">
+```
+
+`hover:[bg-primary text-white]` does **not** work and never can — the HTML parser splits `class` on whitespace into a token list before CSS is consulted, so it becomes `hover:[bg-primary` + `text-white]`, leaving a bare token that applies permanently.
+
+**Breakpoints need no new syntax.** They stay infix in the utility, so a variant is a pure prefix and routing is unchanged:
+
+```html
+<div class="hover:w-md-[40%] hover:d-lg-flex">
+```
+
+**Variants stack**, in any order: `motion-safe:hover:shadow-lg`, `hover:focus:bg-primary`.
+
+| Group | Variants |
+|---|---|
+| Interaction | `hover` `focus` `focus-visible` `focus-within` `active` `visited` `target` |
+| Form state | `checked` `indeterminate` `disabled` `enabled` `required` `optional` `valid` `invalid` `user-valid` `user-invalid` `in-range` `out-of-range` `read-only` `read-write` `placeholder-shown` `autofill` `default` |
+| Structural | `first` `last` `only` `odd` `even` `first-of-type` `last-of-type` `only-of-type` `empty` |
+| Pseudo-elements | `placeholder` `marker` `selection` `file` `first-line` `first-letter` `backdrop` `before` `after` |
+| Environment (`@media`) | `motion-safe` `motion-reduce` `contrast-more` `contrast-less` `forced-colors` `print` `portrait` `landscape` |
+| Direction | `rtl` `ltr` |
+| Relational | `group-{state}` `peer-{state}` — e.g. `group-hover`, `peer-checked`, `peer-invalid` |
+
+**Behaviours worth knowing:**
+
+- **`hover:` is emitted inside `@media (hover: hover)`**, so it never sticks on a touch device.
+- **Both `invalid:` and `user-invalid:` ship.** `:invalid` fires on page load for empty required fields, so a form styled with it looks angry before anyone types. Prefer `user-invalid:` for validation feedback.
+- **`before:` and `after:` emit `content: ""`** — they render nothing without it.
+- **`marker:` and `selection:` emit two rules**, the element and its descendants, so `marker:text-muted` on a `<ul>` styles the `<li>` markers.
+- **`rtl:`/`ltr:` emit two selectors** — `dir` is usually on an ancestor but may be on the element itself.
+- **Relational variants use `:where()` on the trigger**, so they contribute zero specificity and score the same as a plain state utility.
+- `peer-*` uses the general sibling combinator, so the styled element must appear **after** its peer in source order.
+
+**Specificity.** A plain utility is (0,1,0); one variant makes it (0,2,0), relational included. Stacking two pseudo-classes necessarily makes it (0,3,0). State rules live in the `st-utilities-*` layers, so they beat a component's own state rule **by layer, not specificity** — which is what makes it deterministic.
+
+**Overriding a state from custom CSS.** Custom CSS is unlayered and therefore beats every Strata layer regardless of specificity — but you must name the state. `.card { background: white }` will **not** suppress a `hover:` background, because layer order is evaluated before specificity. Write `.card:hover { ... }`.
+
 ## Component Classes
 
 ### Buttons

@@ -533,6 +533,121 @@ ok('ratio keeps position relative for overlays',
 ok('ratio-16x9 sets a ratio, not a percentage',
   /--st-aspect-ratio:\s*16 \/ 9/.test(lookup('ratio-16x9').css))
 
+// ─── Variants — pseudo-classes, pseudo-elements, relational ──────────────────
+// One variant per class token. The grouped form `hover:[a b]` is impossible:
+// the HTML parser splits `class` on whitespace into a token list before CSS is
+// consulted, leaving a bare `b` that would apply permanently.
+const V = (c) => (lookup(c) || {}).css || ''
+
+// Interaction
+ok('hover: resolves',                 !!lookup('hover:bg-primary'))
+ok('hover: is gated behind hover media',
+  /@media \(hover: hover\)/.test(V('hover:bg-primary')))
+ok('hover: escapes the colon',        /\.hover\\:bg-primary:hover/.test(V('hover:bg-primary')))
+ok('focus-visible: resolves',         /:focus-visible/.test(V('focus-visible:outline-primary')))
+ok('focus-within: resolves',          /:focus-within/.test(V('focus-within:shadow-lg')))
+ok('active: resolves',                /:active/.test(V('active:opacity-75')))
+ok('target: resolves',                /:target/.test(V('target:bg-light')))
+
+// Form state — both :invalid and :user-invalid ship. :invalid fires on load for
+// empty required fields, so a form looks angry before anyone types.
+ok('checked: resolves',               /:checked/.test(V('checked:bg-success')))
+ok('disabled: resolves',              /:disabled/.test(V('disabled:opacity-50')))
+ok('invalid: resolves',               /:invalid/.test(V('invalid:border-danger')))
+ok('user-invalid: resolves',          /:user-invalid/.test(V('user-invalid:border-danger')))
+ok('user-valid: resolves',            /:user-valid/.test(V('user-valid:border-success')))
+ok('placeholder-shown: resolves',     /:placeholder-shown/.test(V('placeholder-shown:text-muted')))
+ok('read-only: resolves',             /:read-only/.test(V('read-only:bg-light')))
+
+// Structural
+ok('first: is :first-child',          /:first-child/.test(V('first:mt-0')))
+ok('last: is :last-child',            /:last-child/.test(V('last:mb-0')))
+ok('odd: is :nth-child(odd)',         /:nth-child\(odd\)/.test(V('odd:bg-light')))
+ok('even: is :nth-child(even)',       /:nth-child\(even\)/.test(V('even:bg-light')))
+ok('empty: resolves',                 /:empty/.test(V('empty:d-none')))
+
+// Pseudo-elements
+ok('placeholder: is ::placeholder',   /::placeholder/.test(V('placeholder:text-muted')))
+ok('file: is ::file-selector-button', /::file-selector-button/.test(V('file:btn-primary')))
+ok('backdrop: resolves',              /::backdrop/.test(V('backdrop:bg-dark')))
+// marker/selection emit two rules: you put the utility on a <ul> and mean the <li>s.
+ok('marker: emits element and descendants',
+  / ::marker/.test(V('marker:text-primary')) && /\\:text-primary::marker/.test(V('marker:text-primary')))
+ok('selection: emits element and descendants',
+  / ::selection/.test(V('selection:bg-primary')))
+// before/after render nothing without content.
+ok('before: emits content',           /content: ""/.test(V('before:d-block')))
+ok('after: emits content',            /content: ""/.test(V('after:d-block')))
+ok('placeholder: does NOT emit content',
+  !/content: ""/.test(V('placeholder:text-muted')))
+
+// Environment — @media, not a selector
+ok('motion-reduce: wraps in media',   /@media \(prefers-reduced-motion: reduce\)/.test(V('motion-reduce:opacity-100')))
+ok('motion-safe: wraps in media',     /no-preference/.test(V('motion-safe:shadow-lg')))
+ok('print: wraps in @media print',    /@media print/.test(V('print:d-none')))
+ok('forced-colors: resolves',         /forced-colors: active/.test(V('forced-colors:border-2')))
+ok('landscape: resolves',             /orientation: landscape/.test(V('landscape:d-flex')))
+
+// Directional — dir is usually on an ancestor but may be on the element itself
+ok('rtl: matches ancestor and self',
+  /\[dir="rtl"\] \./.test(V('rtl:text-end')) && /\[dir="rtl"\]\./.test(V('rtl:text-end')))
+ok('ltr: resolves',                   /\[dir="ltr"\]/.test(V('ltr:text-start')))
+
+// Relational — :where() keeps the trigger at zero specificity, so a relational
+// utility scores the same (0,2,0) as a plain one and cannot silently outrank it.
+ok('group-hover: uses :where(.group)', /:where\(\.group\):hover /.test(V('group-hover:text-primary')))
+ok('group-hover: is hover-gated',      /@media \(hover: hover\)/.test(V('group-hover:text-primary')))
+ok('peer-checked: uses sibling combinator',
+  /:where\(\.peer\):checked ~ /.test(V('peer-checked:bg-primary')))
+ok('peer-invalid: resolves',           /:where\(\.peer\):invalid ~ /.test(V('peer-invalid:text-danger')))
+
+// Composition
+ok('variants stack',                   /:hover:focus/.test(V('hover:focus:bg-primary')))
+ok('media variant wraps a stacked one',
+  /prefers-reduced-motion: no-preference/.test(V('motion-safe:hover:shadow-lg')) &&
+  /@media \(hover: hover\)/.test(V('motion-safe:hover:shadow-lg')))
+// Breakpoints need no new syntax — they stay infix in the utility, and the base
+// utility's own @media keeps sub-layer routing working unchanged.
+ok('variant composes with a breakpoint utility',
+  /min-width: 768px/.test(V('hover:d-md-flex')) && /\.hover\\:d-md-flex:hover/.test(V('hover:d-md-flex')))
+ok('variant composes with arbitrary values',
+  /width: 40%/.test(V('hover:w-md-[40%]')))
+ok('variant + breakpoint routes to the breakpoint sub-layer', (() => {
+  const { generate } = require('../src/generator/generator')
+  return /@layer st-utilities-md \{[\s\S]*hover\\:w-md/.test(generate(new Set(['hover:w-md-[40%]'])).utilityCSS)
+})())
+
+// Specificity must stay flat at (0,2,0) for every variant, relational included.
+// Layer order — not specificity — is what makes a state utility beat a
+// component's own state rule, and that only holds if nothing silently outranks
+// its neighbours.
+const specificityOf = (cls) => {
+  const css = V(cls)
+  let sel = css.replace(/@media[^{]*\{/g, '').split('{')[0].split(',')[0].trim()
+  // Escaped characters inside a class name (`.hover\:bg-primary`) must be
+  // neutralised BEFORE counting, or the escaped colon reads as a pseudo-class
+  // and the count comes out right by accident.
+  sel = sel.replace(/\\./g, 'x')
+  sel = sel.replace(/:where\([^)]*\)/g, '')          // :where() contributes zero
+  const classes = (sel.match(/\.[\w-]+/g) || []).length
+  const attrs   = (sel.match(/\[[^\]]+\]/g) || []).length
+  const pseudos = (sel.match(/(?<!:):(?!:)[a-z-]+(?:\([^)]*\))?/g) || []).length
+  return classes + attrs + pseudos
+}
+const flatSpecificity = (cls) => specificityOf(cls) === 2
+ok('hover: is (0,2,0)',               flatSpecificity('hover:bg-primary'))
+ok('first: is (0,2,0)',               flatSpecificity('first:mt-0'))
+ok('rtl: is (0,2,0)',                 flatSpecificity('rtl:text-end'))
+ok('group-hover: is (0,2,0) via :where()',  flatSpecificity('group-hover:text-primary'))
+ok('peer-checked: is (0,2,0) via :where()', flatSpecificity('peer-checked:bg-primary'))
+
+// An unknown variant must not be guessed at, and a plain class containing a
+// colon must be left alone rather than half-matched.
+ok('unknown variant resolves to null',  !lookup('notavariant:bg-primary'))
+ok('unknown base resolves to null',     !lookup('hover:notautility'))
+ok('bare colon resolves to null',       !lookup('a:b'))
+ok('leading colon resolves to null',    !lookup(':hover'))
+
 // ─── Zero-declaration build warning ──────────────────────────────────────────
 // The other half of the same bug: a utility that emits nothing must say so.
 // Scoped to bracket syntax — warning on every unmatched class name would bury
@@ -546,6 +661,11 @@ const gen = generate(new Set([
   'my-bem__block',    // ditto
 ]))
 ok('unresolved collects the bracket class',   gen.unresolved.includes('nope-[12px]'))
+// A misspelled variant is the same trap as a misspelled arbitrary family.
+const genV = generate(new Set(['hover:bg-primary', 'focusvisible:bg-primary', 'my-bem__block']))
+ok('unresolved collects a bad variant',       genV.unresolved.includes('focusvisible:bg-primary'))
+ok('unresolved excludes a good variant',      !genV.unresolved.includes('hover:bg-primary'))
+ok('unresolved still ignores plain classes',  !genV.unresolved.includes('my-bem__block'))
 ok('unresolved ignores non-utility classes',  !gen.unresolved.includes('swiper-slide') &&
                                               !gen.unresolved.includes('my-bem__block'))
 ok('unresolved excludes the fixed case',      !gen.unresolved.includes('w-md-[40%]'))

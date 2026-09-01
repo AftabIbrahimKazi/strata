@@ -81,19 +81,23 @@ function generate(classNames, config = {}) {
     }
   }
 
-  // Class names that use Strata's arbitrary-value syntax but resolve to no
-  // declarations. Deliberately NOT every unmatched class: a page is full of
-  // names that were never meant to be utilities (`swiper-slide`, a BEM block,
-  // anything from another library), and warning on those would bury the signal.
-  // A bracket is an unambiguous statement of intent — the author was reaching
-  // for a utility and got silence. `w-md-[40%]` no-opped this way for a long
-  // time and cost three separate debugging sessions to find.
+  // Class names that used Strata syntax but resolved to no declarations.
+  // Deliberately NOT every unmatched class: a page is full of names that were
+  // never meant to be utilities (`swiper-slide`, a BEM block, anything from
+  // another library), and warning on those would bury the signal.
+  //
+  // A bracket or a variant colon is an unambiguous statement of intent — the
+  // author was reaching for a utility and got silence. `w-md-[40%]` no-opped
+  // this way for a long time and cost three separate debugging sessions; a
+  // misspelled variant (`hover-visible:`, `focusvisible:`) is the same trap.
   const unresolved = []
+  const looksLikeUtility = (cls) =>
+    (cls.indexOf('[') !== -1 && cls.indexOf(']') !== -1) || cls.indexOf(':') !== -1
 
   for (const cls of effective) {
     const result = lookup(cls)
     if (!result) {
-      if (cls.indexOf('[') !== -1 && cls.indexOf(']') !== -1) unresolved.push(cls)
+      if (looksLikeUtility(cls)) unresolved.push(cls)
       continue
     }
 
@@ -133,9 +137,9 @@ function unresolvedWarning(unresolved) {
   if (!unresolved || unresolved.length === 0) return null
   const shown = unresolved.slice(0, 10)
   const more  = unresolved.length - shown.length
-  return `${unresolved.length} class(es) with arbitrary values matched no utility and emitted nothing: ` +
+  return `${unresolved.length} class(es) matched no utility and emitted nothing: ` +
          shown.join(', ') + (more > 0 ? `, and ${more} more` : '') +
-         '. Check the prefix is a real utility and the breakpoint segment is one of sm|md|lg|xl|xxl.'
+         '. Check the prefix is a real utility, the variant is a supported one, and any breakpoint segment is sm|md|lg|xl|xxl.'
 }
 
 function indent(css) {

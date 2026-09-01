@@ -23,6 +23,16 @@ All notable changes to Strata CSS will be documented here.
 
 - **`aspect-*` utilities.** `aspect-ratio` had appeared in `registry.js` only inside component internals and comments — it was never reachable as a utility. Now: `aspect-square` `aspect-video` `aspect-auto`, the `.ratio-*` names (`aspect-1x1` `aspect-4x3` `aspect-16x9` `aspect-21x9`) for migration continuity, all five breakpoint variants of each, and the arbitrary form `aspect-[16/10]` / `aspect-[var(--r)]`.
 
+- **Variant system — pseudo-classes, pseudo-elements and relational states.** Prefix any utility: `hover:bg-primary`, `focus-visible:outline-primary`, `user-invalid:border-danger`, `marker:text-primary`, `group-hover:text-primary`, `peer-checked:bg-primary`, `motion-reduce:transition-[none]`, `rtl:text-end`. 45 states, 9 pseudo-elements, plus `group-*` / `peer-*`.
+
+  One variant per class token. The grouped spelling `hover:[a b c]` is impossible on any host — the HTML parser splits `class` on whitespace into a token list before CSS is consulted, leaving a bare `b` that applies permanently and a `c]` carrying no record of its state. An attribute form (`data-st-hover="a b"`) measured better — constant atomic CSS, ~12% less gzipped HTML at six utilities per state — but was rejected because Shopify theme-editor class fields and Liquid filters such as `link_to` accept a class string and nothing else. The class form works everywhere the attribute form does, plus those.
+
+  Breakpoints needed no new syntax: they stay infix in the utility (`hover:w-md-[40%]`), so the base utility's own `@media` keeps sub-layer routing working unchanged. Variants stack (`motion-safe:hover:shadow-lg`). `hover:` is gated behind `@media (hover: hover)` so it cannot stick on touch. Both `invalid:` and `user-invalid:` ship. `before:`/`after:` emit `content: ""`; `marker:`/`selection:` emit element and descendant rules. Relational variants wrap the trigger in `:where()`, keeping every single-variant utility at specificity (0,2,0).
+
+- **`docs/shopify.md`** — content globs covering the current theme structure (including `blocks/`), the merchant-settings JSON approach, and dynamic-class guidance.
+
+- `examples/variants-test.html` — every variant group, live.
+
 ### Changed
 
 - **`.ratio` reimplemented on the `aspect-ratio` property.** It previously used the padding-top percentage hack — a `::before` spacer plus `.ratio > *` absolutely positioning children to fill — which predates the property by years, requires a wrapper element, and stretched **every** direct child. That last part was a real bug: a round play button overlaid on a `.ratio` tile was stretched into an ellipse.

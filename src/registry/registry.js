@@ -3530,6 +3530,195 @@ const ARBITRARY_PATTERNS = [
   }},
 ]
 
+// ─── Variants — pseudo-classes, pseudo-elements, relational states ───
+//
+// Authored as one variant per class token: `hover:bg-primary`, never
+// `hover:[bg-primary text-white]`. The grouped form cannot work: the HTML
+// parser splits `class` on whitespace into a token list before any CSS is
+// consulted, so `hover:[a p-3 b]` becomes the tokens `hover:[a`, `p-3`, `b]` —
+// the middle one is a bare `p-3` that applies permanently, and the last carries
+// no record of which state it belonged to. It fails silently, and no amount of
+// scanner intelligence recovers information the parser already discarded.
+//
+// The class form was chosen over `data-st-hover="a b"`, which measures better
+// (constant atomic CSS, ~12% less gzipped HTML at six utilities per state),
+// because it has no dead zones: Shopify theme-editor class fields and Liquid
+// filters like `link_to` accept a class string and nothing else. The class form
+// works everywhere the attribute form does, plus those.
+//
+// Breakpoints need no new syntax. Strata already spells them infix inside the
+// utility (`w-md-[40%]`, `d-md-flex`), so a variant is a pure prefix on an
+// existing utility: `hover:w-md-[40%]`. The base utility's CSS already carries
+// its own @media, so sub-layer routing keeps working with no change — the rule
+// lands in st-utilities-md exactly as `w-md-[40%]` does.
+
+// Simple pseudo-classes: appended to the selector.
+const VARIANT_PSEUDO = {
+  // Interaction
+  'hover': ':hover', 'focus': ':focus', 'focus-visible': ':focus-visible',
+  'focus-within': ':focus-within', 'active': ':active', 'visited': ':visited',
+  'target': ':target',
+  // Form state
+  'checked': ':checked', 'indeterminate': ':indeterminate',
+  'disabled': ':disabled', 'enabled': ':enabled',
+  'required': ':required', 'optional': ':optional',
+  'valid': ':valid', 'invalid': ':invalid',
+  // :invalid fires on load for empty required fields, so a form looks angry
+  // before anyone types. :user-invalid waits for interaction. Both ship, and
+  // the docs explain the difference rather than choosing for the author.
+  'user-valid': ':user-valid', 'user-invalid': ':user-invalid',
+  'in-range': ':in-range', 'out-of-range': ':out-of-range',
+  'read-only': ':read-only', 'read-write': ':read-write',
+  'placeholder-shown': ':placeholder-shown', 'autofill': ':autofill',
+  'default': ':default',
+  // Structural
+  'first': ':first-child', 'last': ':last-child', 'only': ':only-child',
+  'odd': ':nth-child(odd)', 'even': ':nth-child(even)',
+  'first-of-type': ':first-of-type', 'last-of-type': ':last-of-type',
+  'only-of-type': ':only-of-type', 'empty': ':empty',
+}
+
+// Pseudo-elements. `descendants` emits a second rule matching children too —
+// you put `marker:text-muted` on a <ul> and mean it for the <li>s.
+const VARIANT_ELEMENT = {
+  'placeholder':  { sel: '::placeholder' },
+  'marker':       { sel: '::marker',    descendants: true },
+  'selection':    { sel: '::selection', descendants: true },
+  'file':         { sel: '::file-selector-button' },
+  'first-line':   { sel: '::first-line' },
+  'first-letter': { sel: '::first-letter' },
+  'backdrop':     { sel: '::backdrop' },
+  // These render nothing without `content`, so it is emitted for them. An
+  // author who wants different content overrides it in custom CSS.
+  'before':       { sel: '::before', content: true },
+  'after':        { sel: '::after',  content: true },
+}
+
+// Wrapped in @media rather than matched by a selector.
+const VARIANT_MEDIA = {
+  'motion-safe':   '(prefers-reduced-motion: no-preference)',
+  'motion-reduce': '(prefers-reduced-motion: reduce)',
+  'contrast-more': '(prefers-contrast: more)',
+  'contrast-less': '(prefers-contrast: less)',
+  'forced-colors': '(forced-colors: active)',
+  'portrait':      '(orientation: portrait)',
+  'landscape':     '(orientation: landscape)',
+  'print':         'print',
+}
+
+// Matched via an ancestor rather than the element itself.
+const VARIANT_ANCESTOR = {
+  'rtl': '[dir="rtl"] ',
+  'ltr': '[dir="ltr"] ',
+}
+
+// Sticky hover on touch devices is the most-reported complaint about hover
+// utilities, and gating it later would be a breaking change. Gate from the
+// start, as Tailwind does.
+const HOVER_MEDIA = '(hover: hover)'
+
+function regexEscape(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+// Rewrite every occurrence of the base class's selector into the variant's.
+// The negative lookahead matters: without it, transforming `bg-primary` inside
+// a rule that also mentions `.bg-primary-subtle` would corrupt the longer name.
+function rewriteSelector(css, escBase, replacement) {
+  const re = new RegExp('\\.' + regexEscape(escBase) + '(?![\\w-])', 'g')
+  return css.replace(re, replacement)
+}
+
+// Split `hover:bg-primary` into its first variant and the remainder. Returns
+// null when the leading segment is not a known variant, so an ordinary class
+// containing a colon is left alone rather than guessed at.
+function splitVariant(className) {
+  const i = className.indexOf(':')
+  if (i <= 0) return null
+  const name = className.slice(0, i)
+  const rest = className.slice(i + 1)
+  if (!rest) return null
+  const known =
+    Object.prototype.hasOwnProperty.call(VARIANT_PSEUDO, name)   ||
+    Object.prototype.hasOwnProperty.call(VARIANT_ELEMENT, name)  ||
+    Object.prototype.hasOwnProperty.call(VARIANT_MEDIA, name)    ||
+    Object.prototype.hasOwnProperty.call(VARIANT_ANCESTOR, name) ||
+    RELATIONAL_RE.test(name)
+  return known ? { name, rest } : null
+}
+
+// group-hover / peer-checked and friends. The trigger carries `.group` or
+// `.peer`; the styled element carries the variant.
+const RELATIONAL_RE = /^(group|peer)-(.+)$/
+
+function lookupVariant(className) {
+  const split = splitVariant(className)
+  if (!split) return null
+
+  // Recursive, so variants stack: `hover:focus:bg-primary` works, and so does
+  // `motion-safe:hover:translate-y-1`, with no special case for the pair.
+  const base = lookup(split.rest)
+  if (!base || !base.css) return null
+
+  const escBase = escapeClass(split.rest)
+  const escFull = escapeClass(className)
+  const name    = split.name
+  let css       = base.css
+
+  const rel = RELATIONAL_RE.exec(name)
+  if (rel) {
+    const [, kind, state] = rel
+    const pseudo = VARIANT_PSEUDO[state]
+    if (!pseudo) return null
+    // :where() contributes zero specificity, so a relational utility scores the
+    // same (0,2,0) as a plain one. Without it the trigger marker would add
+    // specificity and relational utilities would silently outrank normal ones.
+    const combinator = kind === 'group' ? ' ' : ' ~ '
+    const prefix = `:where(.${kind})${pseudo}${combinator}`
+    css = rewriteSelector(css, escBase, prefix + '.' + escFull)
+    // Same touch-device reasoning as plain hover.
+    if (state === 'hover') css = `@media ${HOVER_MEDIA} { ${css} }`
+    return { layer: base.layer, css }
+  }
+
+  if (VARIANT_ANCESTOR[name]) {
+    // Two selectors, because `dir` is usually on an ancestor (<html dir="rtl">)
+    // but may sit on the element itself. Both score (0,2,0), so the flat
+    // specificity guarantee holds either way.
+    const dir = VARIANT_ANCESTOR[name].trim()
+    css = rewriteSelector(css, escBase,
+      `${dir} .${escFull}, ${dir}.${escFull}`)
+    return { layer: base.layer, css }
+  }
+
+  if (VARIANT_MEDIA[name]) {
+    css = rewriteSelector(css, escBase, '.' + escFull)
+    return { layer: base.layer, css: `@media ${VARIANT_MEDIA[name]} { ${css} }` }
+  }
+
+  const el = VARIANT_ELEMENT[name]
+  if (el) {
+    const own = '.' + escFull + el.sel
+    const replacement = el.descendants
+      ? `.${escFull} ${el.sel}, ${own}`
+      : own
+    css = rewriteSelector(css, escBase, replacement)
+    if (el.content) {
+      // Insert into the declaration block belonging to the selector we just
+      // built, not merely the first `{` in the string — that would be the
+      // @media wrapper for a responsive base utility.
+      css = css.replace(own + ' {', own + ' { content: "";')
+    }
+    return { layer: base.layer, css }
+  }
+
+  const pseudo = VARIANT_PSEUDO[name]
+  if (!pseudo) return null
+  css = rewriteSelector(css, escBase, '.' + escFull + pseudo)
+  if (name === 'hover') css = `@media ${HOVER_MEDIA} { ${css} }`
+  return { layer: base.layer, css }
+}
+
 // ─── Lookup — O(1) first, regex fallback ─────────────────────────────
 
 const resultCache = new Map()
@@ -3545,7 +3734,17 @@ function lookup(className) {
     return result
   }
 
-  // L3 — arbitrary value patterns — O(patterns)
+  // L3 — variants. Must precede the bracket fast-path below, or every
+  // bracket-less variant (`hover:bg-primary`) would be rejected before it is
+  // ever considered. Gated on a colon so ordinary class names skip it, keeping
+  // the cost off the common path.
+  if (className.indexOf(':') !== -1) {
+    const variant = lookupVariant(className)
+    resultCache.set(className, variant)
+    return variant
+  }
+
+  // L4 — arbitrary value patterns — O(patterns)
   // Every arbitrary pattern requires a bracket — skip the whole loop for
   // bracket-less classes (the majority of custom class names in real projects)
   if (className.indexOf('[') === -1) {
