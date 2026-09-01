@@ -13,9 +13,9 @@
 [![JIT](https://img.shields.io/badge/JIT-enabled-green.svg)]()
 [![Themes](https://img.shields.io/badge/themes-light%20%7C%20dark%20%7C%20dim-purple.svg)]()
 
-`css-framework` · `tailwindcss` · `bootstrap` · `postcss` · `postcss-plugin` · `jit` · `component-library` · `theming` · `utility-first`
+`css-framework` · `tailwindcss` · `bootstrap` · `postcss` · `postcss-plugin` · `jit` · `component-library` · `theming` · `utility-first` · `css-variants` · `cascade-layers` · `arbitrary-values` · `design-system`
 
-[Getting Started](#getting-started) · [Live Demo](#live-demo) · [Components](#components) · [Utilities](#utilities) · [Theming](#theming) · [Configuration](#configuration)
+[Getting Started](#getting-started) · [Components](#components) · [Utilities](#utilities) · [Variants](#variants--hover-focus-form-state-pseudo-elements) · [Theming](#theming) · [Configuration](#configuration) · [Packages](#standalone-packages)
 
 </div>
 
@@ -36,20 +36,26 @@ Strata CSS is an open source CSS framework that takes the best from Bootstrap an
 - Buttery smooth transitions built in by default on all interactive elements
 - State management via `data-st-*` attributes — no class toggling in JavaScript
 - Arbitrary value utilities — `mt-[24px]`, `bg-[#ff0000]`, `w-[347px]`
+- Variants for every state — `hover:bg-primary`, `user-invalid:border-danger`, `group-hover:`, `peer-checked:`, `before:`, `marker:`, `print:`
+- Native `aspect-ratio` utilities — `aspect-video`, `aspect-md-square`, `aspect-[16/10]`
 
 ---
 
 ## Benchmarks
 
-| Metric | Strata | Tailwind CSS 3 |
-|---|---|---|
-| Cold build average | 3.82ms | 7.21ms |
-| Cold build median | 3.78ms | 4.55ms |
-| Cold build p95 | 4.40ms | 6.12ms |
+Build time for a full cold build — cache invalidated on every run, which is the most conservative measurement available. Warm rebuilds, the common case in development, return cached output and are effectively free.
 
-> Tailwind figures are official watch-mode reference numbers. Strata numbers are from a cold build with cache invalidated on every run — the most conservative possible measurement. Warm rebuilds (the common case in development) are significantly faster as unchanged output is returned from cache with zero reprocessing.
+| Scenario | Unique classes | Mean | Median | p95 | Peak heap |
+|---|---|---|---|---|---|
+| Small — single component | 20 | **0.39 ms** | 0.37 ms | 0.52 ms | 6.7 MB |
+| Medium — marketing page | 105 | **0.64 ms** | 0.62 ms | 0.84 ms | 6.9 MB |
+| Large — application shell | 487 | **1.24 ms** | 1.22 ms | 1.46 ms | 7.5 MB |
 
-Results generated via `npm run benchmark`. See [`benchmark/`](./benchmark/) for the reproducible script.
+100 runs per scenario, outliers removed by IQR fence, 95% confidence intervals reported by the script. Measured on Node v24.12.0, AMD Ryzen 7 7730U, Windows 11.
+
+Scaling is close to linear in the number of classes rather than the size of the framework: 24× more classes costs 3.2× more time, because the JIT only ever visits classes your source actually contains.
+
+Run it yourself with `npm run benchmark` — see [`benchmark/`](./benchmark/) for the script and [`benchmark/results/`](./benchmark/results/) for stored runs.
 
 ---
 
@@ -214,6 +220,82 @@ Utilities follow Bootstrap's naming convention and support arbitrary values via 
 <div class="bg-success">
 <div class="bg-[rgba(0,0,0,0.5)]">
 ```
+
+---
+
+## Variants — hover, focus, form state, pseudo-elements
+
+Prefix any utility with a variant to make it conditional. **One variant per class token.**
+
+```html
+<div class="card hover:bg-primary hover:text-white focus-visible:outline-primary">
+<input class="form-control user-invalid:border-danger">
+<li class="odd:bg-light first:fw-bold marker:text-muted">
+```
+
+`hover:[bg-primary text-white]` does **not** work and never can — the HTML parser splits `class` on whitespace into a token list before CSS is ever consulted, so it would become `hover:[bg-primary` plus `text-white]` and leave a bare token applying permanently.
+
+**Breakpoints stay infix**, so a variant is a pure prefix and routing is unchanged:
+
+```html
+<div class="hover:w-md-[40%] hover:d-lg-flex motion-safe:hover:shadow-lg">
+```
+
+**Variants stack, in any order:** `motion-safe:hover:shadow-lg`, `hover:focus:bg-primary`.
+
+| Group | Variants |
+|---|---|
+| Interaction | `hover` `focus` `focus-visible` `focus-within` `active` `visited` `target` |
+| Form state | `checked` `indeterminate` `disabled` `enabled` `required` `optional` `valid` `invalid` `user-valid` `user-invalid` `in-range` `out-of-range` `read-only` `read-write` `placeholder-shown` `autofill` `default` |
+| Structural | `first` `last` `only` `odd` `even` `first-of-type` `last-of-type` `only-of-type` `empty` |
+| Pseudo-elements | `placeholder` `marker` `selection` `file` `first-line` `first-letter` `backdrop` `before` `after` |
+| Environment | `motion-safe` `motion-reduce` `contrast-more` `contrast-less` `forced-colors` `print` `portrait` `landscape` |
+| Direction | `rtl` `ltr` |
+| Relational | `group-*` and `peer-*` — e.g. `group-hover`, `peer-checked`, `peer-invalid` |
+
+### Relational variants
+
+```html
+<div class="group">
+  <span class="group-hover:text-primary">Reacts when the group is hovered</span>
+</div>
+
+<input type="checkbox" class="peer">
+<span class="peer-checked:text-success">Reacts when the peer is checked</span>
+```
+
+`peer-*` uses the general sibling combinator, so the styled element must **share a parent with** its peer and appear after it.
+
+### Behaviours worth knowing
+
+- **`hover:` is emitted inside `@media (hover: hover)`**, so it never sticks on a touch device.
+- **Both `invalid:` and `user-invalid:` ship.** `:invalid` fires on page load for empty required fields, so a form styled with it looks angry before anyone types. Prefer `user-invalid:` for validation feedback.
+- **`before:` and `after:` emit `content: ""`** — they render nothing without it.
+- **`marker:` and `selection:` emit two rules**, the element and its descendants, so `marker:text-muted` on a `<ul>` styles the `<li>` markers.
+- **Relational variants use `:where()` on the trigger**, so they contribute zero specificity and score the same as a plain state utility.
+
+### Specificity
+
+A plain utility is (0,1,0); one variant makes it (0,2,0), relational included. Stacking two pseudo-classes necessarily makes it (0,3,0). State rules live in the `st-utilities-*` layers, so they beat a component's own state rule **by layer, not specificity** — which is what makes it deterministic.
+
+Custom CSS is unlayered and therefore beats every Strata layer regardless of specificity, but you must name the state: `.card { background: white }` will **not** suppress a `hover:` background, because layer order is evaluated before specificity. Write `.card:hover { ... }`.
+
+---
+
+## Aspect ratio
+
+```html
+<div class="aspect-video">      <!-- 16/9 -->
+<div class="aspect-square">     <!-- 1/1  -->
+<div class="aspect-md-square">  <!-- responsive -->
+<div class="aspect-[16/10]">    <!-- arbitrary -->
+<div class="aspect-[var(--r)]">
+```
+
+Named ratios: `aspect-square`, `aspect-video`, `aspect-auto`, plus `aspect-1x1`, `aspect-4x3`, `aspect-16x9`, `aspect-21x9`. All accept a breakpoint segment.
+
+`.ratio` / `.ratio-{1x1,4x3,16x9,21x9}` remain for the wrapper-plus-embed pattern and are implemented on `aspect-ratio` rather than the old padding-top hack. Their fill rule is scoped to replaced elements (`img`, `video`, `iframe`, `embed`, `object`), so an overlay child keeps its own size instead of being stretched to the box. Prefer `aspect-*` for new markup — it needs no wrapper and no companion class.
+
 
 ---
 
@@ -679,6 +761,37 @@ module.exports = {
   }
 }
 ```
+
+
+### CSS minification
+
+`strata --minify` runs a fixed cascade and prints which engine ran:
+
+1. **`minifier` set in `strata.config.js`** — honoured exactly; hard-errors if unavailable rather than silently substituting the other engine.
+2. **Lightning CSS** — the default. Roughly 2% smaller output than cssnano, used whenever it parses the stylesheet cleanly.
+3. **cssnano** — on a missing package, a parse failure, *or* a dropped declaration. Announced with the reason.
+4. **Unminified** — if neither is installed. Announced.
+
+Both minifiers are optional peer dependencies; neither is required to build.
+
+```js
+module.exports = {
+  minifier: 'lightningcss',        // 'lightningcss' | 'cssnano' | false
+  targets:  { safari: 16 << 16 },  // browser targets passed to Lightning CSS
+}
+```
+
+The order is fixed rather than "whichever output is smaller", because the two engines are not interchangeable on **your** CSS. `@strata` directives are replaced inside your own stylesheet, so any custom CSS you write there goes through the same minifier — and that is where they diverge:
+
+```css
+.legacy { *zoom: 1 }   /* lightningcss:  SyntaxError, build dies   */
+                       /*  + errorRecovery: drops the declaration  */
+                       /* cssnano:        preserves it             */
+```
+
+Strata always enables `errorRecovery`, so a legacy hack can never kill your build, and it treats a recovered error as a **failure** — falling back to cssnano. The dropped-declaration output is smaller precisely *because* something of yours was deleted, so choosing by file size would let compression decide whether your hack ships. Compression only breaks ties between outputs that are equivalent.
+
+Under Vite, Next or webpack this cascade never runs: the PostCSS plugin path is used and the bundler does its own minification.
 
 ---
 

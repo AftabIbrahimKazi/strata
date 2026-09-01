@@ -1468,10 +1468,10 @@
       <thead class="table-dark"><tr><th>Class</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td><code>offcanvas</code></td><td>Base fixed drawer — hidden by default, transitions on transform</td></tr>
-        <tr><td><code>offcanvas-start</code></td><td>Slides in from the left</td></tr>
-        <tr><td><code>offcanvas-end</code></td><td>Slides in from the right</td></tr>
-        <tr><td><code>offcanvas-top</code></td><td>Slides in from the top</td></tr>
-        <tr><td><code>offcanvas-bottom</code></td><td>Slides in from the bottom (30vh height)</td></tr>
+        <tr><td><code>data-st-side="left"</code></td><td>Slides in from the left</td></tr>
+        <tr><td><code>data-st-side="right"</code></td><td>Slides in from the right</td></tr>
+        <tr><td><code>data-st-side="top"</code></td><td>Slides in from the top</td></tr>
+        <tr><td><code>data-st-side="bottom"</code></td><td>Slides in from the bottom (30vh height)</td></tr>
         <tr><td><code>offcanvas-header</code></td><td>Flex header — title + close button</td></tr>
         <tr><td><code>offcanvas-title</code></td><td>Heading inside header</td></tr>
         <tr><td><code>offcanvas-body</code></td><td>Scrollable body content</td></tr>
@@ -1486,7 +1486,7 @@
 &lt;button data-st-toggle="offcanvas" data-st-target="#drawer"&gt;Open&lt;/button&gt;
 
 &lt;!-- Drawer --&gt;
-&lt;div class="offcanvas offcanvas-start" id="drawer"&gt;
+&lt;div class="offcanvas" data-st-side="left" id="drawer"&gt;
   &lt;div class="offcanvas-header"&gt;
     &lt;h5 class="offcanvas-title"&gt;Sidebar&lt;/h5&gt;
     &lt;button class="btn-close" data-st-dismiss="offcanvas"&gt;&lt;/button&gt;
@@ -1590,8 +1590,8 @@
         <div class="mb-1">Stacked</div>
         <div class="progress progress-stacked">
           <div class="progress w-25"><div class="progress-bar bg-primary" role="progressbar"></div></div>
-          <div class="progress w-15"><div class="progress-bar bg-success" role="progressbar"></div></div>
-          <div class="progress w-10"><div class="progress-bar bg-danger" role="progressbar"></div></div>
+          <div class="progress w-[15%]"><div class="progress-bar bg-success" role="progressbar"></div></div>
+          <div class="progress w-[10%]"><div class="progress-bar bg-danger" role="progressbar"></div></div>
         </div>
       </div>
     </div>

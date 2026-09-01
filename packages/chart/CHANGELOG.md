@@ -2,6 +2,16 @@
 
 All notable changes to `@strata-packages/chart` are documented here.
 
+## [1.1.3] — 2026-09-02
+
+### Fixed
+
+- **A top-level class shadowed the public `StrataChart` global.** `class StrataChart` sat at the top level of `chart.ts`, outside the IIFE that assigns the public API. A top-level class declaration creates a binding in the global *lexical* environment, and that binding shadows `window.StrataChart` for every script that follows — so the documented standalone entry point, `StrataChart.create(selector, options)`, resolved to the class rather than the API object and threw `TypeError: StrataChart.create is not a function`. The class is renamed `ChartInstance`; it was only ever internal, and nothing outside the file referenced it by name.
+
+  Pages that load `strata.components.js` were never affected: `window.Strata` exists there, so the API is published as `Strata.Chart` and callers reach it by property access, which never touches the shadowed identifier. Only the standalone path broke — and it is the one a new consumer reaches first, which is why this survived earlier verification.
+
+  Verified in Chrome 152: before, the bare identifier resolved to a class whose `.create` was `undefined` and `StrataChart !== window.StrataChart`, with 0 canvases rendered on 4 containers. After, `examples/standalone-chart.html` renders 4/4 with no errors, and the bundle-based pages are unchanged at 6/6 and 14/14.
+
 ## [1.1.2] — 2026-07-04
 
 ### Security

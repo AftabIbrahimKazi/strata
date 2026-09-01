@@ -81,9 +81,25 @@ function generate(classNames, config = {}) {
     }
   }
 
+  // Class names that used Strata syntax but resolved to no declarations.
+  // Deliberately NOT every unmatched class: a page is full of names that were
+  // never meant to be utilities (`swiper-slide`, a BEM block, anything from
+  // another library), and warning on those would bury the signal.
+  //
+  // A bracket or a variant colon is an unambiguous statement of intent — the
+  // author was reaching for a utility and got silence. `w-md-[40%]` no-opped
+  // this way for a long time and cost three separate debugging sessions; a
+  // misspelled variant (`hover-visible:`, `focusvisible:`) is the same trap.
+  const unresolved = []
+  const looksLikeUtility = (cls) =>
+    (cls.indexOf('[') !== -1 && cls.indexOf(']') !== -1) || cls.indexOf(':') !== -1
+
   for (const cls of effective) {
     const result = lookup(cls)
-    if (!result) continue
+    if (!result) {
+      if (looksLikeUtility(cls)) unresolved.push(cls)
+      continue
+    }
 
     const suffix = getSubLayerSuffix(result.css)
     const group  = result.layer === 'components' ? 'components' : 'utilities'
@@ -111,7 +127,19 @@ function generate(classNames, config = {}) {
   const componentCSS = componentParts.join('\n\n')
   const utilityCSS   = utilityParts.join('\n\n')
 
-  return { componentCSS, utilityCSS }
+  return { componentCSS, utilityCSS, unresolved }
+}
+
+// One warning line for a batch of unresolved arbitrary classes, or null when
+// there is nothing to say. Shared so the PostCSS plugin and the CLI report the
+// same thing rather than one of them silently skipping it.
+function unresolvedWarning(unresolved) {
+  if (!unresolved || unresolved.length === 0) return null
+  const shown = unresolved.slice(0, 10)
+  const more  = unresolved.length - shown.length
+  return `${unresolved.length} class(es) matched no utility and emitted nothing: ` +
+         shown.join(', ') + (more > 0 ? `, and ${more} more` : '') +
+         '. Check the prefix is a real utility, the variant is a supported one, and any breakpoint segment is sm|md|lg|xl|xxl.'
 }
 
 function indent(css) {
@@ -129,4 +157,4 @@ function generateAST(classNames, config = {}, from = undefined) {
   }
 }
 
-module.exports = { generate, generateAST }
+module.exports = { generate, generateAST, unresolvedWarning }

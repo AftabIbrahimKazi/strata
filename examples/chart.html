@@ -61,8 +61,8 @@
     <div class="container py-3">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
         <div>
-          <h1 class="h5 mb-0 fw-bold">Strata Chart</h1>
-          <p class="text-muted small mb-0">3D/2D charts · Grid &amp; labels · Interactive highlighting · Dynamic data</p>
+          <h1 class="fs-[1.25rem] mb-0 fw-bold">Strata Chart</h1>
+          <p class="text-muted fs-[0.875rem] mb-0">3D/2D charts · Grid &amp; labels · Interactive highlighting · Dynamic data</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
           <a href="chart-guide.html" class="btn btn-outline-secondary btn-sm">Guide →</a>
@@ -76,7 +76,7 @@
   <div class="container pb-5">
 
     <!-- ── Section: Chart Types ──────────────────────────────────────────────── -->
-    <p class="text-muted small text-uppercase fw-semibold mb-3" style="letter-spacing:.07em">Chart Types</p>
+    <p class="text-muted fs-[0.875rem] text-uppercase fw-semibold mb-3" style="letter-spacing:.07em">Chart Types</p>
     <div class="row">
 
       <!-- Bar -->
@@ -84,10 +84,10 @@
         <div class="card shadow-sm h-100">
           <div class="card-body d-flex flex-column gap-3">
             <div class="d-flex align-items-center justify-content-between">
-              <h2 class="h6 mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
+              <h2 class="fs-[1rem] mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
                 Bar Chart <span class="badge bg-primary ms-1" id="bar-badge">3D</span>
               </h2>
-              <span class="small text-muted">Hover bars · Drag to orbit</span>
+              <span class="fs-[0.875rem] text-muted">Hover bars · Drag to orbit</span>
             </div>
             <div class="chart-h" id="barChart"></div>
             <div class="d-flex flex-wrap gap-2">
@@ -105,10 +105,10 @@
         <div class="card shadow-sm h-100">
           <div class="card-body d-flex flex-column gap-3">
             <div class="d-flex align-items-center justify-content-between">
-              <h2 class="h6 mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
+              <h2 class="fs-[1rem] mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
                 Line Chart <span class="badge bg-success ms-1" id="line-badge">3D</span>
               </h2>
-              <span class="small text-muted">Hover points · Drag to orbit</span>
+              <span class="fs-[0.875rem] text-muted">Hover points · Drag to orbit</span>
             </div>
             <div class="chart-h" id="lineChart"></div>
             <div class="d-flex flex-wrap gap-2">
@@ -124,10 +124,10 @@
         <div class="card shadow-sm h-100">
           <div class="card-body d-flex flex-column gap-3">
             <div class="d-flex align-items-center justify-content-between">
-              <h2 class="h6 mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
+              <h2 class="fs-[1rem] mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
                 Pie Chart <span class="badge bg-warning ms-1" id="pie-badge">3D</span>
               </h2>
-              <span class="small text-muted">Hover slices · 2D top face</span>
+              <span class="fs-[0.875rem] text-muted">Hover slices · 2D top face</span>
             </div>
             <div class="chart-h" id="pieChart"></div>
             <div class="d-flex flex-wrap gap-2">
@@ -143,10 +143,10 @@
         <div class="card shadow-sm h-100">
           <div class="card-body d-flex flex-column gap-3">
             <div class="d-flex align-items-center justify-content-between">
-              <h2 class="h6 mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
+              <h2 class="fs-[1rem] mb-0 fw-semibold text-uppercase" style="letter-spacing:.05em">
                 Scatter Plot <span class="badge bg-info ms-1" id="scatter-badge">3D</span>
               </h2>
-              <span class="small text-muted">Hover points · Drag to orbit</span>
+              <span class="fs-[0.875rem] text-muted">Hover points · Drag to orbit</span>
             </div>
             <div class="chart-h" id="scatterChart"></div>
             <div class="d-flex flex-wrap gap-2">
@@ -160,13 +160,13 @@
     </div>
 
     <!-- ── Section: Grid, Labels & Highlighting ───────────────────────────────── -->
-    <p class="text-muted small text-uppercase fw-semibold mb-3 mt-2" style="letter-spacing:.07em">Feature 1–3 · Grid, Labels &amp; Interactive Highlighting</p>
+    <p class="text-muted fs-[0.875rem] text-uppercase fw-semibold mb-3 mt-2" style="letter-spacing:.07em">Feature 1–3 · Grid, Labels &amp; Interactive Highlighting</p>
     <div class="row mb-4">
       <div class="col-12">
         <div class="card shadow-sm">
           <div class="card-body d-flex flex-column gap-3">
             <div>
-              <p class="small text-muted mb-0">
+              <p class="fs-[0.875rem] text-muted mb-0">
                 Toggle each flag — the chart rebuilds immediately with the new config.
                 Enable <strong>gridView</strong> first, then <strong>highlightGrid</strong> and hover a bar to see the grid lines light up.
               </p>
@@ -177,13 +177,13 @@
               </div>
               <div class="col-12 col-lg-4 d-flex flex-column gap-3 justify-content-center">
                 <div>
-                  <p class="small fw-semibold mb-2">Feature flags</p>
+                  <p class="fs-[0.875rem] fw-semibold mb-2">Feature flags</p>
                   <div class="d-flex flex-column gap-2">
-                    <button class="btn btn-sm btn-outline-primary  text-start" id="btnGrid">      gridView: <strong>off</strong></button>
-                    <button class="btn btn-sm btn-outline-success  text-start" id="btnLabels">    showAxisLabels: <strong>off</strong></button>
-                    <button class="btn btn-sm btn-outline-warning  text-start" id="btnScale">     showScale: <strong>off</strong></button>
-                    <button class="btn btn-sm btn-outline-info     text-start" id="btnGridLbls">  showGridLabels: <strong>off</strong></button>
-                    <button class="btn btn-sm btn-outline-danger   text-start" id="btnHighlight"> highlightGridOnInteract: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-primary text-start" id="btnGrid">      gridView: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-success text-start" id="btnLabels">    showAxisLabels: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-warning text-start" id="btnScale">     showScale: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-info text-start" id="btnGridLbls">  showGridLabels: <strong>off</strong></button>
+                    <button class="btn btn-sm btn-outline-danger text-start" id="btnHighlight"> highlightGridOnInteract: <strong>off</strong></button>
                   </div>
                 </div>
                 <div class="d-flex flex-wrap gap-2">
@@ -198,12 +198,12 @@
     </div>
 
     <!-- ── Section: Dynamic Data Entries ─────────────────────────────────────── -->
-    <p class="text-muted small text-uppercase fw-semibold mb-3" style="letter-spacing:.07em">Feature 4 · Dynamic Data Entries</p>
+    <p class="text-muted fs-[0.875rem] text-uppercase fw-semibold mb-3" style="letter-spacing:.07em">Feature 4 · Dynamic Data Entries</p>
     <div class="row mb-4">
       <div class="col-12">
         <div class="card shadow-sm">
           <div class="card-body d-flex flex-column gap-3">
-            <p class="small text-muted mb-0">
+            <p class="fs-[0.875rem] text-muted mb-0">
               Add, remove, and patch individual data points at runtime. The chart rebuilds in place — no destroy/recreate needed.
               The scale grid updates automatically as data grows or shrinks.
             </p>
@@ -213,10 +213,10 @@
               </div>
               <div class="col-12 col-lg-4 d-flex flex-column gap-3 justify-content-center">
                 <div>
-                  <p class="small fw-semibold mb-2">Methods</p>
+                  <p class="fs-[0.875rem] fw-semibold mb-2">Methods</p>
                   <div class="d-flex flex-column gap-2">
-                    <button class="btn btn-sm btn-success           text-start" id="btnAdd">    addDataPoint()</button>
-                    <button class="btn btn-sm btn-danger            text-start" id="btnRemove"> removeDataPoint(last)</button>
+                    <button class="btn btn-sm btn-success text-start" id="btnAdd">    addDataPoint()</button>
+                    <button class="btn btn-sm btn-danger text-start" id="btnRemove"> removeDataPoint(last)</button>
                     <button class="btn btn-sm btn-warning text-dark text-start" id="btnUpdate"> updateDataPoint(first, random value)</button>
                     <button class="btn btn-sm btn-outline-secondary text-start" id="btnReset">  reset to 5 points</button>
                   </div>
@@ -236,7 +236,7 @@
     <div class="card shadow-sm">
       <div class="card-body">
         <div class="d-flex align-items-center justify-content-between mb-2">
-          <h3 class="h6 mb-0 fw-semibold">Event Log <span class="text-muted fw-normal small">(st:chart:change · st:chart:click · st:chart:update)</span></h3>
+          <h3 class="fs-[1rem] mb-0 fw-semibold">Event Log <span class="text-muted fw-normal fs-[0.875rem]">(st:chart:change · st:chart:click · st:chart:update)</span></h3>
           <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('event-log').innerHTML=''">Clear</button>
         </div>
         <div id="event-log"><p class="text-muted">Events appear here as you interact…</p></div>
