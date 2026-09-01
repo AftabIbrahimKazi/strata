@@ -253,6 +253,104 @@
     </div>
   </section>
 
+  <!-- ── Stage 2 · aspect-ratio ────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-1">5 · <code>aspect-*</code> — new in stage 2</h2>
+    <p class="text-muted mb-3 max-w-[62ch]">
+      <code>aspect-ratio</code> appeared in the registry only inside component
+      internals — it was never reachable as a utility. Each tile below is sized
+      purely by its aspect class; none has a height.
+    </p>
+
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="aspect-square bg-[#0f766e] rounded-3 d-flex align-items-center justify-content-center text-white">
+          <code class="text-white">aspect-square</code>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="aspect-video bg-[#b45309] rounded-3 d-flex align-items-center justify-content-center text-white">
+          <code class="text-white">aspect-video</code>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="aspect-[4/3] bg-[#7c3aed] rounded-3 d-flex align-items-center justify-content-center text-white">
+          <code class="text-white">aspect-[4/3]</code>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="aspect-[21/9] bg-[#be123c] rounded-3 d-flex align-items-center justify-content-center text-white">
+          <code class="text-white">aspect-[21/9]</code>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-muted mb-2">
+      Responsive too — this one is a square on mobile and 16/9 from
+      <code>md</code> up:
+    </p>
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-6">
+        <div class="aspect-square aspect-md-video bg-[#334155] rounded-3 d-flex align-items-center justify-content-center text-white">
+          <code class="text-white">aspect-square aspect-md-video</code>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="mb-1">The bug this replaces</h3>
+    <p class="text-muted mb-3 max-w-[62ch]">
+      <code>.ratio</code> used the padding-top hack, and its <code>.ratio &gt; *</code>
+      rule stretched <strong>every</strong> direct child — so a round play button
+      over an image was stretched into an ellipse. The fill rule is now scoped to
+      replaced elements (<code>img</code>, <code>video</code>, <code>iframe</code>,
+      <code>embed</code>, <code>object</code>), so embeds still fill and overlays
+      keep their own size.
+    </p>
+
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <p class="mb-2">A <code>.ratio</code> tile with an image <em>and</em> an overlay button</p>
+        <!-- Two direct children: the media, which must fill, and the button,
+             which must not. Under the old `> *` rule the button was stretched
+             to the full box and rendered as an ellipse. -->
+        <div class="ratio ratio-16x9 rounded-3 overflow-hidden bg-[#1e293b]">
+          <svg viewBox="0 0 160 90" role="img" aria-label="Placeholder media">
+            <rect width="160" height="90" fill="#0f766e"></rect>
+            <path d="M0 70 L40 45 L80 62 L120 30 L160 55 L160 90 L0 90 Z" fill="#065f46"></path>
+          </svg>
+          <button type="button"
+                  class="btn-light rounded-circle position-absolute top-50 start-50 translate-middle w-[56px] h-[56px] d-flex align-items-center justify-content-center p-0"
+                  aria-label="Play">
+            ▶
+          </button>
+        </div>
+        <p class="text-muted mt-2 mb-0">
+          The button must be a <strong>circle</strong>. An ellipse means the
+          <code>&gt; *</code> stretch is back.
+        </p>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <p class="mb-2">Same idea with the utility — no wrapper class needed</p>
+        <div class="aspect-video rounded-3 overflow-hidden bg-[#1e293b] position-relative">
+          <svg viewBox="0 0 160 90" class="w-[100%] h-[100%]" role="img" aria-label="Placeholder media">
+            <rect width="160" height="90" fill="#b45309"></rect>
+            <circle cx="120" cy="28" r="14" fill="#fcd34d"></circle>
+          </svg>
+          <button type="button"
+                  class="btn-light rounded-circle position-absolute top-50 start-50 translate-middle w-[56px] h-[56px] d-flex align-items-center justify-content-center p-0"
+                  aria-label="Play">
+            ▶
+          </button>
+        </div>
+        <p class="text-muted mt-2 mb-0">
+          <code>aspect-video</code> on the element itself — one class, no
+          <code>::before</code> spacer, no absolute positioning.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- ── The warning ───────────────────────────────────────────────────── -->
   <section class="mb-5">
     <h2 class="mb-1">4 · The other half of the fix — it now complains</h2>
@@ -267,14 +365,18 @@
       <pre class="mb-2"><code>node bin/strata.js --build</code></pre>
       <p class="mb-0">
         Expect: <code>2 class(es) with arbitrary values matched no utility and
-        emitted nothing: nope-[12px], lh-[1.15]</code>
+        emitted nothing: nope-[12px], notaprop-md-[4px]</code>
       </p>
     </div>
     <div class="track">
-      <!-- Intentionally unresolvable. nope-* is not a family at all; lh-[…] is a
-           real property whose named scale accepts no bracket form yet. Both
-           should appear in the build warning and neither should emit CSS. -->
-      <div class="bar w-[100%] bg-[#334155] nope-[12px] lh-[1.15]">
+      <!-- Intentionally unresolvable: neither prefix is a family, in the plain
+           and responsive forms respectively. Both must appear in the build
+           warning and neither may emit CSS.
+           Deliberately NOT using lh-[…] as the example here: line-height has a
+           closed named scale (lh-1/sm/base/lg) and no bracket form on purpose,
+           because an arbitrary value cascades into sibling and descendant
+           alignment. It failing is a design decision, not a gap to be closed. -->
+      <div class="bar w-[100%] bg-[#334155] nope-[12px] notaprop-md-[4px]">
         two deliberately unresolvable classes
       </div>
     </div>
