@@ -13,6 +13,27 @@
    flow slot is already scrolled out of view by the time it's hidden. */
 .header-autohide {
   transition: transform var(--st-duration) var(--st-easing);
+
+  /* Scrolled page content shows through the header band for the length of a
+     LineWave run. The wave animates transform, opacity and a drop-shadow, so
+     Chrome promotes it to its own compositor layer while it runs — and it sits
+     inside an ancestor that is position: sticky AND carries a transform of its
+     own (the show/hide translate above). Promoting a child there can leave the
+     ancestor rasterised at bounds that do not cover its own background, and the
+     drop-shadow's expanded ink bounds plus the band's deliberate overhang put
+     the seam outside the header box. The last attempt at this removed
+     `will-change` from the wave, which changed nothing: an animated transform
+     is composited whether or not the hint is present.
+
+     Promoting the header itself is the other half — it gives the header a
+     stable layer that always carries its own background, so there is nothing
+     for a child's promotion to leave uncovered. `transform` is honest here
+     rather than a hack: this element genuinely animates transform on every
+     show and hide. One permanently promoted element is a cheap price.
+
+     NOT `contain: paint` or `overflow: hidden`, which would fix it by clipping
+     the WaveRule's overhang away — the overhang is the point of the divider. */
+  will-change: transform;
 }
 
 .header-autohide[data-header-hidden="true"] {
