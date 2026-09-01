@@ -97,6 +97,7 @@
   "devDependencies": {
     "autoprefixer": "^10.5.4",
     "cssnano": "^8.0.5",
+    "lightningcss": "^1.33.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"
   }

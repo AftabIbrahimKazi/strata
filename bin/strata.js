@@ -531,9 +531,16 @@ function scaffoldStrataCore(cwd, isESM, output, framework) {
   return { configFile, postcssFile }
 }
 
+// Is a module resolvable from the host project? Same idiom the autoprefixer
+// check uses — optional peers must never be assumed present.
+function hasModule(cwd, name) {
+  try { require.resolve(name, { paths: [cwd] }); return true } catch { return false }
+}
+
 function updatePackageScripts(cwd, framework, installConcurrently) {
-  const strataWatch = 'node node_modules/strata-css/bin/strata.js --watch'
-  const strataBuild = 'node node_modules/strata-css/bin/strata.js --build'
+  const strataWatch  = 'node node_modules/strata-css/bin/strata.js --watch'
+  const strataBuild  = 'node node_modules/strata-css/bin/strata.js --build'
+  const strataMinify = 'node node_modules/strata-css/bin/strata.js --minify'
   const devCmd      = FRAMEWORK_DEV[framework]   || 'npm start'
   const buildCmd    = FRAMEWORK_BUILD[framework] || 'npm run build'
 
@@ -550,8 +557,11 @@ function updatePackageScripts(cwd, framework, installConcurrently) {
     ? `concurrently "${strataWatch}" "${devCmd}"`
     : `${strataWatch} & ${devCmd}`
   pkg.scripts.build           = `${strataBuild} && ${buildCmd}`
-  pkg.scripts['strata:watch'] = strataWatch
-  pkg.scripts['strata:build'] = strataBuild
+  pkg.scripts['strata:watch']  = strataWatch
+  pkg.scripts['strata:build']  = strataBuild
+  // --build leaves CSS unminified. Without this script the recommended
+  // lightningcss install below has nothing that would ever use it.
+  pkg.scripts['strata:minify'] = strataMinify
 
   fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2))
   console.log('      ✔  Updated: package.json scripts')
@@ -670,6 +680,14 @@ async function init() {
     }
 
     if (updateScripts) updatePackageScripts(cwd, framework, installConcurrently)
+
+    // Recommend a minifier. Both are optional peers, so a default install has
+    // neither and `--minify` would fall through to writing unminified CSS.
+    // Only suggested when nothing suitable is already present — a project that
+    // already has cssnano is served fine by it.
+    if (!hasModule(cwd, 'lightningcss') && !hasModule(cwd, 'cssnano')) {
+      pendingInstalls.push('npm install --save-dev lightningcss   # smaller minified CSS for `npm run strata:minify`')
+    }
   }
 
   // ── Execute: install selected packages ───────────────────────────────
