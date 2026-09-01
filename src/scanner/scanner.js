@@ -28,10 +28,30 @@ const SKIP_EXTENSIONS = new Set([
   '.exe','.dll','.so','.dylib','.bin','.wasm','.pdf','.map','.lock',
 ])
 
-// Finds where a class attribute's value begins. Deliberately NOT anchored with
-// \b: `wrapperClassName="..."`, `itemClassName={...}` and similar forwarded
-// props have always been scanned, and consumers rely on that.
-const CLASS_ATTR_PATTERN = /class(?:Name)?\s*=\s*/g
+// Finds where a class attribute's value begins.
+//
+// Deliberately NOT anchored with \b, so forwarded props — `wrapperClassName`,
+// `containerClassName`, `itemClassName` — are scanned as well as the bare
+// attribute. Case-insensitive for the same reason: the pattern was previously
+// lowercase-only, so it matched `itemclassName` but NOT `wrapperClassName`,
+// which is the spelling React consumers actually write. Those props emitted no
+// CSS at all, silently, despite this comment having claimed otherwise.
+//
+// `:` is accepted alongside `=` because a class string does not always arrive
+// as an HTML attribute. Shopify Liquid filters render the element for you and
+// take the classes as a named parameter — `{{ 'x' | link_to: url, class: 'btn' }}`
+// — and object-literal spellings (`{ class: 'btn' }` in Vue, Astro, Solid, or a
+// props object anywhere) are the same shape. Those were previously invisible,
+// so the element shipped unstyled with no diagnostic.
+//
+// This is additive by construction: it only ever matches in places the old
+// pattern did not, so no token that resolved before stops resolving and none is
+// reinterpreted. The cost of a false positive is bounded — a token that is not
+// a registered utility resolves to null and emits nothing, and one that is
+// lands in a Strata layer, which unlayered CSS outranks regardless of
+// specificity. So a stray match can add an unused rule; it cannot change how an
+// existing page renders.
+const CLASS_ATTR_PATTERN = /class(?:Name)?\s*[=:]\s*/gi
 
 // Hard cap on how far into a single {...} value we scan. Guards against an
 // unbalanced brace (or minified/generated source) walking the rest of a file.

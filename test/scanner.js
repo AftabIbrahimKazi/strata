@@ -293,6 +293,47 @@ async function run() {
   const escClasses = extractClassesFromFile(escPath) || new Set()
   ok('escaped quote does not desynchronise scanning', escClasses.has('esc-recovered'))
 
+  // ── `class:` as well as `class=` ─────────────────────────────────────────
+  // A class string does not always arrive as an HTML attribute. Shopify Liquid
+  // filters render the element and take the classes as a named parameter, and
+  // object-literal spellings are the same shape. Both were invisible, so the
+  // element shipped unstyled with no diagnostic.
+  const liquidPath = path.join(srcDir, 'card.liquid')
+  fs.writeFileSync(liquidPath, `
+    <div class="card p-3">
+      <h2 class="fw-bold text-{{ section.settings.align }}">{{ product.title }}</h2>
+      <a class="btn-primary w-md-[40%]" href="{{ product.url }}">Buy</a>
+      {{ 'Read more' | link_to: product.url, class: 'text-primary' }}
+      {{ image | image_tag: class: 'card-img-top' }}
+    </div>
+  `)
+  const liq = extractClassesFromFile(liquidPath) || new Set()
+  ok('liquid: class= attribute scanned',        liq.has('card') && liq.has('p-3'))
+  ok('liquid: arbitrary survives',              liq.has('w-md-[40%]'))
+  ok('liquid: link_to class: param scanned',    liq.has('text-primary'))
+  ok('liquid: image_tag class: param scanned',  liq.has('card-img-top'))
+
+  const objPath = path.join(srcDir, 'Opts.js')
+  fs.writeFileSync(objPath, `
+    StrataPicker.date('#x', { className: 'picker-themed' })
+    render({ class: 'obj-literal-class' })
+  `)
+  const objClasses = extractClassesFromFile(objPath) || new Set()
+  ok('object literal className: scanned',       objClasses.has('picker-themed'))
+  ok('object literal class: scanned',           objClasses.has('obj-literal-class'))
+
+  // The widening must not change what the old pattern already matched.
+  const regressPath = path.join(srcDir, 'Regress.tsx')
+  fs.writeFileSync(regressPath, `
+    <div className={clsx('a-kept', cond ? 'b-kept' : 'c-kept')} wrapperClassName="d-kept" />
+  `)
+  const reg = extractClassesFromFile(regressPath) || new Set()
+  ok('class= behaviour unchanged by widening',
+    ['a-kept','b-kept','c-kept'].every(c => reg.has(c)))
+  // Capital-C forwarded props were silently invisible before: the pattern was
+  // lowercase-only, so `itemclassName` matched and `wrapperClassName` did not.
+  ok('capital-C forwarded prop is scanned', reg.has('d-kept'))
+
   fs.rmSync(fixtureDir, { recursive: true, force: true })
 
   console.log(`\n── Result ────────────────────────────────────────────────────`)
