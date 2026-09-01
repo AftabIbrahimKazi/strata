@@ -303,20 +303,25 @@ kbd {
     <div class="row-spec">
       <div class="spec-class">
         <span>first:fw-bold</span>
-        <span>odd:bg-light</span>
+        <span>odd:bg-primary</span>
+        <span>odd:text-white</span>
         <span>last:text-primary</span>
       </div>
       <div class="spec-demo">
         <ul class="list-plain stack">
-          <li class="tile first:fw-bold odd:bg-light last:text-primary">Item one</li>
-          <li class="tile first:fw-bold odd:bg-light last:text-primary">Item two</li>
-          <li class="tile first:fw-bold odd:bg-light last:text-primary">Item three</li>
-          <li class="tile first:fw-bold odd:bg-light last:text-primary">Item four</li>
+          <li class="tile first:fw-bold odd:bg-primary odd:text-white last:text-primary">Item one</li>
+          <li class="tile first:fw-bold odd:bg-primary odd:text-white last:text-primary">Item two</li>
+          <li class="tile first:fw-bold odd:bg-primary odd:text-white last:text-primary">Item three</li>
+          <li class="tile first:fw-bold odd:bg-primary odd:text-white last:text-primary">Item four</li>
         </ul>
       </div>
       <div class="spec-hint">
-        Static. Item one is bold, items one and three are tinted, item four is
-        brand-coloured — from one shared class string.
+        Static. Item one is bold, items one and three are filled, item four is
+        brand-coloured — all from one shared class string.
+        <br><br>
+        Note the pairing: <code>odd:bg-primary</code> alone would leave the text
+        at its inherited colour, so <code>odd:text-white</code> goes with it. A
+        background utility never sets a text colour for you.
       </div>
     </div>
   </div>
