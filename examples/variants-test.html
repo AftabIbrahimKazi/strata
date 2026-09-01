@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — Variants (pseudo-classes, pseudo-elements, relational)</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    /* Demo scaffolding only. Nothing here implements a variant — every state
+       below is a real utility resolved by the registry. */
+    body { max-width: 1100px; margin: 0 auto; }
+    .demo {
+      background: var(--st-bg-secondary);
+      border: 1px dashed var(--st-border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .swatch {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 4rem; border-radius: 8px;
+      border: 1px solid var(--st-border);
+      font: 500 0.8125rem ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-align: center;
+    }
+    code { font-size: 0.8125rem; }
+    dt { font-weight: 600; }
+    dd { margin-inline-start: 0; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body class="p-4 bg-body text-body">
+
+  <header class="mb-5">
+    <h1 class="mb-2">Variants</h1>
+    <p class="text-muted max-w-[70ch] mb-3">
+      One variant per class token — <code>hover:bg-primary</code>, not
+      <code>hover:[bg-primary text-white]</code>. The grouped form cannot work:
+      the HTML parser splits <code>class</code> on whitespace <em>before</em> any
+      CSS is consulted, so <code>hover:[a p-3 b]</code> becomes the three tokens
+      <code>hover:[a</code>, <code>p-3</code>, <code>b]</code> — the middle one a
+      bare <code>p-3</code> that would apply permanently.
+    </p>
+    <p class="text-muted max-w-[70ch] mb-0">
+      Breakpoints need no new syntax. Strata already spells them inside the
+      utility, so a variant is just a prefix: <code>hover:w-md-[40%]</code>.
+    </p>
+  </header>
+
+  <!-- ── Interaction ───────────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-3">1 · Interaction states</h2>
+    <div class="demo row g-3">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="swatch bg-light hover:bg-primary hover:text-white cursor-pointer">
+          hover:bg-primary<br>hover:text-white
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <button class="swatch w-[100%] btn-light focus-visible:outline-primary">
+          focus-visible:outline-primary<br><span class="text-muted">(tab to me)</span>
+        </button>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="swatch bg-light active:bg-dark active:text-white cursor-pointer">
+          active:bg-dark<br><span class="text-muted">(hold click)</span>
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="swatch bg-light focus-within:shadow-lg p-2">
+          <label class="w-[100%]">
+            focus-within:shadow-lg
+            <input class="form-control mt-2" placeholder="focus me">
+          </label>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted mt-2 mb-0">
+      <code>hover:</code> is emitted inside <code>@media (hover: hover)</code>, so it
+      never sticks on a touch device.
+    </p>
+  </section>
+
+  <!-- ── Form state ────────────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-3">2 · Form states</h2>
+    <div class="demo">
+      <div class="row g-4">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Required — <code>user-invalid:</code> vs <code>invalid:</code></label>
+          <input class="form-control user-invalid:border-danger user-invalid:bg-[#fef2f2]"
+                 type="email" required placeholder="type something invalid, then leave">
+          <p class="form-text mb-3">
+            Styled with <code>user-invalid:</code> — nothing happens until you have
+            actually interacted. Both variants ship; <code>invalid:</code> fires on
+            page load for empty required fields, which is why forms styled with it
+            look angry before anyone types.
+          </p>
+
+          <label class="form-label">Disabled</label>
+          <input class="form-control disabled:opacity-50 disabled:cursor-not-allowed"
+                 value="disabled:opacity-50" disabled>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Checked — <code>checked:</code></label>
+          <div class="d-flex flex-column gap-2 mb-3">
+            <label class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="form-check-input checked:bg-success" checked>
+              <span>checked:bg-success</span>
+            </label>
+            <label class="d-flex align-items-center gap-2">
+              <input type="checkbox" class="form-check-input checked:bg-success">
+              <span>unchecked</span>
+            </label>
+          </div>
+
+          <label class="form-label"><code>placeholder:</code> — a pseudo-element</label>
+          <input class="form-control placeholder:text-muted placeholder:fst-italic"
+                 placeholder="placeholder:fst-italic">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Structural ────────────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-3">3 · Structural</h2>
+    <div class="demo">
+      <ul class="list-unstyled mb-0">
+        <li class="p-2 odd:bg-light first:fw-bold last:text-primary">first: is bold</li>
+        <li class="p-2 odd:bg-light first:fw-bold last:text-primary">even row</li>
+        <li class="p-2 odd:bg-light first:fw-bold last:text-primary">odd:bg-light</li>
+        <li class="p-2 odd:bg-light first:fw-bold last:text-primary">even row</li>
+        <li class="p-2 odd:bg-light first:fw-bold last:text-primary">last: is primary</li>
+      </ul>
+    </div>
+    <p class="text-muted mt-2 mb-0">
+      Every item carries the identical class string — the variants select which
+      one each rule applies to.
+    </p>
+  </section>
+
+  <!-- ── Relational ────────────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-3">4 · Relational — <code>group-*</code> and <code>peer-*</code></h2>
+    <div class="demo row g-3">
+      <div class="col-12 col-md-6">
+        <p class="mb-2"><code>group-hover:</code> — hover the card, the child reacts</p>
+        <div class="group card p-3 cursor-pointer">
+          <span class="fw-semibold group-hover:text-primary">group-hover:text-primary</span>
+          <span class="text-muted opacity-0 group-hover:opacity-100">…and this fades in</span>
+        </div>
+        <p class="text-muted mt-2 mb-0">
+          The trigger carries <code>group</code>; the styled elements carry the variant.
+        </p>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <p class="mb-2"><code>peer-checked:</code> — a sibling <em>after</em> the trigger</p>
+        <div class="card p-3">
+          <label class="d-flex align-items-center gap-2 mb-2">
+            <input type="checkbox" class="peer form-check-input">
+            <span>toggle me</span>
+          </label>
+          <span class="text-muted peer-checked:text-success peer-checked:fw-bold">
+            peer-checked:text-success
+          </span>
+        </div>
+        <p class="text-muted mt-2 mb-0">
+          Uses the general sibling combinator, so the target must come
+          <strong>after</strong> its peer in source order.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Environment ───────────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-3">5 · Environment — these wrap in <code>@media</code></h2>
+    <div class="demo row g-3">
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="swatch bg-light motion-reduce:bg-warning">
+          motion-reduce:bg-warning
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="swatch bg-light motion-safe:bg-success motion-safe:text-white">
+          motion-safe:bg-success
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="swatch bg-light portrait:bg-info landscape:bg-primary landscape:text-white">
+          portrait: / landscape:
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="swatch bg-light print:d-none">
+          print:d-none<br><span class="text-muted">(gone in print preview)</span>
+        </div>
+      </div>
+    </div>
+    <p class="text-muted mt-2 mb-0">
+      One of the first two is always active — they are complementary halves of
+      <code>prefers-reduced-motion</code>. Rotate a phone, or resize to a portrait
+      window, to flip the third.
+    </p>
+  </section>
+
+  <!-- ── Pseudo-elements ───────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-3">6 · Pseudo-elements</h2>
+    <div class="demo row g-3">
+      <div class="col-12 col-md-6">
+        <p class="mb-2"><code>marker:text-primary</code> on the <code>&lt;ul&gt;</code></p>
+        <ul class="marker:text-primary mb-0">
+          <li>the marker is styled</li>
+          <li>from a class on the parent</li>
+        </ul>
+        <p class="text-muted mt-2 mb-0">
+          <code>marker</code> and <code>selection</code> emit two rules — the element
+          and its descendants — because you put the class on the list and mean the items.
+        </p>
+      </div>
+      <div class="col-12 col-md-6">
+        <p class="mb-2"><code>selection:bg-primary</code> — drag to select</p>
+        <p class="selection:bg-primary selection:text-white mb-3">
+          Select this sentence and the highlight uses the brand colour.
+        </p>
+        <p class="mb-2"><code>before:</code> / <code>after:</code></p>
+        <p class="before:d-inline-block after:d-inline-block mb-0">
+          before/after get <code>content: ""</code> automatically — without it they
+          render nothing at all.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Composition ───────────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-3">7 · Composition</h2>
+    <div class="demo row g-3">
+      <div class="col-12 col-md-4">
+        <div class="swatch bg-light hover:w-md-[60%] cursor-pointer">
+          hover:w-md-[40%]
+        </div>
+        <p class="text-muted mt-2 mb-0">
+          Variant + breakpoint + arbitrary value. Routes to the
+          <code>st-utilities-md</code> sub-layer, exactly as the bare utility does.
+        </p>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="swatch bg-light hover:focus:bg-primary cursor-pointer" tabindex="0">
+          hover:focus:bg-primary
+        </div>
+        <p class="text-muted mt-2 mb-0">
+          Variants stack. This one needs hover <em>and</em> focus at once — click it,
+          then hover.
+        </p>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="swatch bg-light motion-safe:hover:shadow-lg cursor-pointer">
+          motion-safe:hover:shadow-lg
+        </div>
+        <p class="text-muted mt-2 mb-0">
+          A media variant wrapping a pseudo-class variant — no special case for
+          the pair.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Direction ─────────────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-3">8 · Direction</h2>
+    <div class="demo">
+      <div dir="rtl" class="p-2 mb-2 bg-light rounded-2">
+        <span class="rtl:text-end d-block">dir="rtl" on the ancestor</span>
+      </div>
+      <div class="p-2 bg-light rounded-2">
+        <span class="ltr:text-start d-block">ltr:text-start</span>
+      </div>
+    </div>
+    <p class="text-muted mt-2 mb-0">
+      Two selectors are emitted for each — <code>dir</code> is usually on an ancestor
+      but may sit on the element itself.
+    </p>
+  </section>
+
+  <footer class="text-muted pb-5">
+    <p class="mb-1">Rebuild before viewing — the classes only exist once the scanner has seen them:</p>
+    <pre class="mb-0"><code>node bin/strata.js --build</code></pre>
+  </footer>
+
+</body>
+</html>
