@@ -16,23 +16,37 @@ serves 0.2.0**, so the branch lags the registry.
 
 ## Repo state
 
+10 commits on `dev`, none pushed. Oldest first:
+
 ```
-10 commits on dev, unpushed:
-  fix(registry)  arbitrary breakpoint twins + zero-declaration warning
-  docs(example)  breakpoint labels outside the bars
-  feat(registry) aspect-* utilities, .ratio on aspect-ratio
-  fix(scanner)   class: params + capital-C forwarded props
-  feat(registry) variant system
-  docs(example)  variants example rebuilt on one row pattern
-  fix(example)   demo stylesheet no longer defeats its own utilities
-  fix(example)   background variant paired with a text colour
-  fix(example)   peer trigger made a real sibling
-  + this session's leftovers (see below)
+3925b1a  fix(registry)   arbitrary breakpoint twins + zero-declaration warning
+14ee297  docs(example)   breakpoint labels moved outside the bars
+de99461  feat(registry)  aspect-* utilities, .ratio rebuilt on aspect-ratio
+0c0968e  fix(scanner)    class: params + capital-C forwarded props
+da28f1f  feat(registry)  variant system
+7826e05  docs(example)   variants example rebuilt on one row pattern
+ae13a3b  fix(example)    demo stylesheet no longer defeats its own utilities
+83365ce  fix(example)    background variant paired with a text colour
+0d68b26  fix(example)    peer trigger made a real sibling
+e2c3802  fix            leftovers: LineWave will-change, calc(), opacity utils
 ```
 
-Suites: **413 assertions in `verify`**, scanner 60, components-bundle,
-dependency-tracking, cursorfx 166 — all green. Output re-parsed with PostCSS
-(969 rules) and driven in real headless Chrome.
+`git diff origin/dev... --stat` → 16 files, +5,660 / −3,613.
+
+Suites, all green: **`verify` 413**, `scanner` 60, `components-bundle`,
+`dependency-tracking`, `cursorfx` 166. Emitted CSS re-parsed with PostCSS (969
+rules) and driven in real headless Chrome — see the verification section below.
+
+### Working tree
+
+Clean. `dist/strata.output.css` is gitignored and regenerates from
+`node bin/strata.js --build`; the build prints two warnings on purpose, naming
+`nope-[12px]` and `notaprop-md-[4px]`, which are the deliberately unresolvable
+classes in `examples/arbitrary-responsive-test.html` §4. **Those two warnings are
+the expected output, not a problem to fix.** Any other name in that list is real.
+
+`git stash list` still holds `stash@{1}: On main: bin/strata.js CRLF noise` —
+unrelated to this work, left alone.
 
 ---
 
@@ -173,12 +187,70 @@ and the traps that cost real time:
 - An example's own `<style>` block is unlayered and will silently defeat the
   utilities it demonstrates. This happened twice this session.
 
+### What was actually observed in a browser
+
+Not test output — real Chrome 152, real input events, `getComputedStyle` read
+from the page:
+
+| Observed | Result |
+|---|---|
+| `hover:bg-primary` under a real pointer | transparent → `rgb(110,168,254)`, releases on leave |
+| `active:bg-dark` with a real mouse press | `rgb(33,37,41)` held, clears on release |
+| `focus-visible:` after Tab | `outline-style` none → solid |
+| `group-hover:` | child opacity 0 → 1 |
+| `peer-checked:` after a real click | `rgb(140,149,158)` → `rgb(25,135,84)` |
+| `marker:` / `before:` / `placeholder:` | descendant `::marker` coloured, `content:""`, italic |
+| `motion-reduce` / `motion-safe` | flip with the emulated OS setting |
+| `print:d-none` | `display:none` in print, `block` on screen |
+| `hover:w-md-[60%]` | 60% at 1200px, 100% at 700px |
+| `aspect-square/video/[4/3]/[21/9]/.ratio` | 1, 1.778, 1.333, 2.334, 1.778 |
+| `.ratio` overlay button | 56×56 — the old `> *` ellipse stays fixed |
+| `w-md-[40%]` | 38.6% at 1300px, 97.2% at 700px |
+| `bg/text/border-opacity-*` | alpha 0.5 and 0.25 on all three families |
+
+Specificity asserted by test: plain utility (0,1,0), one variant (0,2,0),
+relational also (0,2,0) via `:where()`. Stacking two pseudo-classes is (0,3,0),
+which is inherent.
+
+---
+
+## Quick reference for the new surface
+
+```html
+<!-- variants: one per token, never hover:[a b c] -->
+<div class="card hover:bg-primary focus-visible:outline-primary user-invalid:border-danger">
+
+<!-- breakpoints stay infix inside the utility; the variant is a pure prefix -->
+<div class="hover:w-md-[40%] motion-safe:hover:shadow-lg">
+
+<!-- relational: trigger carries group/peer, target carries the variant -->
+<div class="group"><span class="group-hover:text-primary">…</span></div>
+<input class="peer"><span class="peer-checked:text-success">…</span>
+<!-- peer targets must SHARE THE PARENT, not just follow it -->
+
+<!-- aspect ratio: no wrapper, no companion class -->
+<div class="aspect-video aspect-md-square">
+<div class="aspect-[16/10]">
+
+<!-- arbitrary values: every family, every breakpoint, math functions -->
+<div class="w-md-[40%] max-w-[min(100%,_60ch)] h-[calc(100%_-_2rem)]">
+```
+
+Full variant list and the cascade rules are in `CLAUDE.md`; the Shopify recipe
+is in `docs/shopify.md`.
+
 ---
 
 ## Start here next session
 
-1. **The pending new feature** — the user has one in mind and will name it.
-   Nothing is to be pushed before it lands.
-2. Ask whether the header bleed is actually gone on the docs site.
-3. Get a decision on `--st-light` / `--st-dark`.
-4. Then, when the user says so: push `dev`, and get PR #276 approved and merged.
+1. **The pending new feature.** The user has one in mind and will name it.
+   **Nothing is to be pushed before it lands** — that was explicit.
+2. **Ask whether the header bleed is gone** on the docs site. It is fixed in
+   principle but unconfirmed, and it was the user's original complaint.
+3. **Get a decision on `--st-light` / `--st-dark`** before anyone else builds on
+   `bg-light`/`bg-dark`.
+4. Only when the user says so: push `dev`, then get PR #276 approved and merged
+   so `main` catches up with the npm release.
+
+Read `.claude/skills/verify/SKILL.md` before verifying anything — it will save
+an hour of rediscovering why a working feature looks broken.
