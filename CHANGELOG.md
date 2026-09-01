@@ -33,6 +33,12 @@ All notable changes to Strata CSS will be documented here.
 
 - `examples/variants-test.html` — every variant group, live.
 
+- **`calc()`, `clamp()`, `min()` and `max()` now work in arbitrary values.** A class name cannot contain a space, so underscores carry them — but families that do not do blanket underscore replacement (`w`, `h`, `max-w`, `fs`, `top`, …) left `w-[calc(100%_-_2rem)]` emitting `calc(100%_-_2rem)`, which is invalid and dropped by the browser. It failed silently in a way the zero-declaration warning cannot catch, because the class *does* resolve — only the value is invalid. Underscores inside a custom property name are protected, so `w-[var(--my_token)]` and `w-[calc(var(--my_token)_-_1rem)]` both survive intact.
+
+- **`bg-opacity-*`, `text-opacity-*` and `border-opacity-*` now do something.** They set `--st-bg-opacity` / `--st-text-opacity` / `--st-border-opacity`, and nothing read those variables — the utilities emitted a custom property, changed nothing, and were documented in the docs page as working. The colour utilities now consume them via `color-mix`, with a `, 1)` fallback so the common case is unchanged. Measured cost on a colour-heavy build: **+3,432 bytes raw but only +163 gzipped**, because the repeated pattern compresses to almost nothing. Verified in Chrome: `bg-primary bg-opacity-50` computes at alpha 0.5.
+
+  `text-white` and `text-black` are registered twice — once from `TEXT_COLOR_MAP` and once standalone, with the later call silently winning — so the standalone pair was routed through the same helper or it would have opted out of opacity by accident.
+
 ### Changed
 
 - **`.ratio` reimplemented on the `aspect-ratio` property.** It previously used the padding-top percentage hack — a `::before` spacer plus `.ratio > *` absolutely positioning children to fill — which predates the property by years, requires a wrapper element, and stretched **every** direct child. That last part was a real bug: a round play button overlaid on a `.ratio` tile was stretched into an ellipse.

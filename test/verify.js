@@ -498,6 +498,50 @@ ok('text-[color] is color at a breakpoint',
 ok('start-[…] is left, matching start-0',   /left:\s*33%/.test((lookup('start-[33%]') || {}).css || ''))
 ok('end-[…] is right, matching end-0',      /right:\s*33%/.test((lookup('end-[33%]')   || {}).css || ''))
 
+// ─── calc() and friends inside arbitrary values ──────────────────────────────
+// A class name cannot hold a space, so underscores carry them — but families
+// that do not do blanket underscore replacement left calc() unusable, and
+// silently: the class resolves, only the value is invalid, so the
+// zero-declaration warning never fires.
+ok('calc gets real spaces',
+  /width:\s*calc\(100% - 2rem\)/.test((lookup('w-[calc(100%_-_2rem)]') || {}).css || ''))
+ok('calc works at a breakpoint too',
+  /width:\s*calc\(100% - 2rem\)/.test((lookup('w-md-[calc(100%_-_2rem)]') || {}).css || ''))
+ok('clamp gets real spaces',
+  /height:\s*clamp\(2rem, 5vw, 6rem\)/.test((lookup('h-[clamp(2rem,_5vw,_6rem)]') || {}).css || ''))
+ok('min/max get real spaces',
+  /max-width:\s*min\(100%, 60ch\)/.test((lookup('max-w-[min(100%,_60ch)]') || {}).css || ''))
+// An underscore inside a custom property name is a legitimate identifier and
+// must survive — rewriting it would break projects using one.
+ok('var(--my_token) keeps its underscore',
+  /width:\s*var\(--my_token\)/.test((lookup('w-[var(--my_token)]') || {}).css || ''))
+ok('var with underscore survives inside calc',
+  /width:\s*calc\(var\(--my_token\) - 1rem\)/.test((lookup('w-[calc(var(--my_token)_-_1rem)]') || {}).css || ''))
+// Values with no math function are untouched.
+ok('plain values are not rewritten',
+  /width:\s*200px/.test((lookup('w-[200px]') || {}).css || ''))
+
+// ─── Colour opacity utilities are actually consumed ──────────────────────────
+// bg-opacity-*, text-opacity-* and border-opacity-* set --st-*-opacity, and for
+// a long time nothing read those variables: the utilities emitted a custom
+// property, changed nothing, and were documented as working.
+ok('bg-* reads --st-bg-opacity',
+  /var\(--st-bg-opacity, 1\)/.test((lookup('bg-primary') || {}).css || ''))
+ok('text-* reads --st-text-opacity',
+  /var\(--st-text-opacity, 1\)/.test((lookup('text-primary') || {}).css || ''))
+ok('border-* reads --st-border-opacity',
+  /var\(--st-border-opacity, 1\)/.test((lookup('border-primary') || {}).css || ''))
+// text-white/black are registered twice (map + standalone) and the later call
+// wins; the later one must honour opacity too or it silently opts out.
+ok('text-white honours opacity despite double registration',
+  /var\(--st-text-opacity, 1\)/.test((lookup('text-white') || {}).css || ''))
+// Non-colours must not be wrapped — mixing `transparent` is meaningless.
+ok('bg-transparent is left alone',
+  /background-color:\s*transparent/.test((lookup('bg-transparent') || {}).css || '') &&
+  !/color-mix/.test((lookup('bg-transparent') || {}).css || ''))
+ok('the opacity utilities still set their variable',
+  /--st-bg-opacity:\s*0\.5/.test((lookup('bg-opacity-50') || {}).css || ''))
+
 // ─── Aspect ratio ────────────────────────────────────────────────────────────
 // `aspect-ratio` appeared in registry.js only inside component internals and
 // comments — it was never reachable as a utility. `.ratio` implemented ratios
