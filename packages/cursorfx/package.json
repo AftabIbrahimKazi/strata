@@ -1,6 +1,6 @@
 {
   "name": "@strata-packages/cursorfx",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Modular cursor effects — one shared engine, ten opt-in presets. Works standalone or with Strata CSS.",
   "main": "cursorfx.js",
   "exports": {

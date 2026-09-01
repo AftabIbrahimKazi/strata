@@ -6,7 +6,6 @@ import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 import SearchBar from "./SearchBar";
 import MobileNav from "./MobileNav";
-import WaveRule from "./WaveRule";
 
 const NEAR_TOP_THRESHOLD = 120;
 // Once the header is translated off-screen, it has nothing left under the
@@ -17,7 +16,15 @@ const CURSOR_REVEAL_ZONE = 40;
 
 export default function Header() {
   const [nearTop, setNearTop] = useState(true);
-  const [hovered, setHovered] = useState(false);
+  // Two independent reasons to stay revealed, tracked separately because they
+  // disagree: proximity is only ever true in the top 40px, while the pointer
+  // can legitimately sit anywhere inside the 70px header — including on the
+  // WaveRule, which hangs 12px below it. Collapsing both into one flag let the
+  // proximity handler clear a hover the header itself had just set, so moving
+  // down from the reveal zone onto the divider hid the header out from under
+  // the cursor.
+  const [nearEdge, setNearEdge] = useState(false);
+  const [overHeader, setOverHeader] = useState(false);
 
   useEffect(() => {
     function onScroll() {
@@ -30,24 +37,29 @@ export default function Header() {
 
   useEffect(() => {
     function onMouseMove(e: MouseEvent) {
-      setHovered(e.clientY <= CURSOR_REVEAL_ZONE);
+      setNearEdge(e.clientY <= CURSOR_REVEAL_ZONE);
     }
     window.addEventListener("mousemove", onMouseMove);
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, []);
 
-  const visible = nearTop || hovered;
+  const visible = nearTop || nearEdge || overHeader;
 
   return (
     <header
-      className="navbar sticky-top bg-body p-3 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
+      className="navbar sticky-top bg-body p-4 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
       data-header-hidden={!visible}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => setOverHeader(true)}
+      onMouseLeave={() => setOverHeader(false)}
     >
-      {/* sticky-top is already a containing block, so the band needs no
-          position-relative of its own. */}
-      <WaveRule edge="bottom" />
+      {/* No WaveRule here. Everywhere else it replaces a static border happily,
+          but this one sat inside a position: sticky element that also carries a
+          transform, and the wave's own promotion during a run left the header
+          rasterised at bounds that did not cover its background — scrolled page
+          content showed through the band for the length of every wave. The
+          header keeps the .navbar component's ordinary border-bottom instead.
+          The other WaveRules (Footer, DocsPrevNext, package pages) are on
+          static containers and are unaffected. */}
       <div className="d-flex align-items-center gap-4">
         <MobileNav />
         <Link href="/" className="navbar-brand fw-bold text-decoration-none d-flex align-items-center gap-2">

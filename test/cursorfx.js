@@ -827,9 +827,18 @@ console.log('\n── CursorFX: LineWave ─────────────
   const lwCss = require('fs').readFileSync(
     path.join(PKG, 'presets', 'line-wave', 'line-wave.css'), 'utf8')
   ok('CSS ships -webkit-mask-image for Safari', /-webkit-mask-image/.test(lwCss))
+  // The assertion has to be for a var() FALLBACK, not a declaration — which is
+  // what it used to check, and why the bug it was written to catch went through
+  // it untouched. A custom property declared on [data-st-cfx-wave] shadows the
+  // same property inherited from an ancestor, so defaults written that way make
+  // a theme's `:root { --st-cfx-wave-color }` unreachable: every knob silently
+  // keeps its default. Reveal's twin of this test always required the comma
+  // form; LineWave copied the JS half of the rule and inverted the CSS half.
   ok('every knob has a CSS fallback so themes can retune',
      ['color', 'amplitude', 'cycles', 'travel', 'duration', 'glow']
-       .every(k => lwCss.indexOf('--st-cfx-wave-' + k + ':') !== -1))
+       .every(k => new RegExp('--st-cfx-wave-' + k + ',\\s').test(lwCss)))
+  ok('no knob is declared on the wave element, which would shadow the theme',
+     !/^\s+--st-cfx-wave-[a-z-]+:/m.test(lwCss))
   ok('reduced motion stops the CSS animation too',
      /prefers-reduced-motion[\s\S]*animation: none/.test(lwCss))
 
