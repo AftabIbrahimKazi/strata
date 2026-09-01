@@ -359,8 +359,13 @@ kbd {
         <span>peer-checked:fw-bold</span>
       </div>
       <div class="spec-demo">
+        <!-- The input must be a real SIBLING of the styled element, not wrapped
+             in a <label> with it — `~` only reaches siblings, so nesting the
+             input inside a label puts it on a different level and the variant
+             can never match. The label is associated with `for` instead. -->
         <div class="stack">
-          <label class="inline"><input type="checkbox" class="peer form-check-input"> Toggle the peer</label>
+          <input type="checkbox" id="peer-demo" class="peer form-check-input">
+          <label for="peer-demo">Toggle the peer</label>
           <span class="text-muted peer-checked:text-success peer-checked:fw-bold">
             This sibling responds
           </span>
@@ -368,7 +373,8 @@ kbd {
       </div>
       <div class="spec-hint">
         Uses the general sibling combinator, so the styled element must appear
-        <strong>after</strong> its peer in source order.
+        <strong>after</strong> its peer <em>and share its parent</em>. Wrapping the
+        input in a <code>&lt;label&gt;</code> around both would break it.
       </div>
     </div>
   </div>
