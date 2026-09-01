@@ -17,7 +17,15 @@ const CURSOR_REVEAL_ZONE = 40;
 
 export default function Header() {
   const [nearTop, setNearTop] = useState(true);
-  const [hovered, setHovered] = useState(false);
+  // Two independent reasons to stay revealed, tracked separately because they
+  // disagree: proximity is only ever true in the top 40px, while the pointer
+  // can legitimately sit anywhere inside the 70px header — including on the
+  // WaveRule, which hangs 12px below it. Collapsing both into one flag let the
+  // proximity handler clear a hover the header itself had just set, so moving
+  // down from the reveal zone onto the divider hid the header out from under
+  // the cursor.
+  const [nearEdge, setNearEdge] = useState(false);
+  const [overHeader, setOverHeader] = useState(false);
 
   useEffect(() => {
     function onScroll() {
@@ -30,20 +38,20 @@ export default function Header() {
 
   useEffect(() => {
     function onMouseMove(e: MouseEvent) {
-      setHovered(e.clientY <= CURSOR_REVEAL_ZONE);
+      setNearEdge(e.clientY <= CURSOR_REVEAL_ZONE);
     }
     window.addEventListener("mousemove", onMouseMove);
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, []);
 
-  const visible = nearTop || hovered;
+  const visible = nearTop || nearEdge || overHeader;
 
   return (
     <header
       className="navbar sticky-top bg-body p-3 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
       data-header-hidden={!visible}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => setOverHeader(true)}
+      onMouseLeave={() => setOverHeader(false)}
     >
       {/* sticky-top is already a containing block, so the band needs no
           position-relative of its own. */}
