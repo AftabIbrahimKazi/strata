@@ -2,7 +2,15 @@
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-09-02
+
 ### Fixed
+
+- **`LineWave` ignored every theme token, painting the divider in text colour.** `line-wave.css` declared each knob's default on `[data-st-cfx-wave]` itself. A custom property set on an element shadows the same property inherited from an ancestor, so an author's `:root { --st-cfx-wave-color: var(--st-border) }` could never reach the wave — it resolved to the package default and every knob silently kept its own value. Confirmed in Chrome: with the docs site setting the colour token and a rest-opacity of 1, the wave still computed `currentColor` at opacity 0.1.
+
+  The visible result was worst for `color`, whose default is `currentColor`. A divider meant to be painted in the host's border token was drawn in its *text* colour instead — on a light theme that is near-black against a pale header, so the rule read as a dark bar rather than the border it replaces.
+
+  Defaults now live in a `var()` fallback at each use site (48 of them) and the declaration block is gone, so a property is genuinely unset unless somebody asked for one. That is what the JS half already did — `token()` writes an inline custom property only where an option differs from its default, precisely so a stylesheet's value survives — and the two halves now agree. Reveal has always done it this way; the comment in `line-wave.js` says the rule was "copied from Reveal", but only the JS half was. The tests showed the same split: Reveal's asserted the comma form of the fallback while LineWave's asserted a declaration, so the test written to catch this bug was instead pinning it in place. It now matches Reveal's, plus a second assertion that no knob is declared on the wave element at all.
 
 - **A target with `pointer-events: none` could never be hovered.** The engine hit-tests once a frame with `document.elementFromPoint`, which skips such elements, so the effect simply never fired and nothing said why. That forced a choice authors should not have to make: a target is not always something you click, and a hit zone wide enough to point at — a divider band, say — overlaps the content around it. Left hit-testable it swallows every click landing in the overlap; opted out, it stopped working. The docs site's `WaveRule` hit exactly this: a 24px band straddling a container edge, half of it over page content across the full page width.
 
