@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — Responsive Arbitrary Values</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <style>
+    /* Demo scaffolding only — nothing here participates in what is being
+       tested. Every bar's width, colour and position below comes from a real
+       arbitrary utility resolved by the registry. */
+    body { max-width: 1100px; margin: 0 auto; }
+
+    .bar {
+      height: 2.25rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding-inline: 0.75rem;
+      color: #fff;
+      font: 500 0.8125rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .track {
+      background: var(--st-bg-secondary);
+      border: 1px dashed var(--st-border);
+      border-radius: 8px;
+      padding: 0.5rem;
+    }
+    code { font-size: 0.8125rem; }
+
+    /* Live breakpoint readout, so it is obvious which media query is active
+       without opening devtools. Pure CSS — one span per breakpoint, only the
+       matching one is shown. */
+    .bp { display: none; }
+    .bp-xs  { display: inline; }
+    @media (min-width: 576px)  { .bp-xs { display: none } .bp-sm  { display: inline } }
+    @media (min-width: 768px)  { .bp-sm { display: none } .bp-md  { display: inline } }
+    @media (min-width: 992px)  { .bp-md { display: none } .bp-lg  { display: inline } }
+    @media (min-width: 1200px) { .bp-lg { display: none } .bp-xl  { display: inline } }
+    @media (min-width: 1400px) { .bp-xl { display: none } .bp-xxl { display: inline } }
+  </style>
+</head>
+<body class="p-4 bg-body text-body">
+
+  <header class="mb-5">
+    <h1 class="mb-2">Responsive arbitrary values</h1>
+    <p class="text-muted mb-3 max-w-[62ch]">
+      Every bar below is sized by an arbitrary utility. The left one uses the plain
+      form, which always worked. The right one adds a breakpoint segment — the form
+      that used to match no pattern and silently emit nothing.
+      <strong>Resize the window</strong> and the right-hand bars should step.
+    </p>
+    <p class="mb-0">
+      Viewport is currently
+      <span class="badge badge-primary">
+        <span class="bp bp-xs">xs — under 576px</span>
+        <span class="bp bp-sm">sm — 576px and up</span>
+        <span class="bp bp-md">md — 768px and up</span>
+        <span class="bp bp-lg">lg — 992px and up</span>
+        <span class="bp bp-xl">xl — 1200px and up</span>
+        <span class="bp bp-xxl">xxl — 1400px and up</span>
+      </span>
+    </p>
+  </header>
+
+  <!-- ── The regression itself ─────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-1">1 · The reported bug</h2>
+    <p class="text-muted mb-3">
+      <code>w-md-[40%]</code> generated no CSS at all. The bar below is 100% wide
+      until 768px, then 40% — if it never changes, the fix has regressed.
+    </p>
+
+    <div class="row g-3">
+      <div class="col-12 col-lg-6">
+        <p class="mb-2"><code>w-[65%]</code> — plain, always worked</p>
+        <div class="track">
+          <div class="bar w-[65%] bg-[#0f766e]">w-[65%]</div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <p class="mb-2"><code>w-[100%] w-md-[40%]</code> — the fixed case</p>
+        <div class="track">
+          <div class="bar w-[100%] w-md-[40%] bg-[#b45309]">w-md-[40%]</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Every breakpoint, one family ──────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-1">2 · Every breakpoint resolves</h2>
+    <p class="text-muted mb-3">
+      One bar per breakpoint. Each should reach full width only once its own
+      media query is active, so widening the window fills them top to bottom.
+    </p>
+
+    <div class="track d-flex flex-column gap-2">
+      <div class="bar w-[12%] w-sm-[100%]  bg-[#1d4ed8]">w-sm-[100%]  · 576px</div>
+      <div class="bar w-[12%] w-md-[100%]  bg-[#1d4ed8]">w-md-[100%]  · 768px</div>
+      <div class="bar w-[12%] w-lg-[100%]  bg-[#1d4ed8]">w-lg-[100%]  · 992px</div>
+      <div class="bar w-[12%] w-xl-[100%]  bg-[#1d4ed8]">w-xl-[100%]  · 1200px</div>
+      <div class="bar w-[12%] w-xxl-[100%] bg-[#1d4ed8]">w-xxl-[100%] · 1400px</div>
+    </div>
+  </section>
+
+  <!-- ── The other families that were missing their twin ───────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-1">3 · The other families that were silently failing</h2>
+    <p class="text-muted mb-3">
+      <code>w</code> was not alone — sizing, colour, type, position and the offset
+      family all had a plain arbitrary form and no responsive one. Each card below
+      changes at <code>md</code> (768px).
+    </p>
+
+    <div class="row g-3">
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">height</h3>
+            <p class="text-muted mb-2"><code>h-[3rem] h-md-[6rem]</code></p>
+            <div class="track">
+              <div class="bar h-[3rem] h-md-[6rem] w-[100%] bg-[#7c3aed]">grows at md</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">max-width</h3>
+            <p class="text-muted mb-2"><code>max-w-[100%] max-w-md-[180px]</code></p>
+            <div class="track">
+              <div class="bar w-[100%] max-w-md-[180px] bg-[#be123c]">clamps at md</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">font-size</h3>
+            <p class="text-muted mb-2"><code>fs-[0.875rem] fs-md-[1.5rem]</code></p>
+            <p class="fs-[0.875rem] fs-md-[1.5rem] mb-0">Type steps up at md.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">colour · text-[…]</h3>
+            <p class="text-muted mb-2"><code>text-[#64748b] text-md-[#059669]</code></p>
+            <p class="text-[#64748b] text-md-[#059669] fw-[700] mb-0">
+              Slate below md, emerald above.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">background</h3>
+            <p class="text-muted mb-2"><code>bg-[#334155] bg-md-[linear-gradient(...)]</code></p>
+            <div class="track">
+              <div class="bar w-[100%] bg-[#334155] bg-md-[linear-gradient(90deg,#0f766e,#059669)]">
+                gradient at md
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">offsets · top / inset</h3>
+            <p class="text-muted mb-2"><code>top-[8px] top-md-[28px]</code></p>
+            <div class="track position-relative h-[5rem]">
+              <div class="bar position-absolute top-[8px] top-md-[28px] left-[8px] w-[60%] bg-[#0369a1]">
+                drops at md
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">opacity</h3>
+            <p class="text-muted mb-2"><code>opacity-[0.35] opacity-md-[1]</code></p>
+            <div class="track">
+              <div class="bar w-[100%] opacity-[0.35] opacity-md-[1] bg-[#c2410c]">solid at md</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">font-weight</h3>
+            <p class="text-muted mb-2"><code>fw-[400] fw-md-[800]</code></p>
+            <p class="fw-[400] fw-md-[800] fs-[1.125rem] mb-0">Weight steps at md.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card h-[100%]">
+          <div class="card-body">
+            <h3 class="card-title fs-[1rem]">object-position</h3>
+            <p class="text-muted mb-2"><code>object-position-md-[right_center]</code></p>
+            <div class="track">
+              <div class="bar w-[100%] bg-[#475569] object-position-[left_top] object-position-md-[right_center]">
+                property applied
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── The warning ───────────────────────────────────────────────────── -->
+  <section class="mb-5">
+    <h2 class="mb-1">4 · The other half of the fix — it now complains</h2>
+    <p class="text-muted mb-3">
+      A class using bracket syntax that matches no family used to emit nothing and
+      say nothing. It now warns at build time. The two classes below are
+      deliberately bogus, so this page's own build prints a warning naming them —
+      that warning is the test.
+    </p>
+    <div class="alert alert-warning">
+      <p class="mb-2"><strong>Run the build and read the output:</strong></p>
+      <pre class="mb-2"><code>node bin/strata.js --build</code></pre>
+      <p class="mb-0">
+        Expect: <code>2 class(es) with arbitrary values matched no utility and
+        emitted nothing: nope-[12px], lh-[1.15]</code>
+      </p>
+    </div>
+    <div class="track">
+      <!-- Intentionally unresolvable. nope-* is not a family at all; lh-[…] is a
+           real property whose named scale accepts no bracket form yet. Both
+           should appear in the build warning and neither should emit CSS. -->
+      <div class="bar w-[100%] bg-[#334155] nope-[12px] lh-[1.15]">
+        two deliberately unresolvable classes
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-muted pb-5">
+    <p class="mb-1">
+      Rebuild before viewing — this page's classes only exist in the output once
+      the scanner has seen them:
+    </p>
+    <pre class="mb-0"><code>node bin/strata.js --build</code></pre>
+  </footer>
+
+</body>
+</html>

@@ -2,6 +2,25 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [Unreleased]
+
+### Fixed
+
+- **Breakpoint-scoped arbitrary values silently generated nothing.** `w-[40%]` worked; `w-md-[40%]` matched no pattern, emitted no CSS and raised no error. Each family is registered twice — once with a breakpoint segment, once without — and roughly half of them had only ever been given the plain twin: `w` `h` `max-w` `min-w` `max-h` `min-h` `fs` `fw` `opacity` `z` `top` `bottom` `left` `right` `inset` `cursor` `duration` `transition` `object-position` `text` and `bg`. Both twins are now generated from one declaration per family, so a family cannot be half-registered.
+- **`start-[…]` / `end-[…]` did not exist.** The named scale (`start-0`, `start-50`) had no arbitrary form, so `start-[33%]` was a silent no-op — which had left the vertical dividers in `examples/cursorfx-line-wave.html` at `left: auto`. Found by the new build warning below, not by hand.
+
+### Added
+
+- **A utility that resolves to zero declarations now warns at build time**, on the CLI and as a PostCSS warning so it surfaces through bundlers too. Scoped to class names using arbitrary bracket syntax: a bracket is an unambiguous statement of intent, whereas warning on every unmatched class name would bury the signal under every BEM block and third-party class on the page.
+
+  ```
+  [Strata] ⚠  2 class(es) with arbitrary values matched no utility and emitted nothing:
+              nope-[12px], lh-[1.15]. Check the prefix is a real utility and the
+              breakpoint segment is one of sm|md|lg|xl|xxl.
+  ```
+
+- `examples/arbitrary-responsive-test.html` — visual confirmation of the above, including two deliberately unresolvable classes so the build prints the warning on this repo's own example pass.
+
 ## [1.8.17] — 2026-08-16
 
 ### Fixed

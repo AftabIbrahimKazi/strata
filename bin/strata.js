@@ -165,6 +165,12 @@ async function build(cssMinify = false, jsMinify = true) {
   for (const w of getScanWarnings()) {
     console.warn(`[Strata] ⚠  ${w}`)
   }
+  // A class that used arbitrary-value syntax and matched nothing. Printed
+  // unconditionally, like the scan warnings — the whole point is that it must
+  // not require --verbose to be noticed.
+  for (const w of strata.getBuildWarnings()) {
+    console.warn(`[Strata] ⚠  ${w}`)
+  }
 }
 
 // ─── Watch ────────────────────────────────────────────────────────────

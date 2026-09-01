@@ -460,6 +460,63 @@ ok('JS bundle contains Modal',             distJS.includes('Strata.Modal'))
 ok('JS bundle contains skeleton',          distJS.includes('Strata.skeleton'))
 ok('JS bundle has build banner',           distJS.includes('Strata Components'))
 
+// ─── Arbitrary values: both twins, every family ──────────────────────────────
+// `w-md-[40%]` generated nothing for a long time while `w-[40%]` worked, because
+// each family is registered twice — once with a breakpoint segment, once
+// without — and the responsive twin was simply never written. A class matching
+// no pattern returns null, so it failed in silence. These assert the pair
+// exists for every family, so a half-registered family fails the suite instead.
+const ARB_FAMILIES = [
+  ['w', '40%'], ['h', '40%'], ['max-w', '440px'], ['min-w', '200px'],
+  ['max-h', '500px'], ['min-h', '300px'], ['fs', '1.25rem'], ['fw', '600'],
+  ['opacity', '0.3'], ['z', '100'], ['top', '2rem'], ['bottom', '2rem'],
+  ['left', '10px'], ['right', '0'], ['start', '33%'], ['end', '33%'],
+  ['inset', '0_1rem'], ['cursor', 'crosshair'],
+  ['duration', '400ms'], ['object-position', 'center_top'],
+  ['text', '#ff0000'], ['bg', '#ff0000'], ['gtc', '1fr_1fr'], ['gtr', 'auto_1fr'],
+  ['gap', '1rem'], ['row-gap', '1rem'], ['col-gap', '1rem'],
+  ['rounded', '8px'], ['border', '2px_solid_red'], ['shadow', '0_4px_6px_red'],
+  ['outline', '2px_dashed_red'], ['mt', '12px'], ['px', '2rem'],
+]
+for (const [prefix, val] of ARB_FAMILIES) {
+  ok(`${prefix}-[…] resolves`,        !!lookup(`${prefix}-[${val}]`))
+  ok(`${prefix}-md-[…] resolves`,     !!lookup(`${prefix}-md-[${val}]`))
+}
+// Every breakpoint, not just md — a family registered with a partial
+// breakpoint list would otherwise pass the check above.
+ok('all breakpoints accept arbitrary width',
+  ['sm','md','lg','xl','xxl'].every(bp => !!lookup(`w-${bp}-[40%]`)))
+ok('responsive arbitrary is wrapped in its media query',
+  /@media \(min-width: 768px\)/.test((lookup('w-md-[40%]') || {}).css || ''))
+ok('responsive arbitrary keeps the breakpoint in the selector',
+  /\.w-md-/.test((lookup('w-md-[40%]') || {}).css || ''))
+ok('text-[length] is font-size at a breakpoint',
+  /font-size/.test((lookup('text-md-[15px]') || {}).css || ''))
+ok('text-[color] is color at a breakpoint',
+  /color:/.test((lookup('text-md-[#ff0000]') || {}).css || ''))
+// The logical offset aliases must agree with their named scale (start → left).
+ok('start-[…] is left, matching start-0',   /left:\s*33%/.test((lookup('start-[33%]') || {}).css || ''))
+ok('end-[…] is right, matching end-0',      /right:\s*33%/.test((lookup('end-[33%]')   || {}).css || ''))
+
+// ─── Zero-declaration build warning ──────────────────────────────────────────
+// The other half of the same bug: a utility that emits nothing must say so.
+// Scoped to bracket syntax — warning on every unmatched class name would bury
+// the signal under every BEM block and third-party class on the page.
+const { generate, unresolvedWarning } = require('../src/generator/generator')
+const gen = generate(new Set([
+  'p-3',              // resolves
+  'w-md-[40%]',       // resolves (the fixed case)
+  'nope-[12px]',      // bracket syntax, no such family → must warn
+  'swiper-slide',     // not a utility at all → must NOT warn
+  'my-bem__block',    // ditto
+]))
+ok('unresolved collects the bracket class',   gen.unresolved.includes('nope-[12px]'))
+ok('unresolved ignores non-utility classes',  !gen.unresolved.includes('swiper-slide') &&
+                                              !gen.unresolved.includes('my-bem__block'))
+ok('unresolved excludes the fixed case',      !gen.unresolved.includes('w-md-[40%]'))
+ok('warning names the offending class',       /nope-\[12px\]/.test(unresolvedWarning(gen.unresolved) || ''))
+ok('no warning when everything resolved',     unresolvedWarning([]) === null)
+
 // ─── Summary ─────────────────────────────────────────────────────────────────
 
 console.log(`\n── Result ────────────────────────────────────────────────────`)
