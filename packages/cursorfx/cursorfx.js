@@ -461,10 +461,55 @@
     return (' ' + list + ' ').indexOf(' ' + preset.key + ' ') !== -1
   }
 
+  /* elementFromPoint skips anything with pointer-events: none, so a target
+   * declared that way could never be hovered — the effect simply never fired,
+   * with nothing to show why. That matters because a target is not always
+   * something you click: a divider band wide enough to be pointed at overlaps
+   * the content around it, and left hit-testable it swallows every click that
+   * lands in the overlap. Authors had to choose between a working effect and a
+   * clickable page.
+   *
+   * So targets opting out of hit-testing are matched on geometry instead. The
+   * scan is strictly a fallback — it runs only when the normal hit-test found
+   * no target at all, so it can add a match but never change one — and the
+   * candidate list is cached, since it needs getComputedStyle per target and
+   * hitTest runs every frame. A stale cache can only delay a newly added
+   * passive target by one interval; it cannot drop an existing one, because
+   * a target that still hit-tests never reaches this path.
+   */
+  var passive = { list: [], at: -Infinity }
+  var PASSIVE_TTL = 500
+
+  function passiveTargets() {
+    var now = (win.performance && win.performance.now) ? win.performance.now() : Date.now()
+    if (now - passive.at < PASSIVE_TTL) return passive.list
+    passive.at = now
+    var all = (config.root || doc).querySelectorAll(config.hoverSelector)
+    var out = []
+    for (var i = 0; i < all.length; i++) {
+      if (win.getComputedStyle(all[i]).pointerEvents === 'none') out.push(all[i])
+    }
+    passive.list = out
+    return out
+  }
+
+  function geometricHit(x, y) {
+    var list = passiveTargets()
+    // Last match wins: later in document order approximates "on top" closely
+    // enough for targets that, by definition, cannot be hit-tested properly.
+    var found = null
+    for (var i = 0; i < list.length; i++) {
+      var r = list[i].getBoundingClientRect()
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) found = list[i]
+    }
+    return found
+  }
+
   function hitTest() {
     if (!state.seen) return
     var el   = doc.elementFromPoint(state.x, state.y)
     var next = el ? el.closest(config.hoverSelector) : null
+    if (!next) next = geometricHit(state.x, state.y)
     if (next === state.hovered) return
     state.hovered = next
 

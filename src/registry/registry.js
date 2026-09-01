@@ -214,23 +214,45 @@ Object.entries(TEXT_ALIGN).forEach(([k, v]) => {
   reg(`!text-${v}`, 'utilities', `.\\!text-${v} { text-transform: ${v} !important; }`)
 })
 
+// `bg-opacity-*`, `text-opacity-*` and `border-opacity-*` set --st-*-opacity,
+// and for a long time nothing read those variables — the utilities emitted a
+// custom property, changed nothing, and were documented as working. They are
+// consumed here.
+//
+// color-mix rather than the `rgb(from …)` relative-colour syntax because the
+// codebase already relies on color-mix (`bg-body-tertiary`) so it adds no new
+// baseline requirement, and because it accepts any colour notation the tokens
+// might hold — hex, rgb(), oklch() — without having to decompose it.
+//
+// The fallback in `var(--st-bg-opacity, 1)` is what keeps this free for the
+// common case: with no opacity utility present the mix is 100% of the colour,
+// which is the colour. Wrapping is skipped for values that are not a colour at
+// all (`transparent`, `inherit`, `currentColor`), where mixing is meaningless.
+function withOpacity(value, varName) {
+  if (/^(transparent|inherit|currentcolor|initial|unset|none)$/i.test(value.trim())) return value
+  return `color-mix(in srgb, ${value} calc(var(${varName}, 1) * 100%), transparent)`
+}
+
 // Text colors
 Object.entries(TEXT_COLOR_MAP).forEach(([k, v]) => {
-  reg(`text-${k}`, 'utilities', `.text-${k} { color: ${v}; }`)
-  reg(`!text-${k}`, 'utilities', `.\\!text-${k} { color: ${v} !important; }`)
+  const c = withOpacity(v, '--st-text-opacity')
+  reg(`text-${k}`, 'utilities', `.text-${k} { color: ${c}; }`)
+  reg(`!text-${k}`, 'utilities', `.\\!text-${k} { color: ${c} !important; }`)
 })
 
 // Background colors
 Object.entries(BG_COLOR_MAP).forEach(([k, v]) => {
-  reg(`bg-${k}`, 'utilities', `.bg-${k} { background-color: ${v}; }`)
-  reg(`!bg-${k}`, 'utilities', `.\\!bg-${k} { background-color: ${v} !important; }`)
+  const c = withOpacity(v, '--st-bg-opacity')
+  reg(`bg-${k}`, 'utilities', `.bg-${k} { background-color: ${c}; }`)
+  reg(`!bg-${k}`, 'utilities', `.\\!bg-${k} { background-color: ${c} !important; }`)
 })
 
 // Border colors
 reg('border', 'utilities', '.border { border: 1px solid var(--st-border); }')
 reg('border-0', 'utilities', '.border-0 { border: none; }')
 Object.entries(BORDER_COLOR_MAP).forEach(([k, v]) => {
-  reg(`border-${k}`, 'utilities', `.border-${k} { border-color: ${v}; }`)
+  reg(`border-${k}`, 'utilities',
+    `.border-${k} { border-color: ${withOpacity(v, '--st-border-opacity')}; }`)
 })
 reg('border-muted', 'utilities', `.border-muted { border-color: var(--st-text-muted); }`)
 
@@ -2568,13 +2590,67 @@ reg('bs-popover-top', 'components', `.bs-popover-top { margin-bottom: 0.5rem; }`
 reg('clearfix', 'utilities', `.clearfix::after { display: block; clear: both; content: ""; }`)
 reg('color-body', 'utilities', `.color-body { color: var(--st-text); }`)
 
-reg('ratio',     'utilities', `.ratio { position: relative; width: 100%; }
-.ratio::before { display: block; content: ""; padding-top: var(--st-aspect-ratio); }
-.ratio > * { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }`)
-reg('ratio-1x1',  'utilities', `.ratio-1x1  { --st-aspect-ratio: 100%;     }`)
-reg('ratio-4x3',  'utilities', `.ratio-4x3  { --st-aspect-ratio: 75%;      }`)
-reg('ratio-16x9', 'utilities', `.ratio-16x9 { --st-aspect-ratio: 56.25%;   }`)
-reg('ratio-21x9', 'utilities', `.ratio-21x9 { --st-aspect-ratio: 42.8571%; }`)
+// ─── Aspect ratio ────────────────────────────────────────────────────
+// `.ratio` predates the aspect-ratio property and implemented ratios with the
+// padding-top percentage hack: a ::before spacer forcing the height, and
+// `.ratio > *` absolutely positioning children to fill it. Two costs came with
+// that. It needs a wrapper element to work at all, and `> *` stretches EVERY
+// direct child — so a tile holding an image plus an overlay button had the
+// button stretched to the full box too, which is how a circular play button
+// rendered as a giant ellipse.
+//
+// Both are now reimplemented on the real property. `.ratio` keeps its name and
+// its --st-aspect-ratio custom property so existing markup and any project
+// overriding that variable keep working, but the value is now a ratio rather
+// than a padding percentage, and no child is positioned or stretched.
+const ASPECT_RATIOS = {
+  '1x1':  '1 / 1',
+  '4x3':  '4 / 3',
+  '16x9': '16 / 9',
+  '21x9': '21 / 9',
+}
+
+// `position: relative` stays so an absolutely-positioned overlay still anchors
+// to the box. The fill rule is scoped to replaced elements rather than `> *`:
+// an <iframe>/<img>/<video> has its own intrinsic size and will not fill the
+// box on its own, so embeds — the primary use of `.ratio` — keep working, while
+// an overlay button, caption or badge is left at its natural size instead of
+// being stretched edge to edge.
+reg('ratio', 'utilities', `.ratio { position: relative; width: 100%; aspect-ratio: var(--st-aspect-ratio, 1 / 1); }
+.ratio > img,
+.ratio > video,
+.ratio > iframe,
+.ratio > embed,
+.ratio > object { width: 100%; height: 100%; object-fit: cover; }`)
+Object.entries(ASPECT_RATIOS).forEach(([name, value]) => {
+  reg(`ratio-${name}`, 'utilities', `.ratio-${name} { --st-aspect-ratio: ${value}; }`)
+})
+
+// The utility form. Unlike `.ratio` it needs no companion class and no wrapper:
+// one class on the element is the whole feature.
+const ASPECT_NAMED = {
+  'square': '1 / 1',
+  'video':  '16 / 9',
+  'auto':   'auto',
+}
+Object.entries(ASPECT_NAMED).forEach(([name, value]) => {
+  reg(`aspect-${name}`, 'utilities', `.aspect-${name} { aspect-ratio: ${value}; }`)
+  BREAKPOINTS.forEach(bp => {
+    if (bp === 'xs') return
+    reg(`aspect-${bp}-${name}`, 'utilities',
+      mq(bp, `.aspect-${bp}-${name} { aspect-ratio: ${value}; }`))
+  })
+})
+// The named scale under its .ratio-* spelling too, so migrating from the
+// component to the utility does not mean relearning the names.
+Object.entries(ASPECT_RATIOS).forEach(([name, value]) => {
+  reg(`aspect-${name}`, 'utilities', `.aspect-${name} { aspect-ratio: ${value}; }`)
+  BREAKPOINTS.forEach(bp => {
+    if (bp === 'xs') return
+    reg(`aspect-${bp}-${name}`, 'utilities',
+      mq(bp, `.aspect-${bp}-${name} { aspect-ratio: ${value}; }`))
+  })
+})
 
 reg('fixed-top',    'components', `.fixed-top    { position: fixed; top: 0;    right: 0; left: 0; z-index: var(--st-z-fixed, 1030); }`)
 reg('fixed-bottom', 'components', `.fixed-bottom { position: fixed; bottom: 0; right: 0; left: 0; z-index: var(--st-z-fixed, 1030); }`)
@@ -2660,8 +2736,12 @@ reg('border-white',    'utilities', `.border-white { border-color: #fff; }`)
 reg('text-body-secondary', 'utilities', `.text-body-secondary { color: var(--st-text-muted); }`)
 reg('text-body-tertiary',  'utilities', `.text-body-tertiary  { color: color-mix(in srgb, var(--st-text-muted) 65%, transparent); }`)
 reg('text-body-emphasis',  'utilities', `.text-body-emphasis  { color: var(--st-text); font-weight: 600; }`)
-reg('text-black',          'utilities', `.text-black    { color: #000; }`)
-reg('text-white',          'utilities', `.text-white    { color: #fff; }`)
+// These two re-register names TEXT_COLOR_MAP already defines, and reg() lets the
+// later call win silently. Kept (removing one is a behaviour change for anyone
+// relying on the exact emitted value) but routed through withOpacity so
+// text-opacity-* works on them too, rather than only on the map-driven colours.
+reg('text-black',          'utilities', `.text-black    { color: ${withOpacity('#000', '--st-text-opacity')}; }`)
+reg('text-white',          'utilities', `.text-white    { color: ${withOpacity('#fff', '--st-text-opacity')}; }`)
 reg('text-black-50',       'utilities', `.text-black-50 { color: rgba(0,0,0,0.5); }`)
 reg('text-white-50',       'utilities', `.text-white-50 { color: rgba(255,255,255,0.5); }`)
 ;['primary','secondary','success','danger','warning','info'].forEach(c => {
@@ -3242,6 +3322,96 @@ BP_KEYS.forEach(bp => {
 // ─── Arbitrary value patterns — regex fallback ────────────────────────
 // Only used when no exact match found in EXACT_MAP
 
+// Every family below is declared twice — once with a breakpoint segment, once
+// without — because the two produce different selectors and different output
+// (one wrapped in @media, one not). Hand-writing both is what caused
+// `w-md-[40%]` to silently generate nothing for as long as it did: the plain
+// `w-[…]` twin existed and the responsive one was simply never written, and a
+// class that matches no pattern returns null rather than complaining.
+//
+// `arbFamily` emits both from a single declaration, so a family cannot be
+// half-registered any more. `spaces: true` maps underscores to spaces for
+// multi-part values (`inset-[0_1rem]`); it is opt-in per family rather than
+// universal because a token name may legitimately contain an underscore
+// (`w-[var(--my_token)]`), and rewriting that would break the value.
+// text-[…] picks its property from the value: a bare length is a font-size,
+// anything else is a colour. Shared by the plain and responsive twins.
+function textArbitraryProp(val) {
+  return /^[\d.]+(px|rem|em|%|vw|vh|ch|ex|pt|cm|mm)$/.test(val) ? 'font-size' : 'color'
+}
+
+// CSS math functions need real spaces around their operators — `calc(100%-2rem)`
+// is invalid and the browser drops the declaration. A class name cannot contain
+// a space, so the underscore convention has to carry them. Families that opt out
+// of blanket underscore replacement (`opts.spaces`) still need it *inside* these
+// functions, or `calc()` is unusable in them — which it was, silently, because
+// the class resolves and only the value is invalid, so the zero-declaration
+// warning never fires.
+//
+// Underscores inside a custom property name are protected: `var(--my_token)` is
+// a legitimate identifier and rewriting it would break projects using one. They
+// are masked out before the replacement and restored afterwards.
+const MATH_FN = /(?:^|[^\w-])(?:calc|clamp|min|max)\(/
+function spaceMathOperators(value) {
+  if (!MATH_FN.test(value)) return value
+  const vars = []
+  const masked = value.replace(/var\(\s*--[\w-]+/g, m => {
+    vars.push(m)
+    return ` ${vars.length - 1} `
+  })
+  const spaced = masked.replace(/_/g, ' ')
+  return spaced.replace(/ (\d+) /g, (_, i) => vars[+i])
+}
+
+function arbFamily(prefix, prop, opts = {}) {
+  const esc = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const val = (v) => (opts.spaces ? v.replace(/_/g, ' ') : spaceMathOperators(v))
+  return [
+    { re: new RegExp(`^(!?)${esc}-(sm|md|lg|xl|xxl)-\\[(.+)\\]$`), fn: (m) => {
+      const i = m[1] ? ' !important' : ''
+      return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { ${prop}: ${val(m[3])}${i}; }`) }
+    }},
+    { re: new RegExp(`^(!?)${esc}-\\[(.+)\\]$`), fn: (m) => {
+      const i = m[1] ? ' !important' : ''
+      return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${prop}: ${val(m[2])}${i}; }` }
+    }},
+  ]
+}
+
+// Single-property families. Ordered longest-prefix-first where one prefix is a
+// prefix of another (`max-w` before `w`), so the more specific pattern wins.
+const SIMPLE_ARBITRARY = [
+  ...arbFamily('max-w',  'max-width'),
+  ...arbFamily('min-w',  'min-width'),
+  ...arbFamily('max-h',  'max-height'),
+  ...arbFamily('min-h',  'min-height'),
+  ...arbFamily('w',      'width'),
+  ...arbFamily('h',      'height'),
+  ...arbFamily('fs',     'font-size'),
+  ...arbFamily('fw',     'font-weight'),
+  ...arbFamily('opacity','opacity'),
+  ...arbFamily('z',      'z-index'),
+  ...arbFamily('top',    'top'),
+  ...arbFamily('bottom', 'bottom'),
+  ...arbFamily('left',   'left'),
+  ...arbFamily('right',  'right'),
+  // Logical aliases, matching the named scale above (`start-0` is `left: 0`).
+  // The named form existed without an arbitrary twin, so `start-[33%]` was
+  // another silent no-op — found by the new build warning, in a shipped example.
+  ...arbFamily('start',  'left'),
+  ...arbFamily('end',    'right'),
+  ...arbFamily('inset',  'inset',            { spaces: true }),
+  ...arbFamily('object-position', 'object-position', { spaces: true }),
+  // aspect-[16/10], aspect-[4/3], aspect-[1.85]. Unlike letter-spacing and
+  // line-height, an aspect ratio is contained to the element's own box and
+  // cannot cascade into sibling or descendant alignment, so the arbitrary form
+  // carries none of the risk that keeps those two on a closed named scale.
+  ...arbFamily('aspect', 'aspect-ratio', { spaces: true }),
+  ...arbFamily('cursor', 'cursor'),
+  ...arbFamily('duration', 'transition-duration'),
+  ...arbFamily('transition', 'transition',   { spaces: true }),
+]
+
 const ARBITRARY_PATTERNS = [
   // Spacing arbitrary — responsive: px-sm-[var(--space-40)], py-md-[1rem_2rem]
   { re: /^(!?)(m[trblxyes]?|p[trblxyes]?)-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
@@ -3263,26 +3433,19 @@ const ARBITRARY_PATTERNS = [
   }},
   // Text arbitrary: text-[#ff0000] → color, text-[15px] → font-size
   // Values ending in a CSS length unit are font-size; everything else is color.
-  { re: /^(!?)text-\[(.+)\]$/, fn: (m) => {
-    const i    = m[1] ? ' !important' : ''
-    const val  = m[2]
-    const prop = /^[\d.]+(px|rem|em|%|vw|vh|ch|ex|pt|cm|mm)$/.test(val)
-      ? 'font-size'
-      : 'color'
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${prop}: ${val}${i}; }` }
-  }},
-  // Font-size arbitrary: fs-[var(--token)], fs-[1.25rem] — unambiguous, always font-size
-  { re: /^(!?)fs-\[(.+)\]$/, fn: (m) => {
+  // Kept hand-written rather than routed through arbFamily because the property
+  // is chosen from the value, not fixed by the family.
+  { re: /^(!?)text-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { font-size: ${m[2]}${i}; }` }
+    return { layer: 'utilities', css: mq(m[2], `.${escapeClass(m[0])} { ${textArbitraryProp(m[3])}: ${m[3]}${i}; }`) }
   }},
-  // BG arbitrary: bg-[#ff0000], bg-[linear-gradient(...)]
-  { re: /^(!?)bg-\[(.+)\]$/, fn: (m) => {
-    const i   = m[1] ? ' !important' : ''
-    const val = m[2].replace(/_/g, ' ')
-    // Use background shorthand so gradients work; solid colors also work with shorthand
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { background: ${val}${i}; }` }
+  { re: /^(!?)text-\[(.+)\]$/, fn: (m) => {
+    const i = m[1] ? ' !important' : ''
+    return { layer: 'utilities', css: `.${escapeClass(m[0])} { ${textArbitraryProp(m[2])}: ${m[2]}${i}; }` }
   }},
+  // BG arbitrary — responsive: bg-md-[#ff0000]
+  // Uses the `background` shorthand so gradients work; solid colours also do.
+  ...arbFamily('bg', 'background', { spaces: true }),
   // Border side arbitrary — responsive: border-top-sm-[2px_dashed_red], border-x-md-[...]
   { re: /^(!?)border-(top|end|bottom|start|x|y)-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
     const [, imp, side, bp, val] = m
@@ -3331,41 +3494,6 @@ const ARBITRARY_PATTERNS = [
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { border-radius: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
-  // Width arbitrary: w-[200px]
-  { re: /^(!?)w-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { width: ${m[2]}${i}; }` }
-  }},
-  // Height arbitrary: h-[100px]
-  { re: /^(!?)h-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { height: ${m[2]}${i}; }` }
-  }},
-  // Max-width arbitrary: max-w-[440px]
-  { re: /^(!?)max-w-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { max-width: ${m[2]}${i}; }` }
-  }},
-  // Min-width arbitrary: min-w-[200px]
-  { re: /^(!?)min-w-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { min-width: ${m[2]}${i}; }` }
-  }},
-  // Max-height arbitrary: max-h-[500px]
-  { re: /^(!?)max-h-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { max-height: ${m[2]}${i}; }` }
-  }},
-  // Min-height arbitrary: min-h-[300px]
-  { re: /^(!?)min-h-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { min-height: ${m[2]}${i}; }` }
-  }},
-  // Opacity arbitrary: opacity-[0.3]
-  { re: /^(!?)opacity-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { opacity: ${m[2]}${i}; }` }
-  }},
   // Shadow arbitrary — responsive: shadow-sm-[0_4px_6px_rgba(0,0,0,0.1)]
   { re: /^(!?)shadow-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
@@ -3375,15 +3503,6 @@ const ARBITRARY_PATTERNS = [
   { re: /^(!?)shadow-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { box-shadow: ${m[2].replace(/_/g,' ')}${i}; }` }
-  }},
-  // Z-index arbitrary: z-[100]
-  { re: /^(!?)z-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { z-index: ${m[2]}${i}; }` }
-  }},
-  // Transition arbitrary: transition-[background-color_0.3s_ease]
-  { re: /^transition-\[(.+)\]$/, fn: (m) => {
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { transition: ${m[1].replace(/_/g,' ')}; }` }
   }},
   // Gap arbitrary — responsive: gap-sm-[var(--space)], gap-md-[1rem_2rem]
   { re: /^(!?)gap-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
@@ -3435,45 +3554,9 @@ const ARBITRARY_PATTERNS = [
     const i = m[1] ? ' !important' : ''
     return { layer: 'utilities', css: `.${escapeClass(m[0])} { outline: ${m[2].replace(/_/g,' ')}${i}; }` }
   }},
-  // Font-weight arbitrary: fw-[var(--token)], fw-[600]
-  { re: /^(!?)fw-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { font-weight: ${m[2]}${i}; }` }
-  }},
-  // Duration arbitrary: duration-[400ms]
-  { re: /^duration-\[(.+)\]$/, fn: (m) => {
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { transition-duration: ${m[1]}; }` }
-  }},
-  // Cursor arbitrary: cursor-[crosshair]
-  { re: /^cursor-\[(.+)\]$/, fn: (m) => {
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { cursor: ${m[1]}; }` }
-  }},
-  // Positional offset arbitrary: top-[var(--h)], bottom-[2rem], left-[10px], right-[0], inset-[...]
-  { re: /^(!?)top-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { top: ${m[2]}${i}; }` }
-  }},
-  { re: /^(!?)bottom-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { bottom: ${m[2]}${i}; }` }
-  }},
-  { re: /^(!?)left-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { left: ${m[2]}${i}; }` }
-  }},
-  { re: /^(!?)right-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { right: ${m[2]}${i}; }` }
-  }},
-  { re: /^(!?)inset-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { inset: ${m[2].replace(/_/g,' ')}${i}; }` }
-  }},
-  // object-position arbitrary: object-position-[center_top], object-position-[var(--pos)]
-  { re: /^(!?)object-position-\[(.+)\]$/, fn: (m) => {
-    const i = m[1] ? ' !important' : ''
-    return { layer: 'utilities', css: `.${escapeClass(m[0])} { object-position: ${m[2].replace(/_/g,' ')}${i}; }` }
-  }},
+  // Single-property families, both twins generated from one declaration each.
+  // See SIMPLE_ARBITRARY above.
+  ...SIMPLE_ARBITRARY,
   // grid-template-columns arbitrary — responsive: gtc-sm-[1fr_1fr]
   { re: /^(!?)gtc-(sm|md|lg|xl|xxl)-\[(.+)\]$/, fn: (m) => {
     const i = m[1] ? ' !important' : ''
@@ -3496,6 +3579,195 @@ const ARBITRARY_PATTERNS = [
   }},
 ]
 
+// ─── Variants — pseudo-classes, pseudo-elements, relational states ───
+//
+// Authored as one variant per class token: `hover:bg-primary`, never
+// `hover:[bg-primary text-white]`. The grouped form cannot work: the HTML
+// parser splits `class` on whitespace into a token list before any CSS is
+// consulted, so `hover:[a p-3 b]` becomes the tokens `hover:[a`, `p-3`, `b]` —
+// the middle one is a bare `p-3` that applies permanently, and the last carries
+// no record of which state it belonged to. It fails silently, and no amount of
+// scanner intelligence recovers information the parser already discarded.
+//
+// The class form was chosen over `data-st-hover="a b"`, which measures better
+// (constant atomic CSS, ~12% less gzipped HTML at six utilities per state),
+// because it has no dead zones: Shopify theme-editor class fields and Liquid
+// filters like `link_to` accept a class string and nothing else. The class form
+// works everywhere the attribute form does, plus those.
+//
+// Breakpoints need no new syntax. Strata already spells them infix inside the
+// utility (`w-md-[40%]`, `d-md-flex`), so a variant is a pure prefix on an
+// existing utility: `hover:w-md-[40%]`. The base utility's CSS already carries
+// its own @media, so sub-layer routing keeps working with no change — the rule
+// lands in st-utilities-md exactly as `w-md-[40%]` does.
+
+// Simple pseudo-classes: appended to the selector.
+const VARIANT_PSEUDO = {
+  // Interaction
+  'hover': ':hover', 'focus': ':focus', 'focus-visible': ':focus-visible',
+  'focus-within': ':focus-within', 'active': ':active', 'visited': ':visited',
+  'target': ':target',
+  // Form state
+  'checked': ':checked', 'indeterminate': ':indeterminate',
+  'disabled': ':disabled', 'enabled': ':enabled',
+  'required': ':required', 'optional': ':optional',
+  'valid': ':valid', 'invalid': ':invalid',
+  // :invalid fires on load for empty required fields, so a form looks angry
+  // before anyone types. :user-invalid waits for interaction. Both ship, and
+  // the docs explain the difference rather than choosing for the author.
+  'user-valid': ':user-valid', 'user-invalid': ':user-invalid',
+  'in-range': ':in-range', 'out-of-range': ':out-of-range',
+  'read-only': ':read-only', 'read-write': ':read-write',
+  'placeholder-shown': ':placeholder-shown', 'autofill': ':autofill',
+  'default': ':default',
+  // Structural
+  'first': ':first-child', 'last': ':last-child', 'only': ':only-child',
+  'odd': ':nth-child(odd)', 'even': ':nth-child(even)',
+  'first-of-type': ':first-of-type', 'last-of-type': ':last-of-type',
+  'only-of-type': ':only-of-type', 'empty': ':empty',
+}
+
+// Pseudo-elements. `descendants` emits a second rule matching children too —
+// you put `marker:text-muted` on a <ul> and mean it for the <li>s.
+const VARIANT_ELEMENT = {
+  'placeholder':  { sel: '::placeholder' },
+  'marker':       { sel: '::marker',    descendants: true },
+  'selection':    { sel: '::selection', descendants: true },
+  'file':         { sel: '::file-selector-button' },
+  'first-line':   { sel: '::first-line' },
+  'first-letter': { sel: '::first-letter' },
+  'backdrop':     { sel: '::backdrop' },
+  // These render nothing without `content`, so it is emitted for them. An
+  // author who wants different content overrides it in custom CSS.
+  'before':       { sel: '::before', content: true },
+  'after':        { sel: '::after',  content: true },
+}
+
+// Wrapped in @media rather than matched by a selector.
+const VARIANT_MEDIA = {
+  'motion-safe':   '(prefers-reduced-motion: no-preference)',
+  'motion-reduce': '(prefers-reduced-motion: reduce)',
+  'contrast-more': '(prefers-contrast: more)',
+  'contrast-less': '(prefers-contrast: less)',
+  'forced-colors': '(forced-colors: active)',
+  'portrait':      '(orientation: portrait)',
+  'landscape':     '(orientation: landscape)',
+  'print':         'print',
+}
+
+// Matched via an ancestor rather than the element itself.
+const VARIANT_ANCESTOR = {
+  'rtl': '[dir="rtl"] ',
+  'ltr': '[dir="ltr"] ',
+}
+
+// Sticky hover on touch devices is the most-reported complaint about hover
+// utilities, and gating it later would be a breaking change. Gate from the
+// start, as Tailwind does.
+const HOVER_MEDIA = '(hover: hover)'
+
+function regexEscape(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+// Rewrite every occurrence of the base class's selector into the variant's.
+// The negative lookahead matters: without it, transforming `bg-primary` inside
+// a rule that also mentions `.bg-primary-subtle` would corrupt the longer name.
+function rewriteSelector(css, escBase, replacement) {
+  const re = new RegExp('\\.' + regexEscape(escBase) + '(?![\\w-])', 'g')
+  return css.replace(re, replacement)
+}
+
+// Split `hover:bg-primary` into its first variant and the remainder. Returns
+// null when the leading segment is not a known variant, so an ordinary class
+// containing a colon is left alone rather than guessed at.
+function splitVariant(className) {
+  const i = className.indexOf(':')
+  if (i <= 0) return null
+  const name = className.slice(0, i)
+  const rest = className.slice(i + 1)
+  if (!rest) return null
+  const known =
+    Object.prototype.hasOwnProperty.call(VARIANT_PSEUDO, name)   ||
+    Object.prototype.hasOwnProperty.call(VARIANT_ELEMENT, name)  ||
+    Object.prototype.hasOwnProperty.call(VARIANT_MEDIA, name)    ||
+    Object.prototype.hasOwnProperty.call(VARIANT_ANCESTOR, name) ||
+    RELATIONAL_RE.test(name)
+  return known ? { name, rest } : null
+}
+
+// group-hover / peer-checked and friends. The trigger carries `.group` or
+// `.peer`; the styled element carries the variant.
+const RELATIONAL_RE = /^(group|peer)-(.+)$/
+
+function lookupVariant(className) {
+  const split = splitVariant(className)
+  if (!split) return null
+
+  // Recursive, so variants stack: `hover:focus:bg-primary` works, and so does
+  // `motion-safe:hover:translate-y-1`, with no special case for the pair.
+  const base = lookup(split.rest)
+  if (!base || !base.css) return null
+
+  const escBase = escapeClass(split.rest)
+  const escFull = escapeClass(className)
+  const name    = split.name
+  let css       = base.css
+
+  const rel = RELATIONAL_RE.exec(name)
+  if (rel) {
+    const [, kind, state] = rel
+    const pseudo = VARIANT_PSEUDO[state]
+    if (!pseudo) return null
+    // :where() contributes zero specificity, so a relational utility scores the
+    // same (0,2,0) as a plain one. Without it the trigger marker would add
+    // specificity and relational utilities would silently outrank normal ones.
+    const combinator = kind === 'group' ? ' ' : ' ~ '
+    const prefix = `:where(.${kind})${pseudo}${combinator}`
+    css = rewriteSelector(css, escBase, prefix + '.' + escFull)
+    // Same touch-device reasoning as plain hover.
+    if (state === 'hover') css = `@media ${HOVER_MEDIA} { ${css} }`
+    return { layer: base.layer, css }
+  }
+
+  if (VARIANT_ANCESTOR[name]) {
+    // Two selectors, because `dir` is usually on an ancestor (<html dir="rtl">)
+    // but may sit on the element itself. Both score (0,2,0), so the flat
+    // specificity guarantee holds either way.
+    const dir = VARIANT_ANCESTOR[name].trim()
+    css = rewriteSelector(css, escBase,
+      `${dir} .${escFull}, ${dir}.${escFull}`)
+    return { layer: base.layer, css }
+  }
+
+  if (VARIANT_MEDIA[name]) {
+    css = rewriteSelector(css, escBase, '.' + escFull)
+    return { layer: base.layer, css: `@media ${VARIANT_MEDIA[name]} { ${css} }` }
+  }
+
+  const el = VARIANT_ELEMENT[name]
+  if (el) {
+    const own = '.' + escFull + el.sel
+    const replacement = el.descendants
+      ? `.${escFull} ${el.sel}, ${own}`
+      : own
+    css = rewriteSelector(css, escBase, replacement)
+    if (el.content) {
+      // Insert into the declaration block belonging to the selector we just
+      // built, not merely the first `{` in the string — that would be the
+      // @media wrapper for a responsive base utility.
+      css = css.replace(own + ' {', own + ' { content: "";')
+    }
+    return { layer: base.layer, css }
+  }
+
+  const pseudo = VARIANT_PSEUDO[name]
+  if (!pseudo) return null
+  css = rewriteSelector(css, escBase, '.' + escFull + pseudo)
+  if (name === 'hover') css = `@media ${HOVER_MEDIA} { ${css} }`
+  return { layer: base.layer, css }
+}
+
 // ─── Lookup — O(1) first, regex fallback ─────────────────────────────
 
 const resultCache = new Map()
@@ -3511,7 +3783,17 @@ function lookup(className) {
     return result
   }
 
-  // L3 — arbitrary value patterns — O(patterns)
+  // L3 — variants. Must precede the bracket fast-path below, or every
+  // bracket-less variant (`hover:bg-primary`) would be rejected before it is
+  // ever considered. Gated on a colon so ordinary class names skip it, keeping
+  // the cost off the common path.
+  if (className.indexOf(':') !== -1) {
+    const variant = lookupVariant(className)
+    resultCache.set(className, variant)
+    return variant
+  }
+
+  // L4 — arbitrary value patterns — O(patterns)
   // Every arbitrary pattern requires a bracket — skip the whole loop for
   // bracket-less classes (the majority of custom class names in real projects)
   if (className.indexOf('[') === -1) {
