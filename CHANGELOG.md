@@ -4,6 +4,8 @@ All notable changes to Strata CSS will be documented here.
 
 ## [Unreleased]
 
+## [1.9.0] — 2026-09-02
+
 ### Added
 
 - **Lightning CSS is now the default minifier, with cssnano as a fallback.** `--minify` used to require cssnano and hard-exit without it. It now runs a fixed preference cascade — Lightning CSS, then cssnano, then unminified — and prints which engine ran.
@@ -23,13 +25,6 @@ All notable changes to Strata CSS will be documented here.
   There is no host-bundler rung: under Vite/Next/webpack the PostCSS plugin path runs instead and the bundler minifies.
 
   `strata init` now recommends `lightningcss` when a project has neither minifier, and writes a `strata:minify` script — without it the scaffolded scripts only ever run `--build`, which does not minify, so the recommendation would have had nothing to use it. The install is printed for the user to run, never executed, as with every other install the CLI suggests.
-
-### Fixed
-
-- **Breakpoint-scoped arbitrary values silently generated nothing.** `w-[40%]` worked; `w-md-[40%]` matched no pattern, emitted no CSS and raised no error. Each family is registered twice — once with a breakpoint segment, once without — and roughly half of them had only ever been given the plain twin: `w` `h` `max-w` `min-w` `max-h` `min-h` `fs` `fw` `opacity` `z` `top` `bottom` `left` `right` `inset` `cursor` `duration` `transition` `object-position` `text` and `bg`. Both twins are now generated from one declaration per family, so a family cannot be half-registered.
-- **`start-[…]` / `end-[…]` did not exist.** The named scale (`start-0`, `start-50`) had no arbitrary form, so `start-[33%]` was a silent no-op — which had left the vertical dividers in `examples/cursorfx-line-wave.html` at `left: auto`. Found by the new build warning below, not by hand.
-
-### Added
 
 - **A utility that resolves to zero declarations now warns at build time**, on the CLI and as a PostCSS warning so it surfaces through bundlers too. Scoped to class names using arbitrary bracket syntax: a bracket is an unambiguous statement of intent, whereas warning on every unmatched class name would bury the signal under every BEM block and third-party class on the page.
 
@@ -58,6 +53,13 @@ All notable changes to Strata CSS will be documented here.
 - **`bg-opacity-*`, `text-opacity-*` and `border-opacity-*` now do something.** They set `--st-bg-opacity` / `--st-text-opacity` / `--st-border-opacity`, and nothing read those variables — the utilities emitted a custom property, changed nothing, and were documented in the docs page as working. The colour utilities now consume them via `color-mix`, with a `, 1)` fallback so the common case is unchanged. Measured cost on a colour-heavy build: **+3,432 bytes raw but only +163 gzipped**, because the repeated pattern compresses to almost nothing. Verified in Chrome: `bg-primary bg-opacity-50` computes at alpha 0.5.
 
   `text-white` and `text-black` are registered twice — once from `TEXT_COLOR_MAP` and once standalone, with the later call silently winning — so the standalone pair was routed through the same helper or it would have opted out of opacity by accident.
+
+### Fixed
+
+- **`@strata-packages/chart`: a top-level class shadowed the public `StrataChart` global.** `class StrataChart` sat outside the IIFE that assigns the API, and a top-level class declaration creates a binding in the global *lexical* environment which shadows `window.StrataChart` for every script that follows. The documented standalone entry point — `StrataChart.create(selector, options)`, printed in the package's own header comment — therefore resolved to the class and threw `TypeError: StrataChart.create is not a function`. Pages loading `strata.components.js` were unaffected, because they reach the API as `Strata.Chart` — a property access that never touches the shadowed identifier — which is why it survived earlier verification. Only the standalone path was broken, and it is the one a new consumer reaches first.
+
+- **Breakpoint-scoped arbitrary values silently generated nothing.** `w-[40%]` worked; `w-md-[40%]` matched no pattern, emitted no CSS and raised no error. Each family is registered twice — once with a breakpoint segment, once without — and roughly half of them had only ever been given the plain twin: `w` `h` `max-w` `min-w` `max-h` `min-h` `fs` `fw` `opacity` `z` `top` `bottom` `left` `right` `inset` `cursor` `duration` `transition` `object-position` `text` and `bg`. Both twins are now generated from one declaration per family, so a family cannot be half-registered.
+- **`start-[…]` / `end-[…]` did not exist.** The named scale (`start-0`, `start-50`) had no arbitrary form, so `start-[33%]` was a silent no-op — which had left the vertical dividers in `examples/cursorfx-line-wave.html` at `left: auto`. Found by the new build warning below, not by hand.
 
 ### Changed
 

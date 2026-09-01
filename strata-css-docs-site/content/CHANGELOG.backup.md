@@ -2,6 +2,71 @@
 
 All notable changes to Strata CSS will be documented here.
 
+## [Unreleased]
+
+## [1.9.0] — 2026-09-02
+
+### Added
+
+- **Lightning CSS is now the default minifier, with cssnano as a fallback.** `--minify` used to require cssnano and hard-exit without it. It now runs a fixed preference cascade — Lightning CSS, then cssnano, then unminified — and prints which engine ran.
+
+  Lightning CSS produces ~2% smaller output on Strata's own CSS (15,346 vs 15,638 bytes gzipped) with no rules or declarations dropped. But the output file is not only Strata's: `@strata` directives are replaced *inside the author's stylesheet*, so a theme's custom CSS goes through the same minifier — and that is where the two engines diverge. Given `.legacy { *zoom: 1 }`, Lightning CSS throws a `SyntaxError` and kills the build; with `errorRecovery` it drops the declaration; cssnano preserves it.
+
+  So `errorRecovery` is always on, and **a recovered parse error is treated as a failure rather than a success**. It would otherwise be the smaller output — dropping the author's declarations is precisely how it got smaller — which would let file size silently decide whether someone's legacy hack ships. Compression only breaks ties between outputs that are equivalent.
+
+  ```
+  [Strata] ⚠  lightningcss dropped 1 declaration(s) from custom CSS — using cssnano instead, which preserves them.
+  [Strata]      UnexpectedToken (line 4383, col 25)
+  [Strata] ✓ Built → dist/strata.output.css (CSS 88.01 KB, minified by cssnano) in 858ms
+  ```
+
+  Two new `strata.config.js` keys: `minifier` (`'lightningcss'` | `'cssnano'` | `false`) pins the engine — an explicit choice is never silently substituted, it hard-errors — and `targets` passes browser targets to Lightning CSS. Without `targets` it emits Media Queries Level 4 range syntax (`width>=768px`, Safari 16.4+); Strata's own output already requires Safari 16.2+ via 72 uses of `color-mix()`, so this raises the floor by a fraction of a version rather than meaningfully.
+
+  There is no host-bundler rung: under Vite/Next/webpack the PostCSS plugin path runs instead and the bundler minifies.
+
+  `strata init` now recommends `lightningcss` when a project has neither minifier, and writes a `strata:minify` script — without it the scaffolded scripts only ever run `--build`, which does not minify, so the recommendation would have had nothing to use it. The install is printed for the user to run, never executed, as with every other install the CLI suggests.
+
+- **A utility that resolves to zero declarations now warns at build time**, on the CLI and as a PostCSS warning so it surfaces through bundlers too. Scoped to class names using arbitrary bracket syntax: a bracket is an unambiguous statement of intent, whereas warning on every unmatched class name would bury the signal under every BEM block and third-party class on the page.
+
+  ```
+  [Strata] ⚠  2 class(es) with arbitrary values matched no utility and emitted nothing:
+              nope-[12px], lh-[1.15]. Check the prefix is a real utility and the
+              breakpoint segment is one of sm|md|lg|xl|xxl.
+  ```
+
+- `examples/arbitrary-responsive-test.html` — visual confirmation of the above, including two deliberately unresolvable classes so the build prints the warning on this repo's own example pass.
+
+- **`aspect-*` utilities.** `aspect-ratio` had appeared in `registry.js` only inside component internals and comments — it was never reachable as a utility. Now: `aspect-square` `aspect-video` `aspect-auto`, the `.ratio-*` names (`aspect-1x1` `aspect-4x3` `aspect-16x9` `aspect-21x9`) for migration continuity, all five breakpoint variants of each, and the arbitrary form `aspect-[16/10]` / `aspect-[var(--r)]`.
+
+- **Variant system — pseudo-classes, pseudo-elements and relational states.** Prefix any utility: `hover:bg-primary`, `focus-visible:outline-primary`, `user-invalid:border-danger`, `marker:text-primary`, `group-hover:text-primary`, `peer-checked:bg-primary`, `motion-reduce:transition-[none]`, `rtl:text-end`. 45 states, 9 pseudo-elements, plus `group-*` / `peer-*`.
+
+  One variant per class token. The grouped spelling `hover:[a b c]` is impossible on any host — the HTML parser splits `class` on whitespace into a token list before CSS is consulted, leaving a bare `b` that applies permanently and a `c]` carrying no record of its state. An attribute form (`data-st-hover="a b"`) measured better — constant atomic CSS, ~12% less gzipped HTML at six utilities per state — but was rejected because Shopify theme-editor class fields and Liquid filters such as `link_to` accept a class string and nothing else. The class form works everywhere the attribute form does, plus those.
+
+  Breakpoints needed no new syntax: they stay infix in the utility (`hover:w-md-[40%]`), so the base utility's own `@media` keeps sub-layer routing working unchanged. Variants stack (`motion-safe:hover:shadow-lg`). `hover:` is gated behind `@media (hover: hover)` so it cannot stick on touch. Both `invalid:` and `user-invalid:` ship. `before:`/`after:` emit `content: ""`; `marker:`/`selection:` emit element and descendant rules. Relational variants wrap the trigger in `:where()`, keeping every single-variant utility at specificity (0,2,0).
+
+- **`docs/shopify.md`** — content globs covering the current theme structure (including `blocks/`), the merchant-settings JSON approach, and dynamic-class guidance.
+
+- `examples/variants-test.html` — every variant group, live.
+
+- **`calc()`, `clamp()`, `min()` and `max()` now work in arbitrary values.** A class name cannot contain a space, so underscores carry them — but families that do not do blanket underscore replacement (`w`, `h`, `max-w`, `fs`, `top`, …) left `w-[calc(100%_-_2rem)]` emitting `calc(100%_-_2rem)`, which is invalid and dropped by the browser. It failed silently in a way the zero-declaration warning cannot catch, because the class *does* resolve — only the value is invalid. Underscores inside a custom property name are protected, so `w-[var(--my_token)]` and `w-[calc(var(--my_token)_-_1rem)]` both survive intact.
+
+- **`bg-opacity-*`, `text-opacity-*` and `border-opacity-*` now do something.** They set `--st-bg-opacity` / `--st-text-opacity` / `--st-border-opacity`, and nothing read those variables — the utilities emitted a custom property, changed nothing, and were documented in the docs page as working. The colour utilities now consume them via `color-mix`, with a `, 1)` fallback so the common case is unchanged. Measured cost on a colour-heavy build: **+3,432 bytes raw but only +163 gzipped**, because the repeated pattern compresses to almost nothing. Verified in Chrome: `bg-primary bg-opacity-50` computes at alpha 0.5.
+
+  `text-white` and `text-black` are registered twice — once from `TEXT_COLOR_MAP` and once standalone, with the later call silently winning — so the standalone pair was routed through the same helper or it would have opted out of opacity by accident.
+
+### Fixed
+
+- **`@strata-packages/chart`: a top-level class shadowed the public `StrataChart` global.** `class StrataChart` sat outside the IIFE that assigns the API, and a top-level class declaration creates a binding in the global *lexical* environment which shadows `window.StrataChart` for every script that follows. The documented standalone entry point — `StrataChart.create(selector, options)`, printed in the package's own header comment — therefore resolved to the class and threw `TypeError: StrataChart.create is not a function`. Pages loading `strata.components.js` were unaffected, because they reach the API as `Strata.Chart` — a property access that never touches the shadowed identifier — which is why it survived earlier verification. Only the standalone path was broken, and it is the one a new consumer reaches first.
+
+- **Breakpoint-scoped arbitrary values silently generated nothing.** `w-[40%]` worked; `w-md-[40%]` matched no pattern, emitted no CSS and raised no error. Each family is registered twice — once with a breakpoint segment, once without — and roughly half of them had only ever been given the plain twin: `w` `h` `max-w` `min-w` `max-h` `min-h` `fs` `fw` `opacity` `z` `top` `bottom` `left` `right` `inset` `cursor` `duration` `transition` `object-position` `text` and `bg`. Both twins are now generated from one declaration per family, so a family cannot be half-registered.
+- **`start-[…]` / `end-[…]` did not exist.** The named scale (`start-0`, `start-50`) had no arbitrary form, so `start-[33%]` was a silent no-op — which had left the vertical dividers in `examples/cursorfx-line-wave.html` at `left: auto`. Found by the new build warning below, not by hand.
+
+### Changed
+
+- **`.ratio` reimplemented on the `aspect-ratio` property.** It previously used the padding-top percentage hack — a `::before` spacer plus `.ratio > *` absolutely positioning children to fill — which predates the property by years, requires a wrapper element, and stretched **every** direct child. That last part was a real bug: a round play button overlaid on a `.ratio` tile was stretched into an ellipse.
+
+  `.ratio` keeps its name and its `--st-aspect-ratio` custom property, so existing markup and any project overriding that variable keep working; the variable now holds a ratio (`16 / 9`) rather than a padding percentage (`56.25%`). The fill rule is scoped to replaced elements — `img`, `video`, `iframe`, `embed`, `object` — so embeds still fill the box while an overlay child keeps its own size. `position: relative` is retained so absolutely-positioned overlays still anchor.
+
 ## [1.8.17] — 2026-08-16
 
 ### Fixed
