@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import WaveRule from "./WaveRule";
 import { usePathname } from "next/navigation";
 import { docNav } from "@/lib/docNav";
 
@@ -16,8 +17,9 @@ export default function DocsPrevNext() {
   return (
     <nav
       aria-label="Docs navigation"
-      className="d-flex justify-content-between gap-3 mt-5 pt-4 border-top"
+      className="d-flex justify-content-between gap-3 mt-5 pt-4 position-relative"
     >
+      <WaveRule />
       {prev ? (
         <Link href={prev.href} className="text-link d-block">
           <span className="d-block text-muted">Previous</span>

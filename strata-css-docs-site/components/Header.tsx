@@ -6,6 +6,7 @@ import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 import SearchBar from "./SearchBar";
 import MobileNav from "./MobileNav";
+import WaveRule from "./WaveRule";
 
 const NEAR_TOP_THRESHOLD = 120;
 // Once the header is translated off-screen, it has nothing left under the
@@ -39,11 +40,14 @@ export default function Header() {
 
   return (
     <header
-      className="navbar sticky-top bg-body border-bottom p-3 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
+      className="navbar sticky-top bg-body p-3 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
       data-header-hidden={!visible}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
+      {/* sticky-top is already a containing block, so the band needs no
+          position-relative of its own. */}
+      <WaveRule edge="bottom" />
       <div className="d-flex align-items-center gap-4">
         <MobileNav />
         <Link href="/" className="navbar-brand fw-bold text-decoration-none d-flex align-items-center gap-2">
