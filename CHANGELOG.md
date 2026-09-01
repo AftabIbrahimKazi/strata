@@ -21,6 +21,14 @@ All notable changes to Strata CSS will be documented here.
 
 - `examples/arbitrary-responsive-test.html` — visual confirmation of the above, including two deliberately unresolvable classes so the build prints the warning on this repo's own example pass.
 
+- **`aspect-*` utilities.** `aspect-ratio` had appeared in `registry.js` only inside component internals and comments — it was never reachable as a utility. Now: `aspect-square` `aspect-video` `aspect-auto`, the `.ratio-*` names (`aspect-1x1` `aspect-4x3` `aspect-16x9` `aspect-21x9`) for migration continuity, all five breakpoint variants of each, and the arbitrary form `aspect-[16/10]` / `aspect-[var(--r)]`.
+
+### Changed
+
+- **`.ratio` reimplemented on the `aspect-ratio` property.** It previously used the padding-top percentage hack — a `::before` spacer plus `.ratio > *` absolutely positioning children to fill — which predates the property by years, requires a wrapper element, and stretched **every** direct child. That last part was a real bug: a round play button overlaid on a `.ratio` tile was stretched into an ellipse.
+
+  `.ratio` keeps its name and its `--st-aspect-ratio` custom property, so existing markup and any project overriding that variable keep working; the variable now holds a ratio (`16 / 9`) rather than a padding percentage (`56.25%`). The fill rule is scoped to replaced elements — `img`, `video`, `iframe`, `embed`, `object` — so embeds still fill the box while an overlay child keeps its own size. `position: relative` is retained so absolutely-positioned overlays still anchor.
+
 ## [1.8.17] — 2026-08-16
 
 ### Fixed

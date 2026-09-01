@@ -192,6 +192,14 @@ Responsive: `w-md-50`, `h-lg-auto`
 `rounded`, `rounded-{0-5}`, `rounded-pill`, `rounded-circle`
 `rounded-{top/bottom/start/end}`
 
+### Aspect ratio
+`aspect-square` (1/1), `aspect-video` (16/9), `aspect-auto`
+`aspect-1x1`, `aspect-4x3`, `aspect-16x9`, `aspect-21x9` — same names as the `.ratio-*` component
+Responsive: `aspect-md-video`, `aspect-lg-square`
+Arbitrary: `aspect-[16/10]`, `aspect-[1.85]`, `aspect-[var(--r)]`
+
+`.ratio` / `.ratio-{1x1,4x3,16x9,21x9}` remain for the wrapper-plus-embed pattern and are now implemented on `aspect-ratio` rather than the padding-top hack. Its fill rule is scoped to replaced elements (`img`, `video`, `iframe`, `embed`, `object`), so an overlay child keeps its own size instead of being stretched to the box. Prefer `aspect-*` for new markup — it needs no wrapper and no companion class.
+
 ### Shadows
 `shadow-sm`, `shadow`, `shadow-lg`, `shadow-none`
 Responsive: `shadow-md-sm`, `shadow-lg-lg`

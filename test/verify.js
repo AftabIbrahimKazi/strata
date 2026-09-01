@@ -498,6 +498,41 @@ ok('text-[color] is color at a breakpoint',
 ok('start-[…] is left, matching start-0',   /left:\s*33%/.test((lookup('start-[33%]') || {}).css || ''))
 ok('end-[…] is right, matching end-0',      /right:\s*33%/.test((lookup('end-[33%]')   || {}).css || ''))
 
+// ─── Aspect ratio ────────────────────────────────────────────────────────────
+// `aspect-ratio` appeared in registry.js only inside component internals and
+// comments — it was never reachable as a utility. `.ratio` implemented ratios
+// with the padding-top hack instead, which needed a wrapper and whose `> *`
+// rule stretched every direct child (a circular play button became an ellipse).
+ok('aspect-square resolves',        !!lookup('aspect-square'))
+ok('aspect-video resolves',         !!lookup('aspect-video'))
+ok('aspect-auto resolves',          !!lookup('aspect-auto'))
+ok('aspect-1x1 resolves',           !!lookup('aspect-1x1'))
+ok('aspect-4x3 resolves',           !!lookup('aspect-4x3'))
+ok('aspect-16x9 resolves',          !!lookup('aspect-16x9'))
+ok('aspect-21x9 resolves',          !!lookup('aspect-21x9'))
+ok('aspect-square is 1 / 1',        /aspect-ratio:\s*1 \/ 1/.test(lookup('aspect-square').css))
+ok('aspect-video is 16 / 9',        /aspect-ratio:\s*16 \/ 9/.test(lookup('aspect-video').css))
+ok('aspect-[16/10] resolves',       !!lookup('aspect-[16/10]'))
+ok('aspect-[…] escapes the slash',  /\.aspect-\\\[16\\\/10\\\]/.test(lookup('aspect-[16/10]').css))
+ok('aspect-md-[21/9] resolves',     !!lookup('aspect-md-[21/9]'))
+ok('aspect-md-square resolves',     !!lookup('aspect-md-square'))
+ok('every breakpoint has aspect-*',
+  ['sm','md','lg','xl','xxl'].every(bp => !!lookup(`aspect-${bp}-video`)))
+// xs has no BP_VALUES entry — emitting it would produce `min-width: undefined`.
+ok('aspect-xs-* is not registered',  !lookup('aspect-xs-square'))
+
+// `.ratio` reimplemented on the real property.
+ok('ratio uses aspect-ratio, not padding-top',
+  /aspect-ratio/.test(lookup('ratio').css) && !/padding-top/.test(lookup('ratio').css))
+ok('ratio no longer stretches every child',
+  !/\.ratio > \*/.test(lookup('ratio').css))
+ok('ratio still fills replaced elements',
+  /\.ratio > iframe/.test(lookup('ratio').css) && /\.ratio > img/.test(lookup('ratio').css))
+ok('ratio keeps position relative for overlays',
+  /position:\s*relative/.test(lookup('ratio').css))
+ok('ratio-16x9 sets a ratio, not a percentage',
+  /--st-aspect-ratio:\s*16 \/ 9/.test(lookup('ratio-16x9').css))
+
 // ─── Zero-declaration build warning ──────────────────────────────────────────
 // The other half of the same bug: a utility that emits nothing must say so.
 // Scoped to bracket syntax — warning on every unmatched class name would bury

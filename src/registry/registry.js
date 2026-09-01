@@ -2568,13 +2568,67 @@ reg('bs-popover-top', 'components', `.bs-popover-top { margin-bottom: 0.5rem; }`
 reg('clearfix', 'utilities', `.clearfix::after { display: block; clear: both; content: ""; }`)
 reg('color-body', 'utilities', `.color-body { color: var(--st-text); }`)
 
-reg('ratio',     'utilities', `.ratio { position: relative; width: 100%; }
-.ratio::before { display: block; content: ""; padding-top: var(--st-aspect-ratio); }
-.ratio > * { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }`)
-reg('ratio-1x1',  'utilities', `.ratio-1x1  { --st-aspect-ratio: 100%;     }`)
-reg('ratio-4x3',  'utilities', `.ratio-4x3  { --st-aspect-ratio: 75%;      }`)
-reg('ratio-16x9', 'utilities', `.ratio-16x9 { --st-aspect-ratio: 56.25%;   }`)
-reg('ratio-21x9', 'utilities', `.ratio-21x9 { --st-aspect-ratio: 42.8571%; }`)
+// ─── Aspect ratio ────────────────────────────────────────────────────
+// `.ratio` predates the aspect-ratio property and implemented ratios with the
+// padding-top percentage hack: a ::before spacer forcing the height, and
+// `.ratio > *` absolutely positioning children to fill it. Two costs came with
+// that. It needs a wrapper element to work at all, and `> *` stretches EVERY
+// direct child — so a tile holding an image plus an overlay button had the
+// button stretched to the full box too, which is how a circular play button
+// rendered as a giant ellipse.
+//
+// Both are now reimplemented on the real property. `.ratio` keeps its name and
+// its --st-aspect-ratio custom property so existing markup and any project
+// overriding that variable keep working, but the value is now a ratio rather
+// than a padding percentage, and no child is positioned or stretched.
+const ASPECT_RATIOS = {
+  '1x1':  '1 / 1',
+  '4x3':  '4 / 3',
+  '16x9': '16 / 9',
+  '21x9': '21 / 9',
+}
+
+// `position: relative` stays so an absolutely-positioned overlay still anchors
+// to the box. The fill rule is scoped to replaced elements rather than `> *`:
+// an <iframe>/<img>/<video> has its own intrinsic size and will not fill the
+// box on its own, so embeds — the primary use of `.ratio` — keep working, while
+// an overlay button, caption or badge is left at its natural size instead of
+// being stretched edge to edge.
+reg('ratio', 'utilities', `.ratio { position: relative; width: 100%; aspect-ratio: var(--st-aspect-ratio, 1 / 1); }
+.ratio > img,
+.ratio > video,
+.ratio > iframe,
+.ratio > embed,
+.ratio > object { width: 100%; height: 100%; object-fit: cover; }`)
+Object.entries(ASPECT_RATIOS).forEach(([name, value]) => {
+  reg(`ratio-${name}`, 'utilities', `.ratio-${name} { --st-aspect-ratio: ${value}; }`)
+})
+
+// The utility form. Unlike `.ratio` it needs no companion class and no wrapper:
+// one class on the element is the whole feature.
+const ASPECT_NAMED = {
+  'square': '1 / 1',
+  'video':  '16 / 9',
+  'auto':   'auto',
+}
+Object.entries(ASPECT_NAMED).forEach(([name, value]) => {
+  reg(`aspect-${name}`, 'utilities', `.aspect-${name} { aspect-ratio: ${value}; }`)
+  BREAKPOINTS.forEach(bp => {
+    if (bp === 'xs') return
+    reg(`aspect-${bp}-${name}`, 'utilities',
+      mq(bp, `.aspect-${bp}-${name} { aspect-ratio: ${value}; }`))
+  })
+})
+// The named scale under its .ratio-* spelling too, so migrating from the
+// component to the utility does not mean relearning the names.
+Object.entries(ASPECT_RATIOS).forEach(([name, value]) => {
+  reg(`aspect-${name}`, 'utilities', `.aspect-${name} { aspect-ratio: ${value}; }`)
+  BREAKPOINTS.forEach(bp => {
+    if (bp === 'xs') return
+    reg(`aspect-${bp}-${name}`, 'utilities',
+      mq(bp, `.aspect-${bp}-${name} { aspect-ratio: ${value}; }`))
+  })
+})
 
 reg('fixed-top',    'components', `.fixed-top    { position: fixed; top: 0;    right: 0; left: 0; z-index: var(--st-z-fixed, 1030); }`)
 reg('fixed-bottom', 'components', `.fixed-bottom { position: fixed; bottom: 0; right: 0; left: 0; z-index: var(--st-z-fixed, 1030); }`)
@@ -3299,6 +3353,11 @@ const SIMPLE_ARBITRARY = [
   ...arbFamily('end',    'right'),
   ...arbFamily('inset',  'inset',            { spaces: true }),
   ...arbFamily('object-position', 'object-position', { spaces: true }),
+  // aspect-[16/10], aspect-[4/3], aspect-[1.85]. Unlike letter-spacing and
+  // line-height, an aspect ratio is contained to the element's own box and
+  // cannot cascade into sibling or descendant alignment, so the arbitrary form
+  // carries none of the risk that keeps those two on a closed named scale.
+  ...arbFamily('aspect', 'aspect-ratio', { spaces: true }),
   ...arbFamily('cursor', 'cursor'),
   ...arbFamily('duration', 'transition-duration'),
   ...arbFamily('transition', 'transition',   { spaces: true }),
