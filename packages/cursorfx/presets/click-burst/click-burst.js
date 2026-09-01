@@ -1,14 +1,26 @@
 /**
  * Strata CursorFX — ClickBurst preset
- * Canvas. Fires a radial burst of particles from each click point.
+ * Canvas. Radial particle burst on click, with an optional shock ring.
  *
- *   CursorFX.mount(CursorFX.presets.ClickBurst, { color: '#ffd166', count: 24 })
+ *   <body data-st-cursorfx="click-burst" data-st-cfx-click-burst-ring="true">
  *
- * Methods on the returned instance: setColor(css), burst(x, y)
+ * A recipe: ring origin, ballistic motion, dot render. The shock ring is the
+ * one thing no behaviour covers — it is not a particle — so it stays here as
+ * the recipe's own render pass, which runs after the pipeline's.
+ *
+ * Requires: particles.js, behaviours/origin/ring, behaviours/motion/ballistic,
+ *           behaviours/render/dot
+ *
+ * Methods: setColor(css), burst(x, y)
  */
 
 ;(function (root, factory) {
-  var preset = factory()
+  var P = (typeof module === 'object' && module.exports)
+        ? require('../../particles.js')
+        : ((root.Strata && root.Strata.CursorFX && root.Strata.CursorFX.particles) ||
+           root.StrataCursorFXParticles)
+
+  var preset = factory(P)
   if (typeof define === 'function' && define.amd) {
     define([], function () { return preset })
   } else if (typeof module === 'object' && module.exports) {
@@ -18,79 +30,49 @@
     if (fx) fx.presets[preset.name] = preset
     else (root.StrataCursorFXPresets = root.StrataCursorFXPresets || {})[preset.name] = preset
   }
-}(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (P) {
   'use strict'
 
-  function emit(x, y, inst) {
-    var o = inst.options
-    var stops = inst.local.stops
-    for (var i = 0; i < o.count; i++) {
-      var p = inst.pool.acquire(inst)
-      if (!p) return                       // budget spent — a short burst beats none
-      var a = (i / o.count) * 6.283185307 + Math.random() * 0.3
-      var v = o.velocity * (0.5 + Math.random() * 0.5)
-      p.x = x
-      p.y = y
-      p.vx = Math.cos(a) * v
-      p.vy = Math.sin(a) * v
-      p.maxLife = o.life * (0.7 + Math.random() * 0.3)
-      p.size = o.size * (0.6 + Math.random() * 0.4)
-      // Colour follows position around the ring, so a two-stop burst fans from
-      // one colour to the other rather than flickering between them.
-      var c = inst.engine.colors.at(stops, i / Math.max(1, o.count - 1))
-      p.r = c[0]; p.g = c[1]; p.b = c[2]
-    }
-  }
+  var TAU = 6.283185307
 
-  return {
+  return P.recipe({
     name: 'ClickBurst',
-    type: 'canvas',
     key:  'click-burst',
+
+    motion: 'ballistic',
+    render: 'dot',
+
+    emit: { click: { origin: 'ring', count: 'count' } },
 
     defaults: {
       color:    '#ffffff',
       count:    24,     // particles per burst
       velocity: 260,    // px/s at birth
+      scatter:  0.3,    // radians of jitter on each evenly spaced heading
       life:     0.7,    // seconds
+      lifeVary: 0.3,
       size:     5,      // px
+      sizeVary: 0.4,    // 60–100% of `size`
       gravity:  420,    // px/s²
       drag:     2.2,    // velocity damping per second
-      ring:     false   // also draw an expanding shock ring
+      shrink:   true,
+      colorBy:  'birth', // fan the stops around the ring, not along time
+      ring:     false    // also draw an expanding shock ring
     },
 
-    onMount: function (inst) {
-      inst.local.stops = inst.engine.colors.stops(inst.options.color, 'ClickBurst color')
-      inst.local.rings = []
-    },
+    onMount: function (inst) { inst.local.rings = [] },
 
     onClick: function (x, y, inst) {
-      emit(x, y, inst)
       if (inst.options.ring) inst.local.rings.push({ x: x, y: y, t: 0 })
     },
 
-    render: function (ctx, dt, inst) {
-      if (!ctx) return
+    // Runs after the particle pipeline, inside its saved/restored canvas state.
+    onRender: function (ctx, dt, inst) {
       var o = inst.options
-      var damp = Math.exp(-o.drag * dt)
-
-      inst.pool.forEachOwnedBy(inst, function (p) {
-        p.life += dt
-        if (p.life >= p.maxLife) { inst.pool.release(p); return }
-
-        p.vx *= damp
-        p.vy = p.vy * damp + o.gravity * dt
-        p.x += p.vx * dt
-        p.y += p.vy * dt
-
-        var t = 1 - p.life / p.maxLife
-        ctx.globalAlpha = t
-        ctx.fillStyle = 'rgb(' + (p.r | 0) + ',' + (p.g | 0) + ',' + (p.b | 0) + ')'
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size * 0.5 * t, 0, 6.283185307)
-        ctx.fill()
-      })
-
       var rings = inst.local.rings
+      if (!rings || !rings.length) return
+
+      ctx.globalCompositeOperation = 'source-over'
       for (var i = rings.length - 1; i >= 0; i--) {
         var r = rings[i]
         r.t += dt
@@ -100,21 +82,16 @@
         ctx.strokeStyle = 'rgb(' + inst.local.stops[0].join(',') + ')'
         ctx.lineWidth = 2 * (1 - k)
         ctx.beginPath()
-        ctx.arc(r.x, r.y, k * o.velocity * o.life * 0.5, 0, 6.283185307)
+        ctx.arc(r.x, r.y, k * o.velocity * o.life * 0.5, 0, TAU)
         ctx.stroke()
       }
-
-      ctx.globalAlpha = 1
     },
 
-    dispose: function (inst) { inst.local = {} },
-
     methods: {
-      setColor: function (css, inst) {
-        inst.options.color = css
-        inst.local.stops = inst.engine.colors.stops(css, 'ClickBurst color')
-      },
-      burst: function (x, y, inst) { emit(x, y, inst) }
+      burst: function (x, y, inst) {
+        P.emit(inst, 'click', inst.options.count, x, y)
+        if (inst.options.ring) inst.local.rings.push({ x: x, y: y, t: 0 })
+      }
     }
-  }
+  })
 }))

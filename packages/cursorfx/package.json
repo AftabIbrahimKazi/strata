@@ -1,11 +1,20 @@
 {
   "name": "@strata-packages/cursorfx",
-  "version": "0.0.0",
-  "description": "Modular cursor effects \u2014 one shared engine, six opt-in presets. Works standalone or with Strata CSS.",
+  "version": "0.2.0",
+  "description": "Modular cursor effects — one shared engine, ten opt-in presets. Works standalone or with Strata CSS.",
   "main": "cursorfx.js",
   "exports": {
     ".": "./cursorfx.js",
     "./css": "./cursorfx.css",
+    "./particles": "./particles.js",
+    "./behaviours/origin/pointer": "./behaviours/origin/pointer.js",
+    "./behaviours/origin/ring": "./behaviours/origin/ring.js",
+    "./behaviours/origin/edge": "./behaviours/origin/edge.js",
+    "./behaviours/motion/ballistic": "./behaviours/motion/ballistic.js",
+    "./behaviours/motion/curl": "./behaviours/motion/curl.js",
+    "./behaviours/render/dot": "./behaviours/render/dot.js",
+    "./behaviours/render/puff": "./behaviours/render/puff.js",
+    "./behaviours/render/segment": "./behaviours/render/segment.js",
     "./presets/trail": "./presets/trail/trail.js",
     "./presets/click-burst": "./presets/click-burst/click-burst.js",
     "./presets/electric": "./presets/electric/electric.js",
@@ -16,7 +25,11 @@
     "./presets/cursor-morph": "./presets/cursor-morph/cursor-morph.js",
     "./presets/cursor-morph/css": "./presets/cursor-morph/cursor-morph.css",
     "./presets/reveal": "./presets/reveal/reveal.js",
-    "./presets/reveal/css": "./presets/reveal/reveal.css"
+    "./presets/reveal/css": "./presets/reveal/reveal.css",
+    "./presets/spark": "./presets/spark/spark.js",
+    "./presets/smoke": "./presets/smoke/smoke.js",
+    "./presets/line-wave": "./presets/line-wave/line-wave.js",
+    "./presets/line-wave/css": "./presets/line-wave/line-wave.css"
   },
   "publishConfig": {
     "access": "public"
@@ -24,6 +37,8 @@
   "files": [
     "cursorfx.js",
     "cursorfx.css",
+    "particles.js",
+    "behaviours",
     "presets",
     "README.md",
     "CHANGELOG.md",

@@ -45,13 +45,23 @@ function freshRequire(rel) {
 }
 
 const PRESET_NAMES = ['Trail', 'ClickBurst', 'Electric', 'Magnetic', 'HoverFlicker',
-                      'CursorMorph', 'Reveal']
+                      'CursorMorph', 'Reveal', 'Spark', 'Smoke', 'LineWave']
 const PRESET_FILES = ['trail', 'click-burst', 'electric', 'magnetic', 'hover-flicker',
-                      'cursor-morph', 'reveal']
+                      'cursor-morph', 'reveal', 'spark', 'smoke', 'line-wave']
 
 // Presets are separate files now, so anything that mounts one has to register
 // it first — exactly what a consumer does.
+// Behaviour files self-register with the pipeline, exactly as preset files
+// self-register with the engine. Loaded here in the order a page would.
+const BEHAVIOURS = [
+  ['origin', 'pointer'], ['origin', 'ring'], ['origin', 'edge'],
+  ['motion', 'ballistic'], ['motion', 'curl'],
+  ['render', 'dot'], ['render', 'puff'], ['render', 'segment']
+]
+
 function loadPresets(fx) {
+  fx.particles = require(path.join(PKG, 'particles.js'))
+  BEHAVIOURS.forEach(b => require(path.join(PKG, 'behaviours', b[0], `${b[1]}.js`)))
   PRESET_FILES.forEach(f => fx.use(freshRequire(path.join('presets', f, `${f}.js`))))
   return fx
 }
@@ -303,6 +313,530 @@ console.log('\n── CursorFX: attribute state and target scoping ────�
   delete global.document
 }
 
+console.log('\n── CursorFX: Spark ──────────────────────────────────')
+
+{
+  const dom = new JSDOM(
+    '<!doctype html><body><b id="t" data-st-cfx-target="spark">x</b></body>',
+    { pretendToBeVisual: true, virtualConsole: new VirtualConsole() }
+  )
+  global.window = dom.window
+  global.document = dom.window.document
+
+  const FX = loadPresets(freshRequire('cursorfx.js'))
+  const Spark = FX.presets.Spark
+  FX.init({ maxParticles: 200 })
+
+  const ctx = { globalAlpha: 1, lineWidth: 1, strokeStyle: '', shadowBlur: 0,
+                shadowColor: '', lineCap: '', lineJoin: '',
+                beginPath() {}, moveTo() {}, lineTo() {}, stroke() {} }
+  const move = (x, y) => document.dispatchEvent(
+    new dom.window.PointerEvent('pointermove', { clientX: x, clientY: y }))
+
+  const s = FX.mount(Spark, { drift: 0 })
+
+  // Emission is gated on pointer speed: a slow drift should stay quiet while a
+  // fast sweep should fire. Without this the effect fires constantly and reads
+  // as noise rather than as sparks thrown off movement.
+  let before = FX.budget()
+  for (let i = 0; i < 40; i++) move(100 + i * 0.4, 100)
+  const slow = before - FX.budget()
+  before = FX.budget()
+  for (let i = 0; i < 20; i++) move(100 + i * 90, 100)
+  const fast = before - FX.budget()
+  ok('emission is gated on pointer speed', fast > slow)
+
+  before = FX.budget()
+  document.dispatchEvent(new dom.window.PointerEvent('pointerdown', { clientX: 50, clientY: 50 }))
+  ok('a click emits the full burst', before - FX.budget() === s.options.burst)
+
+  // The jag store is indexed by pool slot and allocated once, so a streak
+  // allocates nothing after its slot has been used. Storing shape on the
+  // particle cannot work: the pool clears `data` on acquire and release.
+  // The jag store now lives in the `segment` render behaviour's own scope
+  // rather than on the preset, so two recipes using segment cannot see each
+  // other's shapes. Still one slot per pool slot, allocated once.
+  ok('jag store is sized to the pool, not per particle',
+     s.local.scope.render.jag.length === s.pool.size)
+
+  // Hover emission originates on the target's border, distributed by perimeter.
+  const el = document.getElementById('t')
+  const R = { left: 10, top: 20, right: 110, bottom: 60, width: 100, height: 40 }
+  Object.defineProperty(el, 'getBoundingClientRect', { value: () => R })
+  Spark.onHoverEnter(el, s)
+  for (let i = 0; i < 4; i++) Spark.render(ctx, 0.09, s)
+
+  let onEdge = 0, total = 0
+  s.pool.forEachOwnedBy(s, p => {
+    total++
+    const onV = (Math.abs(p.x - R.left) < 0.01 || Math.abs(p.x - R.right) < 0.01) &&
+                p.y >= R.top - 0.01 && p.y <= R.bottom + 0.01
+    const onH = (Math.abs(p.y - R.top) < 0.01 || Math.abs(p.y - R.bottom) < 0.01) &&
+                p.x >= R.left - 0.01 && p.x <= R.right + 0.01
+    if (onV || onH) onEdge++
+  })
+  ok('hover streaks originate on the target border', total > 0 && onEdge === total)
+
+  Spark.onHoverLeave(el, s)
+  const after = FX.budget()
+  for (let i = 0; i < 4; i++) Spark.render(ctx, 0.09, s)
+  ok('leaving a target stops hover emission', FX.budget() >= after)
+
+  // A streak's jag is generated at birth and held. Re-randomising it per frame
+  // is what makes the reference demo's sparks vibrate instead of reading as
+  // electricity, so this is the assertion that defines the preset.
+  document.dispatchEvent(new dom.window.PointerEvent('pointerdown', { clientX: 80, clientY: 80 }))
+  const p0 = s.pool.items.find(x => x.active && x.owner === s)
+  ok('a live particle exists to check', !!p0)
+  const shape = p0 ? (s.local.scope.render.jag[p0._i] || []).slice() : []
+  Spark.render(ctx, 0.01, s)
+  Spark.render(ctx, 0.01, s)
+  ok('a streak holds its shape while it fades',
+     shape.length > 0 &&
+     shape.every((v, i) => (s.local.scope.render.jag[p0._i] || [])[i] === v))
+
+  ok('Spark needs no stylesheet',
+     !require('fs').existsSync(path.join(PKG, 'presets', 'spark', 'spark.css')))
+
+  FX.destroy()
+  delete global.window
+  delete global.document
+}
+
+console.log('\n── CursorFX: Smoke ──────────────────────────────────')
+
+{
+  const dom = new JSDOM(
+    '<!doctype html><body><b id="t" data-st-cfx-target="smoke">x</b></body>',
+    { pretendToBeVisual: true, virtualConsole: new VirtualConsole() }
+  )
+  global.window = dom.window
+  global.document = dom.window.document
+
+  const FX = loadPresets(freshRequire('cursorfx.js'))
+  const Smoke = FX.presets.Smoke
+  FX.init({ maxParticles: 200 })
+
+  const grad = { addColorStop() {} }
+  const ctx = { globalAlpha: 1, fillStyle: '', globalCompositeOperation: 'source-over',
+                createRadialGradient: () => grad,
+                beginPath() {}, arc() {}, fill() {} }
+  const move = (x, y) => document.dispatchEvent(
+    new dom.window.PointerEvent('pointermove', { clientX: x, clientY: y }))
+
+  const s = FX.mount(Smoke, { push: 0, curl: 0, grow: 0 })
+
+  // Emission scales with this frame's pointer speed, and stops entirely below
+  // minSpeed — a resting pointer must not keep pumping the shared budget.
+  move(100, 100)                       // prime: the first event travels from 0,0
+  let before = FX.budget()
+  for (let i = 0; i < 20; i++) move(100, 100)
+  ok('a still pointer emits nothing', FX.budget() === before)
+
+  before = FX.budget()
+  for (let i = 0; i < 6; i++) move(100 + i * 3, 100)
+  const slow = before - FX.budget()
+  before = FX.budget()
+  for (let i = 0; i < 6; i++) move(100 + i * 60, 100)
+  const fast = before - FX.budget()
+  ok('faster movement emits more', fast > slow)
+
+  // Field constants are indexed by pool slot for the same reason Spark's jag
+  // shapes are: the pool clears `data` on acquire and release, and allocating
+  // per spawn puts back the garbage the pool exists to avoid.
+  ok('field constants are sized to the pool, not per particle',
+     s.local.scope.motion.seed.length === s.pool.size &&
+     s.local.scope.motion.strength.length === s.pool.size)
+
+  // The canvas is shared with every other mounted preset, so additive
+  // compositing must be restored — leaving 'lighter' on silently changes how a
+  // co-mounted Trail or Spark renders.
+  ctx.globalCompositeOperation = 'source-over'
+  Smoke.render(ctx, 0.016, s)
+  ok('additive compositing is restored after rendering',
+     ctx.globalCompositeOperation === 'source-over')
+
+  // Curl steering is the preset: with the birth kick disabled a particle must
+  // still travel, and it must travel along the field rather than in a line.
+  const c = FX.mount(Smoke, { push: 0, damping: 0, curl: 200, minSpeed: 0 })
+  move(300, 300); move(340, 300)
+  const p0 = c.pool.items.find(x => x.active && x.owner === c)
+  ok('a live puff exists to check', !!p0)
+  const x0 = p0 ? p0.x : 0
+  const y0 = p0 ? p0.y : 0
+  Smoke.render(ctx, 0.05, c)
+  const d1x = p0.x - x0, d1y = p0.y - y0
+  Smoke.render(ctx, 0.05, c)
+  const d2x = p0.x - x0 - d1x, d2y = p0.y - y0 - d1y
+  ok('a puff drifts with no birth velocity at all',
+     Math.hypot(d1x, d1y) > 0.01)
+  ok('curl steering bends the path instead of running straight',
+     Math.abs(d1x - d2x) > 1e-6 || Math.abs(d1y - d2y) > 1e-6)
+
+  // Radius growth is what turns a dot into a dissipating puff.
+  const g = FX.mount(Smoke, { push: 0, curl: 0, grow: 40, minSpeed: 0 })
+  move(500, 300); move(540, 300)
+  const pg = g.pool.items.find(x => x.active && x.owner === g)
+  const r0 = pg ? pg.size : 0
+  Smoke.render(ctx, 0.05, g)
+  ok('a puff expands over its life', !!pg && pg.size > r0)
+
+  ok('Smoke needs no stylesheet',
+     !require('fs').existsSync(path.join(PKG, 'presets', 'smoke', 'smoke.css')))
+
+  // Checked before destroy(), which nulls the pool and makes budget() read 0
+  // whether or not the particles were actually returned.
+  s.unmount(); c.unmount(); g.unmount()
+  ok('unmounting returns every puff to the pool', FX.budget() === 200)
+
+  FX.destroy()
+  delete global.window
+  delete global.document
+}
+
+console.log('\n── CursorFX: behaviour pipeline ─────────────────────')
+
+{
+  const fs = require('fs')
+
+  // The package's central promise, now one level deeper: a page ships only the
+  // behaviours it uses. A barrel module importing the full set would undo the
+  // whole reason the presets were split up, and it is the single easiest thing
+  // to add by accident when building a convenience entry point.
+  ok('no barrel module collects the behaviours',
+     !fs.existsSync(path.join(PKG, 'behaviours', 'index.js')))
+
+  const files = []
+  for (const axis of ['origin', 'motion', 'render']) {
+    for (const f of fs.readdirSync(path.join(PKG, 'behaviours', axis))) {
+      files.push([axis, f, fs.readFileSync(path.join(PKG, 'behaviours', axis, f), 'utf8')])
+    }
+  }
+
+  // A behaviour may reach the pipeline and nothing else. One requiring another
+  // silently drags a second file into every page that uses the first.
+  const crossImports = files.filter(([, , src]) =>
+    (src.match(/require\((['"])([^'"]+)\1\)/g) || [])
+      .some(r => !/particles\.js/.test(r)))
+  ok('no behaviour imports another behaviour', crossImports.length === 0)
+
+  // Same rule for the pipeline itself: it is the thing behaviours register
+  // with, so if it knows their names the registry is decorative.
+  const psrc = fs.readFileSync(path.join(PKG, 'particles.js'), 'utf8')
+  ok('particles.js names no behaviour of its own',
+     !/behaviours\//.test(psrc.replace(/^\s*\*.*$/gm, '').replace(/'presets\/behaviours\//g, '')))
+
+  ok('every behaviour declares its axis',
+     files.every(([axis, , src]) => new RegExp(`axis:\\s*'${axis}'`).test(src)))
+
+  // Pay-per-use is only real if the DOM presets never pull the pipeline in.
+  const domPresets = ['magnetic', 'hover-flicker', 'reveal', 'cursor-morph']
+  ok('DOM presets never reference the particle pipeline',
+     domPresets.every(p =>
+       !/particles/.test(fs.readFileSync(
+         path.join(PKG, 'presets', p, `${p}.js`), 'utf8'))))
+
+  // Every behaviour a recipe names must be exported, or a bundler consumer
+  // cannot load the file a script-tag consumer can.
+  const pkg = JSON.parse(fs.readFileSync(path.join(PKG, 'package.json'), 'utf8'))
+  ok('every behaviour file is exported',
+     files.every(([axis, f]) =>
+       pkg.exports['./behaviours/' + axis + '/' + f.replace(/\.js$/, '')]))
+  ok('particles.js is exported', !!pkg.exports['./particles'])
+
+  // behaviour() is public API, so its name and axis are library input. On a
+  // plain object `registry['__proto__']` returns Object.prototype rather than
+  // undefined, so a truthiness guard passes and the assignment lands on every
+  // object in the page. Flagged by CodeQL on the first release of this file.
+  const P = require(path.join(PKG, 'particles.js'))
+  let threw = false
+  try { P.behaviour('__proto__', { name: 'x', axis: 'origin' }) } catch (e) { threw = true }
+  ok('an unknown axis is rejected, __proto__ included', threw)
+  ok('Object.prototype was not touched by the axis', ({}).x === undefined)
+
+  P.behaviour('origin', { name: '__proto__', axis: 'origin' })
+  ok('a behaviour named __proto__ is refused',
+     ({}).seed === undefined && !Object.prototype.hasOwnProperty.call({}, 'name'))
+  ok('the registry keeps a null prototype',
+     Object.getPrototypeOf(P.registry.origin) === null &&
+     Object.getPrototypeOf(P.registry.motion) === null &&
+     Object.getPrototypeOf(P.registry.render) === null)
+}
+
+{
+  const dom = new JSDOM('<!doctype html><body></body>',
+    { pretendToBeVisual: true, virtualConsole: new VirtualConsole() })
+  global.window = dom.window
+  global.document = dom.window.document
+
+  const FX = loadPresets(freshRequire('cursorfx.js'))
+  const P = require(path.join(PKG, 'particles.js'))
+  FX.init({ maxParticles: 120 })
+
+  const ctx = { globalAlpha: 1, fillStyle: '', strokeStyle: '', lineWidth: 1,
+                lineCap: '', lineJoin: '', shadowBlur: 0, shadowColor: '',
+                globalCompositeOperation: 'source-over',
+                createRadialGradient: () => ({ addColorStop() {} }),
+                beginPath() {}, arc() {}, fill() {}, moveTo() {}, lineTo() {}, stroke() {} }
+  const move = (x, y) => document.dispatchEvent(
+    new dom.window.PointerEvent('pointermove', { clientX: x, clientY: y }))
+
+  // Two recipes sharing one behaviour must not see each other's per-particle
+  // state. This is the reason scopes exist rather than a module-level array,
+  // and it is invisible when broken — the effects just interfere subtly.
+  const a = FX.mount(FX.presets.Smoke, { minSpeed: 0 })
+  const b = FX.mount(FX.presets.Smoke, { minSpeed: 0 })
+  ok('two instances of one recipe get separate behaviour scopes',
+     a.local.scope.motion !== b.local.scope.motion &&
+     a.local.scope.motion.seed !== b.local.scope.motion.seed)
+
+  move(10, 10); move(120, 60)
+  const seedsA = a.local.scope.motion.seed.slice()
+  move(300, 300); move(420, 380)
+  ok('one instance emitting does not rewrite the other\'s slots',
+     b.local.scope.motion.seed.some((v, i) => v !== seedsA[i]) ||
+     seedsA.every(v => v === 0))
+  a.unmount(); b.unmount()
+
+  // Spark runs `edge` on hover and `ring` on click. Scoping by origin name
+  // instead of by trigger would have them share one scratch space.
+  const s = FX.mount(FX.presets.Spark)
+  ok('one recipe gets a separate scope per emitting trigger',
+     s.local.scope['origin:move'] !== s.local.scope['origin:click'] &&
+     s.local.scope['origin:click'] !== s.local.scope['origin:hover'])
+  s.unmount()
+
+  // A recipe naming a behaviour nobody loaded must say so. Rendering nothing
+  // silently is indistinguishable from a working effect that happens to be
+  // invisible, which is the most expensive kind of bug this package can ship.
+  const warnings = []
+  const realWarn = console.warn
+  console.warn = m => warnings.push(String(m))
+  const broken = P.recipe({
+    name: 'Broken', key: 'broken', motion: 'no-such-motion', render: 'dot',
+    emit: { move: { origin: 'pointer', mode: 'fixed' } },
+    defaults: { color: '#fff', count: 1, life: 1, size: 4 }
+  })
+  const bi = FX.mount(broken)
+  console.warn = realWarn
+  ok('a missing behaviour warns by name at mount',
+     warnings.some(w => /no-such-motion/.test(w) && /motion/.test(w)))
+  ok('the warning says where to get it',
+     warnings.some(w => /behaviours\/motion\/no-such-motion/.test(w)))
+
+  move(600, 600); move(640, 660)
+  let threw = false
+  try { broken.render(ctx, 0.016, bi) } catch (e) { threw = true }
+  ok('a recipe with a missing behaviour degrades instead of throwing', !threw)
+  bi.unmount()
+
+  FX.destroy()
+  delete global.window
+  delete global.document
+}
+
+console.log('\n── CursorFX: LineWave ───────────────────────────────')
+
+{
+  const dom = new JSDOM(
+    '<!doctype html><body>' +
+    '<div id="h" data-st-cfx-target="line-wave"></div>' +
+    '<div id="v" data-st-cfx-target="line-wave"></div></body>',
+    { pretendToBeVisual: true, virtualConsole: new VirtualConsole() }
+  )
+  global.window = dom.window
+  global.document = dom.window.document
+
+  const FX = loadPresets(freshRequire('cursorfx.js'))
+  const LW = FX.presets.LineWave
+  FX.init()
+
+  const h = document.getElementById('h')
+  const v = document.getElementById('v')
+  // jsdom reports every rect as 0x0, so orientation is forced per element.
+  Object.defineProperty(v, 'getBoundingClientRect',
+    { value: () => ({ left: 0, top: 0, width: 10, height: 200 }) })
+  Object.defineProperty(h, 'getBoundingClientRect',
+    { value: () => ({ left: 0, top: 0, width: 400, height: 24 }) })
+
+  const inst = FX.mount(LW, {})
+  ok('LineWave mounts without a canvas',
+     !!inst && !document.querySelector('canvas[data-st-cfx]'))
+
+  // The preset builds its own markup — a page only writes the target attribute.
+  const wrap = h.querySelector('[data-st-cfx-wave]')
+  ok('the line element is injected, not required from the author', !!wrap)
+  ok('it starts in the resting state, carrying a value',
+     wrap && wrap.getAttribute('data-st-cfx-wave') === 'false')
+  ok('orientation is detected from the box',
+     wrap && wrap.getAttribute('data-st-cfx-wave-axis') === 'horizontal' &&
+     v.querySelector('[data-st-cfx-wave]').getAttribute('data-st-cfx-wave-axis') === 'vertical')
+
+  // Everything that animates is CSS, so hovering flips a value and nothing more.
+  LW.onHoverEnter(h, inst)
+  ok('hover starts the wave by flipping the attribute',
+     wrap.getAttribute('data-st-cfx-wave') === 'true')
+
+  // The point of the CSS-first design: no render hook at all, so the engine's
+  // frame loop does zero work for this preset.
+  ok('the preset has no render hook', LW.render === undefined)
+
+  // A default must NOT be written inline, or a stylesheet can never retune it.
+  // Only overrides become inline custom properties — Reveal established this.
+  ok('an untouched option is left for CSS to supply',
+     !wrap.style.getPropertyValue('--st-cfx-wave-amplitude'))
+
+  inst.unmount()
+  const tuned = FX.mount(LW, { amplitude: 12, cycles: 6 })
+  ok('an overridden option is written as a token',
+     !!h.querySelector('[data-st-cfx-wave]').style.getPropertyValue('--st-cfx-wave-amplitude'))
+  tuned.unmount()
+
+  // The default colour is `currentColor`, a keyword the browser re-evaluates on
+  // every paint. Resolving it to a fixed rgb() and writing that inline would
+  // beat any stylesheet, freezing the line at its mount-time colour — which is
+  // exactly what stopped it following the theme toggle on the docs site.
+  const plain = FX.mount(LW, {})
+  ok('currentColor is left for the browser, not frozen inline',
+     !h.querySelector('[data-st-cfx-wave]').style.getPropertyValue('--st-cfx-wave-color'))
+  plain.unmount()
+
+  // A gradient must survive untouched — the line is painted as a background,
+  // which is what makes every gradient type work with no code.
+  const grad = FX.mount(LW, { color: 'linear-gradient(90deg, #f00, #00f)' })
+  ok('a gradient colour is passed through verbatim',
+     /linear-gradient/.test(
+       h.querySelector('[data-st-cfx-wave]').style.getPropertyValue('--st-cfx-wave-color')))
+  grad.unmount()
+
+  // origin:'pointer' seeds the wave where the cursor crossed — the thing the
+  // source component could not do, since it never used pointer position here.
+  const ptr = FX.mount(LW, {})
+  document.dispatchEvent(new dom.window.PointerEvent('pointermove',
+    { clientX: 300, clientY: 5 }))
+  LW.onHoverEnter(h, ptr)
+  const origin = h.querySelector('[data-st-cfx-wave]').style
+    .getPropertyValue('--st-cfx-wave-origin')
+  ok('the wave starts where the pointer crossed (' + origin + ')',
+     parseFloat(origin) > 70 && parseFloat(origin) < 80)
+  ptr.unmount()
+
+  const centred = FX.mount(LW, { origin: 'center' })
+  LW.onHoverEnter(h, centred)
+  ok('origin can be forced to a fixed point',
+     h.querySelector('[data-st-cfx-wave]').style
+       .getPropertyValue('--st-cfx-wave-origin') === '50.0%')
+
+  // wave() exists because the engine owns no scroll or focus listeners — a page
+  // drives those itself rather than the package growing an observer.
+  ok('wave() is exposed for triggers the engine does not own',
+     typeof centred.wave === 'function')
+  centred.wave('#v')
+  ok('wave() runs on a selector',
+     v.querySelector('[data-st-cfx-wave]').getAttribute('data-st-cfx-wave') === 'true')
+
+  centred.unmount()
+  ok('unmount removes every injected line',
+     document.querySelectorAll('[data-st-cfx-wave]').length === 0)
+
+  FX.destroy()
+  ok('destroy() leaves no trace of the preset',
+     document.querySelectorAll('[data-st-cfx-wave]').length === 0)
+
+  // ── Shapes ──────────────────────────────────────────────────────────────
+  // The shape is the mask, so a new one is a path generator and nothing else:
+  // travel, envelope and cycles never learn which shape is running.
+  function maskOf(el) {
+    var m = el.querySelector("[data-st-cfx-wave]").style.getPropertyValue("--st-cfx-wave-mask")
+    // Sliced, not regexed: the prefix is a fixed string.
+    var inner = m.slice(m.indexOf(",") + 1, m.lastIndexOf("\""))
+    return decodeURIComponent(inner)
+  }
+  const shapes = ['sine', 'zigzag', 'square', 'bars', 'helix']
+  const masks = {}
+  shapes.forEach(shape => {
+    const si = FX.mount(LW, { shape })
+    masks[shape] = maskOf(h)
+    si.unmount()
+  })
+  ok('every shape produces a mask',
+     shapes.every(s2 => masks[s2] && masks[s2].indexOf('<path') !== -1))
+  ok('every shape is distinct from the others',
+     new Set(shapes.map(s2 => masks[s2])).size === shapes.length)
+
+  // 'bars' is the series-of-separate-strokes case; 'helix' is two strands plus
+  // rungs. Both are multi-path, which single-stroke shapes are not.
+  const count = s2 => (masks[s2].match(/<path /g) || []).length
+  ok('sine/zigzag/square are one continuous stroke',
+     count('sine') === 1 && count('zigzag') === 1 && count('square') === 1)
+  ok('bars is a series of separate strokes (' + count('bars') + ')',
+     count('bars') === 8)
+  ok('helix is two strands plus rungs (' + count('helix') + ')',
+     count('helix') === 6)
+
+  // An unknown shape must say so. A blank mask looks exactly like a working
+  // line that happens to be invisible.
+  const shapeWarn = []
+  const prevWarn = console.warn
+  console.warn = m => shapeWarn.push(String(m))
+  const oddShape = FX.mount(LW, { shape: 'spiral' })
+  console.warn = prevWarn
+  ok('an unknown shape warns and names the alternatives',
+     shapeWarn.some(w => /spiral/.test(w) && /sine/.test(w)))
+  ok('an unknown shape still renders, falling back to sine',
+     maskOf(h).indexOf('<path') !== -1)
+  oddShape.unmount()
+
+  // Swapping at runtime rewrites only the mask — no rebuild, no re-render.
+  const swap = FX.mount(LW, { shape: 'sine' })
+  const before = maskOf(h)
+  swap.setShape('helix')
+  ok('setShape swaps the mask in place', maskOf(h) !== before)
+  swap.unmount()
+
+  // An element may carry its own shape without needing its own instance —
+  // otherwise a page can only ever show one shape, since the preset scopes by
+  // document rather than by element.
+  const perEl = document.createElement('div')
+  perEl.setAttribute('data-st-cfx-target', 'line-wave')
+  perEl.setAttribute('data-st-cfx-wave-shape', 'helix')
+  document.body.appendChild(perEl)
+
+  const mixed = FX.mount(LW, { shape: 'sine' })
+  const pathsIn = el => (maskOf(el).match(/<path /g) || []).length
+  ok('an element can override the shape in markup',
+     pathsIn(perEl) === 6 && pathsIn(h) === 1)
+
+  // A global setter must not silently stamp over a per-element choice.
+  mixed.setShape('square')
+  ok('setShape leaves per-element overrides alone',
+     pathsIn(perEl) === 6 && pathsIn(h) === 1)
+  mixed.unmount()
+  perEl.parentNode.removeChild(perEl)
+
+  // wave() has to build first if the line is missing, so it works on an element
+  // added after mount and on one whose mask was just rebuilt.
+  const late = FX.mount(LW, {})
+  const w0 = h.querySelector('[data-st-cfx-wave]')
+  w0.parentNode.removeChild(w0)
+  late.wave('#h')
+  ok('wave() rebuilds a line that is not there yet',
+     !!h.querySelector('[data-st-cfx-wave]'))
+  late.unmount()
+
+  const lwCss = require('fs').readFileSync(
+    path.join(PKG, 'presets', 'line-wave', 'line-wave.css'), 'utf8')
+  ok('CSS ships -webkit-mask-image for Safari', /-webkit-mask-image/.test(lwCss))
+  ok('every knob has a CSS fallback so themes can retune',
+     ['color', 'amplitude', 'cycles', 'travel', 'duration', 'glow']
+       .every(k => lwCss.indexOf('--st-cfx-wave-' + k + ':') !== -1))
+  ok('reduced motion stops the CSS animation too',
+     /prefers-reduced-motion[\s\S]*animation: none/.test(lwCss))
+
+  delete global.window
+  delete global.document
+}
+
 console.log('\n── CursorFX: declarative init (zero JS) ─────────────────────')
 
 {
@@ -330,7 +864,14 @@ console.log('\n── CursorFX: declarative init (zero JS) ───────
   global.window = dom.window
   global.document = dom.window.document
 
+  // Load order a real page uses: engine, pipeline, behaviours, then presets.
+  // Trail is a recipe, so its file needs the pipeline and its three behaviours
+  // already present — this is the order the README documents.
   dom.window.eval(read('cursorfx.js'))
+  dom.window.eval(read('particles.js'))
+  for (const b of [['origin', 'pointer'], ['motion', 'ballistic'], ['render', 'dot']]) {
+    dom.window.eval(read(path.join('behaviours', b[0], `${b[1]}.js`)))
+  }
   for (const p of ['trail', 'magnetic', 'cursor-morph']) {
     dom.window.eval(read(path.join('presets', p, `${p}.js`)))
   }

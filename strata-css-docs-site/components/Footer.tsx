@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "./Logo";
+import WaveRule from "./WaveRule";
 
 const COLUMNS: { heading: string; links: { label: string; href: string; external?: boolean }[] }[] = [
   {
@@ -52,7 +53,8 @@ const LEGAL_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="border-top p-4">
+    <footer className="p-4 position-relative">
+      <WaveRule />
       <div className="container">
         <div className="row g-4 mb-4">
           <div className="col-12 col-md-3">
@@ -90,7 +92,8 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="border-top pt-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+        <div className="pt-3 position-relative d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+          <WaveRule />
           <div className="d-flex flex-wrap gap-3">
             {POLICY_LINKS.map((link) => (
               <Link key={link.label} href={link.href} className="text-muted text-link">
