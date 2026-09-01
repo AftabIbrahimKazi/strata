@@ -1,5 +1,11 @@
 # Changelog — @strata-packages/cursorfx
 
+## [Unreleased]
+
+### Fixed
+
+- **`LineWave`: removed `will-change` from the wave element.** It is only a hint — the envelope animates `transform` and `opacity`, which the compositor promotes anyway — so it bought nothing, while promoting a layer inside a sticky, already-transformed ancestor (a `.navbar.sticky-top` carrying a show/hide transform) made that ancestor re-rasterise at bounds that do not cover its own background. Scrolled page content showed through the header band for the length of every wave. The drop-shadow in the envelope keyframe expands the ink bounds further, and the element deliberately overhangs its parent by half its height, which is what put the seam outside the header box.
+
 ## [0.2.0] — 2026-09-01
 
 ### Added

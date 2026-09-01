@@ -214,23 +214,45 @@ Object.entries(TEXT_ALIGN).forEach(([k, v]) => {
   reg(`!text-${v}`, 'utilities', `.\\!text-${v} { text-transform: ${v} !important; }`)
 })
 
+// `bg-opacity-*`, `text-opacity-*` and `border-opacity-*` set --st-*-opacity,
+// and for a long time nothing read those variables — the utilities emitted a
+// custom property, changed nothing, and were documented as working. They are
+// consumed here.
+//
+// color-mix rather than the `rgb(from …)` relative-colour syntax because the
+// codebase already relies on color-mix (`bg-body-tertiary`) so it adds no new
+// baseline requirement, and because it accepts any colour notation the tokens
+// might hold — hex, rgb(), oklch() — without having to decompose it.
+//
+// The fallback in `var(--st-bg-opacity, 1)` is what keeps this free for the
+// common case: with no opacity utility present the mix is 100% of the colour,
+// which is the colour. Wrapping is skipped for values that are not a colour at
+// all (`transparent`, `inherit`, `currentColor`), where mixing is meaningless.
+function withOpacity(value, varName) {
+  if (/^(transparent|inherit|currentcolor|initial|unset|none)$/i.test(value.trim())) return value
+  return `color-mix(in srgb, ${value} calc(var(${varName}, 1) * 100%), transparent)`
+}
+
 // Text colors
 Object.entries(TEXT_COLOR_MAP).forEach(([k, v]) => {
-  reg(`text-${k}`, 'utilities', `.text-${k} { color: ${v}; }`)
-  reg(`!text-${k}`, 'utilities', `.\\!text-${k} { color: ${v} !important; }`)
+  const c = withOpacity(v, '--st-text-opacity')
+  reg(`text-${k}`, 'utilities', `.text-${k} { color: ${c}; }`)
+  reg(`!text-${k}`, 'utilities', `.\\!text-${k} { color: ${c} !important; }`)
 })
 
 // Background colors
 Object.entries(BG_COLOR_MAP).forEach(([k, v]) => {
-  reg(`bg-${k}`, 'utilities', `.bg-${k} { background-color: ${v}; }`)
-  reg(`!bg-${k}`, 'utilities', `.\\!bg-${k} { background-color: ${v} !important; }`)
+  const c = withOpacity(v, '--st-bg-opacity')
+  reg(`bg-${k}`, 'utilities', `.bg-${k} { background-color: ${c}; }`)
+  reg(`!bg-${k}`, 'utilities', `.\\!bg-${k} { background-color: ${c} !important; }`)
 })
 
 // Border colors
 reg('border', 'utilities', '.border { border: 1px solid var(--st-border); }')
 reg('border-0', 'utilities', '.border-0 { border: none; }')
 Object.entries(BORDER_COLOR_MAP).forEach(([k, v]) => {
-  reg(`border-${k}`, 'utilities', `.border-${k} { border-color: ${v}; }`)
+  reg(`border-${k}`, 'utilities',
+    `.border-${k} { border-color: ${withOpacity(v, '--st-border-opacity')}; }`)
 })
 reg('border-muted', 'utilities', `.border-muted { border-color: var(--st-text-muted); }`)
 
@@ -2714,8 +2736,12 @@ reg('border-white',    'utilities', `.border-white { border-color: #fff; }`)
 reg('text-body-secondary', 'utilities', `.text-body-secondary { color: var(--st-text-muted); }`)
 reg('text-body-tertiary',  'utilities', `.text-body-tertiary  { color: color-mix(in srgb, var(--st-text-muted) 65%, transparent); }`)
 reg('text-body-emphasis',  'utilities', `.text-body-emphasis  { color: var(--st-text); font-weight: 600; }`)
-reg('text-black',          'utilities', `.text-black    { color: #000; }`)
-reg('text-white',          'utilities', `.text-white    { color: #fff; }`)
+// These two re-register names TEXT_COLOR_MAP already defines, and reg() lets the
+// later call win silently. Kept (removing one is a behaviour change for anyone
+// relying on the exact emitted value) but routed through withOpacity so
+// text-opacity-* works on them too, rather than only on the map-driven colours.
+reg('text-black',          'utilities', `.text-black    { color: ${withOpacity('#000', '--st-text-opacity')}; }`)
+reg('text-white',          'utilities', `.text-white    { color: ${withOpacity('#fff', '--st-text-opacity')}; }`)
 reg('text-black-50',       'utilities', `.text-black-50 { color: rgba(0,0,0,0.5); }`)
 reg('text-white-50',       'utilities', `.text-white-50 { color: rgba(255,255,255,0.5); }`)
 ;['primary','secondary','success','danger','warning','info'].forEach(c => {
@@ -3314,9 +3340,32 @@ function textArbitraryProp(val) {
   return /^[\d.]+(px|rem|em|%|vw|vh|ch|ex|pt|cm|mm)$/.test(val) ? 'font-size' : 'color'
 }
 
+// CSS math functions need real spaces around their operators — `calc(100%-2rem)`
+// is invalid and the browser drops the declaration. A class name cannot contain
+// a space, so the underscore convention has to carry them. Families that opt out
+// of blanket underscore replacement (`opts.spaces`) still need it *inside* these
+// functions, or `calc()` is unusable in them — which it was, silently, because
+// the class resolves and only the value is invalid, so the zero-declaration
+// warning never fires.
+//
+// Underscores inside a custom property name are protected: `var(--my_token)` is
+// a legitimate identifier and rewriting it would break projects using one. They
+// are masked out before the replacement and restored afterwards.
+const MATH_FN = /(?:^|[^\w-])(?:calc|clamp|min|max)\(/
+function spaceMathOperators(value) {
+  if (!MATH_FN.test(value)) return value
+  const vars = []
+  const masked = value.replace(/var\(\s*--[\w-]+/g, m => {
+    vars.push(m)
+    return ` ${vars.length - 1} `
+  })
+  const spaced = masked.replace(/_/g, ' ')
+  return spaced.replace(/ (\d+) /g, (_, i) => vars[+i])
+}
+
 function arbFamily(prefix, prop, opts = {}) {
   const esc = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const val = (v) => (opts.spaces ? v.replace(/_/g, ' ') : v)
+  const val = (v) => (opts.spaces ? v.replace(/_/g, ' ') : spaceMathOperators(v))
   return [
     { re: new RegExp(`^(!?)${esc}-(sm|md|lg|xl|xxl)-\\[(.+)\\]$`), fn: (m) => {
       const i = m[1] ? ' !important' : ''

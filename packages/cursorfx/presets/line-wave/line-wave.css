@@ -79,7 +79,17 @@
    * same thing and nothing has to be cleaned up. The visible resting line is
    * NOT this element — see the baseline below. */
   transform: translateY(-50%) scaleY(0);
-  will-change: transform, opacity;
+
+  /* No `will-change`. It is only a hint — the envelope animates `transform` and
+   * `opacity`, which the compositor already promotes on its own, so the hint
+   * bought nothing. What it cost was real: promoting a layer inside a sticky,
+   * already-transformed ancestor (a `.navbar.sticky-top` carrying the header's
+   * show/hide transform) makes the ancestor re-rasterise at bounds that do not
+   * cover its own background, and scrolled page content shows through the
+   * header band for the length of the run. The drop-shadow in the envelope
+   * keyframe expands the ink bounds further, and this element deliberately
+   * overhangs its parent by half its height, which is what put the seam
+   * outside the header box in the first place. */
 }
 
 /* ─── The resting line ────────────────────────────────────────────────────
