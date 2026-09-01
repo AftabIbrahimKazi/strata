@@ -166,7 +166,7 @@
 
   <!-- ═══ Intro ═══════════════════════════════════════════════════════ -->
   <header class="demo" id="s-intro">
-    <p class="pill mb-3">@strata-packages/cursorfx v0.0.0</p>
+    <p class="pill mb-3">@strata-packages/cursorfx v0.1.1</p>
     <h1 class="mb-3">CursorFX</h1>
     <p class="text-[1.1rem] max-w-[62ch] text-muted mb-4">
       One shared engine, nine opt-in presets. Each section below mounts its
@@ -190,7 +190,7 @@
         That is the whole integration for a real page. This one goes further
         only because it mounts and unmounts presets as you scroll and drives
         every option from a live control panel — which is what the imperative
-        API is for. Section 11 covers both.
+        API is for. Section 12 covers both.
       </p>
     </div>
 
@@ -964,7 +964,7 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
   </section>
 
   <footer class="py-5 text-muted text-[0.8rem]">
-    Strata CursorFX 0.0.0 — <code>examples/cursorfx.html</code>
+    Strata CursorFX 0.1.1 — <code>examples/cursorfx.html</code>
   </footer>
 
 </div>
@@ -1034,7 +1034,7 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
 
   var live    = {}     // name → instance, for whatever is mounted right now
   var current = null   // the preset the scrolled-to section owns
-  var manual  = false  // section 7 takes mounting over
+  var manual  = false  // section 11 takes mounting over
 
   // ─── Readout ──────────────────────────────────────────────────────────
   var hud = {
@@ -1302,11 +1302,20 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
   function cxMount() {
     cxUnmount()
     var r = cxBuild()
-    if (r) cxLive = FX.mount(r, {})
+    if (!r) return
+    cxLive = FX.mount(r, {})
+    // Registered in `live` so the HUD names it and the budget meter counts it,
+    // exactly like a shipped preset — a composed effect is not a second class
+    // of thing, it is a preset assembled at runtime.
+    if (cxLive) { live.Composed = cxLive; paint() }
   }
 
   function cxUnmount() {
-    if (cxLive) { cxLive.unmount(); cxLive = null }
+    if (!cxLive) return
+    cxLive.unmount()
+    cxLive = null
+    delete live.Composed
+    paint()
   }
 
   function cxPick(id, key) {
@@ -1383,7 +1392,7 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
     }
   })
 
-  // ─── Section 7: manual mounting, global budget ────────────────────────
+  // ─── Section 11: manual mounting, global budget ───────────────────────
   var budgetSection = document.querySelector('[data-preset="__budget"]')
 
   new IntersectionObserver(function (e) {
@@ -1409,7 +1418,7 @@ Strata.CursorFX.get('magnetic').setStrength(0.8)</pre>
     })
   })
 
-  // ─── Section 8: destroy / re-init ─────────────────────────────────────
+  // ─── Section 12: destroy / re-init ────────────────────────────────────
   on('en-destroy', function () {
     FX.destroy()
     live = {}

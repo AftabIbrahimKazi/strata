@@ -1,5 +1,18 @@
 # Changelog — @strata-packages/cursorfx
 
+## [0.2.0] — 2026-09-01
+
+### Added
+
+- **`Reveal`: the closed state is now genuinely closed** — the mask's inner stop carried a fixed alpha, so a radius of 0 still left a feather-wide soft hole at the anchor point, permanently, whether or not the pointer was near the element. The alpha is now a registered `<number>` that is 1 at rest and transitions with the radius.
+- **`Reveal`: `anchor` option** — `'pointer'` (the default) keeps the hole tracking the cursor; any other value leaves `--st-cfx-reveal-x/y` to CSS, so the hole can be pinned to a fixed point. Also settable per element as `data-st-cfx-reveal-anchor`, so one instance can serve both a pointer-following hero and a card with a fixed peeled corner.
+- **`LineWave` preset** — a ripple travels along a line when the pointer crosses it, then settles flat. Ports the traveling-wave divider from a Next.js reference app, with every animated property moved to CSS: the shape is one period of a sine used as a `mask`, `cycles` is a `mask-size`, `travel` is an animated `mask-position`, and the envelope is `scaleY()` where `scaleY(0)` is the wave's finished state. The stroke carries `vector-effect="non-scaling-stroke"`, without which `preserveAspectRatio="none"` stretches it with the tile and the steep parts of the wave render as thick bars while the flat parts vanish. Vertical dividers rotate the authored geometry and tile along Y. The line visible at rest is a separate unmasked rule crossfaded against the wave — a masked element paints nothing once its box is collapsed, so the divider would otherwise vanish whenever idle. **The preset has no `render` hook** — the reference rewrote an SVG path `d` attribute every frame via GSAP; this does no per-frame work at all.
+- Colour accepts any CSS paint including every gradient type, because the line is a background behind a mask rather than a stroke.
+- `origin: 'pointer'` starts the ripple where the cursor actually crossed the line — the reference always started at one end, using pointer position only to pick which label glowed.
+- **Swappable shapes** — `shape: 'sine' | 'zigzag' | 'square' | 'bars' | 'helix'`. `bars` draws a series of separate strokes rising to the curve; `helix` draws two crossing strands with rungs between them. Because the shape is the mask, a new one is a path generator and nothing more — travel, envelope and cycles never learn which shape is running. `density` sets strokes per period (`bars`) or rung count (`helix`).
+- **Per-element shape override** — `data-st-cfx-wave-shape` / `-density` on a target, so one page can show several shapes without a second instance. `setShape()` deliberately leaves those elements alone.
+- `wave(el)` for triggers the engine does not own (scroll, focus). The engine deliberately has no IntersectionObserver.
+
 ## [0.1.1] — 2026-08-31
 
 ### Fixed
