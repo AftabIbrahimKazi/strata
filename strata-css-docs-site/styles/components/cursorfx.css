@@ -53,14 +53,6 @@
   pointer-events: none;
 }
 
-/* The `.navbar` component carries its own `border-bottom: 1px solid
-   var(--st-border)` — separate from the border-bottom utility — so the header
-   showed the component's static rule and the wave line together. This file is
-   unlayered, so it wins over the st-components layer without !important. */
-.header-autohide {
-  border-bottom: none;
-}
-
 .wave-rule-bottom {
   top: auto;
   bottom: 0;
