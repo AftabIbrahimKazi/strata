@@ -1,5 +1,11 @@
 # @strata-packages/flipbook — Changelog
 
+## 1.5.3
+
+### Changed
+
+- **README rewritten for the npm package page.** It now links to this package's own page on the documentation site, describes what Strata CSS is so the page stands on its own for a reader arriving from a search, and cross-links the other eight packages. Previously the page was a dead end — it linked to neither the docs nor any sibling package, so a reader landing on it from npm had nowhere to go. No code changed in this release.
+
 ## 1.5.2
 
 - **Fix — remove corner fold hint triangles** — the `::before`/`::after` gradient triangles on the drag zones (intended as visual "you can grab here" cues) cluttered the UI without adding value. Removed entirely. The drag zones themselves are unchanged — drag-to-flip still works from both sides.
