@@ -1,6 +1,6 @@
 {
   "name": "@strata-packages/flipbook",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "PDF and HTML flipbook viewer with page-flip animation. Works standalone or with Strata CSS.",
   "main": "flipbook.js",
   "style": "flipbook.css",
