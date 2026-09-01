@@ -22,6 +22,8 @@ All notable changes to Strata CSS will be documented here.
 
   There is no host-bundler rung: under Vite/Next/webpack the PostCSS plugin path runs instead and the bundler minifies.
 
+  `strata init` now recommends `lightningcss` when a project has neither minifier, and writes a `strata:minify` script — without it the scaffolded scripts only ever run `--build`, which does not minify, so the recommendation would have had nothing to use it. The install is printed for the user to run, never executed, as with every other install the CLI suggests.
+
 ### Fixed
 
 - **Breakpoint-scoped arbitrary values silently generated nothing.** `w-[40%]` worked; `w-md-[40%]` matched no pattern, emitted no CSS and raised no error. Each family is registered twice — once with a breakpoint segment, once without — and roughly half of them had only ever been given the plain twin: `w` `h` `max-w` `min-w` `max-h` `min-h` `fs` `fw` `opacity` `z` `top` `bottom` `left` `right` `inset` `cursor` `duration` `transition` `object-position` `text` and `bg`. Both twins are now generated from one declaration per family, so a family cannot be half-registered.
