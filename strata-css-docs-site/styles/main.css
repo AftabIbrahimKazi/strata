@@ -23,6 +23,16 @@
   transform: translateY(0);
 }
 
+/* The header is sticky and 70px tall, and the WaveRule divider overhangs it by
+   another 12px. Without scroll padding, every in-page anchor lands its target
+   heading underneath that band — the heading is clipped mid-glyph by the
+   header's bottom edge, which is exactly where the divider line is drawn, so
+   the text reads as sitting behind the rule. 6rem clears the header, the
+   overhang and a little breathing room. */
+html {
+  scroll-padding-top: 6rem;
+}
+
 /* Plain-text link hover underline — adapted from a Uiverse.io design
    (by JaydipPrajapati1910). Applies only to links that are pure text:
    nav items, footer links, sidebar items, in-page anchors, prose links.

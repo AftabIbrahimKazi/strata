@@ -284,6 +284,31 @@ Override per-instance, per-context, or per-theme — no `!important` needed.
 
 ---
 
+## Documentation
+
+Full API reference, options and live examples: **[https://strata-css-docs-site.vercel.app/packages/forms](https://strata-css-docs-site.vercel.app/packages/forms)**
+
+`@strata-packages/forms` is part of **[Strata CSS](https://github.com/AftabIbrahimKazi/strata)** — a JIT CSS framework that pairs Bootstrap-style component classes with Tailwind-style on-demand generation, cascade layers instead of `!important`, variants (`hover:`, `group-hover:`, `peer-checked:`), arbitrary values and three built-in themes.
+
+- Framework docs — [https://strata-css-docs-site.vercel.app](https://strata-css-docs-site.vercel.app)
+- Source and issues — [https://github.com/AftabIbrahimKazi/strata](https://github.com/AftabIbrahimKazi/strata)
+- Framework on npm — [strata-css](https://www.npmjs.com/package/strata-css)
+
+### Other Strata packages
+
+| Package | What it does |
+|---|---|
+| [`@strata-packages/chart`](https://www.npmjs.com/package/@strata-packages/chart) | Three.js chart component. Works standalone or with Strata CSS. |
+| [`@strata-packages/cursorfx`](https://www.npmjs.com/package/@strata-packages/cursorfx) | Modular cursor effects — one shared engine, ten opt-in presets. Works standalone or with Strata CSS. |
+| [`@strata-packages/flipbook`](https://www.npmjs.com/package/@strata-packages/flipbook) | PDF and HTML flipbook viewer with page-flip animation. Works standalone or with Strata CSS. |
+| [`@strata-packages/modal`](https://www.npmjs.com/package/@strata-packages/modal) | Lightweight modal component. Works standalone or with Strata CSS. |
+| [`@strata-packages/offcanvas`](https://www.npmjs.com/package/@strata-packages/offcanvas) | Lightweight offcanvas drawer component. Works standalone or with Strata CSS. |
+| [`@strata-packages/picker`](https://www.npmjs.com/package/@strata-packages/picker) | Date, time, and datetime picker for Strata CSS. Works standalone or with Strata. |
+| [`@strata-packages/shopmap`](https://www.npmjs.com/package/@strata-packages/shopmap) | Lightweight, theme-aware map component with terrain, hypsometric tinting, and procedural hillshading. Zero API keys. Free for commercial use. |
+| [`@strata-packages/skeleton-loader`](https://www.npmjs.com/package/@strata-packages/skeleton-loader) | Lightweight skeleton loader plugin. Works standalone or with Strata CSS. |
+
+---
+
 ## License
 
 MIT © [Aftab Ibrahim Kazi](https://github.com/AftabIbrahimKazi)

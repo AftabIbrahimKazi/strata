@@ -13,13 +13,13 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@strata-packages/cursorfx": "^0.2.0",
+    "@strata-packages/cursorfx": "^0.2.1",
     "@strata-packages/offcanvas": "^1.0.1",
     "marked": "^18.0.9",
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "strata-css": "^1.8.15",
+    "strata-css": "^1.9.0",
     "swiper": "^14.1.0"
   },
   "devDependencies": {

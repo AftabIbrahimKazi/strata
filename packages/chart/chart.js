@@ -681,8 +681,8 @@ class InteractionManager {
         this.tooltip.style.top = y + 'px';
     }
 }
-// ─── StrataChart (public instance) ───────────────────────────────────────────
-class StrataChart {
+// ─── ChartInstance (public instance) ───────────────────────────────────────────
+class ChartInstance {
     constructor(container, _opts) {
         var _a, _b, _c, _d;
         this.container = container;
@@ -936,7 +936,7 @@ class StrataChart {
             console.error(`[Strata Chart] Invalid type "${options.type}". Use: ${VALID_TYPES.join(', ')}`);
             return null;
         }
-        const instance = new StrataChart(container, options);
+        const instance = new ChartInstance(container, options);
         registry.set(container, instance);
         return instance;
     }
