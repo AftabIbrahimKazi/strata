@@ -2,6 +2,12 @@
 
 All notable changes to `@strata-packages/modal` are documented here.
 
+## [1.0.3] — 2026-09-02
+
+### Changed
+
+- **README rewritten for the npm package page.** It now links to this package's own page on the documentation site, describes what Strata CSS is so the page stands on its own for a reader arriving from a search, and cross-links the other eight packages. Previously the page was a dead end — it linked to neither the docs nor any sibling package, so a reader landing on it from npm had nowhere to go. No code changed in this release.
+
 ## [1.0.2] — 2026-06-28
 
 ### Fixed
