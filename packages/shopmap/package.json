@@ -1,6 +1,6 @@
 {
   "name": "@strata-packages/shopmap",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Lightweight, theme-aware map component with terrain, hypsometric tinting, and procedural hillshading. Zero API keys. Free for commercial use.",
   "license": "MIT",
   "main": "dist/shopmap.cjs.js",
