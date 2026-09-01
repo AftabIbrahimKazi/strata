@@ -345,6 +345,11 @@ data-st-cfx-reveal="true"</pre>
 
 </div>
 
+<!-- Two files, and that is the whole page. Reveal is a DOM preset: it emits no
+     particles, so it needs neither particles.js nor any behaviour file. This is
+     the pay-per-use rule working — compare examples/cursorfx.html, which mounts
+     every canvas preset and therefore loads the pipeline and all eight
+     behaviours. -->
 <script src="../packages/cursorfx/cursorfx.js"></script>
 <script src="../packages/cursorfx/presets/reveal/reveal.js"></script>
 <script>

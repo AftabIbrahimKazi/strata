@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" data-st-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strata — CursorFX LineWave</title>
+  <link rel="stylesheet" href="../dist/strata.output.css">
+  <link rel="stylesheet" href="../packages/cursorfx/cursorfx.css">
+  <link rel="stylesheet" href="../packages/cursorfx/presets/line-wave/line-wave.css">
+  <style>
+    :root {
+      --demo-culture: #6ee7c8;
+      --demo-fade: linear-gradient(90deg, #ff2d55, #ffd166, #7df9ff);
+    }
+    body { background: #0b0d12; }
+
+    .demo {
+      min-height: 100vh; display: flex; flex-direction: column;
+      justify-content: center; padding: 4rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    /* The hover target. A 1px rule is impossible to point at, so the target is
+       a thicker invisible band with the line drawn through its middle — the
+       same trick the reference component used with its 24px zone. */
+    .rule { height: 24px; }
+    .rule-tall { width: 24px; height: 220px; }
+
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 1.25rem 1.5rem;
+    }
+    .panel h6 {
+      font-size: 0.7rem; letter-spacing: 0.09em; text-transform: uppercase;
+      color: #7c8797; margin-bottom: 0.75rem;
+    }
+    .ctrl {
+      display: grid; grid-template-columns: 130px 1fr 62px;
+      align-items: center; gap: 0.75rem; font-size: 0.82rem; padding: 0.3rem 0;
+    }
+    .ctrl code { color: #8fb8ff; }
+    .ctrl output { font-family: monospace; color: #b9c4d4; text-align: right; }
+    .ctrl input[type=range] { width: 100%; }
+
+    pre {
+      background: #05070b; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px; padding: 0.9rem 1.1rem; font-size: 0.76rem;
+      color: #c8d2e0; overflow-x: auto;
+    }
+    .pill {
+      display: inline-block; font-size: 0.68rem; font-family: monospace;
+      padding: 0.15rem 0.5rem; border-radius: 99px;
+      border: 1px solid rgba(255,255,255,0.16); color: #b9c4d4;
+    }
+    .stat-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      position: relative; gap: 0;
+    }
+    .stat { padding: 2rem 1.5rem; text-align: center; position: relative; }
+    .stat b { display: block; font-size: 2rem; color: #e8ecf4; }
+    .stat span { color: #7c8797; font-size: 0.8rem; }
+
+    /* Per-theme retuning, done entirely in CSS. The preset writes no inline
+       value for anything left at its default, which is what lets these win. */
+    .themed { --st-cfx-wave-color: var(--demo-fade); --st-cfx-wave-amplitude: 9px; }
+    .ctrl .rule { height: 24px; }
+  </style>
+</head>
+
+<body class="text-light"
+      data-st-cursorfx="line-wave"
+      data-st-cfx-line-wave-color="var(--demo-culture)">
+
+<div class="container">
+
+  <header class="demo">
+    <p class="pill mb-3">@strata-packages/cursorfx · LineWave</p>
+    <h1 class="mb-3">Lines that ripple when you cross them</h1>
+    <p class="text-[1.1rem] max-w-[62ch] text-muted mb-4">
+      Move the pointer across any line below. A ripple starts where you crossed,
+      travels along the line, and settles flat.
+    </p>
+
+    <div class="rule mb-5" data-st-cfx-target="line-wave"></div>
+
+    <div class="panel max-w-[64ch]">
+      <h6>The whole integration</h6>
+<pre>&lt;link rel="stylesheet" href="cursorfx.css"&gt;
+&lt;link rel="stylesheet" href="presets/line-wave/line-wave.css"&gt;
+&lt;script src="cursorfx.js"&gt;&lt;/script&gt;
+&lt;script src="presets/line-wave/line-wave.js"&gt;&lt;/script&gt;
+
+&lt;body data-st-cursorfx="line-wave"
+      data-st-cfx-line-wave-color="var(--brand)"&gt;
+
+  &lt;div data-st-cfx-target="line-wave"&gt;&lt;/div&gt;</pre>
+      <p class="text-muted text-[0.78rem] mt-2 mb-0">
+        The preset injects the line itself — the page writes one attribute. No
+        SVG to author, no script of your own.
+      </p>
+    </div>
+  </header>
+
+  <!-- ═══ Parity with the reference ══════════════════════════════════════ -->
+  <section class="demo">
+    <h2 class="mb-1">1 — Replacing the original</h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      The effect this preset replaces was a React component that rewrote an SVG
+      path's <code>d</code> attribute every frame via GSAP. These are its exact
+      defaults — amplitude 5px, 1.75 cycles, 1.4 travel, 1.1s, opacity 0.1→0.6,
+      2.5px glow — reproduced with no per-frame JavaScript at all.
+    </p>
+
+    <div class="stat-grid panel">
+      <div class="stat"><b>240+</b><span>studies</span></div>
+      <div class="rule-tall position-absolute top-0 start-[33%]" data-st-cfx-target="line-wave"></div>
+      <div class="stat"><b>18</b><span>countries</span></div>
+      <div class="rule-tall position-absolute top-0 start-[66%]" data-st-cfx-target="line-wave"></div>
+      <div class="stat"><b>1.2M</b><span>samples</span></div>
+    </div>
+
+    <p class="text-muted text-[0.8rem] mt-3 mb-0 max-w-[70ch]">
+      Vertical dividers between grid cells — the original's use case. Orientation
+      is detected from the box, so nothing has to be declared.
+    </p>
+  </section>
+
+  <!-- ═══ Beyond the reference ═══════════════════════════════════════════ -->
+  <section class="demo">
+    <h2 class="mb-1">2 — What the package adds <span class="pill">live</span></h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Every control below writes a CSS custom property. Nothing here re-renders
+      geometry — the shape is a mask being scaled and slid.
+    </p>
+
+    <div class="rule mb-4" id="playground" data-st-cfx-target="line-wave"></div>
+
+    <div class="row g-4">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Every knob</h6>
+          <div class="ctrl"><code>amplitude</code> <input type="range" id="lw-amp"   min="1" max="30" step="1"    value="5"    title="crest height"><output>5</output></div>
+          <div class="ctrl"><code>cycles</code>    <input type="range" id="lw-cyc"   min="0.5" max="14" step="0.25" value="1.75" title="crests along the line"><output>1.75</output></div>
+          <div class="ctrl"><code>travel</code>    <input type="range" id="lw-trv"   min="0" max="5"  step="0.1"   value="1.4"  title="phase travel"><output>1.4</output></div>
+          <div class="ctrl"><code>duration</code>  <input type="range" id="lw-dur"   min="0.3" max="4" step="0.1"  value="1.1"  title="seconds"><output>1.1</output></div>
+          <div class="ctrl"><code>thickness</code> <input type="range" id="lw-thk"   min="0.5" max="6" step="0.5"  value="1.5"  title="stroke width"><output>1.5</output></div>
+          <div class="ctrl"><code>glow</code>      <input type="range" id="lw-glw"   min="0" max="14" step="0.5"   value="2.5"  title="drop shadow"><output>2.5</output></div>
+          <div class="ctrl"><code>peakOpacity</code><input type="range" id="lw-pk"   min="0.1" max="1" step="0.05" value="0.6"  title="crest opacity"><output>0.6</output></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>Colour — any CSS paint</h6>
+          <p class="text-muted text-[0.78rem]">
+            The line is a <em>background</em> behind a mask, not a stroke. So
+            every gradient type works with no code in the preset: linear,
+            radial and conic all just paint.
+          </p>
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <button class="btn-outline-light btn-sm" id="lw-flat">flat</button>
+            <button class="btn-outline-light btn-sm" id="lw-linear">linear</button>
+            <button class="btn-outline-light btn-sm" id="lw-conic">conic</button>
+            <button class="btn-outline-light btn-sm" id="lw-token">token</button>
+          </div>
+<pre>data-st-cfx-line-wave-color=
+  "conic-gradient(#f0f, #0ff, #f0f)"</pre>
+          <p class="text-muted text-[0.78rem] mt-2 mb-0">
+            A flat colour still goes through the engine's parser, so an unusable
+            value warns instead of painting nothing.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Shapes ═════════════════════════════════════════════════════════ -->
+  <section class="demo">
+    <h2 class="mb-1">3 — It does not have to be a line</h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      The shape <em>is</em> the mask, so swapping it changes no animation code —
+      travel, the envelope and the cycle count never learn which shape is
+      running. Cross each one.
+    </p>
+
+    <div class="panel">
+      <div class="ctrl"><code>sine</code>
+        <div class="rule" data-st-cfx-target="line-wave"></div><output>default</output></div>
+      <div class="ctrl"><code>zigzag</code>
+        <div class="rule" data-st-cfx-target="line-wave" data-st-cfx-wave-shape="zigzag"></div><output></output></div>
+      <div class="ctrl"><code>square</code>
+        <div class="rule" data-st-cfx-target="line-wave" data-st-cfx-wave-shape="square"></div><output></output></div>
+      <div class="ctrl"><code>bars</code>
+        <div class="rule" data-st-cfx-target="line-wave" data-st-cfx-wave-shape="bars"></div><output>series</output></div>
+      <div class="ctrl"><code>helix</code>
+        <div class="rule" data-st-cfx-target="line-wave" data-st-cfx-wave-shape="helix"></div><output>strands</output></div>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-12 col-md-7">
+        <div class="panel">
+          <h6>Swap it live</h6>
+          <div class="ctrl"><code>shape</code>
+            <select class="form-select form-select-sm" id="lw-shape" title="shape">
+              <option value="sine" selected>sine — smooth wave</option>
+              <option value="zigzag">zigzag — straight sides</option>
+              <option value="square">square — hard steps</option>
+              <option value="bars">bars — a series of strokes</option>
+              <option value="helix">helix — two strands + rungs</option>
+            </select>
+          </div>
+          <div class="ctrl"><code>density</code>
+            <input type="range" id="lw-den" min="3" max="24" step="1" value="8"
+                   title="strokes per period (bars) / rungs (helix)"><output>8</output></div>
+          <p class="text-muted text-[0.78rem] mt-3 mb-0">
+            <code>density</code> only applies to the two multi-stroke shapes:
+            strokes per period for <code>bars</code>, rung count for
+            <code>helix</code>. The single-stroke shapes ignore it.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <div class="panel h-100">
+          <h6>What a shape costs</h6>
+          <p class="text-muted text-[0.78rem]">
+            One period of geometry, generated once at mount and handed to CSS as
+            a mask. Adding a shape is a path generator of a few lines — no new
+            file, no new animation, nothing per frame.
+          </p>
+<pre>data-st-cfx-line-wave-shape="helix"
+data-st-cfx-line-wave-density="6"</pre>
+          <p class="text-muted text-[0.78rem] mt-2 mb-0">
+            An unknown name warns, lists the real ones, and falls back to
+            <code>sine</code> — a blank mask would look identical to a working
+            line that happens to be invisible.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Origin ═════════════════════════════════════════════════════════ -->
+  <section class="demo">
+    <h2 class="mb-1">4 — The ripple starts where you crossed</h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      Cross this line near the left, then near the right. The wave begins at the
+      crossing point. The component this replaces always started at one end —
+      it used the cursor only to decide which label glowed, never the wave
+      itself. This is the part that needs a cursor package to exist.
+    </p>
+
+    <div class="rule mb-4" data-st-cfx-target="line-wave"></div>
+
+    <div class="panel max-w-[64ch]">
+<pre>origin: 'pointer'   // default — start where the cursor crossed
+origin: 'start'     // the reference's behaviour
+origin: 'center'</pre>
+    </div>
+  </section>
+
+  <!-- ═══ CSS retuning ═══════════════════════════════════════════════════ -->
+  <section class="demo">
+    <h2 class="mb-1">5 — Retuning from a stylesheet</h2>
+    <p class="text-muted mb-4 max-w-[70ch]">
+      The preset writes an inline custom property <strong>only</strong> where an
+      option differs from its default. Anything left alone is supplied by CSS,
+      so a theme can retune the effect without touching markup or JavaScript.
+    </p>
+
+    <div class="rule mb-2 themed" data-st-cfx-target="line-wave"></div>
+    <p class="text-muted text-[0.8rem] mb-4">↑ same preset, restyled by one class</p>
+
+    <div class="panel max-w-[64ch]">
+<pre>.themed {
+  --st-cfx-wave-color: linear-gradient(90deg, #ff2d55, #7df9ff);
+  --st-cfx-wave-amplitude: 9px;
+}
+
+[data-st-theme="dark"] { --st-cfx-wave-peak-opacity: 0.8; }</pre>
+    </div>
+  </section>
+
+  <!-- ═══ Cost ═══════════════════════════════════════════════════════════ -->
+  <section class="demo">
+    <h2 class="mb-1">6 — What it costs to run</h2>
+    <div class="row g-4">
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>Zero per-frame JavaScript</h6>
+          <p class="text-muted text-[0.85rem]">
+            This preset has no <code>render</code> hook. The engine's frame loop
+            does nothing for it. On hover it flips one attribute and writes at
+            most one custom property; CSS does the rest.
+          </p>
+          <p class="text-muted text-[0.85rem] mb-0">
+            It joins <code>Magnetic</code> and <code>HoverFlicker</code> as a
+            preset with no per-frame cost — and it emits no particles, so it
+            competes for no budget and composes freely with any canvas preset.
+          </p>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="panel h-100">
+          <h6>How the shape moves without redrawing</h6>
+          <p class="text-muted text-[0.85rem] mb-2">
+            One period of a sine is a mask, tiled along the line.
+          </p>
+          <ul class="text-muted text-[0.85rem] mb-0">
+            <li><code>cycles</code> → <code>mask-size</code></li>
+            <li><code>travel</code> → animate <code>mask-position-x</code></li>
+            <li>envelope → <code>scaleY()</code>, where <code>scaleY(0)</code> is the flat resting state</li>
+            <li><code>colour</code> → a background, so gradients are free</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule mt-5" data-st-cfx-target="line-wave"></div>
+  </section>
+
+</div>
+
+<script src="../packages/cursorfx/cursorfx.js"></script>
+<script src="../packages/cursorfx/presets/line-wave/line-wave.js"></script>
+<script>
+(function () {
+  'use strict'
+  var FX = (window.Strata && window.Strata.CursorFX) || window.StrataCursorFX
+
+  // No init() call: <body data-st-cursorfx="line-wave"> booted the engine and
+  // mounted the preset before this ran. All that is left is to adopt it.
+  function adopt() {
+    var inst = FX.get('line-wave')
+    if (!inst) return
+
+    // Every control writes a custom property straight onto the playground line.
+    // There is no re-render: the CSS animation reads the new value next run.
+    var line = document.getElementById('playground')
+    function set(prop, value) {
+      var wrap = line.querySelector('[data-st-cfx-wave]')
+      if (wrap) wrap.style.setProperty('--st-cfx-wave-' + prop, value)
+    }
+
+    function bind(id, prop, unit) {
+      var el = document.getElementById(id)
+      if (!el) return
+      var out = el.parentNode.querySelector('output')
+      el.addEventListener('input', function () {
+        if (out) out.textContent = el.value
+        set(prop, el.value + (unit || ''))
+      })
+    }
+
+    bind('lw-amp', 'amplitude', 'px')
+    bind('lw-cyc', 'cycles')
+    bind('lw-trv', 'travel')
+    bind('lw-dur', 'duration', 's')
+    bind('lw-thk', 'thickness', 'px')
+    bind('lw-glw', 'glow', 'px')
+    bind('lw-pk',  'peak-opacity')
+
+    function colour(id, value) {
+      var el = document.getElementById(id)
+      if (el) el.addEventListener('click', function () { set('color', value) })
+    }
+    colour('lw-flat',   '#6ee7c8')
+    colour('lw-linear', 'linear-gradient(90deg, #ff2d55, #ffd166, #7df9ff)')
+    colour('lw-conic',  'conic-gradient(#ff00ff, #00ffff, #ff00ff)')
+    colour('lw-token',  'var(--demo-fade)')
+
+    // Shape and density regenerate the mask, so they go through the instance
+    // rather than being a custom property the page can set directly.
+    var shapeSel = document.getElementById('lw-shape')
+    var denRange = document.getElementById('lw-den')
+    function reshape() {
+      var wrap = line.querySelector('[data-st-cfx-wave]')
+      if (!wrap) return
+      // Marked on the target so the preset rebuilds this line's mask alone —
+      // setShape() is global and would restyle the gallery above.
+      line.setAttribute('data-st-cfx-wave-shape', shapeSel.value)
+      line.setAttribute('data-st-cfx-wave-density', denRange.value)
+      wrap.parentNode.removeChild(wrap)
+      inst.wave(line)                 // rebuilds, then runs once so you see it
+    }
+    if (shapeSel) shapeSel.addEventListener('change', reshape)
+    if (denRange) denRange.addEventListener('input', function () {
+      denRange.parentNode.querySelector('output').textContent = denRange.value
+      reshape()
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', adopt)
+  } else {
+    adopt()
+  }
+}())
+</script>
+</body>
+</html>
