@@ -471,6 +471,15 @@ All Strata plugins are available as independent packages. Use them without Strat
 | `@strata-packages/offcanvas` | `StrataOffcanvas` | `Strata.Offcanvas` | `npm i @strata-packages/offcanvas` |
 | `@strata-packages/flipbook` | `StrataFlipbook` | `StrataFlipbook` | `npm i @strata-packages/flipbook` |
 | `@strata-packages/shopmap` | `ShopMap` | `ShopMap` | `npm i @strata-packages/shopmap` |
+| `@strata-packages/cursorfx` | `StrataCursorFX` | `Strata.CursorFX` | `npm i @strata-packages/cursorfx` |
+
+### Which packages ship in `strata.components.js`
+
+`strata.build` concatenates **four** packages into `dist/strata.components.js` when it finds them in your `node_modules`: `modal`, `offcanvas`, `skeleton-loader` and `chart`. Load that one file and those four are available under `Strata.*`.
+
+The other five — `forms`, `picker`, `flipbook`, `shopmap` and `cursorfx` — install and load with their own `<script>` tag or import. That is deliberate: being in the bundled list makes the CLI warn **every** `strata-css` consumer about a package they never asked for.
+
+Either way the detection below is the same, and each package's own README has its loading snippet.
 
 ### How detection works
 
@@ -683,6 +692,35 @@ Clicking outside the modal shakes it instead of closing it.
 document.addEventListener('st:modal:open',  e => console.log('opened', e.detail.modal))
 document.addEventListener('st:modal:close', e => console.log('closed', e.detail.modal))
 ```
+
+---
+
+## CursorFX
+
+Modular cursor effects — one shared engine plus ten opt-in presets. `npm i @strata-packages/cursorfx`
+
+Works from markup alone; no script of your own is required:
+
+```html
+<!-- the engine's own CSS, plus a preset's CSS only if it has one -->
+<link rel="stylesheet" href="node_modules/@strata-packages/cursorfx/cursorfx.css">
+<script src="node_modules/@strata-packages/cursorfx/cursorfx.js"></script>
+<script src="node_modules/@strata-packages/cursorfx/presets/trail/trail.js"></script>
+
+<body data-st-cursorfx="trail" data-st-cfx-trail-color="var(--st-primary)">
+```
+
+Canvas presets (`Trail`, `ClickBurst`, `Electric`, `Spark`, `Smoke`) are JS only — they draw to the shared canvas. The DOM presets (`Magnetic`, `HoverFlicker`, `CursorMorph`, `Reveal`, `LineWave`) each ship a stylesheet alongside their script; load both.
+
+**Presets:** `Trail` · `ClickBurst` · `Electric` · `Spark` · `Smoke` (canvas) — `Magnetic` · `HoverFlicker` · `CursorMorph` · `Reveal` · `LineWave` (DOM/CSS)
+
+The engine owns pointer tracking, one lazily-started RAF loop, one shared canvas, a **global** particle cap, one hover hit-test per frame, colour parsing, reduced-motion handling, visibility pause and full teardown — so mounting a second preset does not mean a second loop or a second canvas.
+
+Every knob is a CSS custom property with a sensible default, and an instance writes an inline property only where you override one — so a stylesheet can retune any effect per theme without touching markup. Colours accept anything CSS accepts, including gradients held in a `var()` token.
+
+Targets are opt-in per element (`data-st-cfx-target="magnetic trail"`), and a target may carry `pointer-events: none` when it is a hit *zone* rather than a click target — it is then matched on geometry, so a wide band never swallows clicks meant for the page beneath it.
+
+Full documentation: [strata-css-docs-site.vercel.app/packages/cursorfx](https://strata-css-docs-site.vercel.app/packages/cursorfx)
 
 ---
 
