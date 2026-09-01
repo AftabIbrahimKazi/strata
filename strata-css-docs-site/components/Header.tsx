@@ -6,7 +6,6 @@ import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 import SearchBar from "./SearchBar";
 import MobileNav from "./MobileNav";
-import WaveRule from "./WaveRule";
 
 const NEAR_TOP_THRESHOLD = 120;
 // Once the header is translated off-screen, it has nothing left under the
@@ -48,14 +47,19 @@ export default function Header() {
 
   return (
     <header
-      className="navbar sticky-top bg-body p-3 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
+      className="navbar sticky-top bg-body p-4 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
       data-header-hidden={!visible}
       onMouseEnter={() => setOverHeader(true)}
       onMouseLeave={() => setOverHeader(false)}
     >
-      {/* sticky-top is already a containing block, so the band needs no
-          position-relative of its own. */}
-      <WaveRule edge="bottom" />
+      {/* No WaveRule here. Everywhere else it replaces a static border happily,
+          but this one sat inside a position: sticky element that also carries a
+          transform, and the wave's own promotion during a run left the header
+          rasterised at bounds that did not cover its background — scrolled page
+          content showed through the band for the length of every wave. The
+          header keeps the .navbar component's ordinary border-bottom instead.
+          The other WaveRules (Footer, DocsPrevNext, package pages) are on
+          static containers and are unaffected. */}
       <div className="d-flex align-items-center gap-4">
         <MobileNav />
         <Link href="/" className="navbar-brand fw-bold text-decoration-none d-flex align-items-center gap-2">
