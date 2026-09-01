@@ -58,6 +58,125 @@ function minifyJS(src) {
     .trim()
 }
 
+// ─── CSS minification ─────────────────────────────────────────────────
+// Two minifiers, in a fixed preference order — never "whichever is smaller".
+//
+// Lightning CSS wins on bytes (~2% gzipped on Strata's own output) and is
+// the default. But the output file is not only Strata's: `@strata` directives
+// are replaced *inside the author's own stylesheet*, so whatever custom CSS a
+// theme ships is fed through the same minifier. That is where the two diverge:
+//
+//   .legacy { *zoom: 1 }   lightningcss → throws SyntaxError (build dies)
+//                          lightningcss + errorRecovery → drops the declaration
+//                          cssnano      → preserves it
+//
+// So `errorRecovery` is mandatory — without it a legacy hack in someone's theme
+// kills their build — and a recovered parse error is treated as a FAILURE, not
+// a success. It would otherwise be the smaller output, because dropping the
+// author's declarations is how it got smaller. Correctness first; compression
+// only decides between outputs that are equivalent.
+//
+// There is no "host bundler" rung: when Strata runs as a PostCSS plugin inside
+// Vite/Next/webpack this file never executes and the bundler minifies. This
+// path is only reached when the dev explicitly ran `--minify`.
+
+function tryLightning(css, file, targets) {
+  let lightningcss
+  try { lightningcss = require('lightningcss') } catch { return { ok: false, reason: 'not installed' } }
+
+  let result
+  try {
+    result = lightningcss.transform({
+      filename:      file,
+      code:          Buffer.from(css),
+      minify:        true,
+      errorRecovery: true,
+      ...(targets ? { targets } : {}),
+    })
+  } catch (err) {
+    return { ok: false, reason: `parse error — ${err.message}` }
+  }
+
+  // A recovered error means lightningcss dropped something the author wrote.
+  // Its output is no longer equivalent to the input, so it is not a candidate.
+  const warnings = result.warnings || []
+  if (warnings.length) {
+    return {
+      ok:     false,
+      reason: `dropped ${warnings.length} declaration(s) from custom CSS`,
+      warnings,
+    }
+  }
+
+  return { ok: true, css: result.code.toString() }
+}
+
+async function tryCssnano(css, file) {
+  let cssnano
+  try { cssnano = require('cssnano') } catch { return { ok: false, reason: 'not installed' } }
+  const postcss = require('postcss')
+  const result  = await postcss([cssnano({ preset: 'default' })]).process(css, { from: file })
+  return { ok: true, css: result.css }
+}
+
+// Returns { css, engine } — `engine` is null when nothing minified.
+async function minifyCSS(css, file, config) {
+  const requested = config.minifier            // 'lightningcss' | 'cssnano' | false
+  const targets   = config.targets || null
+
+  // 1. Explicit choice — honour it, never silently substitute a different one.
+  if (requested === false) {
+    console.log('[Strata]   minifier: disabled by config — CSS left unminified')
+    return { css, engine: null }
+  }
+
+  if (requested === 'cssnano') {
+    const r = await tryCssnano(css, file)
+    if (r.ok) return { css: r.css, engine: 'cssnano' }
+    console.error(`[Strata] ✖  config requested cssnano, which is ${r.reason}.`)
+    console.error('          Install it with: npm install -D cssnano')
+    process.exit(1)
+  }
+
+  if (requested === 'lightningcss') {
+    const r = tryLightning(css, file, targets)
+    if (r.ok) return { css: r.css, engine: 'lightningcss' }
+    console.error(`[Strata] ✖  config requested lightningcss: ${r.reason}.`)
+    if (r.warnings) reportDroppedCSS(r.warnings)
+    else console.error('          Install it with: npm install -D lightningcss')
+    process.exit(1)
+  }
+
+  // 2. Auto — lightningcss preferred, cssnano on any failure, announced.
+  const lc = tryLightning(css, file, targets)
+  if (lc.ok) return { css: lc.css, engine: 'lightningcss' }
+
+  const cn = await tryCssnano(css, file)
+  if (cn.ok) {
+    if (lc.warnings) {
+      console.warn(`[Strata] ⚠  lightningcss ${lc.reason} — using cssnano instead, which preserves them.`)
+      reportDroppedCSS(lc.warnings)
+    } else if (lc.reason !== 'not installed') {
+      console.warn(`[Strata] ⚠  lightningcss unusable (${lc.reason}) — fell back to cssnano.`)
+    }
+    return { css: cn.css, engine: 'cssnano' }
+  }
+
+  console.warn('[Strata] ⚠  --minify: neither lightningcss nor cssnano is installed.')
+  console.warn('          CSS was written unminified. Install one with:')
+  console.warn('            npm install -D lightningcss   (smaller output, recommended)')
+  console.warn('            npm install -D cssnano        (tolerates legacy CSS hacks)')
+  return { css, engine: null }
+}
+
+function reportDroppedCSS(warnings) {
+  for (const w of warnings.slice(0, 5)) {
+    const loc = w.loc ? ` (line ${w.loc.line}, col ${w.loc.column})` : ''
+    console.warn(`[Strata]      ${w.type || w.message}${loc}`)
+  }
+  if (warnings.length > 5) console.warn(`[Strata]      …and ${warnings.length - 5} more`)
+}
+
 // ─── Build ────────────────────────────────────────────────────────────
 // --watch  → unminified CSS, unminified JS  (fast rebuilds for dev)
 // --build  → unminified CSS, minified JS    (production-ready JS)
@@ -72,18 +191,11 @@ async function build(cssMinify = false, jsMinify = true) {
   const css   = await strata.build(inputFile, outputFile, { cwd, sourceMap: !cssMinify })
 
   // CSS minification
+  let minifier = null
   if (cssMinify) {
-    let cssnano
-    try {
-      cssnano = require('cssnano')
-    } catch {
-      console.error('[Strata] ✖  --minify requires cssnano, which is an optional dependency.')
-      console.error('          Install it with: npm install -D cssnano')
-      process.exit(1)
-    }
-    const postcss = require('postcss')
-    const result  = await postcss([cssnano({ preset: 'default' })]).process(css, { from: outputFile })
-    fs.writeFileSync(outputFile, result.css)
+    const r = await minifyCSS(css, outputFile, config)
+    minifier = r.engine
+    if (r.engine) fs.writeFileSync(outputFile, r.css)
   }
 
   // Bundle + optionally minify JS components
@@ -139,7 +251,8 @@ async function build(cssMinify = false, jsMinify = true) {
   const jsSize  = fs.existsSync(jsDest)
     ? (Buffer.byteLength(fs.readFileSync(jsDest)) / 1024).toFixed(2)
     : '0'
-  console.log(`[Strata] ✓ Built → ${outputFile} (CSS ${cssSize} KB, JS ${jsSize} KB) in ${ms}ms`)
+  const via = minifier ? `, minified by ${minifier}` : ''
+  console.log(`[Strata] ✓ Built → ${outputFile} (CSS ${cssSize} KB, JS ${jsSize} KB${via}) in ${ms}ms`)
 
   // Report what the scan actually did. A build that silently produces no CSS
   // used to look identical to a healthy one; these lines make the difference

@@ -4,6 +4,24 @@ All notable changes to Strata CSS will be documented here.
 
 ## [Unreleased]
 
+### Added
+
+- **Lightning CSS is now the default minifier, with cssnano as a fallback.** `--minify` used to require cssnano and hard-exit without it. It now runs a fixed preference cascade — Lightning CSS, then cssnano, then unminified — and prints which engine ran.
+
+  Lightning CSS produces ~2% smaller output on Strata's own CSS (15,346 vs 15,638 bytes gzipped) with no rules or declarations dropped. But the output file is not only Strata's: `@strata` directives are replaced *inside the author's stylesheet*, so a theme's custom CSS goes through the same minifier — and that is where the two engines diverge. Given `.legacy { *zoom: 1 }`, Lightning CSS throws a `SyntaxError` and kills the build; with `errorRecovery` it drops the declaration; cssnano preserves it.
+
+  So `errorRecovery` is always on, and **a recovered parse error is treated as a failure rather than a success**. It would otherwise be the smaller output — dropping the author's declarations is precisely how it got smaller — which would let file size silently decide whether someone's legacy hack ships. Compression only breaks ties between outputs that are equivalent.
+
+  ```
+  [Strata] ⚠  lightningcss dropped 1 declaration(s) from custom CSS — using cssnano instead, which preserves them.
+  [Strata]      UnexpectedToken (line 4383, col 25)
+  [Strata] ✓ Built → dist/strata.output.css (CSS 88.01 KB, minified by cssnano) in 858ms
+  ```
+
+  Two new `strata.config.js` keys: `minifier` (`'lightningcss'` | `'cssnano'` | `false`) pins the engine — an explicit choice is never silently substituted, it hard-errors — and `targets` passes browser targets to Lightning CSS. Without `targets` it emits Media Queries Level 4 range syntax (`width>=768px`, Safari 16.4+); Strata's own output already requires Safari 16.2+ via 72 uses of `color-mix()`, so this raises the floor by a fraction of a version rather than meaningfully.
+
+  There is no host-bundler rung: under Vite/Next/webpack the PostCSS plugin path runs instead and the bundler minifies.
+
 ### Fixed
 
 - **Breakpoint-scoped arbitrary values silently generated nothing.** `w-[40%]` worked; `w-md-[40%]` matched no pattern, emitted no CSS and raised no error. Each family is registered twice — once with a breakpoint segment, once without — and roughly half of them had only ever been given the plain twin: `w` `h` `max-w` `min-w` `max-h` `min-h` `fs` `fw` `opacity` `z` `top` `bottom` `left` `right` `inset` `cursor` `duration` `transition` `object-position` `text` and `bg`. Both twins are now generated from one declaration per family, so a family cannot be half-registered.
