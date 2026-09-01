@@ -1,6 +1,6 @@
 {
   "name": "strata-css",
-  "version": "1.8.17",
+  "version": "1.9.0",
   "_versioningNote": "Stable: 1.0.0 / 1.1.0 / 2.0.0  |  Beta: 1.1.0-beta.1 / 1.1.0-beta.2",
   "description": "A modern CSS framework combining Bootstrap components with Tailwind JIT processing",
   "main": "src/index.js",
@@ -80,7 +80,8 @@
   },
   "peerDependencies": {
     "autoprefixer": ">=10",
-    "cssnano": ">=6"
+    "cssnano": ">=6",
+    "lightningcss": ">=1.22"
   },
   "peerDependenciesMeta": {
     "autoprefixer": {
@@ -88,11 +89,15 @@
     },
     "cssnano": {
       "optional": true
+    },
+    "lightningcss": {
+      "optional": true
     }
   },
   "devDependencies": {
     "autoprefixer": "^10.5.4",
     "cssnano": "^8.0.5",
+    "lightningcss": "^1.33.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"
   }

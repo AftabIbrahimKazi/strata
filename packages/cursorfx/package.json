@@ -1,7 +1,7 @@
 {
   "name": "@strata-packages/cursorfx",
-  "version": "0.1.1",
-  "description": "Modular cursor effects \u2014 one shared engine, nine opt-in presets. Works standalone or with Strata CSS.",
+  "version": "0.2.1",
+  "description": "Modular cursor effects — one shared engine, ten opt-in presets. Works standalone or with Strata CSS.",
   "main": "cursorfx.js",
   "exports": {
     ".": "./cursorfx.js",
@@ -27,7 +27,9 @@
     "./presets/reveal": "./presets/reveal/reveal.js",
     "./presets/reveal/css": "./presets/reveal/reveal.css",
     "./presets/spark": "./presets/spark/spark.js",
-    "./presets/smoke": "./presets/smoke/smoke.js"
+    "./presets/smoke": "./presets/smoke/smoke.js",
+    "./presets/line-wave": "./presets/line-wave/line-wave.js",
+    "./presets/line-wave/css": "./presets/line-wave/line-wave.css"
   },
   "publishConfig": {
     "access": "public"

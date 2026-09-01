@@ -16,6 +16,7 @@ let postcss
 let dirty            = true
 let cachedCSS         = null   // final output CSS string from last cold build
 let cachedBuildInput  = null   // resolved inputCSSPath the cache above was built from
+let lastUnresolvedWarning = null // set by the cold build path; read by bin/strata.js
 
 // ─── Config cache ─────────────────────────────────────────────────────
 let cachedConfig      = null
@@ -106,14 +107,14 @@ const plugin = (opts = {}) => ({
     const config = loadConfig(cwd)
 
     const { scanFiles, getWatchFiles, getScanWarnings } = require('./scanner/scanner')
-    const { generate }  = require('./generator/generator')
+    const { generate, unresolvedWarning } = require('./generator/generator')
 
     const contentGlobs = config.content || [
       './src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}'
     ]
 
     const classNames = scanFiles(contentGlobs, cwd)
-    const { componentCSS, utilityCSS } = generate(classNames, config)
+    const { componentCSS, utilityCSS, unresolved } = generate(classNames, config)
 
     // Surface a scan that produced nothing as a real PostCSS warning. Most
     // consumers build through a bundler rather than the CLI, and an empty or
@@ -121,6 +122,10 @@ const plugin = (opts = {}) => ({
     for (const w of getScanWarnings()) {
       result.warn(`[strata] ${w}`, { plugin: 'strata-css' })
     }
+
+    // Same reasoning for a utility that matched no pattern and emitted nothing.
+    const uw = unresolvedWarning(unresolved)
+    if (uw) result.warn(`[strata] ${uw}`, { plugin: 'strata-css' })
 
     // Tell the caller's bundler (webpack/Turbopack/esbuild/etc.) that this
     // output depends on every scanned content file, not just the CSS file
@@ -190,14 +195,19 @@ module.exports.build = async (inputCSSPath, outputCSSPath, opts = {}) => {
   const config = loadConfig(cwd)
 
   const { scanFiles } = require('./scanner/scanner')
-  const { generate }  = require('./generator/generator')
+  const { generate, unresolvedWarning } = require('./generator/generator')
 
   const contentGlobs = config.content || [
     './src/**/*.{html,jsx,tsx,vue,astro,svelte,js,ts}'
   ]
 
   const classNames = scanFiles(contentGlobs, cwd)
-  const { componentCSS, utilityCSS } = generate(classNames, config)
+  const { componentCSS, utilityCSS, unresolved } = generate(classNames, config)
+
+  // Recorded rather than printed: this path is shared by the CLI and the
+  // programmatic build API, and a library must not write to the console on
+  // its caller's behalf. bin/strata.js reads this and prints it.
+  lastUnresolvedWarning = unresolvedWarning(unresolved)
 
   // Read input CSS (cached by mtime — strata.css rarely changes)
   const inputCSS = readInputCSS(inputCSSPath)
@@ -221,6 +231,12 @@ module.exports.build = async (inputCSSPath, outputCSSPath, opts = {}) => {
 
   return css
 }
+
+// Diagnostics from the last cold build, for callers that print their own
+// output. Null when the build had nothing to report. A warm build leaves the
+// previous value in place — nothing was regenerated, so nothing changed.
+module.exports.getBuildWarnings = () =>
+  lastUnresolvedWarning ? [lastUnresolvedWarning] : []
 
 // ─── Cache invalidation ───────────────────────────────────────────────
 module.exports.invalidate = (changedFile) => {

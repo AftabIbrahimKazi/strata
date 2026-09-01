@@ -96,7 +96,7 @@ interface ChartOptions {
   // Feature 3: Interactive Grid Highlighting
   highlightGridOnInteract?: boolean
 
-  onReady?:  (chart: StrataChart) => void
+  onReady?:  (chart: ChartInstance) => void
   onChange?: (view: ChartView) => void
   onClick?:  (point: { label: string; value: number; category: string; index: number }) => void
 
@@ -121,7 +121,7 @@ interface StrataNamespace { Chart: ChartPlugin }
 interface ChartPlugin {
   // Synchronous when window.THREE is present; otherwise lazy-loads Three.js and
   // resolves to the instance (or null on failure).
-  create(selector: string | Element, options: ChartOptions): StrataChart | null | Promise<StrataChart | null>
+  create(selector: string | Element, options: ChartOptions): ChartInstance | null | Promise<ChartInstance | null>
   load(url?: string): Promise<unknown>
   destroyAll(): void
 }
@@ -173,7 +173,7 @@ const GRID_COLOR_HIGHLIGHT = '#4a90e2'
 
 // ─── Registry ─────────────────────────────────────────────────────────────────
 
-const registry = new Map<Element, StrataChart>()
+const registry = new Map<Element, ChartInstance>()
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
@@ -881,9 +881,9 @@ class InteractionManager {
   }
 }
 
-// ─── StrataChart (public instance) ───────────────────────────────────────────
+// ─── ChartInstance (public instance) ───────────────────────────────────────────
 
-class StrataChart {
+class ChartInstance {
   private _sm:          SceneManager
   private _vt:          ChartViewTransition
   private _interaction: InteractionManager
@@ -1132,7 +1132,7 @@ class StrataChart {
   }
 
   // Validate + construct. Assumes Three.js is present.
-  function build(selector: string | Element, options: ChartOptions): StrataChart | null {
+  function build(selector: string | Element, options: ChartOptions): ChartInstance | null {
     const container = typeof selector === 'string' ? document.querySelector(selector) : selector as Element
     if (!container) { console.error(`[Strata Chart] Element not found: ${String(selector)}`); return null }
     if (registry.has(container)) {
@@ -1144,7 +1144,7 @@ class StrataChart {
       console.error(`[Strata Chart] Invalid type "${options.type}". Use: ${VALID_TYPES.join(', ')}`)
       return null
     }
-    const instance = new StrataChart(container as HTMLElement, options)
+    const instance = new ChartInstance(container as HTMLElement, options)
     registry.set(container, instance)
     return instance
   }
@@ -1153,7 +1153,7 @@ class StrataChart {
     // Synchronous + unchanged when Three.js is already present. If absent, it is
     // lazy-loaded and create() returns a Promise<instance> (override the source
     // with options.threeUrl, or '' to require pre-load).
-    create(selector: string | Element, options: ChartOptions): StrataChart | null | Promise<StrataChart | null> {
+    create(selector: string | Element, options: ChartOptions): ChartInstance | null | Promise<ChartInstance | null> {
       options = options || ({} as ChartOptions)
       if (win.THREE) return build(selector, options)
       const url = options.threeUrl === undefined ? DEFAULT_THREE_URL : options.threeUrl

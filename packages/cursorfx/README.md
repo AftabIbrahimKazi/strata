@@ -1,6 +1,6 @@
 # @strata-packages/cursorfx
 
-Modular cursor effects. One shared engine, nine opt-in presets.
+Modular cursor effects. One shared engine, ten opt-in presets.
 
 Works standalone or with [Strata CSS](https://strata-css-docs-site.vercel.app).
 
@@ -45,8 +45,8 @@ integration:
       data-st-cfx-trail-count="5">
 ```
 
-**DOM presets need none of that.** `Magnetic`, `HoverFlicker`, `CursorMorph` and
-`Reveal` emit no particles, so they are the engine plus their one file:
+**DOM presets need none of that.** `Magnetic`, `HoverFlicker`, `CursorMorph`,
+`Reveal` and `LineWave` emit no particles, so they are the engine plus their one file:
 
 ```html
 <script src="node_modules/@strata-packages/cursorfx/cursorfx.js"></script>
@@ -180,8 +180,8 @@ next, the recipe last.
 A recipe naming a behaviour that is not loaded warns in the console with the
 exact file to add, rather than rendering nothing.
 
-`Magnetic`, `HoverFlicker`, `CursorMorph` and `Reveal` are DOM effects and load
-none of this.
+`Magnetic`, `HoverFlicker`, `CursorMorph`, `Reveal` and `LineWave` are DOM
+effects and load none of this.
 
 ## Composing your own
 
@@ -225,6 +225,7 @@ is a real price for a feature you will not use.
 | `Reveal` | DOM | The pointer opens a soft hole in the top layer, showing what is beneath |
 | `Spark` | canvas | Short electric streaks thrown off the pointer, clicks, and hover-target edges |
 | `Smoke` | canvas | Soft volumetric smoke that curls off the pointer path |
+| `LineWave` | DOM | A ripple travels along a line when the pointer crosses it |
 
 ### Options
 
@@ -323,6 +324,88 @@ per frame — and it wants a large share of the particle budget. Raise
 expect a page running Smoke alongside another canvas preset to starve one of
 them. `additive: false` and a shorter `life` are the two cheapest dials.
 
+### LineWave
+
+A ripple travels along a line when the pointer crosses it, then settles flat.
+Dividers, rules, underlines, grid seams.
+
+```html
+<body data-st-cursorfx="line-wave"
+      data-st-cfx-line-wave-color="var(--brand)"
+      data-st-cfx-line-wave-cycles="6">
+
+  <div data-st-cfx-target="line-wave"></div>
+```
+
+The preset injects the line itself — you write one attribute, no SVG. Give the
+target some height (or width): a 1px rule is almost impossible to point at, so
+the line is drawn through the middle of whatever box you provide.
+
+**The line does not have to be a line.** `shape` swaps the geometry:
+
+| shape | what it draws |
+|---|---|
+| `sine` | a smooth travelling wave (default — the reference's look) |
+| `zigzag` | straight-sided wave, sharper and more mechanical |
+| `square` | hard steps |
+| `bars` | a **series of separate strokes** rising to the curve, like a waveform readout |
+| `helix` | **two strands** crossing, with rungs between them |
+
+```html
+<body data-st-cursorfx="line-wave" data-st-cfx-line-wave-shape="helix">
+
+  <!-- or per element, without a second instance -->
+  <div data-st-cfx-target="line-wave" data-st-cfx-wave-shape="bars"
+                                      data-st-cfx-wave-density="12"></div>
+```
+
+`density` is strokes per period for `bars` and rung count for `helix`; the
+single-stroke shapes ignore it. An unknown name warns, lists the real ones and
+falls back to `sine` — a blank mask would look identical to a working line that
+happens to be invisible.
+
+Adding a shape is a path generator of a few lines and nothing else: travel, the
+envelope and the cycle count all act on the mask, so none of the animation code
+learns which shape is running.
+
+Options: `shape`, `density`, `color`, `glowColor`, `amplitude` (px), `thickness` (px), `cycles`
+(crests along the line), `travel` (how far the phase slides), `duration` (s),
+`restOpacity`, `peakOpacity`, `glow` (px), `orientation` (`auto` | `horizontal`
+| `vertical`), `origin` (`pointer` | `start` | `center`), `retrigger`
+Methods: `setColor(css)`, `setShape(name)`, `setAmplitude(px)`, `wave(el)`
+
+**It costs nothing per frame.** There is no `render` hook: the shape is one
+period of a sine used as a `mask`, so `cycles` is a `mask-size`, `travel` is an
+animated `mask-position`, and the rise-and-fall envelope is `scaleY()` — where
+`scaleY(0)` *is* the wave's finished state, so nothing needs cleaning up when
+the animation ends. The line you see at rest is a separate unmasked rule that
+crossfades against the wave, so the divider stays visible while idle; set
+`restOpacity: 0` for one that is invisible until touched. Hovering flips one attribute; CSS does the rest.
+
+**Colour accepts any CSS paint, gradients included**, because the line is a
+background behind a mask rather than a stroke — `linear-`, `radial-` and
+`conic-gradient` all work with no special handling.
+
+**`origin: 'pointer'`** starts the ripple where the cursor actually crossed,
+rather than always at one end. Set `origin: 'start'` for a fixed sweep.
+
+**Triggers other than hover** are the page's job — the engine deliberately owns
+no scroll or focus listeners. Use `wave(el)` from your own observer:
+
+```js
+const lw = CursorFX.get('line-wave')
+new IntersectionObserver(([e]) => e.isIntersecting && lw.wave(e.target))
+  .observe(document.querySelector('#divider'))
+```
+
+Retune per theme from CSS — an instance writes a property inline only when the
+option differs from its default:
+
+```css
+:root                  { --st-cfx-wave-amplitude: 9px; }
+[data-st-theme="dark"] { --st-cfx-wave-peak-opacity: 0.8; }
+```
+
 ### Reveal
 
 Two stacked layers; the pointer opens a soft hole in the top one. Works for
@@ -342,7 +425,13 @@ the largest and nothing needs absolute positioning or a fixed height.
 Options: `radius` (px), `feather` (px, soft edge — `0` for a hard circle),
 `opacity` (`0` fully reveals, `1` hides nothing), `fade` (ms, open/close),
 `follow` (ms, how closely the hole tracks the pointer), `invert` (show the top
-layer *only* inside the circle)
+layer *only* inside the circle), `anchor` (`'pointer'` follows the cursor —
+anything else pins the hole wherever CSS puts it via `--st-cfx-reveal-x/y`,
+which is what a fixed detail like a peeled card corner wants)
+
+A single element can pin its own hole without a second instance:
+`data-st-cfx-reveal-anchor="fixed"`, then set `--st-cfx-reveal-x` /
+`--st-cfx-reveal-y` on it in CSS.
 Methods: `setRadius(px)`, `setOpacity(n)`, `setInvert(bool)`
 
 **Tuning it per theme.** Every option is a CSS custom property with a default,
@@ -433,6 +522,51 @@ if (CursorFX.tier() !== 'low') CursorFX.mount(Trail)
   where the morph element fails to render, the user is left with no cursor at
   all — set `hideNative: false` if that risk matters to you.
 
+---
+
+
+## Targets that should not intercept clicks
+
+A target does not have to be something you click. A hit zone wide enough to point at — a divider band, an edge strip — necessarily overlaps the content around it, and left hit-testable it swallows every click that lands in the overlap.
+
+Give it `pointer-events: none` and it still works:
+
+```css
+.wave-rule {
+  position: absolute;
+  inset-inline: 0;
+  height: 24px;          /* the hit zone, not the visible line */
+  pointer-events: none;  /* clicks pass through to the page */
+}
+```
+
+The engine hit-tests with `document.elementFromPoint`, which skips such elements, so these targets are matched on their bounding box instead. The geometric scan runs **only when the normal hit-test found no target at all** — it can add a match, never change one — and the candidate list is cached for 500 ms because it needs `getComputedStyle` per target while the hit-test runs every frame. Where several such targets overlap, the last in document order wins.
+
+## Documentation
+
+Full API reference, options and live examples: **[https://strata-css-docs-site.vercel.app/packages/cursorfx](https://strata-css-docs-site.vercel.app/packages/cursorfx)**
+
+`@strata-packages/cursorfx` is part of **[Strata CSS](https://github.com/AftabIbrahimKazi/strata)** — a JIT CSS framework that pairs Bootstrap-style component classes with Tailwind-style on-demand generation, cascade layers instead of `!important`, variants (`hover:`, `group-hover:`, `peer-checked:`), arbitrary values and three built-in themes.
+
+- Framework docs — [https://strata-css-docs-site.vercel.app](https://strata-css-docs-site.vercel.app)
+- Source and issues — [https://github.com/AftabIbrahimKazi/strata](https://github.com/AftabIbrahimKazi/strata)
+- Framework on npm — [strata-css](https://www.npmjs.com/package/strata-css)
+
+### Other Strata packages
+
+| Package | What it does |
+|---|---|
+| [`@strata-packages/chart`](https://www.npmjs.com/package/@strata-packages/chart) | Three.js chart component. Works standalone or with Strata CSS. |
+| [`@strata-packages/flipbook`](https://www.npmjs.com/package/@strata-packages/flipbook) | PDF and HTML flipbook viewer with page-flip animation. Works standalone or with Strata CSS. |
+| [`@strata-packages/forms`](https://www.npmjs.com/package/@strata-packages/forms) | Interactive form controls for Strata CSS — custom select with every variant developers need. |
+| [`@strata-packages/modal`](https://www.npmjs.com/package/@strata-packages/modal) | Lightweight modal component. Works standalone or with Strata CSS. |
+| [`@strata-packages/offcanvas`](https://www.npmjs.com/package/@strata-packages/offcanvas) | Lightweight offcanvas drawer component. Works standalone or with Strata CSS. |
+| [`@strata-packages/picker`](https://www.npmjs.com/package/@strata-packages/picker) | Date, time, and datetime picker for Strata CSS. Works standalone or with Strata. |
+| [`@strata-packages/shopmap`](https://www.npmjs.com/package/@strata-packages/shopmap) | Lightweight, theme-aware map component with terrain, hypsometric tinting, and procedural hillshading. Zero API keys. Free for commercial use. |
+| [`@strata-packages/skeleton-loader`](https://www.npmjs.com/package/@strata-packages/skeleton-loader) | Lightweight skeleton loader plugin. Works standalone or with Strata CSS. |
+
+---
+
 ## License
 
-MIT © Aftab Ibrahim Kazi
+MIT © [Aftab Ibrahim Kazi](https://github.com/AftabIbrahimKazi)

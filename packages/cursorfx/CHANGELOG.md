@@ -1,5 +1,36 @@
 # Changelog — @strata-packages/cursorfx
 
+## [Unreleased]
+
+## [0.2.1] — 2026-09-02
+
+### Fixed
+
+- **`LineWave` ignored every theme token, painting the divider in text colour.** `line-wave.css` declared each knob's default on `[data-st-cfx-wave]` itself. A custom property set on an element shadows the same property inherited from an ancestor, so an author's `:root { --st-cfx-wave-color: var(--st-border) }` could never reach the wave — it resolved to the package default and every knob silently kept its own value. Confirmed in Chrome: with the docs site setting the colour token and a rest-opacity of 1, the wave still computed `currentColor` at opacity 0.1.
+
+  The visible result was worst for `color`, whose default is `currentColor`. A divider meant to be painted in the host's border token was drawn in its *text* colour instead — on a light theme that is near-black against a pale header, so the rule read as a dark bar rather than the border it replaces.
+
+  Defaults now live in a `var()` fallback at each use site (48 of them) and the declaration block is gone, so a property is genuinely unset unless somebody asked for one. That is what the JS half already did — `token()` writes an inline custom property only where an option differs from its default, precisely so a stylesheet's value survives — and the two halves now agree. Reveal has always done it this way; the comment in `line-wave.js` says the rule was "copied from Reveal", but only the JS half was. The tests showed the same split: Reveal's asserted the comma form of the fallback while LineWave's asserted a declaration, so the test written to catch this bug was instead pinning it in place. It now matches Reveal's, plus a second assertion that no knob is declared on the wave element at all.
+
+- **A target with `pointer-events: none` could never be hovered.** The engine hit-tests once a frame with `document.elementFromPoint`, which skips such elements, so the effect simply never fired and nothing said why. That forced a choice authors should not have to make: a target is not always something you click, and a hit zone wide enough to point at — a divider band, say — overlaps the content around it. Left hit-testable it swallows every click landing in the overlap; opted out, it stopped working. The docs site's `WaveRule` hit exactly this: a 24px band straddling a container edge, half of it over page content across the full page width.
+
+  Targets that opt out of hit-testing are now matched on geometry instead. The scan runs **only when the normal hit-test found no target at all**, so it can add a match but never change one, and the candidate list is cached for 500ms because it needs `getComputedStyle` per target while `hitTest` runs every frame. A stale cache can only delay a newly added passive target by one interval — it cannot drop an existing one, since a target that still hit-tests never reaches this path. Where several passive targets overlap, the last in document order wins, which approximates paint order closely enough for elements that by definition cannot be hit-tested properly.
+
+- **`LineWave`: removed `will-change` from the wave element.** It is only a hint — the envelope animates `transform` and `opacity`, which the compositor promotes anyway — so it bought nothing, while promoting a layer inside a sticky, already-transformed ancestor (a `.navbar.sticky-top` carrying a show/hide transform) made that ancestor re-rasterise at bounds that do not cover its own background. Scrolled page content showed through the header band for the length of every wave. The drop-shadow in the envelope keyframe expands the ink bounds further, and the element deliberately overhangs its parent by half its height, which is what put the seam outside the header box.
+
+## [0.2.0] — 2026-09-01
+
+### Added
+
+- **`Reveal`: the closed state is now genuinely closed** — the mask's inner stop carried a fixed alpha, so a radius of 0 still left a feather-wide soft hole at the anchor point, permanently, whether or not the pointer was near the element. The alpha is now a registered `<number>` that is 1 at rest and transitions with the radius.
+- **`Reveal`: `anchor` option** — `'pointer'` (the default) keeps the hole tracking the cursor; any other value leaves `--st-cfx-reveal-x/y` to CSS, so the hole can be pinned to a fixed point. Also settable per element as `data-st-cfx-reveal-anchor`, so one instance can serve both a pointer-following hero and a card with a fixed peeled corner.
+- **`LineWave` preset** — a ripple travels along a line when the pointer crosses it, then settles flat. Ports the traveling-wave divider from a Next.js reference app, with every animated property moved to CSS: the shape is one period of a sine used as a `mask`, `cycles` is a `mask-size`, `travel` is an animated `mask-position`, and the envelope is `scaleY()` where `scaleY(0)` is the wave's finished state. The stroke carries `vector-effect="non-scaling-stroke"`, without which `preserveAspectRatio="none"` stretches it with the tile and the steep parts of the wave render as thick bars while the flat parts vanish. Vertical dividers rotate the authored geometry and tile along Y. The line visible at rest is a separate unmasked rule crossfaded against the wave — a masked element paints nothing once its box is collapsed, so the divider would otherwise vanish whenever idle. **The preset has no `render` hook** — the reference rewrote an SVG path `d` attribute every frame via GSAP; this does no per-frame work at all.
+- Colour accepts any CSS paint including every gradient type, because the line is a background behind a mask rather than a stroke.
+- `origin: 'pointer'` starts the ripple where the cursor actually crossed the line — the reference always started at one end, using pointer position only to pick which label glowed.
+- **Swappable shapes** — `shape: 'sine' | 'zigzag' | 'square' | 'bars' | 'helix'`. `bars` draws a series of separate strokes rising to the curve; `helix` draws two crossing strands with rungs between them. Because the shape is the mask, a new one is a path generator and nothing more — travel, envelope and cycles never learn which shape is running. `density` sets strokes per period (`bars`) or rung count (`helix`).
+- **Per-element shape override** — `data-st-cfx-wave-shape` / `-density` on a target, so one page can show several shapes without a second instance. `setShape()` deliberately leaves those elements alone.
+- `wave(el)` for triggers the engine does not own (scroll, focus). The engine deliberately has no IntersectionObserver.
+
 ## [0.1.1] — 2026-08-31
 
 ### Fixed

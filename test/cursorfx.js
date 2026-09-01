@@ -45,9 +45,9 @@ function freshRequire(rel) {
 }
 
 const PRESET_NAMES = ['Trail', 'ClickBurst', 'Electric', 'Magnetic', 'HoverFlicker',
-                      'CursorMorph', 'Reveal', 'Spark', 'Smoke']
+                      'CursorMorph', 'Reveal', 'Spark', 'Smoke', 'LineWave']
 const PRESET_FILES = ['trail', 'click-burst', 'electric', 'magnetic', 'hover-flicker',
-                      'cursor-morph', 'reveal', 'spark', 'smoke']
+                      'cursor-morph', 'reveal', 'spark', 'smoke', 'line-wave']
 
 // Presets are separate files now, so anything that mounts one has to register
 // it first — exactly what a consumer does.
@@ -631,6 +631,217 @@ console.log('\n── CursorFX: behaviour pipeline ─────────�
   bi.unmount()
 
   FX.destroy()
+  delete global.window
+  delete global.document
+}
+
+console.log('\n── CursorFX: LineWave ───────────────────────────────')
+
+{
+  const dom = new JSDOM(
+    '<!doctype html><body>' +
+    '<div id="h" data-st-cfx-target="line-wave"></div>' +
+    '<div id="v" data-st-cfx-target="line-wave"></div></body>',
+    { pretendToBeVisual: true, virtualConsole: new VirtualConsole() }
+  )
+  global.window = dom.window
+  global.document = dom.window.document
+
+  const FX = loadPresets(freshRequire('cursorfx.js'))
+  const LW = FX.presets.LineWave
+  FX.init()
+
+  const h = document.getElementById('h')
+  const v = document.getElementById('v')
+  // jsdom reports every rect as 0x0, so orientation is forced per element.
+  Object.defineProperty(v, 'getBoundingClientRect',
+    { value: () => ({ left: 0, top: 0, width: 10, height: 200 }) })
+  Object.defineProperty(h, 'getBoundingClientRect',
+    { value: () => ({ left: 0, top: 0, width: 400, height: 24 }) })
+
+  const inst = FX.mount(LW, {})
+  ok('LineWave mounts without a canvas',
+     !!inst && !document.querySelector('canvas[data-st-cfx]'))
+
+  // The preset builds its own markup — a page only writes the target attribute.
+  const wrap = h.querySelector('[data-st-cfx-wave]')
+  ok('the line element is injected, not required from the author', !!wrap)
+  ok('it starts in the resting state, carrying a value',
+     wrap && wrap.getAttribute('data-st-cfx-wave') === 'false')
+  ok('orientation is detected from the box',
+     wrap && wrap.getAttribute('data-st-cfx-wave-axis') === 'horizontal' &&
+     v.querySelector('[data-st-cfx-wave]').getAttribute('data-st-cfx-wave-axis') === 'vertical')
+
+  // Everything that animates is CSS, so hovering flips a value and nothing more.
+  LW.onHoverEnter(h, inst)
+  ok('hover starts the wave by flipping the attribute',
+     wrap.getAttribute('data-st-cfx-wave') === 'true')
+
+  // The point of the CSS-first design: no render hook at all, so the engine's
+  // frame loop does zero work for this preset.
+  ok('the preset has no render hook', LW.render === undefined)
+
+  // A default must NOT be written inline, or a stylesheet can never retune it.
+  // Only overrides become inline custom properties — Reveal established this.
+  ok('an untouched option is left for CSS to supply',
+     !wrap.style.getPropertyValue('--st-cfx-wave-amplitude'))
+
+  inst.unmount()
+  const tuned = FX.mount(LW, { amplitude: 12, cycles: 6 })
+  ok('an overridden option is written as a token',
+     !!h.querySelector('[data-st-cfx-wave]').style.getPropertyValue('--st-cfx-wave-amplitude'))
+  tuned.unmount()
+
+  // The default colour is `currentColor`, a keyword the browser re-evaluates on
+  // every paint. Resolving it to a fixed rgb() and writing that inline would
+  // beat any stylesheet, freezing the line at its mount-time colour — which is
+  // exactly what stopped it following the theme toggle on the docs site.
+  const plain = FX.mount(LW, {})
+  ok('currentColor is left for the browser, not frozen inline',
+     !h.querySelector('[data-st-cfx-wave]').style.getPropertyValue('--st-cfx-wave-color'))
+  plain.unmount()
+
+  // A gradient must survive untouched — the line is painted as a background,
+  // which is what makes every gradient type work with no code.
+  const grad = FX.mount(LW, { color: 'linear-gradient(90deg, #f00, #00f)' })
+  ok('a gradient colour is passed through verbatim',
+     /linear-gradient/.test(
+       h.querySelector('[data-st-cfx-wave]').style.getPropertyValue('--st-cfx-wave-color')))
+  grad.unmount()
+
+  // origin:'pointer' seeds the wave where the cursor crossed — the thing the
+  // source component could not do, since it never used pointer position here.
+  const ptr = FX.mount(LW, {})
+  document.dispatchEvent(new dom.window.PointerEvent('pointermove',
+    { clientX: 300, clientY: 5 }))
+  LW.onHoverEnter(h, ptr)
+  const origin = h.querySelector('[data-st-cfx-wave]').style
+    .getPropertyValue('--st-cfx-wave-origin')
+  ok('the wave starts where the pointer crossed (' + origin + ')',
+     parseFloat(origin) > 70 && parseFloat(origin) < 80)
+  ptr.unmount()
+
+  const centred = FX.mount(LW, { origin: 'center' })
+  LW.onHoverEnter(h, centred)
+  ok('origin can be forced to a fixed point',
+     h.querySelector('[data-st-cfx-wave]').style
+       .getPropertyValue('--st-cfx-wave-origin') === '50.0%')
+
+  // wave() exists because the engine owns no scroll or focus listeners — a page
+  // drives those itself rather than the package growing an observer.
+  ok('wave() is exposed for triggers the engine does not own',
+     typeof centred.wave === 'function')
+  centred.wave('#v')
+  ok('wave() runs on a selector',
+     v.querySelector('[data-st-cfx-wave]').getAttribute('data-st-cfx-wave') === 'true')
+
+  centred.unmount()
+  ok('unmount removes every injected line',
+     document.querySelectorAll('[data-st-cfx-wave]').length === 0)
+
+  FX.destroy()
+  ok('destroy() leaves no trace of the preset',
+     document.querySelectorAll('[data-st-cfx-wave]').length === 0)
+
+  // ── Shapes ──────────────────────────────────────────────────────────────
+  // The shape is the mask, so a new one is a path generator and nothing else:
+  // travel, envelope and cycles never learn which shape is running.
+  function maskOf(el) {
+    var m = el.querySelector("[data-st-cfx-wave]").style.getPropertyValue("--st-cfx-wave-mask")
+    // Sliced, not regexed: the prefix is a fixed string.
+    var inner = m.slice(m.indexOf(",") + 1, m.lastIndexOf("\""))
+    return decodeURIComponent(inner)
+  }
+  const shapes = ['sine', 'zigzag', 'square', 'bars', 'helix']
+  const masks = {}
+  shapes.forEach(shape => {
+    const si = FX.mount(LW, { shape })
+    masks[shape] = maskOf(h)
+    si.unmount()
+  })
+  ok('every shape produces a mask',
+     shapes.every(s2 => masks[s2] && masks[s2].indexOf('<path') !== -1))
+  ok('every shape is distinct from the others',
+     new Set(shapes.map(s2 => masks[s2])).size === shapes.length)
+
+  // 'bars' is the series-of-separate-strokes case; 'helix' is two strands plus
+  // rungs. Both are multi-path, which single-stroke shapes are not.
+  const count = s2 => (masks[s2].match(/<path /g) || []).length
+  ok('sine/zigzag/square are one continuous stroke',
+     count('sine') === 1 && count('zigzag') === 1 && count('square') === 1)
+  ok('bars is a series of separate strokes (' + count('bars') + ')',
+     count('bars') === 8)
+  ok('helix is two strands plus rungs (' + count('helix') + ')',
+     count('helix') === 6)
+
+  // An unknown shape must say so. A blank mask looks exactly like a working
+  // line that happens to be invisible.
+  const shapeWarn = []
+  const prevWarn = console.warn
+  console.warn = m => shapeWarn.push(String(m))
+  const oddShape = FX.mount(LW, { shape: 'spiral' })
+  console.warn = prevWarn
+  ok('an unknown shape warns and names the alternatives',
+     shapeWarn.some(w => /spiral/.test(w) && /sine/.test(w)))
+  ok('an unknown shape still renders, falling back to sine',
+     maskOf(h).indexOf('<path') !== -1)
+  oddShape.unmount()
+
+  // Swapping at runtime rewrites only the mask — no rebuild, no re-render.
+  const swap = FX.mount(LW, { shape: 'sine' })
+  const before = maskOf(h)
+  swap.setShape('helix')
+  ok('setShape swaps the mask in place', maskOf(h) !== before)
+  swap.unmount()
+
+  // An element may carry its own shape without needing its own instance —
+  // otherwise a page can only ever show one shape, since the preset scopes by
+  // document rather than by element.
+  const perEl = document.createElement('div')
+  perEl.setAttribute('data-st-cfx-target', 'line-wave')
+  perEl.setAttribute('data-st-cfx-wave-shape', 'helix')
+  document.body.appendChild(perEl)
+
+  const mixed = FX.mount(LW, { shape: 'sine' })
+  const pathsIn = el => (maskOf(el).match(/<path /g) || []).length
+  ok('an element can override the shape in markup',
+     pathsIn(perEl) === 6 && pathsIn(h) === 1)
+
+  // A global setter must not silently stamp over a per-element choice.
+  mixed.setShape('square')
+  ok('setShape leaves per-element overrides alone',
+     pathsIn(perEl) === 6 && pathsIn(h) === 1)
+  mixed.unmount()
+  perEl.parentNode.removeChild(perEl)
+
+  // wave() has to build first if the line is missing, so it works on an element
+  // added after mount and on one whose mask was just rebuilt.
+  const late = FX.mount(LW, {})
+  const w0 = h.querySelector('[data-st-cfx-wave]')
+  w0.parentNode.removeChild(w0)
+  late.wave('#h')
+  ok('wave() rebuilds a line that is not there yet',
+     !!h.querySelector('[data-st-cfx-wave]'))
+  late.unmount()
+
+  const lwCss = require('fs').readFileSync(
+    path.join(PKG, 'presets', 'line-wave', 'line-wave.css'), 'utf8')
+  ok('CSS ships -webkit-mask-image for Safari', /-webkit-mask-image/.test(lwCss))
+  // The assertion has to be for a var() FALLBACK, not a declaration — which is
+  // what it used to check, and why the bug it was written to catch went through
+  // it untouched. A custom property declared on [data-st-cfx-wave] shadows the
+  // same property inherited from an ancestor, so defaults written that way make
+  // a theme's `:root { --st-cfx-wave-color }` unreachable: every knob silently
+  // keeps its default. Reveal's twin of this test always required the comma
+  // form; LineWave copied the JS half of the rule and inverted the CSS half.
+  ok('every knob has a CSS fallback so themes can retune',
+     ['color', 'amplitude', 'cycles', 'travel', 'duration', 'glow']
+       .every(k => new RegExp('--st-cfx-wave-' + k + ',\\s').test(lwCss)))
+  ok('no knob is declared on the wave element, which would shadow the theme',
+     !/^\s+--st-cfx-wave-[a-z-]+:/m.test(lwCss))
+  ok('reduced motion stops the CSS animation too',
+     /prefers-reduced-motion[\s\S]*animation: none/.test(lwCss))
+
   delete global.window
   delete global.document
 }

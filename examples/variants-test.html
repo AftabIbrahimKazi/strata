@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strata — Variants</title>
+<link rel="stylesheet" href="../dist/strata.output.css">
+<style>
+/* ============================================================
+   Demo scaffolding only.
+
+   Nothing in this stylesheet implements a variant. Every state
+   demonstrated below comes from a real utility resolved by the
+   registry — this file only lays the page out.
+
+   The page is one repeated row: WHAT YOU WRITE on the left, the
+   LIVE ELEMENT in the middle, HOW TO TRIGGER IT on the right.
+   Same three columns everywhere, so the eye never has to relearn
+   the layout between sections.
+   ============================================================ */
+
+:root {
+  --gap: 1.25rem;
+  --rule: 1px solid var(--st-border);
+}
+
+body {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* ── Page header ─────────────────────────────────────────── */
+.page-head { border-bottom: 2px solid var(--st-text); padding-bottom: 1.5rem; margin-bottom: 2.5rem; }
+.page-head h1 { margin: 0 0 .5rem; font-size: clamp(1.75rem, 4vw, 2.5rem); }
+.lede { color: var(--st-text-muted); max-width: 68ch; margin: 0 0 .75rem; line-height: 1.6; }
+.lede:last-child { margin-bottom: 0; }
+
+/* ── Section ─────────────────────────────────────────────── */
+.section { margin-bottom: 3rem; }
+.section > h2 {
+  font-size: 1.125rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--st-text-muted);
+  margin: 0 0 .35rem;
+}
+.section > .section-note { color: var(--st-text-muted); margin: 0 0 1.25rem; max-width: 68ch; }
+
+/* ── The repeated row ────────────────────────────────────── */
+.rows {
+  border: var(--rule);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--st-bg);
+}
+.row-spec {
+  display: grid;
+  grid-template-columns: minmax(11rem, 15rem) minmax(0, 1fr) minmax(9rem, 14rem);
+  gap: var(--gap);
+  align-items: center;
+  padding: 1.1rem 1.25rem;
+  border-bottom: var(--rule);
+}
+.row-spec:last-child { border-bottom: 0; }
+.row-spec:nth-child(even) { background: var(--st-bg-secondary); }
+
+/* Column 1 — the class you write */
+.spec-class {
+  font: 600 .8125rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-word;
+}
+.spec-class span { display: block; }
+.spec-class .muted { font-weight: 400; color: var(--st-text-muted); }
+
+/* Column 2 — the live element */
+.spec-demo { min-width: 0; }
+
+/* Column 3 — what should happen */
+.spec-hint { font-size: .8125rem; color: var(--st-text-muted); line-height: 1.5; }
+
+@media (max-width: 860px) {
+  .row-spec { grid-template-columns: 1fr; gap: .65rem; }
+  .spec-hint::before { content: "→ "; }
+}
+
+/* ── Demo primitives, deliberately plain ─────────────────────
+   These MUST NOT declare any property a demonstrated utility
+   sets. This stylesheet is unlayered, so every rule in it beats
+   every Strata layer regardless of specificity — an earlier
+   version of this file set `background`, `text-align` and the
+   `border` shorthand here, which silently defeated
+   odd:bg-light, hover:bg-primary, active:bg-dark,
+   motion-safe:bg-success, portrait:bg-info, rtl:text-end and
+   forced-colors:border-*. The demos rendered, but did nothing.
+
+   So: no background (the row striping supplies contrast), no
+   text-align, and border-* longhands rather than the shorthand.
+   ───────────────────────────────────────────────────────────── */
+.tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: .75rem 1rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--st-border);
+  border-radius: 8px;
+  font-size: .875rem;
+}
+
+/* For demos where the utility itself sets "display" or "text-align" — this
+   rule declares neither, so nothing here can defeat them. A <div> is already
+   display:block, so stating it would create a conflict and buy nothing. */
+.box {
+  padding: .75rem 1rem;
+  border: var(--rule);
+  border-radius: 8px;
+  font-size: .875rem;
+}
+.tile-interactive { cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+.stack { display: flex; flex-direction: column; gap: .5rem; }
+.inline { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+
+/* Callout for the one thing that cannot be shown, only explained */
+.callout {
+  border-left: 3px solid var(--st-primary);
+  background: var(--st-bg-secondary);
+  padding: 1rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin: 0 0 1.25rem;
+}
+.callout p { margin: 0 0 .5rem; }
+.callout p:last-child { margin-bottom: 0; }
+
+code { font-size: .8125rem; }
+kbd {
+  font: 600 .75rem ui-monospace, SFMono-Regular, Menlo, monospace;
+  border: var(--rule); border-bottom-width: 2px;
+  border-radius: 4px; padding: .1rem .35rem;
+}
+.list-plain { list-style: none; padding: 0; margin: 0; }
+.page-foot { border-top: var(--rule); padding-top: 1.5rem; }
+</style>
+</head>
+<body class="bg-body text-body">
+
+<header class="page-head">
+  <h1>Variants</h1>
+  <p class="lede">
+    Pseudo-classes, pseudo-elements and relational states, written as a prefix on
+    any utility. Each row below shows the class you write, the live element, and
+    what you should do to see it fire.
+  </p>
+  <p class="lede">
+    <strong>One variant per class token.</strong> <code>hover:[bg-primary text-white]</code>
+    cannot work on any host: the HTML parser splits <code>class</code> on whitespace
+    into a token list before CSS is consulted, so it becomes
+    <code>hover:[bg-primary</code> + <code>text-white]</code> — the first token is
+    malformed and any middle token would apply permanently.
+  </p>
+</header>
+
+<div class="callout">
+  <p><strong>A trap this page fell into, worth knowing before you use variants.</strong></p>
+  <p>
+    Custom CSS is unlayered, and unlayered rules beat <em>every</em> Strata layer
+    regardless of specificity. An earlier version of this file styled its demo tiles
+    with <code>background: var(--st-bg)</code> — which silently defeated
+    <code>hover:bg-primary</code>, <code>odd:bg-light</code> and every other
+    background variant on the page. The demos rendered; they just did nothing.
+  </p>
+  <p>
+    The same applies in your own project: to override a state, you must name the
+    state. <code>.card { background: white }</code> will <em>not</em> suppress a
+    <code>hover:</code> background — write <code>.card:hover { … }</code> instead.
+  </p>
+</div>
+
+<!-- ═══ 1 · Interaction ═══════════════════════════════════════ -->
+<section class="section">
+  <h2>1 · Interaction</h2>
+  <p class="section-note">
+    The everyday states. <code>hover:</code> is emitted inside
+    <code>@media (hover: hover)</code>, so it can never stick on a touch device.
+  </p>
+
+  <div class="rows">
+    <div class="row-spec">
+      <div class="spec-class"><span>hover:bg-primary</span><span>hover:text-white</span></div>
+      <div class="spec-demo">
+        <div class="tile tile-interactive hover:bg-primary hover:text-white">Hover me</div>
+      </div>
+      <div class="spec-hint">Fills with brand colour while the pointer is over it.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>focus-visible:outline-primary</span></div>
+      <div class="spec-demo">
+        <button type="button" class="tile tile-interactive w-[100%] focus-visible:outline-primary">
+          Focus me
+        </button>
+      </div>
+      <div class="spec-hint">Press <kbd>Tab</kbd> until it is focused. A ring appears for keyboard focus but not for a mouse click.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>active:bg-dark</span><span>active:text-white</span></div>
+      <div class="spec-demo">
+        <div class="tile tile-interactive active:bg-dark active:text-white">Press and hold</div>
+      </div>
+      <div class="spec-hint">Darkens only while the mouse button is held down.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>focus-within:shadow-lg</span></div>
+      <div class="spec-demo">
+        <div class="tile focus-within:shadow-lg">
+          <input class="form-control" placeholder="Focus this input">
+        </div>
+      </div>
+      <div class="spec-hint">The <em>container</em> gains a shadow when anything inside it is focused.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 2 · Form state ════════════════════════════════════════ -->
+<section class="section">
+  <h2>2 · Form state</h2>
+  <p class="section-note">
+    Seventeen form variants ship. The pair worth understanding is
+    <code>invalid:</code> and <code>user-invalid:</code>.
+  </p>
+
+  <div class="callout">
+    <p><strong><code>invalid:</code> fires on page load</strong> for any empty required
+    field — so a form styled with it looks angry before the visitor has typed anything.</p>
+    <p><strong><code>user-invalid:</code> waits for interaction.</strong> Both ship, because
+    both are occasionally what you want. Use <code>user-invalid:</code> for validation feedback.</p>
+  </div>
+
+  <div class="rows">
+    <div class="row-spec">
+      <div class="spec-class"><span>invalid:border-danger</span></div>
+      <div class="spec-demo">
+        <input class="form-control invalid:border-danger" type="email" required
+               placeholder="Empty and required">
+      </div>
+      <div class="spec-hint">Already red, untouched. This is the behaviour you usually do <em>not</em> want.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>user-invalid:border-danger</span></div>
+      <div class="spec-demo">
+        <input class="form-control user-invalid:border-danger" type="email" required
+               placeholder="Empty and required">
+      </div>
+      <div class="spec-hint">Neutral until you type something invalid and leave the field. Compare with the row above.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>checked:bg-success</span></div>
+      <div class="spec-demo">
+        <div class="inline">
+          <label class="inline"><input type="checkbox" class="form-check-input checked:bg-success" checked> checked</label>
+          <label class="inline"><input type="checkbox" class="form-check-input checked:bg-success"> unchecked</label>
+        </div>
+      </div>
+      <div class="spec-hint">Toggle either box.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>disabled:opacity-50</span><span>disabled:cursor-not-allowed</span></div>
+      <div class="spec-demo">
+        <input class="form-control disabled:opacity-50 disabled:cursor-not-allowed"
+               value="Disabled input" disabled>
+      </div>
+      <div class="spec-hint">Static — the state is set by the <code>disabled</code> attribute.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>placeholder:fst-italic</span><span class="muted">a pseudo-element</span></div>
+      <div class="spec-demo">
+        <input class="form-control placeholder:fst-italic placeholder:text-muted"
+               placeholder="This placeholder is italic">
+      </div>
+      <div class="spec-hint">Styles <code>::placeholder</code>. Type in the field and the italic text is replaced.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 3 · Structural ════════════════════════════════════════ -->
+<section class="section">
+  <h2>3 · Structural</h2>
+  <p class="section-note">
+    Position within a parent. Every item below carries the <em>identical</em> class
+    string — the variants decide which rule applies to which.
+  </p>
+
+  <div class="rows">
+    <div class="row-spec">
+      <div class="spec-class">
+        <span>first:fw-bold</span>
+        <span>odd:bg-primary</span>
+        <span>odd:text-white</span>
+        <span>last:text-primary</span>
+      </div>
+      <div class="spec-demo">
+        <ul class="list-plain stack">
+          <li class="tile first:fw-bold odd:bg-primary odd:text-white last:text-primary">Item one</li>
+          <li class="tile first:fw-bold odd:bg-primary odd:text-white last:text-primary">Item two</li>
+          <li class="tile first:fw-bold odd:bg-primary odd:text-white last:text-primary">Item three</li>
+          <li class="tile first:fw-bold odd:bg-primary odd:text-white last:text-primary">Item four</li>
+        </ul>
+      </div>
+      <div class="spec-hint">
+        Static. Item one is bold, items one and three are filled, item four is
+        brand-coloured — all from one shared class string.
+        <br><br>
+        Note the pairing: <code>odd:bg-primary</code> alone would leave the text
+        at its inherited colour, so <code>odd:text-white</code> goes with it. A
+        background utility never sets a text colour for you.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 4 · Relational ════════════════════════════════════════ -->
+<section class="section">
+  <h2>4 · Relational — group and peer</h2>
+  <p class="section-note">
+    Style one element from the state of another. The trigger carries
+    <code>group</code> or <code>peer</code>; the element being styled carries the variant.
+  </p>
+
+  <div class="rows">
+    <div class="row-spec">
+      <div class="spec-class">
+        <span>group-hover:text-primary</span>
+        <span>group-hover:opacity-100</span>
+      </div>
+      <div class="spec-demo">
+        <div class="group tile tile-interactive stack">
+          <span class="fw-semibold group-hover:text-primary">Parent card</span>
+          <span class="opacity-0 group-hover:opacity-100">Hidden until the card is hovered</span>
+        </div>
+      </div>
+      <div class="spec-hint">
+        Hover anywhere on the card — both children react. Uses a descendant
+        combinator.
+      </div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class">
+        <span>peer-checked:text-success</span>
+        <span>peer-checked:fw-bold</span>
+      </div>
+      <div class="spec-demo">
+        <!-- The input must be a real SIBLING of the styled element, not wrapped
+             in a <label> with it — `~` only reaches siblings, so nesting the
+             input inside a label puts it on a different level and the variant
+             can never match. The label is associated with `for` instead. -->
+        <div class="stack">
+          <input type="checkbox" id="peer-demo" class="peer form-check-input">
+          <label for="peer-demo">Toggle the peer</label>
+          <span class="text-muted peer-checked:text-success peer-checked:fw-bold">
+            This sibling responds
+          </span>
+        </div>
+      </div>
+      <div class="spec-hint">
+        Uses the general sibling combinator, so the styled element must appear
+        <strong>after</strong> its peer <em>and share its parent</em>. Wrapping the
+        input in a <code>&lt;label&gt;</code> around both would break it.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 5 · Pseudo-elements ═══════════════════════════════════ -->
+<section class="section">
+  <h2>5 · Pseudo-elements</h2>
+  <p class="section-note">
+    Nine of them. Two behave specially, and both are noted in their rows.
+  </p>
+
+  <div class="rows">
+    <div class="row-spec">
+      <div class="spec-class"><span>marker:text-primary</span><span class="muted">on the &lt;ul&gt;</span></div>
+      <div class="spec-demo">
+        <ul class="marker:text-primary m-0">
+          <li>The bullet is brand-coloured</li>
+          <li>from one class on the parent</li>
+        </ul>
+      </div>
+      <div class="spec-hint">
+        Emits <em>two</em> rules — element and descendants — because you put the class
+        on the list and mean the items.
+      </div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>selection:bg-primary</span><span>selection:text-white</span></div>
+      <div class="spec-demo">
+        <p class="selection:bg-primary selection:text-white m-0">
+          Drag across this sentence to select it — the highlight uses the brand colour
+          rather than the browser default.
+        </p>
+      </div>
+      <div class="spec-hint">Select the text with the mouse. Also emits two rules.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>before:d-inline-block</span><span>after:d-inline-block</span></div>
+      <div class="spec-demo">
+        <p class="before:d-inline-block after:d-inline-block m-0">
+          These variants emit <code>content: ""</code> automatically.
+        </p>
+      </div>
+      <div class="spec-hint">
+        Without <code>content</code> a pseudo-element renders nothing at all, so it is
+        emitted for you.
+      </div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>file:btn-primary</span></div>
+      <div class="spec-demo">
+        <input type="file" class="file:btn-primary" aria-label="Example file input">
+      </div>
+      <div class="spec-hint">Styles <code>::file-selector-button</code> — the browser's own button.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 6 · Environment ═══════════════════════════════════════ -->
+<section class="section">
+  <h2>6 · Environment</h2>
+  <p class="section-note">
+    These wrap the rule in <code>@media</code> rather than matching a selector, so they
+    respond to the device and to OS accessibility settings — not to anything you can click.
+  </p>
+
+  <div class="rows">
+    <div class="row-spec">
+      <div class="spec-class"><span>motion-safe:bg-success</span><span>motion-reduce:bg-warning</span></div>
+      <div class="spec-demo">
+        <div class="tile motion-safe:bg-success motion-safe:text-white motion-reduce:bg-warning">
+          One of these is always active
+        </div>
+      </div>
+      <div class="spec-hint">
+        Green normally; amber if "reduce motion" is on in your OS settings. Toggle it
+        and reload.
+      </div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>portrait:bg-info</span><span>landscape:bg-primary</span></div>
+      <div class="spec-demo">
+        <div class="tile portrait:bg-info landscape:bg-primary landscape:text-white">
+          Follows window orientation
+        </div>
+      </div>
+      <div class="spec-hint">Resize the window taller than it is wide to flip it.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>print:d-none</span></div>
+      <div class="spec-demo">
+        <div class="box print:d-none">Hidden when printed</div>
+      </div>
+      <div class="spec-hint">Open print preview (<kbd>Ctrl</kbd>+<kbd>P</kbd>) — this tile is gone.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>forced-colors:fw-bold</span></div>
+      <div class="spec-demo">
+        <div class="tile forced-colors:fw-bold">Bold in forced-colors mode</div>
+      </div>
+      <div class="spec-hint">Only visible with Windows High Contrast enabled.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 7 · Direction ═════════════════════════════════════════ -->
+<section class="section">
+  <h2>7 · Direction</h2>
+  <p class="section-note">
+    Two selectors are emitted for each, because <code>dir</code> is usually on an
+    ancestor but may sit on the element itself.
+  </p>
+
+  <div class="rows">
+    <div class="row-spec">
+      <div class="spec-class"><span>rtl:text-end</span></div>
+      <div class="spec-demo">
+        <div dir="rtl"><div class="box rtl:text-end">dir="rtl" on the parent</div></div>
+      </div>
+      <div class="spec-hint">Static. Aligns to the right inside an RTL ancestor.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>ltr:text-start</span></div>
+      <div class="spec-demo">
+        <div class="box ltr:text-start">dir="ltr" inherited from &lt;html&gt;</div>
+      </div>
+      <div class="spec-hint">Static. The complementary case.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 8 · Composition ═══════════════════════════════════════ -->
+<section class="section">
+  <h2>8 · Composition</h2>
+  <p class="section-note">
+    Variants stack, and they compose with breakpoints and arbitrary values without
+    any additional syntax — the breakpoint stays inside the utility, exactly where
+    Strata already puts it.
+  </p>
+
+  <div class="rows">
+    <div class="row-spec">
+      <div class="spec-class"><span>hover:w-md-[60%]</span></div>
+      <div class="spec-demo">
+        <div class="tile tile-interactive w-[100%] hover:w-md-[60%]">Variant + breakpoint + arbitrary value</div>
+      </div>
+      <div class="spec-hint">
+        Above 768px, hovering shrinks it to 60%. Below that, hovering does nothing.
+        Routes to the <code>st-utilities-md</code> sub-layer like the bare utility.
+      </div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>hover:focus:bg-primary</span></div>
+      <div class="spec-demo">
+        <div class="tile tile-interactive hover:focus:bg-primary" tabindex="0">Needs both states at once</div>
+      </div>
+      <div class="spec-hint">Click it to focus, then move the pointer away and back. Only fills when hovered <em>and</em> focused.</div>
+    </div>
+
+    <div class="row-spec">
+      <div class="spec-class"><span>motion-safe:hover:shadow-lg</span></div>
+      <div class="spec-demo">
+        <div class="tile tile-interactive motion-safe:hover:shadow-lg">Media variant wrapping a state variant</div>
+      </div>
+      <div class="spec-hint">Hover raises it — unless "reduce motion" is on.</div>
+    </div>
+  </div>
+</section>
+
+<footer class="text-muted page-foot">
+  <p class="mb-2">
+    Rebuild before viewing — these classes only exist in the output once the scanner
+    has seen them in this file:
+  </p>
+  <pre class="m-0"><code>node bin/strata.js --build</code></pre>
+</footer>
+
+</body>
+</html>

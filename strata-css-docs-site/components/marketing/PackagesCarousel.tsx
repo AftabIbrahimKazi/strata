@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import WaveRule from "@/components/WaveRule";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperClass } from "swiper";
@@ -124,7 +125,12 @@ export default function PackagesCarousel({ packages }: { packages: PackageInfo[]
               ))}
             </div>
 
-            <div className="row g-2 border-top mb-2 text-muted">
+            {/* gx-only + row-gap: `g-2` also sets a vertical gutter, which pads the
+                columns from the top but not the bottom, so the text sat closer to
+                the lower line than the upper one. row-gap keeps the spacing when
+                the columns wrap on small screens. */}
+            <div className="row gx-2 row-gap-2 py-3 mb-0 position-relative text-muted">
+              <WaveRule />
               <div className="col-6 col-sm-3 d-flex align-items-center gap-2">
                 <StatIcon name="size" />
                 <span>{pkg.gzipSizeKb} KB gzip</span>
@@ -149,7 +155,8 @@ export default function PackagesCarousel({ packages }: { packages: PackageInfo[]
               </div>
             </div>
 
-            <div className="d-flex align-items-center gap-3 border-top pt-3">
+            <div className="d-flex align-items-center gap-3 pt-3 position-relative">
+              <WaveRule />
               <a
                 href={`https://github.com/AftabIbrahimKazi/strata/tree/main/packages/${pkg.slug}`}
                 target="_blank"

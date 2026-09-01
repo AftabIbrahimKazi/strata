@@ -12,6 +12,10 @@ const ICONS: Record<string, string> = {
     "M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm12 0v16",
   flipbook:
     "M12 6C10 4.5 6.5 4 3 4v14c3.5 0 7 .5 9 2 2-1.5 5.5-2 9-2V4c-3.5 0-7 .5-9 2Zm0 0v14",
+  // Pointer plus its trail — the only icon here that had no entry, so the
+  // cursorfx card rendered an empty <svg>.
+  cursorfx:
+    "M5 3l14 7-6 2.5L10 19Zm-1 9h0m-2 4h0",
   shopmap:
     "M12 21s7-6.5 7-11.5A7 7 0 0 0 5 9.5C5 14.5 12 21 12 21Zm0-9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
 };

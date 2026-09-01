@@ -2,9 +2,9 @@
 
 ## What it is
 
-Cursor effects. One shared engine plus nine independent presets, each in its own
+Cursor effects. One shared engine plus ten independent presets, each in its own
 file. A project loads the core and the single preset it uses — the package is
-structured this way because nobody ships nine cursor effects at once.
+structured this way because nobody ships ten cursor effects at once.
 
 ## File map
 
@@ -29,6 +29,7 @@ presets/<name>/<name>.css    only if that preset needs CSS
   reveal/         DOM    - pointer opens a hole in the top of two stacked layers
   spark/          canvas - electric streaks off movement, clicks and target edges  (no CSS)
   smoke/          canvas - curl-noise smoke plume off the pointer path   (no CSS)
+  line-wave/      DOM    - ripple travels along a line the pointer crosses
 ```
 
 Nothing here is generated and there is no build step — `cursorfx.js` is the
@@ -192,11 +193,20 @@ earlier elements already.
 | `data-st-cfx-cursor` | `<html>` | `"hidden"` | CursorMorph, when `hideNative` |
 | `data-st-cfx-reveal` | a reveal container | `"true"` / `"false"` | Reveal |
 | `data-st-cfx-reveal-invert` | a reveal container | `"true"` / `"false"` | Reveal |
+| `data-st-cfx-reveal-anchor` | a reveal container, **by the author** | `"pointer"` or anything else (pins the hole to `--st-cfx-reveal-x/y`) | Reveal |
 
 Custom properties are all `--st-cfx-*`; the one keyframe is `st-cfx-flicker`.
 Preset keys for `data-st-cfx-target` are the folder names: `trail`,
 `click-burst`, `electric`, `magnetic`, `hover-flicker`, `cursor-morph`. Each
 preset declares its own as `key`.
+
+A target may carry `pointer-events: none`. The engine hit-tests with
+`elementFromPoint`, which skips such elements, so those targets are matched on
+their bounding box instead — the fallback runs only when the normal hit-test
+found nothing, and its candidate list is cached for 500ms. Use it when a target
+is a hit *zone* rather than a click target: a band wide enough to point at
+usually overlaps neighbouring content, and left hit-testable it swallows every
+click that lands in the overlap.
 
 Colours resolve to `currentColor` by default, so the package needs no colour
 tokens and no `prefers-color-scheme` block — it adapts to the host's theme
@@ -299,6 +309,48 @@ global budget on its own. That cost is inherent to the look — flat fills read 
 discs, not as smoke — but it is the reason the README tells consumers to raise
 `maxParticles` and warns that pairing it with another canvas preset starves one
 of them.
+
+## LineWave is the CSS-first precedent
+
+It has **no `render` hook at all**. The reference implementation it replaces
+(an SVG divider in a Next.js app) rewrote a path `d` attribute every frame via
+GSAP; none of that is necessary. One period of a sine is a `mask`, so:
+
+- `cycles` is a `mask-size`
+- `travel` is an animated `mask-position`
+- the rise-and-fall envelope is `scaleY()`, and `scaleY(0)` **is** the wave's
+  resting state — so the finished state and the start state are identical and
+  nothing has to be reset
+- **the visible line at rest is not the wave.** A mask scales with the box it
+  is painted into, so a collapsed wave renders nothing at all. The resting line
+  is a separate unmasked `::after` rule, and the two crossfade on one timeline:
+  the baseline fades out as the wave rises and back in as it settles, so only
+  ever one line is visible. `--st-cfx-wave-rest-opacity: 0` gives a divider
+  that is genuinely invisible until touched
+- colour is a `background`, which is why every gradient type works for free
+
+The rule this sets for future presets: **if the browser can animate it, do not
+animate it from JavaScript.** CursorMorph is the counter-example still
+outstanding — it writes five custom properties per frame to do what a CSS
+transition does natively.
+
+Shapes are the payoff of that design. `sine`, `zigzag`, `square`, `bars` and
+`helix` are path generators of a few lines each, tiled by `mask-repeat`. They
+live in the preset file rather than in separate files on purpose — each is
+small enough that a per-file wrapper would cost more than the code, which is
+the mistake measured three times over in this repo (CursorFX behaviours,
+chart, flipbook).
+
+The mask is resolved **per element**, not per instance, because
+`data-st-cfx-wave-shape` lets one page mix shapes. `setShape()` skips any
+element carrying that attribute — a global setter must not stamp over a
+per-element choice.
+
+JS does three things only: build the element once, flip
+`data-st-cfx-wave` on hover, and write a custom property where an option
+overrides its default. Restarting a running animation needs the attribute to
+leave `"true"` and a forced reflow (`void el.offsetWidth`) before it returns,
+or re-entering mid-wave does nothing.
 
 ## Adding a behaviour
 

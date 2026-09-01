@@ -81,11 +81,20 @@
       opacity: 0,      // 0 fully reveals what is beneath; 1 hides it entirely
       fade:    220,    // ms — how fast the hole opens and closes
       follow:  90,     // ms — how closely the hole tracks the pointer; 0 is instant
-      invert:  false   // show the top layer only inside the circle instead
+      invert:  false,  // show the top layer only inside the circle instead
+      anchor:  'pointer' // 'pointer' follows the cursor; anything else pins the
+                         // hole where CSS puts it, via --st-cfx-reveal-x/y.
+                         // Per element: data-st-cfx-reveal-anchor="fixed"
     },
 
     onHoverEnter: function (el, inst) {
       inst.local.el = el
+      // An element may pin the hole instead of letting it follow the pointer —
+      // useful where the reveal is a fixed detail of the design (a peeled
+      // corner on a card) rather than a torch the reader carries around.
+      // Anywhere but "pointer" means: leave x/y to CSS.
+      inst.local.pinned =
+        (el.getAttribute('data-st-cfx-reveal-anchor') || inst.options.anchor) !== 'pointer'
       // Measured once per hover, never per frame.
       inst.local.rect = el.getBoundingClientRect()
       applyTokens(el, inst)
@@ -97,12 +106,13 @@
       el.setAttribute('data-st-cfx-reveal', 'false')
       inst.local.el = null
       inst.local.rect = null
+      inst.local.pinned = false
     },
 
     onMove: function (x, y, inst) {
       var el = inst.local.el
       var r  = inst.local.rect
-      if (!el || !r) return
+      if (!el || !r || inst.local.pinned) return
       // Element-local coordinates: the mask is positioned inside the element.
       el.style.setProperty('--st-cfx-reveal-x', (x - r.left).toFixed(1) + 'px')
       el.style.setProperty('--st-cfx-reveal-y', (y - r.top).toFixed(1) + 'px')

@@ -35,6 +35,10 @@ module.exports = {
   input:   './strata.css',
   output:  './dist/strata.output.css',
   safelist: [],   // optional — see below
+
+  // optional — CSS minification, used by `--minify` only
+  minifier: 'lightningcss',        // 'lightningcss' | 'cssnano' | false
+  targets:  { safari: 16 << 16 },  // browser targets for lightningcss
 }
 ```
 
@@ -58,6 +62,31 @@ safelist: [
 
 Safelisted names go through the same registry lookup as scanned ones, so arbitrary values (`w-[320px]`) and responsive variants (`px-md-4`) work here too. A name that matches nothing in the registry is ignored silently.
 
+### `minifier` / `targets`
+
+`--minify` runs a fixed cascade and prints which engine ran:
+
+1. **`minifier` set in config** — honoured exactly; hard-errors if unavailable rather than silently substituting the other one.
+2. **Lightning CSS** — the default. ~2% smaller than cssnano, used when it parses the stylesheet cleanly.
+3. **cssnano** — on a missing package, a parse failure, *or* a dropped declaration. Announced with the reason.
+4. **Unminified** — if neither is installed. Announced.
+
+Neither is a hard dependency; both are optional peers.
+
+The order is fixed rather than "whichever output is smaller", because the two engines are not interchangeable on **your** CSS. `@strata` directives are replaced inside your own stylesheet, so any custom CSS you write there goes through the same minifier — and that is where they diverge:
+
+```css
+.legacy { *zoom: 1 }   /* lightningcss: SyntaxError, build dies       */
+                       /* lightningcss + errorRecovery: drops it      */
+                       /* cssnano: preserves it                       */
+```
+
+Strata always enables `errorRecovery`, so a legacy hack can never kill your build — and it treats a recovered error as a **failure**, falling back to cssnano. The dropped-declaration output is smaller precisely *because* something of yours was deleted, so picking by file size would let compression decide whether your hack ships. Compression only breaks ties between outputs that are equivalent.
+
+`targets` is passed through to Lightning CSS. Without it, Lightning emits Media Queries Level 4 range syntax (`width>=768px`), which needs Safari 16.4+. That is barely a change in practice — Strata's own output already requires Safari 16.2+ through 72 uses of `color-mix()` — but set `targets` if you want the floor stated explicitly rather than inherited.
+
+Under Vite, Next or webpack this cascade never runs: the PostCSS plugin path is used and the bundler does its own minification.
+
 ### Diagnosing a missing class
 
 If a class isn't showing up in the output, check what the scanner actually saw:
@@ -74,6 +103,16 @@ Two conditions are reported as warnings automatically, with no flag needed — o
 |---|---|
 | `no files matched the content globs …` | Globs don't match your layout, or point at the wrong directory. The message prints the directory they resolved against — compare it with where your source actually lives. |
 | `N file(s) matched … but no class names were found` | Files are being read, but classes aren't in `class`/`className` attributes — e.g. assembled in a helper module the scanner never sees. Safelist those. |
+
+A third warning covers the opposite case — the class *was* found, but matched no utility:
+
+```
+[Strata] ⚠  2 class(es) with arbitrary values matched no utility and emitted nothing:
+            nope-[12px], lh-[1.15]. Check the prefix is a real utility and the
+            breakpoint segment is one of sm|md|lg|xl|xxl.
+```
+
+This is deliberately limited to class names using arbitrary bracket syntax. A bracket says the author was reaching for a utility, so silence is a bug; an ordinary unmatched name (`swiper-slide`, a BEM block) is just someone else's class and is ignored without comment.
 
 If neither warning appears and a specific class is still missing, it's almost certainly built dynamically (`` `btn-${variant}` ``) — no scanner can see those. Safelist it.
 
@@ -182,6 +221,14 @@ Responsive: `w-md-50`, `h-lg-auto`
 `rounded`, `rounded-{0-5}`, `rounded-pill`, `rounded-circle`
 `rounded-{top/bottom/start/end}`
 
+### Aspect ratio
+`aspect-square` (1/1), `aspect-video` (16/9), `aspect-auto`
+`aspect-1x1`, `aspect-4x3`, `aspect-16x9`, `aspect-21x9` — same names as the `.ratio-*` component
+Responsive: `aspect-md-video`, `aspect-lg-square`
+Arbitrary: `aspect-[16/10]`, `aspect-[1.85]`, `aspect-[var(--r)]`
+
+`.ratio` / `.ratio-{1x1,4x3,16x9,21x9}` remain for the wrapper-plus-embed pattern and are now implemented on `aspect-ratio` rather than the padding-top hack. Its fill rule is scoped to replaced elements (`img`, `video`, `iframe`, `embed`, `object`), so an overlay child keeps its own size instead of being stretched to the box. Prefer `aspect-*` for new markup — it needs no wrapper and no companion class.
+
 ### Shadows
 `shadow-sm`, `shadow`, `shadow-lg`, `shadow-none`
 Responsive: `shadow-md-sm`, `shadow-lg-lg`
@@ -228,6 +275,48 @@ Any utility that isn't in the registry can be expressed with square brackets:
 `text-[value]` routing:
 - Length unit (`px rem em % vw vh ch ex pt cm mm`) → `font-size`
 - Everything else → `color`
+
+## Variants — pseudo-classes, pseudo-elements, relational states
+
+Prefix any utility with a variant. **One variant per class token:**
+
+```html
+<div class="card hover:bg-primary hover:text-white focus-visible:outline-primary">
+```
+
+`hover:[bg-primary text-white]` does **not** work and never can — the HTML parser splits `class` on whitespace into a token list before CSS is consulted, so it becomes `hover:[bg-primary` + `text-white]`, leaving a bare token that applies permanently.
+
+**Breakpoints need no new syntax.** They stay infix in the utility, so a variant is a pure prefix and routing is unchanged:
+
+```html
+<div class="hover:w-md-[40%] hover:d-lg-flex">
+```
+
+**Variants stack**, in any order: `motion-safe:hover:shadow-lg`, `hover:focus:bg-primary`.
+
+| Group | Variants |
+|---|---|
+| Interaction | `hover` `focus` `focus-visible` `focus-within` `active` `visited` `target` |
+| Form state | `checked` `indeterminate` `disabled` `enabled` `required` `optional` `valid` `invalid` `user-valid` `user-invalid` `in-range` `out-of-range` `read-only` `read-write` `placeholder-shown` `autofill` `default` |
+| Structural | `first` `last` `only` `odd` `even` `first-of-type` `last-of-type` `only-of-type` `empty` |
+| Pseudo-elements | `placeholder` `marker` `selection` `file` `first-line` `first-letter` `backdrop` `before` `after` |
+| Environment (`@media`) | `motion-safe` `motion-reduce` `contrast-more` `contrast-less` `forced-colors` `print` `portrait` `landscape` |
+| Direction | `rtl` `ltr` |
+| Relational | `group-{state}` `peer-{state}` — e.g. `group-hover`, `peer-checked`, `peer-invalid` |
+
+**Behaviours worth knowing:**
+
+- **`hover:` is emitted inside `@media (hover: hover)`**, so it never sticks on a touch device.
+- **Both `invalid:` and `user-invalid:` ship.** `:invalid` fires on page load for empty required fields, so a form styled with it looks angry before anyone types. Prefer `user-invalid:` for validation feedback.
+- **`before:` and `after:` emit `content: ""`** — they render nothing without it.
+- **`marker:` and `selection:` emit two rules**, the element and its descendants, so `marker:text-muted` on a `<ul>` styles the `<li>` markers.
+- **`rtl:`/`ltr:` emit two selectors** — `dir` is usually on an ancestor but may be on the element itself.
+- **Relational variants use `:where()` on the trigger**, so they contribute zero specificity and score the same as a plain state utility.
+- `peer-*` uses the general sibling combinator, so the styled element must appear **after** its peer in source order.
+
+**Specificity.** A plain utility is (0,1,0); one variant makes it (0,2,0), relational included. Stacking two pseudo-classes necessarily makes it (0,3,0). State rules live in the `st-utilities-*` layers, so they beat a component's own state rule **by layer, not specificity** — which is what makes it deterministic.
+
+**Overriding a state from custom CSS.** Custom CSS is unlayered and therefore beats every Strata layer regardless of specificity — but you must name the state. `.card { background: white }` will **not** suppress a `hover:` background, because layer order is evaluated before specificity. Write `.card:hover { ... }`.
 
 ## Component Classes
 
@@ -394,7 +483,7 @@ Before v1.8.14 this resolution only looked inside the Strata monorepo, so instal
 | `@strata-packages/offcanvas` | Slide-in drawer component | `packages/offcanvas/CLAUDE.md` |
 | `@strata-packages/flipbook` | CSS-driven 3D page-flip flipbook | `packages/flipbook/CLAUDE.md` |
 | `@strata-packages/shopmap` | JIT-themed MapLibre GL shop map | `packages/shopmap/CLAUDE.md` |
-| `@strata-packages/cursorfx` | Modular cursor effects — engine + 9 presets | `packages/cursorfx/CLAUDE.md` |
+| `@strata-packages/cursorfx` | Modular cursor effects — engine + 10 presets | `packages/cursorfx/CLAUDE.md` |
 
 ## New in v1.1.0
 
@@ -548,4 +637,5 @@ Arbitrary: `top-[...]`, `bottom-[...]`, `left-[...]`, `right-[...]`, `inset-[0_1
   A related trap: a class assembled into a variable far from the markup (`const cls = clsx('w-[200px]')` in one file, `className={cls}` in another) *is* detected, because `clsx('w-[200px]')` still contains the literal — but only if that call sits inside a `class`/`className` assignment or attribute. A helper in an unrelated module is not scanned; safelist those.
 - CSS variables cannot be used in `@media` query values — breakpoints use hardcoded `px` values.
 - `text-[value]`: length units → `font-size`, everything else → `color`. Use `fs-[...]` for token-based font-size.
+- Every arbitrary family accepts a breakpoint segment — `w-md-[40%]`, `bg-lg-[#fff]`, `text-sm-[1.25rem]` — and a build warning fires if one resolves to nothing. Values are still not validated: `w-md-[bogus]` emits `width: bogus` without complaint, because Strata does not parse CSS values.
 - Arbitrary-value classes (`w-[...]`, `border-[...]`, `p-[...]`, etc.) interpolate the bracket contents directly into the generated CSS with no value-level escaping — only the class selector is escaped. Safe under Strata's JIT model (class names are scanned from your own source files at build time), but never run the scanner over unsanitized user-submitted HTML/content.

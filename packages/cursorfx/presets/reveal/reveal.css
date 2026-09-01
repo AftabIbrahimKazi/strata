@@ -28,6 +28,16 @@
  *
  * Custom properties are only animatable once registered. Without @property the
  * transitions simply snap, which is an acceptable degradation. */
+/* How much of the top layer survives at the centre of the hole. 1 at rest —
+ * which is what makes the closed state genuinely opaque. With a fixed alpha,
+ * a radius of 0 still left a feather-wide soft hole at the anchor point,
+ * permanently, whether or not the pointer was anywhere near the element. */
+@property --st-cfx-reveal-a {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
 @property --st-cfx-reveal-r {
   syntax: '<length>';
   inherits: true;
@@ -79,7 +89,10 @@
 [data-st-cfx-target~="reveal"] > :last-child {
   --st-cfx-reveal-r: 0px;
 
-  --_in:  rgba(0, 0, 0, var(--st-cfx-reveal-opacity, 0));
+  /* The animated alpha, not the raw option: at rest it is 1, so the closed
+     state is genuinely opaque. Reading --st-cfx-reveal-opacity directly here
+     left a permanent feather-wide hole at the anchor even at radius 0. */
+  --_in:  rgba(0, 0, 0, var(--st-cfx-reveal-a));
   --_out: rgba(0, 0, 0, 1);
 
   -webkit-mask-image: radial-gradient(circle at
@@ -93,20 +106,29 @@
     var(--_in) var(--st-cfx-reveal-r),
     var(--_out) calc(var(--st-cfx-reveal-r) + var(--st-cfx-reveal-feather, 60px)));
 
-  transition: --st-cfx-reveal-r var(--st-cfx-reveal-fade, 220ms) var(--st-easing, ease-out);
+  transition:
+    --st-cfx-reveal-r var(--st-cfx-reveal-fade, 220ms) var(--st-easing, ease-out),
+    --st-cfx-reveal-a var(--st-cfx-reveal-fade, 220ms) var(--st-easing, ease-out);
 }
 
 /* Open on hover, shut on leave. The attribute flips rather than being removed,
  * so the closing transition has a rule to run on. */
 [data-st-cfx-target~="reveal"][data-st-cfx-reveal="true"] > :last-child {
   --st-cfx-reveal-r: var(--st-cfx-reveal-radius, 110px);
+  --st-cfx-reveal-a: var(--st-cfx-reveal-opacity, 0);
 }
 
 /* ─── Inverted: show the top layer only inside the circle ─────────────── */
 
 [data-st-cfx-reveal-invert="true"] > :last-child {
   --_in:  rgba(0, 0, 0, 1);
-  --_out: rgba(0, 0, 0, var(--st-cfx-reveal-opacity, 0));
+  --_out: rgba(0, 0, 0, var(--st-cfx-reveal-a));
+}
+
+/* Inverted runs the alpha the other way: opaque everywhere at rest, and only
+ * the ring outside the circle fades once the hole opens. */
+[data-st-cfx-reveal-invert="true"][data-st-cfx-reveal="true"] > :last-child {
+  --st-cfx-reveal-a: var(--st-cfx-reveal-opacity, 0);
 }
 
 /* ─── Reduced motion ─────────────────────────────────────────────────────
