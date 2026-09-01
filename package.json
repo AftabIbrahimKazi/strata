@@ -80,13 +80,17 @@
   },
   "peerDependencies": {
     "autoprefixer": ">=10",
-    "cssnano": ">=6"
+    "cssnano": ">=6",
+    "lightningcss": ">=1.22"
   },
   "peerDependenciesMeta": {
     "autoprefixer": {
       "optional": true
     },
     "cssnano": {
+      "optional": true
+    },
+    "lightningcss": {
       "optional": true
     }
   },

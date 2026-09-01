@@ -35,6 +35,10 @@ module.exports = {
   input:   './strata.css',
   output:  './dist/strata.output.css',
   safelist: [],   // optional — see below
+
+  // optional — CSS minification, used by `--minify` only
+  minifier: 'lightningcss',        // 'lightningcss' | 'cssnano' | false
+  targets:  { safari: 16 << 16 },  // browser targets for lightningcss
 }
 ```
 
@@ -57,6 +61,31 @@ safelist: [
 ```
 
 Safelisted names go through the same registry lookup as scanned ones, so arbitrary values (`w-[320px]`) and responsive variants (`px-md-4`) work here too. A name that matches nothing in the registry is ignored silently.
+
+### `minifier` / `targets`
+
+`--minify` runs a fixed cascade and prints which engine ran:
+
+1. **`minifier` set in config** — honoured exactly; hard-errors if unavailable rather than silently substituting the other one.
+2. **Lightning CSS** — the default. ~2% smaller than cssnano, used when it parses the stylesheet cleanly.
+3. **cssnano** — on a missing package, a parse failure, *or* a dropped declaration. Announced with the reason.
+4. **Unminified** — if neither is installed. Announced.
+
+Neither is a hard dependency; both are optional peers.
+
+The order is fixed rather than "whichever output is smaller", because the two engines are not interchangeable on **your** CSS. `@strata` directives are replaced inside your own stylesheet, so any custom CSS you write there goes through the same minifier — and that is where they diverge:
+
+```css
+.legacy { *zoom: 1 }   /* lightningcss: SyntaxError, build dies       */
+                       /* lightningcss + errorRecovery: drops it      */
+                       /* cssnano: preserves it                       */
+```
+
+Strata always enables `errorRecovery`, so a legacy hack can never kill your build — and it treats a recovered error as a **failure**, falling back to cssnano. The dropped-declaration output is smaller precisely *because* something of yours was deleted, so picking by file size would let compression decide whether your hack ships. Compression only breaks ties between outputs that are equivalent.
+
+`targets` is passed through to Lightning CSS. Without it, Lightning emits Media Queries Level 4 range syntax (`width>=768px`), which needs Safari 16.4+. That is barely a change in practice — Strata's own output already requires Safari 16.2+ through 72 uses of `color-mix()` — but set `targets` if you want the floor stated explicitly rather than inherited.
+
+Under Vite, Next or webpack this cascade never runs: the PostCSS plugin path is used and the bundler does its own minification.
 
 ### Diagnosing a missing class
 
