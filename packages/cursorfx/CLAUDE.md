@@ -200,6 +200,14 @@ Preset keys for `data-st-cfx-target` are the folder names: `trail`,
 `click-burst`, `electric`, `magnetic`, `hover-flicker`, `cursor-morph`. Each
 preset declares its own as `key`.
 
+A target may carry `pointer-events: none`. The engine hit-tests with
+`elementFromPoint`, which skips such elements, so those targets are matched on
+their bounding box instead — the fallback runs only when the normal hit-test
+found nothing, and its candidate list is cached for 500ms. Use it when a target
+is a hit *zone* rather than a click target: a band wide enough to point at
+usually overlaps neighbouring content, and left hit-testable it swallows every
+click that lands in the overlap.
+
 Colours resolve to `currentColor` by default, so the package needs no colour
 tokens and no `prefers-color-scheme` block — it adapts to the host's theme
 without participating in it.
