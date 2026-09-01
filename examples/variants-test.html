@@ -84,18 +84,40 @@ body {
   .spec-hint::before { content: "→ "; }
 }
 
-/* ── Demo primitives, deliberately plain ─────────────────── */
+/* ── Demo primitives, deliberately plain ─────────────────────
+   These MUST NOT declare any property a demonstrated utility
+   sets. This stylesheet is unlayered, so every rule in it beats
+   every Strata layer regardless of specificity — an earlier
+   version of this file set `background`, `text-align` and the
+   `border` shorthand here, which silently defeated
+   odd:bg-light, hover:bg-primary, active:bg-dark,
+   motion-safe:bg-success, portrait:bg-info, rtl:text-end and
+   forced-colors:border-*. The demos rendered, but did nothing.
+
+   So: no background (the row striping supplies contrast), no
+   text-align, and border-* longhands rather than the shorthand.
+   ───────────────────────────────────────────────────────────── */
 .tile {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 3.25rem;
   padding: .75rem 1rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--st-border);
+  border-radius: 8px;
+  font-size: .875rem;
+}
+
+/* For demos where the utility itself sets "display" or "text-align" — this
+   rule declares neither, so nothing here can defeat them. A <div> is already
+   display:block, so stating it would create a conflict and buy nothing. */
+.box {
+  padding: .75rem 1rem;
   border: var(--rule);
   border-radius: 8px;
-  background: var(--st-bg);
   font-size: .875rem;
-  text-align: center;
 }
 .tile-interactive { cursor: pointer; -webkit-user-select: none; user-select: none; }
 
@@ -140,6 +162,22 @@ kbd {
     malformed and any middle token would apply permanently.
   </p>
 </header>
+
+<div class="callout">
+  <p><strong>A trap this page fell into, worth knowing before you use variants.</strong></p>
+  <p>
+    Custom CSS is unlayered, and unlayered rules beat <em>every</em> Strata layer
+    regardless of specificity. An earlier version of this file styled its demo tiles
+    with <code>background: var(--st-bg)</code> — which silently defeated
+    <code>hover:bg-primary</code>, <code>odd:bg-light</code> and every other
+    background variant on the page. The demos rendered; they just did nothing.
+  </p>
+  <p>
+    The same applies in your own project: to override a state, you must name the
+    state. <code>.card { background: white }</code> will <em>not</em> suppress a
+    <code>hover:</code> background — write <code>.card:hover { … }</code> instead.
+  </p>
+</div>
 
 <!-- ═══ 1 · Interaction ═══════════════════════════════════════ -->
 <section class="section">
@@ -422,15 +460,15 @@ kbd {
     <div class="row-spec">
       <div class="spec-class"><span>print:d-none</span></div>
       <div class="spec-demo">
-        <div class="tile print:d-none">Hidden when printed</div>
+        <div class="box print:d-none">Hidden when printed</div>
       </div>
       <div class="spec-hint">Open print preview (<kbd>Ctrl</kbd>+<kbd>P</kbd>) — this tile is gone.</div>
     </div>
 
     <div class="row-spec">
-      <div class="spec-class"><span>forced-colors:border-2</span></div>
+      <div class="spec-class"><span>forced-colors:fw-bold</span></div>
       <div class="spec-demo">
-        <div class="tile forced-colors:border-2">Thicker border in forced-colors mode</div>
+        <div class="tile forced-colors:fw-bold">Bold in forced-colors mode</div>
       </div>
       <div class="spec-hint">Only visible with Windows High Contrast enabled.</div>
     </div>
@@ -449,7 +487,7 @@ kbd {
     <div class="row-spec">
       <div class="spec-class"><span>rtl:text-end</span></div>
       <div class="spec-demo">
-        <div dir="rtl"><div class="tile rtl:text-end">dir="rtl" on the parent</div></div>
+        <div dir="rtl"><div class="box rtl:text-end">dir="rtl" on the parent</div></div>
       </div>
       <div class="spec-hint">Static. Aligns to the right inside an RTL ancestor.</div>
     </div>
@@ -457,7 +495,7 @@ kbd {
     <div class="row-spec">
       <div class="spec-class"><span>ltr:text-start</span></div>
       <div class="spec-demo">
-        <div class="tile ltr:text-start">dir="ltr" inherited from &lt;html&gt;</div>
+        <div class="box ltr:text-start">dir="ltr" inherited from &lt;html&gt;</div>
       </div>
       <div class="spec-hint">Static. The complementary case.</div>
     </div>
