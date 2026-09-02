@@ -49,6 +49,23 @@ export default function BuildPipelinePage() {
         If nothing changed, Strata returns the cached CSS string — zero allocation.
       </p>
 
+      <h2 className="mt-4 mb-3">Minification</h2>
+      <p className="mb-3">
+        <code>--minify</code> runs a fixed cascade, never &quot;whichever output is smaller&quot;:
+        a <code>minifier</code> set in <a href="/guides/configuration">config</a> is honoured
+        exactly, otherwise Lightning CSS runs first, falling back to cssnano on a missing
+        package, a parse failure, or a dropped declaration, and finally shipping unminified CSS
+        if neither is installed. Each fallback is announced with the reason.
+      </p>
+      <Callout variant="tip" title="Why not just pick the smaller output?">
+        Strata always enables <code>errorRecovery</code>, so a legacy CSS hack can never kill
+        your build — but a recovered parse error is treated as a failure, since the smaller
+        output is smaller precisely because something you wrote got deleted. See{" "}
+        <a href="/guides/configuration">Configuration</a> for the <code>minifier</code>/
+        <code>targets</code> options. This cascade only applies to the CLI — under Vite, Next,
+        or webpack the PostCSS plugin path is used and the bundler minifies instead.
+      </Callout>
+
       <h2 className="mt-4 mb-3">CSS Layers</h2>
       <p className="mb-3">
         Layer declaration order controls cascade priority — source order in your HTML never
