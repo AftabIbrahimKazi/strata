@@ -10,6 +10,7 @@ const STATIC_ROUTES = [
   "/docs",
   "/blogs",
   "/showcase",
+  "/roadmap",
   "/guides/installation",
   "/guides/configuration",
   "/guides/build-pipeline",
