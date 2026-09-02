@@ -46,10 +46,34 @@ export function getLatestFeatures(count = 3): WhatsNewItem[] {
     for (const bullet of bullets) {
       if (items.length >= count) break;
       const firstLine = bullet.replace(/^- /, "").split("\n")[0].trim();
-      const titleMatch = firstLine.match(/\*\*(.+?)\*\*/);
-      const title = titleMatch ? titleMatch[1].replace(/`/g, "") : firstLine.slice(0, 60);
-      let description = firstLine.replace(/\*\*(.+?)\*\*/, "").replace(/`/g, "").trim();
-      description = description.replace(/^[.\s-]+/, "");
+
+      let title: string;
+      let description: string;
+
+      const boldMatch = firstLine.match(/\*\*(.+?)\*\*/);
+      const dashSplit = firstLine.match(/^(.+?)\s+—\s+(.+)$/);
+
+      if (boldMatch) {
+        // "**Bold lead-in**, rest of the sentence." — the common case.
+        title = boldMatch[1].replace(/`/g, "");
+        description = firstLine
+          .replace(/\*\*(.+?)\*\*/, "")
+          .replace(/`/g, "")
+          .replace(/^[.,\s-]+/, "")
+          .trim();
+      } else if (dashSplit) {
+        // "`path/or/label` — description." — no bold marker, split on the em dash instead
+        // of falling back to a raw character slice (which used to cut mid-word and leave
+        // backticks in the title, then repeat the whole sentence again as the description).
+        title = dashSplit[1].replace(/`/g, "").trim();
+        description = dashSplit[2].replace(/`/g, "").trim();
+      } else {
+        // No structural marker at all — truncate at a word boundary rather than mid-word.
+        const clean = firstLine.replace(/`/g, "");
+        title = clean.length > 60 ? clean.slice(0, 60).replace(/\s+\S*$/, "") + "…" : clean;
+        description = clean;
+      }
+
       if (description.length > BRIEF_LENGTH) {
         description = description.slice(0, BRIEF_LENGTH).replace(/\s+\S*$/, "") + "…";
       }
