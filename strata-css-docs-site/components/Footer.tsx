@@ -10,6 +10,7 @@ const COLUMNS: { heading: string; links: { label: string; href: string; external
       { label: "Installation", href: "/guides/installation" },
       { label: "Configuration", href: "/guides/configuration" },
       { label: "Utilities", href: "/utilities/spacing" },
+      { label: "Roadmap", href: "/roadmap" },
     ],
   },
   {
