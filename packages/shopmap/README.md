@@ -25,14 +25,18 @@ npx @strata-packages/shopmap init
 ```
 
 ```html
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" />
-<script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6/dist/maplibre-gl.css" />
 <script src="https://unpkg.com/pmtiles@3/dist/pmtiles.js"></script>
 <script src="https://unpkg.com/@strata-packages/shopmap/dist/shopmap.umd.js"></script>
 
 <div id="map" style="width:100%;height:400px"></div>
 
-<script>
+<script type="module">
+  // MapLibre GL JS v6+ ships ESM-only — no more global <script src> build.
+  // Import it and assign the global shopmap's UMD build still expects.
+  const maplibregl = await import('https://unpkg.com/maplibre-gl@6/dist/maplibre-gl.mjs')
+  window.maplibregl = maplibregl
+
   const map = new ShopMap.ShopMap('#map', {
     location: { lat: 12.9716, lng: 77.5946 },
     tiles: 'https://tiles.openfreemap.org/styles/liberty',
@@ -40,6 +44,8 @@ npx @strata-packages/shopmap init
   })
 </script>
 ```
+
+> **Using MapLibre GL JS v4 or v5 instead?** Those still ship a UMD global build — use `<script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>` in place of the module block above and drop the `window.maplibregl` assignment; shopmap picks up the global either way.
 
 ---
 

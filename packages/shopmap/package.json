@@ -1,6 +1,6 @@
 {
   "name": "@strata-packages/shopmap",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Lightweight, theme-aware map component with terrain, hypsometric tinting, and procedural hillshading. Zero API keys. Free for commercial use.",
   "license": "MIT",
   "main": "dist/shopmap.cjs.js",
@@ -53,7 +53,7 @@
     "url": "https://github.com/AftabIbrahimKazi/strata/issues"
   },
   "dependencies": {
-    "maplibre-gl": "^4.7.1",
+    "maplibre-gl": "^6.10.0",
     "pmtiles": "^3.2.1"
   },
   "devDependencies": {

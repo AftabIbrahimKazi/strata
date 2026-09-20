@@ -345,14 +345,20 @@ export class ShopMapRenderer {
     for (const layer of layers) {
       const l = layer as { id: string; paint?: Record<string, unknown>; layout?: Record<string, unknown> }
       try {
+        // MapLibre 6 narrowed setPaintProperty/setLayoutProperty's name param
+        // to a literal union (AllPaintProperties/AllLayoutProperties, from
+        // @maplibre/maplibre-gl-style-spec — not re-exported by maplibre-gl
+        // itself). `prop` here is whatever key the theme's own generated
+        // style object happens to have, so it can't be narrowed to that
+        // literal type.
         if (l.paint) {
           for (const [prop, val] of Object.entries(l.paint)) {
-            this.map.setPaintProperty(l.id, prop, val)
+            this.map.setPaintProperty(l.id, prop as any, val)
           }
         }
         if (l.layout) {
           for (const [prop, val] of Object.entries(l.layout)) {
-            this.map.setLayoutProperty(l.id, prop, val as string)
+            this.map.setLayoutProperty(l.id, prop as any, val)
           }
         }
       } catch {
