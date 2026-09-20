@@ -42,3 +42,20 @@ declare module "@strata-packages/cursorfx/presets/magnetic" {
   const preset: CursorFxPreset;
   export default preset;
 }
+
+declare module "@strata-packages/cursorfx/presets/smoke" {
+  const preset: CursorFxPreset;
+  export default preset;
+}
+
+/**
+ * The particle pipeline and its behaviour files are imported purely for their
+ * side effects — loading one registers it with the pipeline. Nothing here
+ * consumes a value from them, so they're declared without a meaningful shape.
+ * Smoke is a recipe over these three; without them its behaviour registry is
+ * empty and mounting it does nothing.
+ */
+declare module "@strata-packages/cursorfx/particles";
+declare module "@strata-packages/cursorfx/behaviours/origin/pointer";
+declare module "@strata-packages/cursorfx/behaviours/motion/curl";
+declare module "@strata-packages/cursorfx/behaviours/render/puff";
