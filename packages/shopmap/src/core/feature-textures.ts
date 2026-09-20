@@ -269,8 +269,13 @@ export function removeFeatureTextures(
   for (const [id, { prop, pattern, val }] of saved) {
     if (!map.getLayer(id)) continue
     try {
-      map.setPaintProperty(id, pattern, null)
-      if (val !== undefined && val !== null) map.setPaintProperty(id, prop, val)
+      // MapLibre 6 narrowed setPaintProperty's name param to a literal union
+      // (AllPaintProperties, from @maplibre/maplibre-gl-style-spec — not
+      // re-exported by maplibre-gl itself). `prop`/`pattern` are genuinely
+      // dynamic here (recorded from whichever paint property this feature
+      // last touched), so they can't be narrowed to that literal type.
+      map.setPaintProperty(id, pattern as any, null)
+      if (val !== undefined && val !== null) map.setPaintProperty(id, prop as any, val)
     } catch { /* ok */ }
   }
   saved.clear()
