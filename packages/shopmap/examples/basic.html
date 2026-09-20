@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ShopMap — Basic Example</title>
 
-  <!-- MapLibre GL JS (CDN) -->
-  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" />
-  <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+  <!-- MapLibre GL JS (CDN) — v6+ ships ESM-only, imported below -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6/dist/maplibre-gl.css" />
   <!-- PMTiles protocol -->
   <script src="https://unpkg.com/pmtiles@3/dist/pmtiles.js"></script>
   <!-- ShopMap UMD build -->
@@ -87,7 +86,13 @@
     <button id="btn-3d"      data-st-active="false">3D</button>
   </div>
 
-  <script>
+  <script type="module">
+    // v6+ dropped the UMD/global maplibre-gl build (ESM-only now) — resolve
+    // it via dynamic import and assign the window global shopmap's UMD
+    // build still expects, before constructing ShopMap.
+    const maplibregl = await import('https://unpkg.com/maplibre-gl@6/dist/maplibre-gl.mjs')
+    window.maplibregl = maplibregl
+
     const map = new ShopMap.ShopMap('#map', {
       location: { lat: 51.5074, lng: -0.1278 },  // London
       tiles: 'https://tiles.openfreemap.org/planet/{z}/{x}/{y}.pbf',

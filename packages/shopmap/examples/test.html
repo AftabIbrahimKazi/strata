@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ShopMap — Full Customization Test</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" />
-  <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+  <!-- MapLibre GL JS (CDN) — v6+ ships ESM-only, imported in the main script below -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6/dist/maplibre-gl.css" />
   <script src="https://unpkg.com/pmtiles@3/dist/pmtiles.js"></script>
   <script src="../dist/shopmap.umd.js"></script>
 
@@ -721,7 +721,13 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    // v6+ dropped the UMD/global maplibre-gl build (ESM-only now) — resolve
+    // it via dynamic import and assign the window global shopmap's UMD
+    // build still expects, before constructing ShopMap.
+    const maplibregl = await import('https://unpkg.com/maplibre-gl@6/dist/maplibre-gl.mjs')
+    window.maplibregl = maplibregl
+
     // ── Logging ──
     const logEl = document.getElementById('log')
 
