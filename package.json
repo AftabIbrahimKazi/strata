@@ -99,6 +99,6 @@
     "cssnano": "^8.0.5",
     "lightningcss": "^1.33.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }
