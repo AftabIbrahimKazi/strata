@@ -33,6 +33,19 @@ html {
   scroll-padding-top: 6rem;
 }
 
+/* Glass header — used only on the 3D redesign hero, where there's an actual
+   sky/scene behind it worth seeing through. Uses var(--st-bg)/var(--st-border)
+   rather than a fixed color so it re-tints with the site theme instead of
+   clashing with it the way a fixed rgba() would. (The hero's own sky no longer
+   changes: the rock is a baked-texture asset, so its lighting is locked to
+   match — see sky.ts's BAKED_MATCH_PRESET.) */
+.header-glass {
+  background: color-mix(in srgb, var(--st-bg) 45%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+  border-bottom-color: color-mix(in srgb, var(--st-border) 50%, transparent);
+}
+
 /* Plain-text link hover underline — adapted from a Uiverse.io design
    (by JaydipPrajapati1910). Applies only to links that are pure text:
    nav items, footer links, sidebar items, in-page anchors, prose links.
@@ -258,6 +271,106 @@ button {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--st-secondary);
+}
+
+/* ============================================================
+   3D hero overlay instrumentation (redesign hero only).
+   These cover the three things Strata deliberately has no utility
+   for: letter-spacing (cascades into sibling alignment, so it stays
+   custom CSS by design), @keyframes animation, and a focus-revealed
+   skip link.
+   ============================================================ */
+
+/* Survey-instrument labels. Wide tracking on small monospace caps is the
+   whole reason these read as equipment readouts rather than as small text.
+   The shadow is load-bearing, not decoration: this HUD sits over a scene that
+   runs from a blown-out midday sky to near-black rock, so pale text needs its
+   own contrast rather than borrowing it from whatever is behind. */
+.hero-hud-label {
+  letter-spacing: 0.14em;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.85),
+    0 0 12px rgba(0, 0, 0, 0.55);
+}
+
+.hero-tick {
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+}
+
+.hero-tick {
+  transition:
+    background-color 260ms var(--st-easing),
+    width 260ms var(--st-easing);
+}
+
+.hero-chevron {
+  color: var(--st-primary);
+  animation: hero-chevron-drift 2.2s var(--st-easing) infinite;
+}
+
+@keyframes hero-chevron-drift {
+  0%,
+  100% {
+    transform: translateY(-3px);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateY(3px);
+    opacity: 1;
+  }
+}
+
+/* The loading cover fades rather than cutting — the scene behind it is
+   already rendering by then, so a cut would flash a half-lit frame. */
+.hero-loading {
+  transition:
+    opacity 700ms var(--st-easing),
+    visibility 0s linear 700ms;
+}
+
+.hero-loading-done {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* The hero reserves 750vh of scroll. That's a long way to page past on a
+   keyboard, so offer a way over it — visible only when focused. */
+.skip-hero {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-hero:focus-visible {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1100;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  overflow: visible;
+  clip-path: none;
+  color: var(--st-text);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-border-radius, 6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-chevron {
+    animation: none;
+  }
+
+  .hero-loading {
+    transition: none;
+  }
 }
 
 /* ============================================================

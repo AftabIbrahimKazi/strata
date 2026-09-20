@@ -27,6 +27,12 @@
      amber as it passes, and the glow follows it. */
   --st-cfx-wave-peak-opacity: 1;
   --st-cfx-wave-glow-color: var(--st-primary);
+
+  /* Smoke — mounted only on the 3D redesign hero (see MarketingCursorFx).
+     Pale sand rather than white: it has to sit in the same airborne-dust
+     palette as the WebGL scene's own particulate, and pure white reads as
+     steam over a desert instead of as lifted dust. */
+  --st-cfx-smoke-color: #e8d4a0;
 }
 
 /* ─── Divider ────────────────────────────────────────────────
