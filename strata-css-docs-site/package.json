@@ -15,17 +15,24 @@
   "dependencies": {
     "@strata-packages/cursorfx": "^0.2.1",
     "@strata-packages/offcanvas": "^1.0.1",
+    "@triforge/compositor-core": "^0.1.2",
+    "@triforge/core-types": "^0.1.0",
+    "@triforge/curve-core": "^0.1.1",
+    "@triforge/keyframe": "^0.1.1",
+    "@triforge/shader-core": "^0.4.2",
     "marked": "^18.0.9",
-    "next": "16.3.0",
+    "next": "^16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "strata-css": "^1.9.0",
-    "swiper": "^14.1.0"
+    "swiper": "^14.1.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.185.4",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "typescript": "^5"
