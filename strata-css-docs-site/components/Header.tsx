@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
@@ -15,6 +16,10 @@ const NEAR_TOP_THRESHOLD = 120;
 const CURSOR_REVEAL_ZONE = 40;
 
 export default function Header() {
+  // Glass only on the 3D redesign hero — it reads as intentional there
+  // (translucent nav over an actual scene). Elsewhere there's just page
+  // background behind it, so bg-body (opaque) stays the default.
+  const isRedesignHero = usePathname() === "/redesign";
   const [nearTop, setNearTop] = useState(true);
   // Two independent reasons to stay revealed, tracked separately because they
   // disagree: proximity is only ever true in the top 40px, while the pointer
@@ -47,7 +52,7 @@ export default function Header() {
 
   return (
     <header
-      className="navbar sticky-top bg-body p-4 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide"
+      className={`navbar sticky-top p-4 d-flex flex-nowrap align-items-center justify-content-between gap-3 header-autohide ${isRedesignHero ? "header-glass" : "bg-body"}`}
       data-header-hidden={!visible}
       onMouseEnter={() => setOverHeader(true)}
       onMouseLeave={() => setOverHeader(false)}
