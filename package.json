@@ -28,6 +28,8 @@
     "build:chart": "tsc -p src/components/modules/chart/tsconfig.json",
     "test": "node bin/strata.js --build && node test/scanner.js && node test/dependency-tracking.js && node test/components-bundle.js && node test/cursorfx.js && node test/verify.js",
     "benchmark": "node --expose-gc benchmark/run.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "publish:stable": "npm publish --tag latest",
     "publish:beta": "npm publish --tag beta",
     "publish:skeleton": "npm publish --workspace packages/skeleton-loader --tag latest",
@@ -95,8 +97,11 @@
     }
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "autoprefixer": "^10.5.4",
     "cssnano": "^8.0.5",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
     "lightningcss": "^1.33.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.11"
