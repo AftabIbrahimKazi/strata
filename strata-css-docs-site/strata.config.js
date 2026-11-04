@@ -17,6 +17,10 @@ module.exports = {
   // built as `bg-[${hex}]` from a hex prop, so the literal never appears in
   // source; every hex value the guide's token tables actually pass in is listed
   // here instead.
+  // The five bg-[#hex] classes below cover LandingSections.tsx's LAYER_SECTIONS —
+  // each section's background is picked from a data array (`section.bgClass`),
+  // so the literal never appears directly inside a className attribute for the
+  // scanner to see, same as the Swatch case above.
   // The lists below cover the dedicated utilities pages (spacing, display,
   // flexbox, grid, sizing, typography, colors, borders, position, misc) —
   // every class there is passed via Playground's `classes` prop (not
@@ -91,5 +95,6 @@ module.exports = {
     'z-0 z-1 z-2 z-3 z-auto z-n1',
     'pe-none pe-auto user-select-all user-select-auto user-select-none',
     'float-start float-end float-none clearfix hstack vstack',
+    'bg-[#241b16] bg-[#201814] bg-[#1c1512] bg-[#17110e] bg-[#120d0a]',
   ],
 };

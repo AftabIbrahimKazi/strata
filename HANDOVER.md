@@ -1,178 +1,58 @@
 # Session Handover
 
-Last updated: 2026-09-02 (end of session)
+Updated: 2026-09-05 (end of session) · Branch: main
 
-## Read this first
+## Current state
 
-**Nothing is pushed.** `dev` is **28 commits ahead of `main`** and 26 ahead of
-`origin/dev`, all local. The instruction was explicit: do the documentation and
-release preparation, then **stop before pushing**. Push, branch sync, tags,
-GitHub releases and npm publish are the next session's first task, and were
-deliberately left undone.
+**strata-css 1.9.0 release cycle is fully closed** — PR #279 merged 2026-09-02, `main`/`beta`/`test`/`dev` all in sync as of that merge.
 
-**Versions are bumped but unpublished:**
+**The docs-site redesign hero at `/redesign`** (noindex, not linked from nav) is one continuous scroll sequence: orbit the "Finger of God" rock formation → dive underground → descend through **six** procedural strata to a molten core. Layer→concept mapping: upper crust=utilities, lower crust=components, upper mantle=arbitrary values, lower mantle=tokens, outer core=the cascade, inner core=the JIT engine. Lighting is **static** (see Decisions — the rock is a baked asset), with survey-instrument overlay UI: depth rail, LAT/LON+depth telemetry, scroll hint, real GLB load progress.
 
-| Package | was | now | npm still serves |
-|---|---|---|---|
-| `strata-css` | 1.8.17 | **1.9.0** | 1.8.17 |
-| `@strata-packages/cursorfx` | 0.2.0 | **0.2.1** | 0.2.0 |
-| `@strata-packages/chart` | 1.1.2 | **1.1.3** | 1.1.2 |
+**⚠️ All of this is still uncommitted, sitting directly on `main`.** Per the standing "no feature branches, commit to `dev`" rule this needs to go to `dev` first. Nothing has been committed across either session.
 
-`strata-css` gets a FEATURE bump for four `feat:` commits; the other two are
-fixes only. Per CONTRIBUTING.md neither number resets mid-era, so BUGFIX simply
-does not advance on a feature release.
+## Last session
 
-**PR [#276](https://github.com/AftabIbrahimKazi/strata/pull/276) is still open**
-(beta to main, cursorfx 0.2.0) and needs approval — GitHub forbids self-approval.
+- **Reversed the compositor-core verdict** (see Decisions) — the single most important finding; it un-blocks a package that was wrongly written off.
+- Rebuilt post-processing on `@triforge/compositor-core` (`CompositorOutput` + Bloom/ChromaticAberration/FilmGrain/Vignette); deleted the hand-written GLSL grade pass. User's directive: use triforge, not raw three/GLSL.
+- Rebuilt the strata materials as `@triforge/shader-core` node graphs (Musgrave erosion, Voronoi fracture, Bump relief, Blackbody→Emission for molten layers, AnimatedNoise for flow). **Bedding banding is not working — see Known issues.**
+- Rewrote the dust as a 3D curl field, porting the rationale from `@strata-packages/cursorfx`'s `motion/curl`; cursor motion injects a decaying, distance-falloff world-space gust. Mounted cursorfx's `smoke` preset on `/redesign` for the DOM-layer gassy drag.
+- Added overlay instrumentation (`HeroUI.tsx`), damped scroll-driven camera, pointer parallax, idle drift, rAF gating via IntersectionObserver, device tiering, and a focus-revealed skip link over the 970vh track.
+- Bugs found only by rendering and looking: camera path ended *inside* the core sphere (backface-culled → grey void); two independent scroll readers desynced and froze the HUD at 0; `keyframes[2]` indexed on a 2-keyframe track (crash); `FilmGrain` greyscale desaturating the whole frame.
 
-## The header bleed — SOLVED, and the old diagnosis was wrong
+## Decisions & why
 
-The bug that opened both sessions: during a LineWave run, scrolled page content
-showed through the header band, then cleared when the wave settled.
+- **~~`@triforge/compositor-core`'s DOF+Bloom pipeline is not used~~ — REVERSED 2026-09-04. That verdict was a misdiagnosis.** The "washes the whole frame into flat haze regardless of pass parameters" symptom reproduces *identically* with three's own stock `EffectComposer`, so it was never a compositor-core bug. Real cause: `UnrealBloomPass.threshold` is compared against **pre-tonemapped linear HDR luminance**, not a 0–1 display value. A daylit sky's linear radiance is far above 1.0, so compositor-core's defaults (`threshold: 0.8, strength: 1.5`) put essentially the whole sky over the line. The scene now renders through `CompositorOutput` (Bloom + ChromaticAberration + FilmGrain + Vignette) with bloom disabled above ground and a scene-referred threshold below. Two real upstream gaps found and worth fixing in triforge: (1) `BasePass.parameters` is documented as GSAP-animatable but the three backend bakes the values into the built pass at `compile()` and never stores the built object back, so post-compile mutation silently does nothing; (2) `FilmGrain({ greyscale: true })` maps to three's `FilmPass` `grayscale`, which desaturates the **entire frame**, not the noise.
+- **`PathFollow.getPosition(u, out)`'s `out` parameter is declared but not honored** — always returns a fresh `Vector3`. Use the return value directly (`camera.position.copy(pathFollow.getPosition(t))`), never rely on mutate-in-place.
+- **shader-core's compiled `PrincipledBSDF` materials don't auto-flip normals for `BackSide` geometry** the way stock three.js materials do — the underground layer cylinders needed their normal attributes flipped by hand, or lighting silently reads as zero regardless of light intensity.
+- **Skills are anti-pattern checklists, not generative tutorials** — every rule is indexed by observable symptom first (`debug-protocol`-style), because taste failures are almost always "avoid this specific mistake," not "follow this positive recipe." User's explicit framing.
+- **Glass header is scoped to `/redesign` only** (`usePathname() === "/redesign"`), not applied site-wide — it only makes sense with the 3D scene behind it; everywhere else keeps opaque `bg-body`. cursorfx `smoke` is scoped the same way, via `MarketingCursorFx`.
+- **Hero lighting is STATIC and must stay that way.** The rock is a baked/scanned photogrammetry asset — its shading is fixed at one sun angle inside its own texture, so no light-driven day/night switch can ever move its shadows. The old theme-driven day/dusk/night system was removed and `sky.ts` now holds a single `BAKED_MATCH_PRESET` tuned to match the baked lighting. Sell mood through sky/fog/exposure around it, never by lighting the rock differently. Do not reintroduce a theme-driven sky here.
+- **`data-st-visible` isn't trusted for the persistent hero overlays.** It drives the per-layer copy panels correctly, but on the hero copy and scroll hint the computed style repeatedly disagreed with the attribute (measured: `"false"` sitting at `opacity: 1`), leaving copy stacked. Those two are conditionally rendered instead. Worth a proper root-cause pass someday.
 
-**The previous handover's diagnosis was refuted.** It blamed `will-change` on the
-wave element and proposed `isolation: isolate` on the header as the next lever.
-Removing `will-change` could never have worked — **an animated transform is
-composited whether or not the hint is present**, so the promotion it was blamed
-for happens anyway. That is why the bug survived the "fix".
+## Known issues
 
-**Why it kept measuring clean:** `Page.captureScreenshot` forces a fresh raster
-and therefore *hides* compositing artefacts. Every measurement taken with it
-reported an intact header. `Page.startScreencast` delivers actual composited
-frames and is the correct instrument. This is now recorded in
-`.claude/skills/verify/SKILL.md`.
+- **⛔ Strata bedding bands do not render — the top open bug.** The layers read as fractured rock, not bedded strata, which is most of what was asked for. An isolation render (band colour alone into baseColor, no erosion/bump/mixes) comes back **flat**, both via `WaveTexture(BANDS)` fed a correct `vec3(0, worldY, 0)` *and* via an explicit `fract(y * scale)` built from `ShaderMath`. The same `Geometry.Position` drives the Musgrave and Voronoi in the same graph and those vary correctly, so the suspect is `SeparateXYZ` or `ColorRamp`-with-a-connected-`fac` inside shader-core, not the position input. Documented inline in `layers.ts`. Resume here.
+- **`MusgraveTexture` is unbounded** (returns values in the tens at detail 6). Everything treating it as a 0–1 modulator must clamp first — feeding it raw as `WaveTexture.distortion` shifted the band coordinate by whole periods and scrambled bedding into a leather texture.
+- `strata-css-docs-site/styles/strata.components.js` is still a tracked build artifact that goes dirty on every dev-server run (carried forward, never actioned — see Next steps).
+- Carried forward, unverified: `--st-light`/`--st-dark` contrast in dark theme (~1.9:1); `reg()` silently overwrites on duplicate registration; `chart.js` leaks globals; hover-gate variants unverified on real touch hardware.
 
-**The real mechanism:** the wave animates transform, opacity and a drop-shadow,
-so Chrome composites it for the length of each run. It sat inside an element that
-is `position: sticky` **and** carries its own transform (the show/hide translate).
-Promoting a child there can leave the ancestor rasterised at bounds that do not
-cover its own background.
+## Next steps
 
-**The fix that shipped:** the WaveRule was removed from the header entirely
-(`d97a62d`). The header falls back to the `.navbar` component's own
-`border-bottom`, which is what the wave replaced — and since LineWave is designed
-to be indistinguishable from a border at rest, the header looks the same. An
-earlier commit (`126094e`) promoted the header with `will-change: transform`
-instead; that was sound but was a permanent workaround carried for one decorative
-line, and removal was chosen. Every other WaveRule (Footer, DocsPrevNext, package
-pages) sits on a static container and is untouched.
-
-## What shipped this session
-
-### strata-css 1.9.0
-
-- **Lightning CSS is the default minifier**, cssnano the fallback, then
-  unminified — a fixed cascade, never "whichever is smaller". Two new config
-  keys, `minifier` and `targets`. The order is fixed because the two engines are
-  not interchangeable on the *author's* CSS: given `.legacy { *zoom: 1 }`
-  Lightning throws, or with `errorRecovery` drops the declaration, while cssnano
-  preserves it. A recovered parse error is treated as a **failure**, because the
-  smaller output is smaller precisely by deleting something of the author's.
-- `strata init` recommends `lightningcss` and writes a `strata:minify` script.
-
-### @strata-packages/cursorfx 0.2.1
-
-- **Targets may carry `pointer-events: none`.** The engine hit-tested with
-  `elementFromPoint`, which skips such elements, so a hit zone wide enough to
-  point at had to stay hit-testable and therefore swallowed clicks. Now matched
-  on geometry — but **only when the normal hit-test found nothing**, so it adds
-  matches and never changes one.
-- **LineWave ignored every theme token.** `line-wave.css` declared each knob's
-  default on `[data-st-cfx-wave]` itself, and a property set on an element
-  shadows the same property inherited from an ancestor — so an author's
-  `:root { --st-cfx-wave-color }` could never reach it. Defaults now live in
-  `var()` fallbacks at all 48 use sites. Reveal always did this correctly; the
-  LineWave test asserted a *declaration* rather than a fallback, so the test
-  written to catch this bug was pinning it in place.
-
-### @strata-packages/chart 1.1.3
-
-- **A top-level `class StrataChart` shadowed the public global.** The documented
-  standalone entry point threw `TypeError: StrataChart.create is not a function`.
-  Renamed to `ChartInstance`. Bundle users were unaffected because they reach it
-  as `Strata.Chart`, a property access — which is why it survived earlier audits.
-
-### Documentation and SEO
-
-- README documents variants, aspect-ratio and the minifier cascade — none of
-  which it mentioned at all — plus refreshed benchmarks.
-- CHANGELOG cut to 1.9.0, split sections merged, chart fix recorded.
-- **All nine package READMEs** got a docs-site deep link, an ecosystem
-  cross-link table and (for flipbook, shopmap) an install command. Only one of
-  nine previously linked to the docs site.
-- **Docs site gained `/utilities/variants` and `/utilities/aspect-ratio`** —
-  data-only additions to `content/utilities.json`, which drives the route,
-  metadata, canonical, sidebar, sitemap and the safelist. All 60 classes listed
-  were verified against the registry first.
-
-## Benchmarks — re-measured
-
-Same machine, same Node v24.12.0, same fixtures, same 100-run IQR methodology as
-the 2026-08-04 run, so the comparison is like for like:
-
-| Scenario | 2026-08-04 | now |
-|---|---|---|
-| Small (20 classes) | 1.80 ms | **0.39 ms** |
-| Medium (105 classes) | 2.00 ms | **0.64 ms** |
-| Large (487 classes) | 2.89 ms | **1.24 ms** |
-
-## Start here next session
-
-1. **Push and release.** `dev` to `test` to `beta` to `main`, tag `v1.9.0`,
-   GitHub releases, then `npm publish` for strata-css, cursorfx and chart.
-   PR #276 needs approval first.
-2. **Two local-only states will break on `npm install`** in the docs site: the
-   fixed `cursorfx.js` and `line-wave.css` were copied into its `node_modules`
-   by hand. Its `package.json` now asks for `^0.2.1` and `^1.9.0`, so publishing
-   resolves this permanently — until then, a docs-site build must use the repo's
-   own `bin/strata.js`.
-3. **Tomorrow's stated task:** update the portfolio site with these features.
-   Explicitly deferred from today.
-
-## Open — carried forward
-
-- **`--st-light` / `--st-dark` are inconsistent across themes.** Under
-  `[data-st-theme="dark"]`, `--st-light` stays `#f8f9fa` while `--st-dark`
-  becomes `#adb5bd`, so both are light surfaces and `bg-light` + `text-dark` is
-  about 1.9:1. `dim` inverts `--st-light` instead. Needs a decision, not more
-  investigation.
-- **`reg()` silently overwrites.** `text-white` and `text-black` are registered
-  twice with different values; the later call wins. Harmless today, cheap to warn.
-- **chart.js leaks four more top-level names** into global lexical scope
-  (`SceneManager`, `ChartViewTransition`, `InteractionManager`, plus consts).
-  None shadow a public API, so nothing is broken — but a consumer with their own
-  top-level `class SceneManager` gets a hard `SyntaxError`. Fixing means moving
-  everything inside the IIFE.
-- **The docs site's `styles/strata.components.js` is tracked but is a build
-  output** whose contents depend on where the build ran. It probably belongs in
-  `.gitignore`; it has been reverted by hand several times.
-- **The hover gate is unverified on real touch hardware.** Chrome's
-  `Emulation.setEmulatedMedia` does not honour the `hover` feature. Needs a phone.
-- **`CursorMorph` still interpolates in JS** — the last preset doing per-frame
-  style writes.
-- Search Console / Bing verification (needs the account owner).
+1. **Settle the shader-core banding bug** (Known issues). Cheapest path is a tiny standalone page testing `SeparateXYZ` and `ColorRamp`-with-connected-fac directly, away from this scene — it's the user's own library, so the fix likely pays off beyond the hero.
+2. **Replace the invented landing-page copy with the real content.** `LandingSections.tsx` was written with placeholder prose and should be **deleted**; the real sections already exist and are live at `/` — `components/marketing/{Hero,Introduction,PackagesGrid,WhatsNew,Roadmap,Ecosystem,LiveStats,Faq}.tsx`, with live data from `getLatestVersionInfo`, `getLatestFeatures`, `FAQS`. Layout/UI is free; the words come from those.
+3. **Seamless whole-page immersion** — every section should carry a 3D element and read as one continuous descent. The canvas is already `position-fixed` page-wide, so the blocker is that sections sit on opaque backgrounds; the plan is translucent panels over a scene that keeps evolving past the core. Note this removes the rAF gating added this session (the scene must stay visible) — offset with a reduced pixel ratio below the hero.
+4. **Commit everything to `dev`** (not `main`) — two sessions of uncommitted work: the 7 skills, the Hero3D tree, `/redesign`, and the docs-site dependency diffs.
+5. Decide on `strata-css-docs-site/styles/strata.components.js` in `.gitignore` (recurring noise, several sessions running).
 
 ## Standing decisions — do not re-litigate
 
-- **No `letter-spacing` utility, and no `lh-[…]` arbitrary form.** Both cascade
-  into sibling and descendant alignment; damage lands far from where it was
-  written. Line-height ships a closed named scale as the guardrail.
-- **Variants are classes, not data attributes.** `data-st-hover="a b"` measured
-  better but has dead zones — Shopify theme-editor class fields and Liquid
-  filters like `link_to` accept a class string and nothing else.
-- **Additive only.** A scanner or registry change may add matches; it may never
-  reinterpret or remove an existing token.
-- **Compression never decides correctness.** The minifier cascade is fixed
-  order, not smallest-wins, for exactly this reason.
-- "If something can be handled via CSS, rely on CSS — it costs less than JS."
+- No `letter-spacing` utility, no `lh-[…]` arbitrary form — both cascade into sibling/descendant alignment.
+- Variants are classes, not data attributes — dead zones in Shopify/Liquid contexts ruled the alternative out.
+- Additive only — a scanner/registry change may add matches, never reinterpret or remove one.
+- Compression never decides correctness — the minifier cascade is fixed order, not smallest-wins.
+- Not cutting `glob`/`chokidar`/`postcss`, not splitting the package Tailwind-style for a "0 deps" badge, not chasing the `cssnano` Socket alerts further — all investigated and declined (see `memory-bank`). Don't re-propose.
+- Never `taskkill`-by-name to close a verification browser — always target the specific launched instance's PID or its own CDP `Browser.close`. Killing by process name risks the user's real Chrome windows (happened once this project; see `3d-scene-verification`).
 
 ## Verification
 
-Read `.claude/skills/verify/SKILL.md` first. Traps that cost real time:
-`captureScreenshot` hides compositing artefacts (use `startScreencast`);
-`CSS.forcePseudoState` does not move `getComputedStyle` for rules inside a media
-query, and every `hover:` rule is one; the default headless viewport is short; a
-fixture outside the content globs is never scanned.
-
-Suites at the end of this session, all green: **verify 413**, scanner 60,
-**cursorfx 167**, components-bundle 16, dependency-tracking 12.
+For Strata build/CSS work: `.claude/skills/verify/SKILL.md` (screenshot vs. screencast, `hover:` media-query pseudo-state, content-glob coverage). For any 3D/WebGL work: `.claude/skills/3d-scene-verification/SKILL.md` — render and look, every time; a scene can have correct-looking values and a broken frame. For docs-site changes generally: start the real dev server, curl the actual route/payload — `tsc --noEmit` passing is necessary but not sufficient.

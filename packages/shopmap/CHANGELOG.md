@@ -6,6 +6,17 @@ Format: `MAJOR.FEATURE.BUGFIX` — FEATURE and BUGFIX never reset within a MAJOR
 
 ---
 
+## 0.2.2
+
+### Security
+
+- **`maplibre-gl` updated 4.7.1 → 6.10.0** — resolves a critical XSS sanitizer bypass in `DOM.sanitize()` ([GHSA-jrc7-96c5-q579](https://github.com/advisories/GHSA-jrc7-96c5-q579)), flagged by Dependabot on the pinned 4.x line.
+
+### Fixed
+
+- **`setPaintProperty`/`setLayoutProperty` calls updated for MapLibre 6's stricter typing.** v6 narrowed the property-name parameter from `string` to a literal union it doesn't export (`AllPaintProperties`/`AllLayoutProperties`, from `@maplibre/maplibre-gl-style-spec`). The four call sites in `feature-textures.ts` and `renderer.ts` pass genuinely dynamic property names (recorded from a feature's last-touched paint property, or read off a runtime-built theme style object), so they can't be narrowed to that literal type — fixed with narrow, commented casts at each site rather than a blanket `any`.
+- **README and both `examples/*.html` demos updated for MapLibre 6's ESM-only build.** v6 dropped the UMD/global script-tag build entirely; loading it via `<script src=".../maplibre-gl.js">` now 404s. All three now dynamically `import()` the `.mjs` build and assign `window.maplibregl` before constructing `ShopMap`, which is what shopmap's own UMD build still expects. A one-line note in the README covers projects still on MapLibre 4/5, which can keep the old `<script src>` form.
+
 ## 0.2.1
 
 ### Changed

@@ -72,7 +72,7 @@
   },
   "dependencies": {
     "chokidar": "^5.0.0",
-    "glob": "^13.0.6",
+    "glob": "^14.0.2",
     "postcss": "^8.5.26"
   },
   "overrides": {
@@ -99,6 +99,6 @@
     "cssnano": "^8.0.5",
     "lightningcss": "^1.33.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.12"
   }
 }

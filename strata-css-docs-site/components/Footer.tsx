@@ -54,7 +54,7 @@ const LEGAL_LINKS = [
 
 export default function Footer() {
   return (
-    <footer className="p-4 position-relative">
+    <footer className="p-4 position-relative bg-body">
       <WaveRule />
       <div className="container">
         <div className="row g-4 mb-4">
