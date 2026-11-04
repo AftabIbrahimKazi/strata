@@ -257,16 +257,16 @@ const LAYER_SECTIONS: LayerSectionData[] = [
     depth: "3.0 km",
     title: "Layer 05 — JIT generation at lightspeed.",
     desc: "Only what you use. Generated when it's needed. Always fast.",
-    chips: ["Files Scanned: 312", "Classes Generated: 842", "Build Time: ~120ms", "Cache Hit Rate: 98.7%"],
+    chips: ["Files Scanned: 84", "Classes Found: 341", "Build Time: ~93ms", "Cold Build, Large App: 1.24ms"],
     code: `strata-css v1.9.0
 Scanning content...
-Generated 842 classes.
-Build time: 120ms.
+Found 341 classes in 84 files.
+Build time: 93ms.
 Watching for changes...
 Ready.`,
     codeLang: "terminal",
     stats: [
-      ["Speed", "120ms"],
+      ["Speed", "93ms"],
       ["Waste", "0"],
     ],
     bgClass: "bg-[#120d0a]",

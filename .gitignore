@@ -31,3 +31,19 @@ examples/flipbook-3d-test.html
 # npm auth lives in the global ~/.npmrc. A repo-local one would hold a
 # publish token in plain text, one `git add -A` away from being pushed.
 .npmrc
+
+# Local AI tooling — not project source. ai-dev-kit/ is a nested git clone,
+# coding-standards/ its copied standards, .claude/ the installed skills and
+# commands, .ai-dev-kit.json the install manifest.
+ai-dev-kit/
+coding-standards/
+.claude/
+.ai-dev-kit.json
+
+# Session handover notes — local only; they list open security alerts.
+HANDOVER.md
+
+# AI-assistant notes — local only, not published or tracked.
+CLAUDE.md
+AGENTS.md
+packages/shopmap/layer-override-handover.md
