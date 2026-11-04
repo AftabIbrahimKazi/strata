@@ -569,8 +569,13 @@
 }
 
 /* magazine — landscape, glossy, dramatic shadow */
-.st-flipbook--magazine .st-flipbook-book {
+/* padding-bottom is scoped out of single-column layout: it ties in specificity
+   with the responsive single-layout ratio, and source order would otherwise let
+   this landscape ratio win over the portrait ratio single-layout requires. */
+.st-flipbook--magazine:not([data-st-flip-layout="single"]) .st-flipbook-book {
   padding-bottom: 38%;
+}
+.st-flipbook--magazine .st-flipbook-book {
   --st-flip-page-shadow: 0 2rem 6rem rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.2);
 }
 .st-flipbook--magazine .st-flipbook-scene { perspective: 2000px; }
@@ -585,8 +590,10 @@
 }
 
 /* paperback — portrait, cream pages, warm feel */
-.st-flipbook--paperback .st-flipbook-book {
+.st-flipbook--paperback:not([data-st-flip-layout="single"]) .st-flipbook-book {
   padding-bottom: 86%;
+}
+.st-flipbook--paperback .st-flipbook-book {
   --st-flip-page-bg:      #fffef0;
   --st-flip-blank-bg:     #f5f0e0;
   --st-flip-spine-shadow: rgba(100,60,20,0.22);
@@ -599,8 +606,10 @@
 }
 
 /* hardcover — portrait, heavier shadow, thicker visual weight */
-.st-flipbook--hardcover .st-flipbook-book {
+.st-flipbook--hardcover:not([data-st-flip-layout="single"]) .st-flipbook-book {
   padding-bottom: 78%;
+}
+.st-flipbook--hardcover .st-flipbook-book {
   --st-flip-page-bg:     #f8f4e8;
   --st-flip-blank-bg:    #e8e0cc;
   --st-flip-page-shadow: 0 2rem 8rem rgba(0,0,0,0.45), 0 0.5rem 2rem rgba(0,0,0,0.25);
@@ -618,8 +627,10 @@
 }
 
 /* comic — high contrast, slightly off-white, bold border */
-.st-flipbook--comic .st-flipbook-book {
+.st-flipbook--comic:not([data-st-flip-layout="single"]) .st-flipbook-book {
   padding-bottom: 92%;
+}
+.st-flipbook--comic .st-flipbook-book {
   --st-flip-page-bg:      #faf6f0;
   --st-flip-blank-bg:     #ede8df;
   --st-flip-page-border:  #444;
