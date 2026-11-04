@@ -1,12 +1,14 @@
 # @strata-packages/flipbook — Changelog
 
-## Unreleased
+## 1.5.6
 
 ### Fixed
 
 - **Single-layout pagination.** `computeSpreads()` always paired two content pages per spread, so with `data-st-flip-layout="single"` (set automatically when the container is under 500px) every odd-indexed page was hidden.
 - **Preset aspect-ratio no longer applies in single layout**, where it raced the layout switch.
 - **`aria-label` now reflects the active layout.**
+
+Three bugs fixed, so the BUGFIX count moves 1.5.3 → 1.5.6.
 
 Known: flip-animation front/back-face logic is untouched and untested.
 

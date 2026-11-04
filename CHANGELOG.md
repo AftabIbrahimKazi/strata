@@ -4,6 +4,12 @@ All notable changes to Strata CSS will be documented here.
 
 ## [Unreleased]
 
+## [1.9.1] — 2026-11-04
+
+### Security
+
+- **Bumped `glob` from ^13 to ^14.0.2.** Published 1.9.0 depended on glob ^13, which carries a known advisory; installs of this release resolve the patched line. The scanner's glob usage is unchanged.
+
 ## [1.9.0] — 2026-09-02
 
 ### Added

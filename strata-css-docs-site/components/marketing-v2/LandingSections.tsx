@@ -258,7 +258,7 @@ const LAYER_SECTIONS: LayerSectionData[] = [
     title: "Layer 05 — JIT generation at lightspeed.",
     desc: "Only what you use. Generated when it's needed. Always fast.",
     chips: ["Files Scanned: 84", "Classes Found: 341", "Build Time: ~93ms", "Cold Build, Large App: 1.24ms"],
-    code: `strata-css v1.9.0
+    code: `strata-css v1.9.1
 Scanning content...
 Found 341 classes in 84 files.
 Build time: 93ms.
