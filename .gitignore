@@ -32,11 +32,13 @@ examples/flipbook-3d-test.html
 # publish token in plain text, one `git add -A` away from being pushed.
 .npmrc
 
-# ai-dev-kit install-kit scaffolding — local dev tooling, not project source.
-# ai-dev-kit/ is itself a nested git clone; coding-standards/ is its copied
-# standards folder. .claude/ is NOT ignored — it's already pushed to main.
+# Local AI tooling — not project source. ai-dev-kit/ is a nested git clone,
+# coding-standards/ its copied standards, .claude/ the installed skills and
+# commands, .ai-dev-kit.json the install manifest.
 ai-dev-kit/
 coding-standards/
+.claude/
+.ai-dev-kit.json
 
 # Session handover notes — local only; they list open security alerts.
 HANDOVER.md
