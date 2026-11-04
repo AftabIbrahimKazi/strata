@@ -36,5 +36,11 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "glob": "^14.0.2",
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.1"
+    }
   }
 }
