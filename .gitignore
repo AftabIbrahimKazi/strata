@@ -31,3 +31,9 @@ examples/flipbook-3d-test.html
 # npm auth lives in the global ~/.npmrc. A repo-local one would hold a
 # publish token in plain text, one `git add -A` away from being pushed.
 .npmrc
+
+# ai-dev-kit install-kit scaffolding — local dev tooling, not project source.
+# ai-dev-kit/ is itself a nested git clone; coding-standards/ is its copied
+# standards folder. .claude/ is NOT ignored — it's already pushed to main.
+ai-dev-kit/
+coding-standards/
