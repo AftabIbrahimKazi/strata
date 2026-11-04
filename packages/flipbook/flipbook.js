@@ -94,7 +94,12 @@
   // Spread N  : [2N-1, 2N]          — inner spreads
   // Last      : [last, null]        — back cover if odd page count after cover
 
-  function computeSpreads(count) {
+  function computeSpreads(count, singlePage) {
+    if (singlePage) {
+      var single = []
+      for (var p = 0; p < count; p++) single.push([null, p])
+      return single
+    }
     var s = [[null, 0]]
     var i = 1
     while (i < count) {
@@ -397,7 +402,7 @@
         container.setAttribute('data-st-flip-loading', 'false')
         return
       }
-      spreads = computeSpreads(pages.length)
+      spreads = computeSpreads(pages.length, container.getAttribute('data-st-flip-layout') === 'single')
       container.setAttribute('data-st-flip-total',   spreads.length)
       container.setAttribute('data-st-flip-loading', 'false')
       container.setAttribute('data-st-flip-open',    'true')
@@ -460,7 +465,11 @@
     function syncUI() {
       var total = spreads.length
       var cur   = currentSpread
-      if (counter)   { counter.textContent = (cur + 1) + ' / ' + total; counter.setAttribute('aria-label', 'Spread ' + (cur + 1) + ' of ' + total) }
+      if (counter)   {
+        var unit = container.getAttribute('data-st-flip-layout') === 'single' ? 'Page' : 'Spread'
+        counter.textContent = (cur + 1) + ' / ' + total
+        counter.setAttribute('aria-label', unit + ' ' + (cur + 1) + ' of ' + total)
+      }
       if (pageInput) { pageInput.value = cur + 1; pageInput.max = total }
       var atStart = !opts.loop && cur === 0
       var atEnd   = !opts.loop && cur === total - 1
@@ -904,11 +913,41 @@
     })
 
     // ── ResizeObserver — switches spread ↔ single layout ──────────────────────
+    // Single layout shows one real page per turn instead of a two-page spread, so
+    // the spread pairing itself must be rebuilt on each switch — otherwise every
+    // other content page stays loaded but permanently unreachable (hidden by the
+    // single-layout CSS, yet never its own spread).
+
+    function findSpreadForPage(pageIdx) {
+      for (var i = 0; i < spreads.length; i++) {
+        if (spreads[i][0] === pageIdx || spreads[i][1] === pageIdx) return i
+      }
+      return 0
+    }
+
+    function rebuildSpreadsForLayout(layout) {
+      var curSpread  = spreads[currentSpread] || [null, 0]
+      var anchorPage = curSpread[1] !== null ? curSpread[1] : (curSpread[0] !== null ? curSpread[0] : 0)
+      spreads = computeSpreads(pages.length, layout === 'single')
+      currentSpread = findSpreadForPage(anchorPage)
+      container.setAttribute('data-st-flip-total', spreads.length)
+      container.setAttribute('data-st-flip-page',  currentSpread + 1)
+      renderSpread(currentSpread)
+      updateSoloState()
+      buildDots()
+      buildThumbs()
+      syncUI()
+    }
 
     if (typeof ResizeObserver !== 'undefined') {
       resizeObs = new ResizeObserver(function (entries) {
         var w = entries[0].contentRect.width
-        container.setAttribute('data-st-flip-layout', w < 500 ? 'single' : 'spread')
+        var newLayout = w < 500 ? 'single' : 'spread'
+        var oldLayout = container.getAttribute('data-st-flip-layout')
+        if (newLayout === oldLayout) return
+        container.setAttribute('data-st-flip-layout', newLayout)
+        // Skip mid-flip — the next stable resize will reconcile the pairing.
+        if (pages.length && !turning) rebuildSpreadsForLayout(newLayout)
       })
       resizeObs.observe(scene)
     }
