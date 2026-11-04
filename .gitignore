@@ -37,3 +37,6 @@ examples/flipbook-3d-test.html
 # standards folder. .claude/ is NOT ignored — it's already pushed to main.
 ai-dev-kit/
 coding-standards/
+
+# Session handover notes — local only; they list open security alerts.
+HANDOVER.md
