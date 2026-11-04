@@ -24,7 +24,7 @@ import { useEffect } from "react";
  * silently disable the per-theme tuning that file does.
  */
 
-type PresetKey = "reveal" | "line-wave";
+type PresetKey = "reveal" | "line-wave" | "smoke";
 
 type Options = Record<string, string | number | boolean>;
 
@@ -54,24 +54,44 @@ export default function CursorFx({ presets }: { presets: Partial<Record<PresetKe
     let engine: CursorFxEngine | null = null;
     let cancelled = false;
 
-    Promise.all([
-      import("@strata-packages/cursorfx"),
-      wanted.reveal ? import("@strata-packages/cursorfx/presets/reveal") : null,
-      wanted["line-wave"] ? import("@strata-packages/cursorfx/presets/line-wave") : null,
-    ]).then(([core, ...loaded]) => {
-      if (cancelled) return;
+    // Smoke is a *recipe* rather than a self-contained preset: it names an
+    // origin/motion/render triple and the behaviour files self-register when
+    // loaded. The preset module pulls in particles.js on its own but not the
+    // three behaviours, so they have to be imported explicitly or mounting it
+    // finds an empty behaviour registry. They're side-effect imports — nothing
+    // consumes their return value.
+    const behaviours = wanted.smoke
+      ? Promise.all([
+          import("@strata-packages/cursorfx/particles"),
+          import("@strata-packages/cursorfx/behaviours/origin/pointer"),
+          import("@strata-packages/cursorfx/behaviours/motion/curl"),
+          import("@strata-packages/cursorfx/behaviours/render/puff"),
+        ])
+      : Promise.resolve(null);
 
-      const fx = unwrap(core);
-      engine = fx;
-      fx.init();
+    behaviours
+      .then(() =>
+        Promise.all([
+          import("@strata-packages/cursorfx"),
+          wanted.reveal ? import("@strata-packages/cursorfx/presets/reveal") : null,
+          wanted["line-wave"] ? import("@strata-packages/cursorfx/presets/line-wave") : null,
+          wanted.smoke ? import("@strata-packages/cursorfx/presets/smoke") : null,
+        ])
+      )
+      .then(([core, ...loaded]) => {
+        if (cancelled) return;
 
-      for (const mod of loaded) {
-        if (!mod) continue;
-        const preset = unwrap(mod);
-        fx.use(preset);
-        fx.mount(preset, wanted[preset.key as PresetKey] ?? {});
-      }
-    });
+        const fx = unwrap(core);
+        engine = fx;
+        fx.init();
+
+        for (const mod of loaded) {
+          if (!mod) continue;
+          const preset = unwrap(mod);
+          fx.use(preset);
+          fx.mount(preset, wanted[preset.key as PresetKey] ?? {});
+        }
+      });
 
     return () => {
       cancelled = true;
