@@ -1,11 +1,11 @@
 {
   "name": "@strata-packages/flipbook",
-  "version": "1.5.3",
+  "version": "1.5.6",
   "description": "PDF and HTML flipbook viewer with page-flip animation. Works standalone or with Strata CSS.",
   "main": "flipbook.js",
   "style": "flipbook.css",
   "exports": {
-    ".":     "./flipbook.js",
+    ".": "./flipbook.js",
     "./css": "./flipbook.css"
   },
   "files": [
@@ -34,15 +34,23 @@
     "url": "https://github.com/AftabIbrahimKazi/strata/issues"
   },
   "peerDependencies": {
-    "strata-css":   ">=1.0.0",
-    "pdfjs-dist":   ">=3.0.0",
-    "html2canvas":  ">=1.4.0",
-    "pdf-lib":      ">=1.17.0"
+    "strata-css": ">=1.0.0",
+    "pdfjs-dist": ">=3.0.0",
+    "html2canvas": ">=1.4.0",
+    "pdf-lib": ">=1.17.0"
   },
   "peerDependenciesMeta": {
-    "strata-css":  { "optional": true },
-    "pdfjs-dist":  { "optional": true },
-    "html2canvas": { "optional": true },
-    "pdf-lib":     { "optional": true }
+    "strata-css": {
+      "optional": true
+    },
+    "pdfjs-dist": {
+      "optional": true
+    },
+    "html2canvas": {
+      "optional": true
+    },
+    "pdf-lib": {
+      "optional": true
+    }
   }
 }
